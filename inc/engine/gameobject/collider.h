@@ -5,7 +5,6 @@
 #include "rect.h"
 #include "vector.h"
 
-
 using std::vector;
 
 class Collider

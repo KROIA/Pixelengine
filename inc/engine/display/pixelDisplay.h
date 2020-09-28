@@ -4,6 +4,7 @@
 #include "SFML/Graphics.hpp"
 #include "vector"
 #include "point.h"
+#include "pixel.h"
 
 using sf::Color;
 using sf::RenderWindow;
@@ -24,13 +25,15 @@ struct KeyEvent{
 class PixelDisplay
 {
     public:
-        PixelDisplay(Point windowSize, Point pixelSize);
+        PixelDisplay(const PointU &windowSize, const PointU &pixelSize);
         PixelDisplay(const PixelDisplay &other);
         virtual ~PixelDisplay();
 
         virtual void display();
 
-        virtual void setPixel(Point pixel,Color color);
+        virtual void setPixel(const PointU &pos, const Color &color);
+        virtual void setPixel(const Pixel &pixel);
+        virtual void setPixel(const vector<Pixel> &pixelList);
 
         virtual bool isOpen() const;
 
@@ -41,8 +44,8 @@ class PixelDisplay
     protected:
 
 
-        Point m_windowSize;
-        Point m_pixelSize;
+        PointU m_windowSize;
+        PointU m_pixelSize;
 
         RenderWindow *m_renderWindow;
         View m_windowView;

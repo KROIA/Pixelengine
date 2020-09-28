@@ -1,6 +1,6 @@
 #include "pixelDisplay.h"
 
-PixelDisplay::PixelDisplay(Point windowSize, Point pixelSize)
+PixelDisplay::PixelDisplay(const PointU &windowSize, const PointU &pixelSize)
 {
     m_windowSize = windowSize;
     m_pixelSize  = pixelSize;
@@ -41,13 +41,25 @@ void PixelDisplay::display()
     m_renderWindow->display();
 }
 
-void PixelDisplay::setPixel(Point pixel,Color color)
+void PixelDisplay::setPixel(const PointU &pos, const Color &color)
+{
+    if(pos.getX() >= m_pixelSize.getX() || pos.getY() >= m_pixelSize.getY())
+        return;
+    m_image.setPixel(pos.getX(),pos.getY(),color);
+}
+void PixelDisplay::setPixel(const Pixel &pixel)
 {
     if(pixel.getX() >= m_pixelSize.getX() || pixel.getY() >= m_pixelSize.getY())
         return;
-    m_image.setPixel(pixel.getX(),pixel.getY(),color);
+    m_image.setPixel(pixel.getX(),pixel.getY(),pixel);
 }
-
+void PixelDisplay::setPixel(const vector<Pixel> &pixelList)
+{
+    for(size_t i=0; i<pixelList.size(); i++)
+    {
+        this->setPixel(pixelList[i]);
+    }
+}
 bool PixelDisplay::isOpen() const
 {
     return m_renderWindow->isOpen();
@@ -90,6 +102,30 @@ bool PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
                 m_renderWindow->setSize(size);
                 break;
             }
+            case sf::Event::LostFocus:{break;}
+            case sf::Event::GainedFocus:{break;}
+            case sf::Event::TextEntered:{break;}
+            case sf::Event::KeyPressed:{break;}
+            case sf::Event::KeyReleased:{break;}
+            case sf::Event::MouseWheelMoved:{break;}
+            case sf::Event::MouseWheelScrolled:{break;}
+            case sf::Event::MouseButtonPressed:{break;}
+            case sf::Event::MouseButtonReleased:{break;}
+            case sf::Event::MouseMoved:{break;}
+            case sf::Event::MouseEntered:{break;}
+            case sf::Event::MouseLeft:{break;}
+            case sf::Event::JoystickButtonPressed:{break;}
+            case sf::Event::JoystickButtonReleased:{break;}
+            case sf::Event::JoystickMoved:{break;}
+            case sf::Event::JoystickConnected:{break;}
+            case sf::Event::JoystickDisconnected:{break;}
+            case sf::Event::TouchBegan:{break;}
+            case sf::Event::TouchMoved:{break;}
+            case sf::Event::TouchEnded:{break;}
+            case sf::Event::SensorChanged:{break;}
+
+            case sf::Event::Count:{break;}
+            default:{break;}
 
         }
 

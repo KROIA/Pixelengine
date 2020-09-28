@@ -49,11 +49,12 @@ srcPath = src
 INCLUDEPATH += $$incPath \
                $$incPath/engine \
                $$incPath/engine/utility \
-               $$incPath/engine/gameobject
+               $$incPath/engine/gameobject \
+               $$incPath/engine/display
 
 SOURCES += \
         main.cpp \
-        $$srcPath/engine/pixelDisplay.cpp \
+        $$srcPath/engine/display/pixelDisplay.cpp \
         $$srcPath/engine/utility/point.cpp \
         $$srcPath/engine/utility/vector.cpp \
         $$srcPath/engine/utility/timer.cpp \
@@ -61,10 +62,11 @@ SOURCES += \
         $$srcPath/engine/gameobject/painter.cpp \
         $$srcPath/engine/gameobject/controller.cpp \
         $$srcPath/engine/utility/rect.cpp \
-        $$srcPath/engine/pixelengine.cpp
+        $$srcPath/engine/pixelengine.cpp \
+        $$srcPath/engine/display/pixel.cpp
 
 HEADERS += \
-        $$incPath/engine/pixelDisplay.h \
+        $$incPath/engine/display/pixelDisplay.h \
         $$incPath/engine/utility/point.h \
         $$incPath/engine/utility/vector.h \
         $$incPath/engine/utility/timer.h \
@@ -72,7 +74,8 @@ HEADERS += \
         $$incPath/engine/gameobject/painter.h \
         $$incPath/engine/gameobject/controller.h \
         $$incPath/engine/utility/rect.h \
-        $$incPath/engine/pixelengine.h
+        $$incPath/engine/pixelengine.h \
+        $$incPath/engine/display/pixel.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
