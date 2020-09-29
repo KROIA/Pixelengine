@@ -1,6 +1,7 @@
 #ifndef PAINTER_H
 #define PAINTER_H
 
+#include "layeritem.h"
 #include "SFML/Graphics.hpp"
 #include "pixelDisplay.h"
 #include "pixel.h"
@@ -9,7 +10,7 @@
 
 using std::vector;
 
-class Painter
+class Painter   :   public  LayerItem
 {
     public:
         Painter();
@@ -17,16 +18,16 @@ class Painter
 
         virtual ~Painter();
 
+        virtual void addPixel(const Pixel &pixel);
+
         virtual void draw(PixelDisplay &display);
 
         virtual void setPos(const Point &pos);
         virtual void setPos(const int &x, const int &y);
-        virtual const Point &getPos() const;
 
     protected:
-
-    private:
-        Point m_bodyPos;
         vector<Pixel> m_pixelList;
+    private:
+
 };
 #endif

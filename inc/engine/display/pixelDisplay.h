@@ -30,6 +30,7 @@ class PixelDisplay
         virtual ~PixelDisplay();
 
         virtual void display();
+        virtual void clear();
 
         virtual void setPixel(const PointU &pos, const Color &color);
         virtual void setPixel(const Pixel &pixel);

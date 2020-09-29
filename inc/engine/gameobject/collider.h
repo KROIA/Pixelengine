@@ -1,13 +1,14 @@
 #ifndef COLLIDER_H
 #define COLLIDER_H
 
+#include "layeritem.h"
 #include "point.h"
 #include "rect.h"
 #include "vector.h"
 
 using std::vector;
 
-class Collider
+class Collider  :   public LayerItem
 {
     public:
         Collider();
@@ -16,7 +17,6 @@ class Collider
 
         virtual void setPos(const int &x,const int &y);
         virtual void setPos(const Point &pos);
-        virtual const Point &getPos() const;
 
         virtual const Rect &getBoundingBox() const;
 
@@ -41,12 +41,13 @@ class Collider
         virtual int getMaxX();
         virtual int getMinY();
         virtual int getMaxY();
-    private:
-        Point m_bodyPos;
+
         Rect  m_boundingBox;
         vector<Rect> m_hitBoxList;
 
 
         Rect m_dummy;
+    private:
+
 };
 #endif

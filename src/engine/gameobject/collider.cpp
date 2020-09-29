@@ -2,6 +2,7 @@
 
 
 Collider::Collider()
+    :   LayerItem()
 {
     this->setPos(0,0);
     m_dummy.setPos(0,0);
@@ -9,8 +10,8 @@ Collider::Collider()
 }
 
 Collider::Collider(const Collider &other)
+    :   LayerItem(other)
 {
-    this->m_bodyPos         = other.m_bodyPos;
     this->m_hitBoxList      = other.m_hitBoxList;
     this->m_boundingBox     = other.m_boundingBox;
 }
@@ -26,8 +27,8 @@ void Collider::setPos(const int &x,const int &y)
 }
 void Collider::setPos(const Point &pos)
 {
-    Point deltaPos(pos.getX() - m_bodyPos.getX(),
-                   pos.getY() - m_bodyPos.getY());
+    Point deltaPos(pos.getX() - m_pos.getX(),
+                   pos.getY() - m_pos.getY());
     m_boundingBox.setPos(m_boundingBox.getPos().getX() + deltaPos.getX(),
                          m_boundingBox.getPos().getY() + deltaPos.getY());
     for(size_t i=0; i<m_hitBoxList.size(); i++)
@@ -35,11 +36,7 @@ void Collider::setPos(const Point &pos)
         m_hitBoxList[i].setPos(m_hitBoxList[i].getPos().getX() + deltaPos.getX(),
                                m_hitBoxList[i].getPos().getY() + deltaPos.getY());
     }
-    m_bodyPos = pos;
-}
-const Point &Collider::getPos() const
-{
-    return m_bodyPos;
+    LayerItem::setPos(pos);
 }
 
 
@@ -56,8 +53,8 @@ void Collider::addHitBox(Rect box)
         if(m_hitBoxList[i] == box)
             return;
     }
-    box.setPos(box.getPos().getX()+m_bodyPos.getX(),
-               box.getPos().getY()+m_bodyPos.getY());
+    box.setPos(box.getPos().getX()+m_pos.getX(),
+               box.getPos().getY()+m_pos.getY());
     m_hitBoxList.push_back(box);
     int minX = this->getMinX();
     int minY = this->getMinY();
@@ -135,11 +132,11 @@ int Collider::getMaxX()
 {
     if(m_hitBoxList.size() == 0)
         return 0;
-    int maxX = m_hitBoxList[0].getCornerPoint_BL().getX();
+    int maxX = m_hitBoxList[0].getCornerPoint_BR().getX();
     for(size_t i=1; i<m_hitBoxList.size(); i++)
     {
-        if(m_hitBoxList[i].getCornerPoint_BL().getX() > maxX)
-            maxX = m_hitBoxList[i].getCornerPoint_BL().getX();
+        if(m_hitBoxList[i].getCornerPoint_BR().getX() > maxX)
+            maxX = m_hitBoxList[i].getCornerPoint_BR().getX();
     }
     return maxX;
 }
@@ -159,11 +156,11 @@ int Collider::getMaxY()
 {
     if(m_hitBoxList.size() == 0)
         return 0;
-    int maxY = m_hitBoxList[0].getCornerPoint_TR().getY();
+    int maxY = m_hitBoxList[0].getCornerPoint_BL().getY();
     for(size_t i=0; i<m_hitBoxList.size(); i++)
     {
-        if(m_hitBoxList[i].getCornerPoint_TR().getY() > maxY)
-            maxY = m_hitBoxList[i].getCornerPoint_TR().getY();
+        if(m_hitBoxList[i].getCornerPoint_BL().getY() > maxY)
+            maxY = m_hitBoxList[i].getCornerPoint_BL().getY();
     }
     return maxY;
 }

@@ -63,7 +63,10 @@ SOURCES += \
         $$srcPath/engine/gameobject/controller.cpp \
         $$srcPath/engine/utility/rect.cpp \
         $$srcPath/engine/pixelengine.cpp \
-        $$srcPath/engine/display/pixel.cpp
+        $$srcPath/engine/display/pixel.cpp \
+        src/engine/gameobject/eventhandler.cpp \
+        src/engine/utility/event.cpp \
+        src/engine/utility/layeritem.cpp
 
 HEADERS += \
         $$incPath/engine/display/pixelDisplay.h \
@@ -75,7 +78,10 @@ HEADERS += \
         $$incPath/engine/gameobject/controller.h \
         $$incPath/engine/utility/rect.h \
         $$incPath/engine/pixelengine.h \
-        $$incPath/engine/display/pixel.h
+        $$incPath/engine/display/pixel.h \
+        inc/engine/gameobject/eventhandler.h \
+        inc/engine/utility/event.h \
+        inc/engine/utility/layeritem.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
