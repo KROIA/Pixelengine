@@ -25,6 +25,9 @@ class Painter   :   public  LayerItem
         virtual void setPos(const Point &pos);
         virtual void setPos(const int &x, const int &y);
 
+        virtual void setX(const int &x);
+        virtual void setY(const int &y);
+
     protected:
         vector<Pixel> m_pixelList;
     private:

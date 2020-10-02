@@ -3,6 +3,7 @@
 
 #include "point.h"
 #include <vector>
+#include <math.h>
 
 template<class T>
 class GeneralVector;
@@ -18,7 +19,7 @@ class GeneralVector : public GeneralPoint<T>
 {
     public:
         GeneralVector();
-        GeneralVector(T x,T y);
+        GeneralVector(const T &x, const T &y);
         GeneralVector(const GeneralPoint<T> &other);
         GeneralVector(const GeneralVector<T> &other);
         virtual ~GeneralVector();
@@ -39,6 +40,8 @@ class GeneralVector : public GeneralPoint<T>
 
         GeneralPoint<T> toPoint() const;
 
+        double getLength() const;
+
     protected:
 
     private:
@@ -54,7 +57,7 @@ GeneralVector<T>::GeneralVector()
 
 }
 template<class T>
-GeneralVector<T>::GeneralVector(T x,T y)
+GeneralVector<T>::GeneralVector(const T &x, const T &y)
     : GeneralPoint<T> (x,y)
 {
 
@@ -181,5 +184,9 @@ GeneralPoint<T> GeneralVector<T>::toPoint() const
 {
     return *this;
 }
-
+template<class T>
+double GeneralVector<T>::getLength() const
+{
+    return sqrt(pow(this->m_x,2) + pow(this->m_y,2));
+}
 #endif // GeneralVector_H

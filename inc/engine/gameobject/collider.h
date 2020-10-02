@@ -18,6 +18,9 @@ class Collider  :   public LayerItem
         virtual void setPos(const int &x,const int &y);
         virtual void setPos(const Point &pos);
 
+        virtual void setX(const int &x);
+        virtual void setY(const int &y);
+
         virtual const Rect &getBoundingBox() const;
 
 

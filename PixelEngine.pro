@@ -81,6 +81,7 @@ HEADERS += \
         $$incPath/engine/display/pixel.h \
         inc/engine/gameobject/eventhandler.h \
         inc/engine/utility/event.h \
+        inc/engine/utility/keyboard.h \
         inc/engine/utility/layeritem.h
 
 # Default rules for deployment.

@@ -23,20 +23,49 @@ Collider::~Collider()
 
 void Collider::setPos(const int &x,const int &y)
 {
+    if(m_pos.getX() == x && m_pos.getY() == y)
+        return;
     this->setPos(Point(x,y));
 }
 void Collider::setPos(const Point &pos)
 {
+    if(m_pos == pos)
+        return;
+    //qDebug() << "collider::setPos"<<pos.getX()<<"\t"<<pos.getY();
     Point deltaPos(pos.getX() - m_pos.getX(),
                    pos.getY() - m_pos.getY());
-    m_boundingBox.setPos(m_boundingBox.getPos().getX() + deltaPos.getX(),
-                         m_boundingBox.getPos().getY() + deltaPos.getY());
+    m_boundingBox.setPos(m_boundingBox.getX() + deltaPos.getX(),
+                         m_boundingBox.getY() + deltaPos.getY());
     for(size_t i=0; i<m_hitBoxList.size(); i++)
     {
-        m_hitBoxList[i].setPos(m_hitBoxList[i].getPos().getX() + deltaPos.getX(),
-                               m_hitBoxList[i].getPos().getY() + deltaPos.getY());
+        m_hitBoxList[i].setPos(m_hitBoxList[i].getX() + deltaPos.getX(),
+                               m_hitBoxList[i].getY() + deltaPos.getY());
     }
     LayerItem::setPos(pos);
+}
+void Collider::setX(const int &x)
+{
+    if(m_pos.getX() == x)
+        return;
+    int deltaX = x - m_pos.getX();
+    m_boundingBox.setX(m_boundingBox.getPos().getX() + deltaX);
+    for(size_t i=0; i<m_hitBoxList.size(); i++)
+    {
+        m_hitBoxList[i].setX(m_hitBoxList[i].getX() + deltaX);
+    }
+    LayerItem::setX(x);
+}
+void Collider::setY(const int &y)
+{
+    if(m_pos.getX() == y)
+        return;
+    int deltaY = y - m_pos.getY();
+    m_boundingBox.setY(m_boundingBox.getPos().getY() + deltaY);
+    for(size_t i=0; i<m_hitBoxList.size(); i++)
+    {
+        m_hitBoxList[i].setY(m_hitBoxList[i].getY() + deltaY);
+    }
+    LayerItem::setY(y);
 }
 
 
@@ -98,7 +127,10 @@ bool Collider::collides(const Collider &other) const
         for(size_t y=0; y<other.m_hitBoxList.size(); y++)
         {
             if(this->m_hitBoxList[x].intersects(other.m_hitBoxList[y]))
+            {
+                qDebug() << "this->hitBox: "<<x<<"\tother.hitBox: "<<y;
                 return true;
+            }
         }
     }
     return false;

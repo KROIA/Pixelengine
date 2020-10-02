@@ -24,6 +24,11 @@ class GeneralRect
 
         virtual void setPos(GeneralPoint<T> pos);
         virtual void setPos(const T &xPos, const T &yPos);
+        virtual void setX(const T &x);
+        virtual void setY(const T &y);
+        virtual const T &getX();
+        virtual const T &getY();
+
         virtual const GeneralPoint<T> &getPos() const;
 
         virtual void setSize(GeneralPoint<T> size);
@@ -98,6 +103,26 @@ void GeneralRect<T>::setPos(const T &xPos, const T &yPos)
     m_pos.setY(yPos);
 }
 template<class T>
+void GeneralRect<T>::setX(const T &x)
+{
+    m_pos.setX(x);
+}
+template<class T>
+void GeneralRect<T>::setY(const T &y)
+{
+    m_pos.setY(y);
+}
+template<class T>
+const T &GeneralRect<T>::getX()
+{
+    return m_pos.getX();
+}
+template<class T>
+const T &GeneralRect<T>::getY()
+{
+    return m_pos.getY();
+}
+template<class T>
 const GeneralPoint<T> &GeneralRect<T>::getPos() const
 {
     return m_pos;
@@ -145,14 +170,26 @@ template<class T>
 bool GeneralRect<T>::intersects(const GeneralRect<T> &other) const
 {
     // If one rectangle is on left side of other
-    if(this->getCornerPoint_TL().getX() >= other.getCornerPoint_BR().getX() ||
-       other.getCornerPoint_TL().getX() >= this->getCornerPoint_BR().getX())
+    if(this->getCornerPoint_TL().getX() > other.getCornerPoint_BR().getX() ||
+       other.getCornerPoint_TL().getX() > this->getCornerPoint_BR().getX())
         return false;
 
     // If one rectangle is above other
-    if(this->getCornerPoint_TL().getY() <= other.getCornerPoint_BR().getX() ||
-       other.getCornerPoint_TL().getY() <= this->getCornerPoint_BR().getY())
+
+    if(this->getCornerPoint_TL().getY() > other.getCornerPoint_BR().getY() ||
+       other.getCornerPoint_TL().getY() > this->getCornerPoint_BR().getY())
         return false;
+
+    /*qDebug() << "Collision: ";
+    qDebug() << "this->getCornerPoint_TL().getX(): "<<this->getCornerPoint_TL().getX();
+    qDebug() << "this->getCornerPoint_TL().getY(): "<<this->getCornerPoint_TL().getY();
+    qDebug() << "this->getCornerPoint_BR().getX(): "<<this->getCornerPoint_BR().getX();
+    qDebug() << "this->getCornerPoint_BR().getY(): "<<this->getCornerPoint_BR().getY();
+    qDebug() << "";
+    qDebug() << "other.getCornerPoint_TL().getX(): "<<other.getCornerPoint_TL().getX();
+    qDebug() << "other.getCornerPoint_TL().getY(): "<<other.getCornerPoint_TL().getY();
+    qDebug() << "other.getCornerPoint_BR().getX(): "<<other.getCornerPoint_BR().getX();
+    qDebug() << "other.getCornerPoint_BR().getY(): "<<other.getCornerPoint_BR().getY();*/
     return true;
 }
 

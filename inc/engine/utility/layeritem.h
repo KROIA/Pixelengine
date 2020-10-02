@@ -4,6 +4,8 @@
 #include "vector"
 #include "point.h"
 
+#include <QDebug>
+
 using std::vector;
 
 class LayerItem
@@ -24,8 +26,11 @@ class LayerItem
         virtual const int &getX() const;
         virtual const int &getY() const;
 
+        virtual void setToLastPos();
+
     protected:
         Point m_pos;
+        Point m_lastPos;
     private:
 
 };

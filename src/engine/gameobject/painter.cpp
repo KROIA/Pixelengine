@@ -27,6 +27,9 @@ void Painter::draw(PixelDisplay &display)
 
 void Painter::setPos(const Point &pos)
 {
+    if(m_pos == pos)
+        return;
+    //qDebug() << "Painter::setPos: "<<pos.getX()<<"\t"<<pos.getY();
     Point deltaPos(pos.getX() - m_pos.getX(),
                    pos.getY() - m_pos.getY());
     for(size_t i=0; i<m_pixelList.size(); i++)
@@ -38,5 +41,29 @@ void Painter::setPos(const Point &pos)
 }
 void Painter::setPos(const int &x, const int &y)
 {
+    if(m_pos.getX() == x && m_pos.getY() == y)
+        return;
     this->setPos(Point(x,y));
+}
+void Painter::setX(const int &x)
+{
+    if(m_pos.getX() == x)
+        return;
+    int deltaX = x - m_pos.getX();
+    for(size_t i=0; i<m_pixelList.size(); i++)
+    {
+        m_pixelList[i].setX(m_pixelList[i].getX() + deltaX);
+    }
+    LayerItem::setX(x);
+}
+void Painter::setY(const int &y)
+{
+    if(m_pos.getX() == y)
+        return;
+    int deltaY = y - m_pos.getY();
+    for(size_t i=0; i<m_pixelList.size(); i++)
+    {
+        m_pixelList[i].setY(m_pixelList[i].getY() + deltaY);
+    }
+    LayerItem::setY(y);
 }
