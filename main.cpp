@@ -5,12 +5,17 @@
 #include "collider.h"
 #include "controller.h"
 #include "keyboard.h"
+#include "gameobject.h"
+#include "interactiveGroup.h"
+
+#include "pixelengine.h"
 
 #include <windows.h>
 #include <QDebug>
 #include "timer.h"
 
 #include "event.h"
+#include "eventhandler.h"
 
 void makeVisibleObsticle(Collider &collider,Painter &painter);
 
@@ -18,12 +23,16 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    PixelDisplay display(PointU(1500,1000),PointU(150,100));
+
+
+
+    //PixelDisplay display(PointU(1500,1000),PointU(150,100));
 
     Collider collider1;
     collider1.addHitBox({Rect(-5,-5,2,10),Rect(-4,-4,2,2),Rect(5,5,5,8)});
     Painter painter1;
     makeVisibleObsticle(collider1,painter1);
+    Controller controller1;
 
     Collider collider2;
     collider2.addHitBox({Rect(rand()%20-10,rand()%20-10,rand()%20,rand()%20),
@@ -31,10 +40,43 @@ int main(int argc, char *argv[])
                          Rect(rand()%20-10,rand()%20-10,rand()%20,rand()%20)});
     Painter painter2;
     makeVisibleObsticle(collider2,painter2);
-    collider2.setPos(40,40);
+    Controller controller2;
+    controller2.setPosInitial(40,40);
 
-    Controller controller;
-    //controller
+
+
+
+
+    GameObject object;
+    object.setCollider(&collider1);
+    object.setController(&controller1);
+    object.setPainter(&painter1);
+    InteractiveCollisionGroup groupPlayer;
+    groupPlayer.add(&object);
+
+    GameObject obsticle;
+    obsticle.setCollider(&collider2);
+    obsticle.setPainter(&painter2);
+    obsticle.setController(&controller2);
+    InteractiveCollisionGroup groupObsticle;
+    groupObsticle.add(&obsticle);
+
+    groupPlayer.interactWith(&groupObsticle);
+
+    PainterGroup painterGroup;
+    painterGroup.add(&object);
+    PainterGroup painterGroup2;
+    painterGroup2.add(&obsticle);
+    painterGroup2.setVisibility(true);
+
+    PixelEngine engine;
+    engine.addGameObject(&object);
+    engine.addGameObject(&obsticle);
+    engine.addGroup(groupPlayer);
+    engine.addGroup(groupObsticle);
+    engine.addGroup(painterGroup);
+    engine.addGroup(painterGroup2);
+
 
 /*    Collider collider;
     Collider collider2;
@@ -94,8 +136,6 @@ int main(int argc, char *argv[])
 
     Timer timer;
     Timer dbgTimer;
-    double time;
-    bool moveDirX = true;
     while(1)
     {
        /* if(dbgTimer.start(1))
@@ -107,7 +147,8 @@ int main(int argc, char *argv[])
         }*/
         if(timer.start(0.01))
         {
-            unsigned short iState = GetAsyncKeyState(0x41) ;
+            qDebug() << "tick";
+
             POINT p;
             if (GetCursorPos(&p))
             {
@@ -143,82 +184,37 @@ int main(int argc, char *argv[])
                 {
                     qDebug() << "";
                 }
-                qDebug() << "delta: "<<DeltaPos.getX()<<"\t"<<DeltaPos.getY();
-                controller.move(DeltaPos);
-
-
-                for(unsigned int i=0; i<controller.getNeededMovingSteps(); i++)
-                {
-                    for(unsigned int dir=0; dir<2; dir++)
-                    {
-                        controller.tick(dir==0?Point(1,0):Point(0,1));
-                        collider1.setPos(controller.getPos());
-
-                        if(collider1.intersectsBoundingBox(collider2))
-                        {
-                            if(collider1.collides(collider2))
-                            {
-                                controller.setToLastPos();
-                            }
-                        }
-                    }
-                }
-               /* for(int i=0; i<2; i++)
-                {
-
-
-                    if(moveDirX)
-                    {
-                        int dirNegative = DeltaPos.getX() < 0? -1 : 1;
-                       // qDebug() << "move X";
-                        for(int x=0; x<DeltaPos.getX()*dirNegative; x++)
-                        {
-                          //  qDebug() << x;
-                            collider1.setPos(collider1.getX()+dirNegative,collider1.getY());
-                            if(collider1.intersectsBoundingBox(collider2))
-                            {
-                                if(collider1.collides(collider2))
-                                {
-                                    collider1.setToLastPos();
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        int dirNegative = DeltaPos.getY() < 0? -1 : 1;
-                       // qDebug() << "move Y";
-                        for(int y=0; y<DeltaPos.getY()*dirNegative; y++)
-                        {
-                            //qDebug() << x;
-                            collider1.setPos(collider1.getX(),collider1.getY()+dirNegative);
-                            if(collider1.intersectsBoundingBox(collider2))
-                            {
-                                if(collider1.collides(collider2))
-                                {
-                                    collider1.setToLastPos();
-                                }
-                            }
-                        }
-                    }
-
-                    moveDirX = !moveDirX;
-
-
-                }*/
+                //qDebug() << "delta: "<<DeltaPos.getX()<<"\t"<<DeltaPos.getY();
+                controller1.move(DeltaPos);
             }
+            engine.tick();
+            engine.display();
+            /*for(unsigned int i=0; i<controller1.getNeededMovingSteps(); i++)
+            {
+                for(unsigned int dir=0; dir<2; dir++)
+                {
+                    object.move(dir==0?Point(1,0):Point(0,1));
+                    obsticle.move(dir==0?Point(1,0):Point(0,1));
+                    object.checkCollision({&obsticle});
+                }
+
+
+            }*/
 
             //qDebug() << "collider.pos(): "<<collider.getPos().getX()<<"\t"<<collider.getPos().getY();
-            painter1.setPos(controller.getPos());
-            painter2.setPos(collider2.getPos());
+            //painter1.setPos(controller1.getPos());
+            //painter2.setPos(collider2.getPos());
+
 
            // xPainter.draw(display);
-            painter1.draw(display);
-            painter2.draw(display);
+            //painter1.draw(display);
+           // object.draw(display);
+           // obsticle.draw(display);
+            //painter2.draw(display);
 
 
-            display.display();
-            display.handleEvents();
+          //  display.display();
+          //  display.handleEvents();
 
         }
         Sleep(10);
