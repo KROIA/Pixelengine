@@ -8,9 +8,9 @@ GameObject::GameObject()
 }
 GameObject::GameObject(const GameObject &other)
 {
-    this->m_controller = other.m_controller;
-    this->m_collider   = other.m_collider;
-    this->m_painter    = other.m_painter;
+    *this->m_controller = *other.m_controller;
+    *this->m_collider   = *other.m_collider;
+    *this->m_painter    = *other.m_painter;
 }
 GameObject::GameObject(Controller *controller,
                        Collider   *collider,
@@ -28,7 +28,7 @@ GameObject::~GameObject()
     delete m_painter;
 }
 
-void GameObject::move(const Point &direction)
+void GameObject::tick(const Point &direction)
 {
     m_controller->tick(direction);
     m_collider->setPos(m_controller->getPos());

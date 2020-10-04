@@ -26,7 +26,6 @@ Controller::Controller(const Controller &other)
 
 void Controller::tick(const Point &direction)
 {
-    this->checkEvent();
     if(m_neededStepsForMove == 0)
     {
         return;
@@ -77,11 +76,17 @@ void Controller::move(const Point &directionVector)
 {
     this->move(directionVector.getX(),directionVector.getY());
 }
-void Controller::move(const int &x,const int &y)
+void Controller::move(int x,int y)
 {
     //double length = VectorF(double(x),double(y)).getLength();
     if(x == 0 && y == 0)
         return;
+    if(m_neededStepsForMove > 0)
+    {
+        x = x + m_currentDeltaMove.getX()*m_neededStepsForMove/2;
+        y = y + m_currentDeltaMove.getY()*m_neededStepsForMove/2;
+    }
+
     if(abs(x)>abs(y))
         m_neededStepsForMove = abs(x);
     else

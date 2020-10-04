@@ -4,6 +4,7 @@
 #include "painter.h"
 #include "collider.h"
 #include "controller.h"
+#include "keyController.h"
 #include "keyboard.h"
 #include "gameobject.h"
 #include "interactiveGroup.h"
@@ -32,7 +33,11 @@ int main(int argc, char *argv[])
     collider1.addHitBox({Rect(-5,-5,2,10),Rect(-4,-4,2,2),Rect(5,5,5,8)});
     Painter painter1;
     makeVisibleObsticle(collider1,painter1);
-    Controller controller1;
+    KeyController controller1;
+    controller1.setKey_forMove_UP(KEYBOARD_KEY_W);
+    controller1.setKey_forMove_LEFT(KEYBOARD_KEY_A);
+    controller1.setKey_forMove_DOWN(KEYBOARD_KEY_S);
+    controller1.setKey_forMove_RIGHT(KEYBOARD_KEY_D);
 
     Collider collider2;
     collider2.addHitBox({Rect(rand()%20-10,rand()%20-10,rand()%20,rand()%20),
@@ -70,6 +75,9 @@ int main(int argc, char *argv[])
     painterGroup2.setVisibility(true);
 
     PixelEngine engine;
+    engine.set_setting_gameTickInterval(0.01);
+    engine.set_setting_displayInterval(0.01);
+
     engine.addGameObject(&object);
     engine.addGameObject(&obsticle);
     engine.addGroup(groupPlayer);
@@ -145,18 +153,18 @@ int main(int argc, char *argv[])
             else
                 qDebug() << "timer: "<<time<<"\tfps: "<<1/time;
         }*/
-        if(timer.start(0.01))
+        if(timer.start(0.0))
         {
-            qDebug() << "tick";
+            //qDebug() << "tick";
 
-            POINT p;
-            if (GetCursorPos(&p))
+            //POINT p;
+            //if (GetCursorPos(&p))
             {
            //     qDebug()<<"mouse: x="<<p.x<<"\ty="<<p.y;
                 //cursor position now in p.x and p.y
             }
             //Point DeltaPos((p.x-200)/25-controller.getX(),(p.y-150)/10-controller.getY());
-            Point DeltaPos;
+            /*Point DeltaPos;
             int moveLength = 1;
             if( GetAsyncKeyState(KEYBOARD_KEY_W))
             {
@@ -175,10 +183,10 @@ int main(int argc, char *argv[])
             if( GetAsyncKeyState(KEYBOARD_KEY_D))
             {
                 DeltaPos.moveX(moveLength);
-            }
+            }*/
 
 
-            if(DeltaPos.getX() != 0 || DeltaPos.getY() != 0)
+            /*if(DeltaPos.getX() != 0 || DeltaPos.getY() != 0)
             {
                 if(DeltaPos.getX() == -1 || DeltaPos.getY() == -1)
                 {
@@ -186,7 +194,7 @@ int main(int argc, char *argv[])
                 }
                 //qDebug() << "delta: "<<DeltaPos.getX()<<"\t"<<DeltaPos.getY();
                 controller1.move(DeltaPos);
-            }
+            }*/
             engine.tick();
             engine.display();
             /*for(unsigned int i=0; i<controller1.getNeededMovingSteps(); i++)
@@ -217,7 +225,7 @@ int main(int argc, char *argv[])
           //  display.handleEvents();
 
         }
-        Sleep(10);
+       // Sleep(10);
 
     }
 

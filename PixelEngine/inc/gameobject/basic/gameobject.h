@@ -17,7 +17,7 @@ class GameObject
 
         virtual ~GameObject();
 
-        virtual void move(const Point &direction);
+        virtual void tick(const Point &direction);
         virtual void checkCollision(const vector<GameObject*> &other);
         virtual void draw(PixelDisplay &display);
 

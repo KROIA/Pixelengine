@@ -3,13 +3,22 @@
 PixelEngine::PixelEngine()
 {
     this->addGroup(GameObjectGroup());
-    m_display = new PixelDisplay(PointU(1500,1000),PointU(150,100));
-
+    m_display       = new PixelDisplay(PointU(1500,1000),PointU(150,100));
+    m_mainTickTimer = new Timer;
+    m_displayTimer  = new Timer;
+    this->set_setting_gameTickInterval(0.01);
+    this->set_setting_displayInterval(0.01);
 }
 
 PixelEngine::PixelEngine(const PixelEngine &other)
 {
-    this->m_display             = other.m_display;
+    *this->m_display            = *other.m_display;
+
+    *this->m_mainTickTimer      = *other.m_mainTickTimer;
+    this->m_mainTickInterval    = other.m_mainTickInterval;
+
+    *this->m_displayTimer      = *other.m_displayTimer;
+    this->m_displayInterval    = other.m_displayInterval;
 
     this->m_gameObjectGroupList = other.m_gameObjectGroupList;
     this->m_interactiveColliderGroupList   = other.m_interactiveColliderGroupList;
@@ -32,11 +41,16 @@ PixelEngine::~PixelEngine()
     m_gameObjectGroupList.clear();
 
     delete m_display;
+    delete m_mainTickTimer;
+    delete m_displayTimer;
 }
 
 
 void PixelEngine::tick()
 {
+    if(!m_mainTickTimer->start(m_mainTickInterval))
+        return; // Time not finished
+
     tickX();
     tickY();
 }
@@ -54,7 +68,7 @@ void PixelEngine::tickXY(const Point &dirLock)
     {
         for(size_t j=0; j<m_gameObjectGroupList[i].size(); j++)
         {
-            m_gameObjectGroupList[i].get(j)->move(dirLock);
+            m_gameObjectGroupList[i].get(j)->tick(dirLock);
         }
     }
 
@@ -67,7 +81,6 @@ void PixelEngine::tickXY(const Point &dirLock)
             {
                 GameObjectGroup *interacts = m_interactiveColliderGroupList[i].getInteractiveList()[z];
                 objectGroup.get(j)->checkCollision(interacts->getAll());
-                //m_interactiveColliderGroupList[i].get(j)->checkCollision(interacts->getAll());
             }
         }
     }
@@ -75,6 +88,8 @@ void PixelEngine::tickXY(const Point &dirLock)
 
 void PixelEngine::display()
 {
+    if(!m_displayTimer->start(m_displayInterval))
+        return;
     for(size_t i=0; i<m_painterGroupList.size(); i++)
     {
         if(!m_painterGroupList[i].isVisible())
@@ -88,6 +103,14 @@ void PixelEngine::display()
     m_display->handleEvents();
 }
 
+void PixelEngine::set_setting_gameTickInterval(const double &seconds)
+{
+    m_mainTickInterval = abs(seconds);
+}
+void PixelEngine::set_setting_displayInterval(const double &seconds)
+{
+    m_displayInterval = abs(seconds);
+}
 
 void PixelEngine::addGameObject(GameObject *obj)
 {

@@ -30,7 +30,7 @@ class Controller    :   public EventHandler, public LayerItem
         virtual void moveToPos(const Point &destination);
         virtual void moveToPos(const int &x,const int &y);
         virtual void move(const Point &directionVector);
-        virtual void move(const int &x,const int &y);
+        virtual void move(int x,int y);
 
         virtual void setToLastPos();
         virtual const unsigned int &getNeededMovingSteps() const;

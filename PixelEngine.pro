@@ -22,11 +22,11 @@ srcPath = src
 
 
 SOURCES += \
-        main.cpp \
-
+        $$srcPath/main.cpp \
+        $$srcPath/player.cpp
 
 HEADERS += \
-
+        $$incPath/player.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

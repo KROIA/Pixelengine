@@ -35,9 +35,27 @@ void EventHandler::checkEvent()
     }
 }
 
-void EventHandler::addEvent(const Event &e)
+size_t EventHandler::addEvent(const Event &e)
 {
     m_eventList.push_back(e);
+    return m_eventList.size();
+}
+const Event &EventHandler::getEvent(const size_t &index)
+{
+    if(index >= m_eventList.size())
+    {
+        qDebug() << "const Event &EventHandler::getEvent(const size_t &["<<index<<"]): out of range";
+        return m_dummyEvent;
+    }
+    return m_eventList[index];
+}
+void EventHandler::removeEvent(const size_t &index)
+{
+    if(index >= m_eventList.size())
+    {
+        qDebug() << "const Event &EventHandler::removeEvent(const size_t &["<<index<<"]): out of range";
+    }
+    m_eventList.erase(m_eventList.begin()+index);
 }
 
 void EventHandler::receive_key_isPressed(const int &key)

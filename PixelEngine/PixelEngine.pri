@@ -52,6 +52,7 @@ SOURCES += \
         $$PixelEngine_srcPath/gameobject/collider/basic/collider.cpp \
         $$PixelEngine_srcPath/gameobject/painter/basic/painter.cpp \
         $$PixelEngine_srcPath/gameobject/controller/basic/controller.cpp \
+        $$PixelEngine_srcPath/gameobject/controller/keyController.cpp \
         $$PixelEngine_srcPath/gameobject/basic/gameobject.cpp \
         $$PixelEngine_srcPath/utility/gameObjectGroup/interactiveCollisionGroup.cpp \
         $$PixelEngine_srcPath/utility/gameObjectGroup/painterGroup.cpp \
@@ -67,6 +68,7 @@ HEADERS += \
         $$PixelEngine_incPath/gameobject/collider/basic/collider.h \
         $$PixelEngine_incPath/gameobject/painter/basic/painter.h \
         $$PixelEngine_incPath/gameobject/controller/basic/controller.h \
+        $$PixelEngine_incPath/gameobject/controller/keyController.h \
         $$PixelEngine_incPath/gameobject/basic/gameobject.h \
         $$PixelEngine_incPath/utility/event.h \
         $$PixelEngine_incPath/utility/eventhandler.h \

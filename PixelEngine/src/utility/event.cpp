@@ -3,6 +3,7 @@
 Event::Event()
 {
     m_isPressed = false;
+    m_key       = -1;
 }
 /*Event(Type)
 {
@@ -10,6 +11,7 @@ Event::Event()
 }*/
 Event::Event(const int &key)
 {
+    m_isPressed = false;
     this->setKey(key);
 }
 Event::Event(const Event &other)
@@ -27,6 +29,8 @@ Event::~Event()
 
 void Event::checkEvent()
 {
+    if(m_key < 0)
+        return;
     m_isToggled = false;
     m_isRising  = false;
 

@@ -18,7 +18,9 @@ class EventHandler
 
         virtual void checkEvent();
 
-        virtual void addEvent(const Event &e);
+        virtual size_t addEvent(const Event &e);            // Adds a Event and returns the index in the list.
+        virtual const Event &getEvent(const size_t &index); // returns the Event at the index of the list.
+        virtual void removeEvent(const size_t &index);
 
         // Receiver Signal
         virtual void receive_key_isPressed(const int &key);
@@ -29,6 +31,7 @@ class EventHandler
 
     private:
       vector<Event>  m_eventList;
+      Event m_dummyEvent;
 
 };
 #endif // EVENTHANDLER_H

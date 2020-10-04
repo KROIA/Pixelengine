@@ -134,7 +134,7 @@ bool Collider::collides(const Collider &other) const
         {
             if(this->m_hitBoxList[x].intersects(other.m_hitBoxList[y]))
             {
-                qDebug() << "this->hitBox: "<<x<<"\tother.hitBox: "<<y;
+                //qDebug() << "this->hitBox: "<<x<<"\tother.hitBox: "<<y;
                 return true;
             }
         }
