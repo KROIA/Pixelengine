@@ -84,6 +84,13 @@ void PixelEngine::tickXY(const Point &dirLock)
             }
         }
     }
+    /*for(size_t i=0; i<m_gameObjectGroupList.size(); i++)
+    {
+        for(size_t j=0; j<m_gameObjectGroupList[i].size(); j++)
+        {
+            m_gameObjectGroupList[i].get(j)->applyNextPos();
+        }
+    }*/
 }
 
 void PixelEngine::display()

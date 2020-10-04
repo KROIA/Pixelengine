@@ -20,6 +20,7 @@ include($$ENGINE_PATH/PixelEngine.pri)
 incPath = inc
 srcPath = src
 
+INCLUDEPATH += $$incPath
 
 SOURCES += \
         $$srcPath/main.cpp \

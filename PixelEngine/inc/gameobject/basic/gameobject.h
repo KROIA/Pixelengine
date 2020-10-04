@@ -26,6 +26,7 @@ class GameObject
         virtual void setCollider(Collider *collider);
         virtual void setPainter(Painter *painter);
 
+        //virtual void applyNextPos();
 
 
     protected:

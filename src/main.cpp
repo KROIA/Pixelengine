@@ -18,6 +18,9 @@
 #include "event.h"
 #include "eventhandler.h"
 
+
+#include "player.h"
+
 void makeVisibleObsticle(Collider &collider,Painter &painter);
 
 int main(int argc, char *argv[])
@@ -30,19 +33,20 @@ int main(int argc, char *argv[])
     //PixelDisplay display(PointU(1500,1000),PointU(150,100));
 
     Collider collider1;
-    collider1.addHitBox({Rect(-5,-5,2,10),Rect(-4,-4,2,2),Rect(5,5,5,8)});
+    collider1.addHitBox({Rect(-1,0,2,2)});
     Painter painter1;
     makeVisibleObsticle(collider1,painter1);
-    KeyController controller1;
+    /*KeyController controller1;
     controller1.setKey_forMove_UP(KEYBOARD_KEY_W);
     controller1.setKey_forMove_LEFT(KEYBOARD_KEY_A);
     controller1.setKey_forMove_DOWN(KEYBOARD_KEY_S);
-    controller1.setKey_forMove_RIGHT(KEYBOARD_KEY_D);
+    controller1.setKey_forMove_RIGHT(KEYBOARD_KEY_D);*/
 
     Collider collider2;
-    collider2.addHitBox({Rect(rand()%20-10,rand()%20-10,rand()%20,rand()%20),
-                         Rect(rand()%20-10,rand()%20-10,rand()%20,rand()%20),
-                         Rect(rand()%20-10,rand()%20-10,rand()%20,rand()%20)});
+    collider2.addHitBox({Rect(rand()%20-10,rand()%20-10,1+rand()%20,1+rand()%20),
+                         Rect(rand()%20-10,rand()%20-10,1+rand()%20,1+rand()%20),
+                         Rect(rand()%20-10,rand()%20-10,1+rand()%20,1+rand()%20)});
+    //collider2.addHitBox({Rect(-5,0,5,4),Rect(0,-10,1,1),Rect(10,10,2,2)});
     Painter painter2;
     makeVisibleObsticle(collider2,painter2);
     Controller controller2;
@@ -54,10 +58,34 @@ int main(int argc, char *argv[])
 
     GameObject object;
     object.setCollider(&collider1);
-    object.setController(&controller1);
+    //object.setController(&controller1);
     object.setPainter(&painter1);
     InteractiveCollisionGroup groupPlayer;
     groupPlayer.add(&object);
+
+    // Player
+    Player player;
+    player.setColor(Color(0,0,255));
+    player.setStartPos(Point(20,0));
+    player.setKeyBinding(KEYBOARD_KEY_W,
+                         KEYBOARD_KEY_A,
+                         KEYBOARD_KEY_S,
+                         KEYBOARD_KEY_D);
+    player.buildPlayer();
+    groupPlayer.add(&player);
+    //makeVisibleObsticle(*player.getCollider(),*player.getPainter());
+
+    // Player 2
+    Player player2;
+    player2.setColor(Color(255,0,0));
+    player2.setStartPos(Point(60,0));
+    player2.setKeyBinding(KEYBOARD_KEY_I,
+                          KEYBOARD_KEY_J,
+                          KEYBOARD_KEY_K,
+                          KEYBOARD_KEY_L);
+    player2.buildPlayer();
+    groupPlayer.add(&player2);
+    makeVisibleObsticle(*player2.getCollider(),*player2.getPainter());
 
     GameObject obsticle;
     obsticle.setCollider(&collider2);
@@ -67,19 +95,24 @@ int main(int argc, char *argv[])
     groupObsticle.add(&obsticle);
 
     groupPlayer.interactWith(&groupObsticle);
+    groupPlayer.interactWith(&groupPlayer);
 
     PainterGroup painterGroup;
     painterGroup.add(&object);
+    painterGroup.add(&player2);
+    painterGroup.add(&player);
     PainterGroup painterGroup2;
     painterGroup2.add(&obsticle);
     painterGroup2.setVisibility(true);
 
     PixelEngine engine;
-    engine.set_setting_gameTickInterval(0.01);
-    engine.set_setting_displayInterval(0.01);
+    engine.set_setting_gameTickInterval(0.02);
+    engine.set_setting_displayInterval(0.02);
 
     engine.addGameObject(&object);
     engine.addGameObject(&obsticle);
+    engine.addGameObject(&player);
+    engine.addGameObject(&player2);
     engine.addGroup(groupPlayer);
     engine.addGroup(groupObsticle);
     engine.addGroup(painterGroup);

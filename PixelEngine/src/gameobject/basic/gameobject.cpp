@@ -31,6 +31,7 @@ GameObject::~GameObject()
 void GameObject::tick(const Point &direction)
 {
     m_controller->tick(direction);
+    //m_collider->setPos(m_controller->getNextPos());
     m_collider->setPos(m_controller->getPos());
 }
 void GameObject::checkCollision(const vector<GameObject*> &other)
@@ -76,6 +77,11 @@ void GameObject::setPainter(Painter *painter)
     delete m_painter;
     m_painter = painter;
 }
+
+/*void GameObject::applyNextPos()
+{
+    m_controller->applyNextPos();
+}*/
 
 void GameObject::event_hasCollision(GameObject *other)
 {

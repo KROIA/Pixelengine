@@ -21,6 +21,9 @@ class Controller    :   public EventHandler, public LayerItem
 
         virtual void tick(const Point &direction);
 
+        //virtual void setPosInitial(const Point &pos);
+        //virtual void setPosInitial(const int &x, const int &y);
+
         virtual void setPos(const int &x,const int &y);
         virtual void setPos(const Point &pos);
 
@@ -32,8 +35,12 @@ class Controller    :   public EventHandler, public LayerItem
         virtual void move(const Point &directionVector);
         virtual void move(int x,int y);
 
-        virtual void setToLastPos();
+        //virtual void setToLastPos();
         virtual const unsigned int &getNeededMovingSteps() const;
+
+       /* virtual void setNextPos(const int &x, const int &y);
+        virtual const Point &getNextPos() const;
+        virtual void applyNextPos();*/
 
 
     protected:
@@ -43,7 +50,7 @@ class Controller    :   public EventHandler, public LayerItem
         virtual void reveive_key_goesDown(const int &key);
         virtual void reveive_key_goesUp(const int &key);
 
-
+        //Point  m_nextPos;
         PointF m_currentMovingPos;
         PointF m_currentDeltaMove;
         unsigned int m_neededStepsForMove;

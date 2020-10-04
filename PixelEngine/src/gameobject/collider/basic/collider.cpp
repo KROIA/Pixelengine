@@ -89,7 +89,7 @@ void Collider::addHitBox(Rect box)
     int minY = this->getMinY();
     int maxX = this->getMaxX();
     int maxY = this->getMaxY();
-    m_boundingBox.setSize(maxX-minX,maxY-minY);
+    m_boundingBox.setSize(maxX-minX+1,maxY-minY+1);
     m_boundingBox.setPos(minX,minY);
 }
 

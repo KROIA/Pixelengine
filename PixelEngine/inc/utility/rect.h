@@ -155,23 +155,23 @@ GeneralPoint<T> GeneralRect<T>::getCornerPoint_TL() const
 template<class T>
 GeneralPoint<T> GeneralRect<T>::getCornerPoint_TR() const
 {
-    return GeneralPoint<T>(m_pos.getX() + m_size.getX(), m_pos.getY());
+    return GeneralPoint<T>(m_pos.getX() + m_size.getX()-1, m_pos.getY());
 }
 template<class T>
 GeneralPoint<T> GeneralRect<T>::getCornerPoint_BL() const
 {
-    return GeneralPoint<T>(m_pos.getX(), m_pos.getY() + m_size.getY());
+    return GeneralPoint<T>(m_pos.getX(), m_pos.getY() + m_size.getY()-1);
 }
 template<class T>
 GeneralPoint<T> GeneralRect<T>::getCornerPoint_BR() const
 {
-    return GeneralPoint<T>(m_pos.getX() + m_size.getX(), m_pos.getY() + m_size.getY());
+    return GeneralPoint<T>(m_pos.getX() + m_size.getX()-1, m_pos.getY() + m_size.getY()-1);
 }
 template<class T>
 bool GeneralRect<T>::intersectsX(const GeneralRect<T> &other) const
 {
     // If one rectangle is on left side of other
-    if(this->getCornerPoint_TL().getX() > other.getCornerPoint_BR().getX() ||
+    if(this->getCornerPoint_TL().getX() >  other.getCornerPoint_BR().getX() ||
        other.getCornerPoint_TL().getX() > this->getCornerPoint_BR().getX())
         return false;
     return true;
@@ -180,7 +180,7 @@ template<class T>
 bool GeneralRect<T>::intersectsY(const GeneralRect<T> &other) const
 {
     // If one rectangle is above other
-    if(this->getCornerPoint_TL().getY() > other.getCornerPoint_BR().getY() ||
+    if(this->getCornerPoint_TL().getY() >  other.getCornerPoint_BR().getY() ||
        other.getCornerPoint_TL().getY() > this->getCornerPoint_BR().getY())
         return false;
     return true;
