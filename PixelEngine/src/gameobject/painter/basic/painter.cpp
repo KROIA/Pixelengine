@@ -21,10 +21,28 @@ void Painter::addPixel(const Pixel &pixel)
 {
     m_pixelList.push_back(pixel);
 }
+const Pixel &Painter::getPixel(const size_t &index) const
+{
+    return m_pixelList[index];
+}
+size_t Painter::getPixelAmount() const
+{
+    return m_pixelList.size();
+}
+void Painter::setPixelColor(const size_t &index, const Color &color)
+{
+    m_pixelList[index].setColor(color);
+}
+void Painter::setPixelColor(const Color &color)
+{
+    for(size_t i=0; i<m_pixelList.size(); i++)
+        m_pixelList[i].setColor(color);
+}
 
 void Painter::draw(PixelDisplay &display)
 {
-    display.setPixel(m_pixelList);
+    if(m_isVisible)
+        display.setPixel(m_pixelList);
 }
 
 void Painter::setPos(const Point &pos)
@@ -77,3 +95,12 @@ const bool &Painter::isVisible() const
 {
     return m_isVisible;
 }
+void Painter::erasePixel(const size_t &index)
+{
+    m_pixelList.erase(m_pixelList.begin()+index);
+}
+void Painter::clear()
+{
+    m_pixelList.clear();
+}
+

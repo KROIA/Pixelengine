@@ -70,8 +70,8 @@ void PixelEngine::display()
 
     for(size_t j=0; j<m_gameObjectGroup.size(); j++)
     {
-        if(!m_gameObjectGroup[j]->isVisible())
-            continue; // Object is not visible
+        //if(!m_gameObjectGroup[j]->isVisible())
+        //    continue; // Object is not visible
         m_gameObjectGroup[j]->draw(*m_display);
     }
 
@@ -95,8 +95,23 @@ void PixelEngine::addGroup(const vector<GameObject*> &group)
 {
     m_gameObjectGroup.insert(m_gameObjectGroup.end(),group.begin(),group.end());
 }
-/*void PixelEngine::addGroup(const PainterGroup    &group)
+// General functions
+double PixelEngine::random(double min, double max)
 {
-    m_painterGroupList.push_back(group);
-}*/
+    if(min == max)
+    {
+        return min;
+    }
+    if(min > max)
+    {   double buf=min;
+        min = max;
+        max = buf;
+    }
+
+    // Generating a timedependend seed
+    std::time_t t = std::time(0);   // get time now
+    std::tm* now = std::localtime(&t);
+    int seed = now->tm_year + now->tm_mon + now->tm_mday + now->tm_hour + now->tm_min + now->tm_sec;
+    return double((min*1000.0)+((seed*rand())%(int)((max-min)*1000.0)))/1000.0;
+}
 

@@ -22,8 +22,6 @@ class Player    :   public GameObject
                                    const int &RIGHT_KEY);
 
         virtual void buildPlayer(); // Generates The PlayerObject
-        virtual Collider *getCollider(){return collider;};
-        virtual Painter *getPainter(){return painter;}
 
 
     protected:
@@ -39,7 +37,8 @@ class Player    :   public GameObject
 
     private:
         bool m_onceBuild;
-        Collider *collider;
-        Painter *painter;
+        Collider *m_collider;
+        Painter  *m_painter;
+        KeyController *m_controller;
 };
 #endif

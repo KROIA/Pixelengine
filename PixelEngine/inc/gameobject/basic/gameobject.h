@@ -5,6 +5,7 @@
 #include "controller.h"
 #include "collider.h"
 #include "painter.h"
+#include "hitboxPainter.h"
 
 class GameObject
 {
@@ -27,16 +28,20 @@ class GameObject
         virtual void setCollider(Collider *collider);
         virtual void setPainter(Painter *painter);
 
+
         // Collider settings
         virtual void addInteraction_collision_with(GameObject *other);
 
         // Painter settings
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;
+        virtual void setHitboxVisibility(const bool &isVisible);
+        virtual const bool &isHitboxVisible() const;
 
     protected:
         virtual void event_hasCollision(GameObject *other);
 
+        // List of objects, which can collide whit this object
         vector<GameObject*> m_collisionInteractionGroup;
 
     private:
@@ -44,5 +49,6 @@ class GameObject
         Collider   *m_collider;
         Painter    *m_painter;
 
+        Painter    *m_hitboxPainter;
 };
 #endif // GAMEOBJECT_H

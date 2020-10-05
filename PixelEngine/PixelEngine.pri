@@ -80,7 +80,7 @@ PixelEngine_srcPath = $$ENGINE_PATH/src
 INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath \
                $$PixelEngine_incPath/utility \
-               $$PixelEngine_incPath/utility/gameObjectGroup \
+               $$PixelEngine_incPath/utility/group \
                $$PixelEngine_incPath/gameobject \
                $$PixelEngine_incPath/gameobject/basic \
                $$PixelEngine_incPath/gameobject/collider \
@@ -97,10 +97,12 @@ SOURCES += \
         $$PixelEngine_srcPath/display/pixel.cpp \
         $$PixelEngine_srcPath/gameobject/collider/basic/collider.cpp \
         $$PixelEngine_srcPath/gameobject/painter/basic/painter.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/hitboxPainter.cpp \
         $$PixelEngine_srcPath/gameobject/controller/basic/controller.cpp \
         $$PixelEngine_srcPath/gameobject/controller/keyController.cpp \
         $$PixelEngine_srcPath/gameobject/basic/gameobject.cpp \
-        $$PixelEngine_srcPath/utility/gameObjectGroup/painterGroup.cpp \
+        $$PixelEngine_srcPath/gameobject/wall.cpp \
+        $$PixelEngine_srcPath/utility/group/gameObjectGroup.cpp \
         $$PixelEngine_srcPath/utility/event.cpp \
         $$PixelEngine_srcPath/utility/eventhandler.cpp \
         $$PixelEngine_srcPath/utility/timer.cpp \
@@ -112,13 +114,14 @@ HEADERS += \
         $$PixelEngine_incPath/display/pixel.h \
         $$PixelEngine_incPath/gameobject/collider/basic/collider.h \
         $$PixelEngine_incPath/gameobject/painter/basic/painter.h \
+        $$PixelEngine_incPath/gameobject/painter/hitboxPainter.h \
         $$PixelEngine_incPath/gameobject/controller/basic/controller.h \
         $$PixelEngine_incPath/gameobject/controller/keyController.h \
         $$PixelEngine_incPath/gameobject/basic/gameobject.h \
+        $$PixelEngine_incPath/gameobject/wall.h \
         $$PixelEngine_incPath/utility/event.h \
         $$PixelEngine_incPath/utility/eventhandler.h \
-        $$PixelEngine_incPath/utility/gameObjectGroup/group.h \
-        $$PixelEngine_incPath/utility/gameObjectGroup/painterGroup.h \
+        $$PixelEngine_incPath/utility/group/gameObjectGroup.h \
         $$PixelEngine_incPath/utility/point.h \
         $$PixelEngine_incPath/utility/vector.h \
         $$PixelEngine_incPath/utility/timer.h \

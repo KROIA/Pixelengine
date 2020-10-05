@@ -19,6 +19,10 @@ class Painter   :   public  LayerItem
         virtual ~Painter();
 
         virtual void addPixel(const Pixel &pixel);
+        virtual const Pixel &getPixel(const size_t &index) const;
+        virtual size_t getPixelAmount() const;
+        virtual void setPixelColor(const size_t &index, const Color &color);
+        virtual void setPixelColor(const Color &color);
 
         virtual void draw(PixelDisplay &display);
 
@@ -30,6 +34,9 @@ class Painter   :   public  LayerItem
 
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;
+
+        virtual void erasePixel(const size_t &index);
+        virtual void clear(); // Deletes all pixels
 
     protected:
         vector<Pixel> m_pixelList;

@@ -21,6 +21,7 @@ class Pixel : public Color, public LayerItem
 
         virtual ~Pixel();
 
+        virtual void setColor(const Color &color);
 
     protected:
 

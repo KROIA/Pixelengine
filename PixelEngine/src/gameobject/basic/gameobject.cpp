@@ -2,15 +2,17 @@
 
 GameObject::GameObject()
 {
-    m_controller = new Controller();
-    m_collider   = new Collider();
-    m_painter    = new Painter;
+    m_controller    = new Controller();
+    m_collider      = new Collider();
+    m_painter       = new Painter();
+    m_hitboxPainter = new Painter();
 }
 GameObject::GameObject(const GameObject &other)
 {
-    *this->m_controller = *other.m_controller;
-    *this->m_collider   = *other.m_collider;
-    *this->m_painter    = *other.m_painter;
+    *this->m_controller    = *other.m_controller;
+    *this->m_collider      = *other.m_collider;
+    *this->m_painter       = *other.m_painter;
+    *this->m_hitboxPainter = *other.m_hitboxPainter;
 }
 GameObject::GameObject(Controller *controller,
                        Collider   *collider,
@@ -26,6 +28,7 @@ GameObject::~GameObject()
     delete m_controller;
     delete m_collider;
     delete m_painter;
+    delete m_hitboxPainter;
 }
 
 void GameObject::tick(const Point &direction)
@@ -58,7 +61,9 @@ void GameObject::checkCollision(const vector<GameObject*> &other)
 void GameObject::draw(PixelDisplay &display)
 {
     m_painter->setPos(m_controller->getPos());
+    m_hitboxPainter->setPos(m_controller->getPos());
     m_painter->draw(display);
+    m_hitboxPainter->draw(display);
 }
 
 void GameObject::setController(Controller *controller)
@@ -102,6 +107,18 @@ void GameObject::setVisibility(const bool &isVisible)
 const bool &GameObject::isVisible() const
 {
     return m_painter->isVisible();
+}
+void GameObject::setHitboxVisibility(const bool &isVisible)
+{
+    if(isVisible)
+    {
+        HitboxPainter::makeVisibleCollider(m_collider,m_hitboxPainter);
+    }
+    m_hitboxPainter->setVisibility(isVisible);
+}
+const bool &GameObject::isHitboxVisible() const
+{
+    return m_hitboxPainter->isVisible();
 }
 
 void GameObject::event_hasCollision(GameObject *other)

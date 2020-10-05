@@ -33,9 +33,12 @@ class Collider  :   public LayerItem
         virtual bool intersectsBoundingBox(const Collider &other) const;
         virtual bool collides(const Collider &other) const;
 
+        virtual void erase(const size_t &index);
+        virtual void clear();
 
     protected:
 
+        virtual void setBoundingBox();
         virtual void setBoundingBox(const Rect &box);
         virtual void setBoundingBox(const int &x,const int &y,
                                     const int &width,const int &height);

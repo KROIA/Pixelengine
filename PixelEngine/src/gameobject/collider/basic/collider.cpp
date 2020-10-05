@@ -85,12 +85,9 @@ void Collider::addHitBox(Rect box)
     box.setPos(box.getPos().getX()+m_pos.getX(),
                box.getPos().getY()+m_pos.getY());
     m_hitBoxList.push_back(box);
-    int minX = this->getMinX();
-    int minY = this->getMinY();
-    int maxX = this->getMaxX();
-    int maxY = this->getMaxY();
-    m_boundingBox.setSize(maxX-minX+1,maxY-minY+1);
-    m_boundingBox.setPos(minX,minY);
+
+    this->setBoundingBox();
+
 }
 
 void Collider::addHitBox(const vector<Rect> &boxList)
@@ -141,7 +138,24 @@ bool Collider::collides(const Collider &other) const
     }
     return false;
 }
-
+void Collider::erase(const size_t &index)
+{
+    m_hitBoxList.erase(m_hitBoxList.begin()+index);
+    this->setBoundingBox();
+}
+void Collider::clear()
+{
+    m_hitBoxList.clear();
+    this->setBoundingBox();
+}
+void Collider::setBoundingBox()
+{
+    int minX = this->getMinX();
+    int minY = this->getMinY();
+    int maxX = this->getMaxX();
+    int maxY = this->getMaxY();
+    setBoundingBox(minX,minY,maxX-minX+1,maxY-minY+1);
+}
 void Collider::setBoundingBox(const Rect &box)
 {
     m_boundingBox = box;

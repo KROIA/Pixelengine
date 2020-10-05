@@ -7,7 +7,15 @@ Player::Player()
     m_playerColor.g = 50;
     m_playerColor.b = 255;
 
-    m_onceBuild = false;
+    m_onceBuild  = false;
+
+    m_painter      = new Painter();
+    m_collider     = new Collider();
+    m_controller   = new KeyController();
+
+    this->setPainter(m_painter);
+    this->setCollider(m_collider);
+    this->setController(m_controller);
 }
 Player::Player(const Player &other)
     :   GameObject(other)
@@ -31,6 +39,7 @@ Player::~Player()
 void Player::setColor(const Color &color)
 {
     m_playerColor = color;
+    m_painter->setPixelColor(m_playerColor);
 }
 void Player::setStartPos(const Point &point)
 {
@@ -56,20 +65,19 @@ void Player::buildPlayer()
         return;
     }
     m_onceBuild = true;
-    KeyController *controller = new KeyController();
-    controller->setKey_forMove_UP(m_keyUP);
-    controller->setKey_forMove_LEFT(m_keyLEFT);
-    controller->setKey_forMove_RIGHT(m_keyRIGHT);
-    controller->setKey_forMove_DOWN(m_keyDOWN);
-    controller->setPosInitial(m_initalPos);
 
-    painter  = new Painter();
-    collider = new Collider();
-    this->setupPLayerBody(painter,collider);
+    m_controller->setKey_forMove_UP(m_keyUP);
+    m_controller->setKey_forMove_LEFT(m_keyLEFT);
+    m_controller->setKey_forMove_RIGHT(m_keyRIGHT);
+    m_controller->setKey_forMove_DOWN(m_keyDOWN);
+    m_controller->setPosInitial(m_initalPos);
 
-    this->setPainter(painter);
-    this->setCollider(collider);
-    this->setController(controller);
+    m_painter->clear();
+    m_collider->clear();
+
+    this->setupPLayerBody(m_painter,m_collider);
+
+
 }
 void Player::setupPLayerBody(Painter *p,Collider *c)
 {

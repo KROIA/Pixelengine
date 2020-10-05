@@ -36,5 +36,10 @@ Pixel::~Pixel()
 {
 
 }
-
+void Pixel::setColor(const Color &color)
+{
+    this->r = color.r;
+    this->g = color.g;
+    this->b = color.b;
+}
 
