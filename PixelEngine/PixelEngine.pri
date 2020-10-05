@@ -22,9 +22,12 @@ isEmpty(ENGINE_PATH) {
     message( $${ENGINE_PATH} )
 }
 
+
 #SFML include
-SFML_VERSION = "2.5.1"
-SFML_PATH    = "$$ENGINE_PATH/extern/SFML-$$SFML_VERSION"
+SFML_VERSION            = "2.5.1"
+SFML_PATH               = "$$ENGINE_PATH/extern/SFML-$$SFML_VERSION"
+SFML_DEBUG_DLL_BASE     = $$SFML_PATH\bin\Debug\lib    # Path to the dll's from SFML
+SFML_RELEASE_DLL_BASE   = $$SFML_PATH\bin\Release\lib  # Path to the dll's from SFML
 include($$SFML_PATH/SFML.pri)
 #end SFML include
 
