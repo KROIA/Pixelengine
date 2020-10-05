@@ -4,11 +4,13 @@ Painter::Painter()
     :   LayerItem()
 {
     setPos(0,0);
+    setVisibility(true);
 }
 Painter::Painter(const Painter &other)
     :   LayerItem(other)
 {
     this->m_pixelList  = other.m_pixelList;
+    this->m_isVisible  = other.m_isVisible;
 }
 
 Painter::~Painter()
@@ -66,4 +68,12 @@ void Painter::setY(const int &y)
         m_pixelList[i].setY(m_pixelList[i].getY() + deltaY);
     }
     LayerItem::setY(y);
+}
+void Painter::setVisibility(const bool &isVisible)
+{
+    m_isVisible = isVisible;
+}
+const bool &Painter::isVisible() const
+{
+    return m_isVisible;
 }

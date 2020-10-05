@@ -18,6 +18,7 @@ class GameObject
         virtual ~GameObject();
 
         virtual void tick(const Point &direction);
+        virtual void checkCollision(); // Checks collision with this->m_collisionInteractionGroup
         virtual void checkCollision(const vector<GameObject*> &other);
         virtual void draw(PixelDisplay &display);
 
@@ -26,11 +27,17 @@ class GameObject
         virtual void setCollider(Collider *collider);
         virtual void setPainter(Painter *painter);
 
-        //virtual void applyNextPos();
+        // Collider settings
+        virtual void addInteraction_collision_with(GameObject *other);
 
+        // Painter settings
+        virtual void setVisibility(const bool &isVisible);
+        virtual const bool &isVisible() const;
 
     protected:
         virtual void event_hasCollision(GameObject *other);
+
+        vector<GameObject*> m_collisionInteractionGroup;
 
     private:
         Controller *m_controller;

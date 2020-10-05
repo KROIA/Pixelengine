@@ -28,6 +28,7 @@ class Group
 
         virtual void add(T obj);
         virtual void add(const vector<T> &list);
+        virtual void add(const Group<T> &list);
         virtual T get(const size_t &index) const;
         virtual const vector<T> &getAll() const;
         virtual void set(const vector<T> &list);
@@ -80,6 +81,11 @@ void Group<T>::add(const vector<T> &list)
     {
         this->add(list[i]);
     }
+}
+template<class T>
+void Group<T>::add(const Group<T> &list)
+{
+    this->add(list.getAll());
 }
 template<class T>
 T Group<T>::get(const size_t &index) const

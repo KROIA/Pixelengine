@@ -34,6 +34,11 @@ void GameObject::tick(const Point &direction)
     //m_collider->setPos(m_controller->getNextPos());
     m_collider->setPos(m_controller->getPos());
 }
+void GameObject::checkCollision()
+{
+    this->checkCollision(m_collisionInteractionGroup);
+}
+
 void GameObject::checkCollision(const vector<GameObject*> &other)
 {
     for(size_t i=0; i<other.size(); i++)
@@ -77,11 +82,27 @@ void GameObject::setPainter(Painter *painter)
     delete m_painter;
     m_painter = painter;
 }
-
-/*void GameObject::applyNextPos()
+void GameObject::addInteraction_collision_with(GameObject *other)
 {
-    m_controller->applyNextPos();
-}*/
+    if(other == nullptr)
+        throw std::runtime_error(std::string("GameObject::addCollisionWith(GameObject *[nullptr])): ")+
+                                 "Can't add not existing object to the group");
+    for(size_t i=0; i<m_collisionInteractionGroup.size(); i++)
+    {
+        if(m_collisionInteractionGroup[i] == other)
+            return; // obj already exists in the list, so don't add it.
+    }
+    m_collisionInteractionGroup.push_back(other);
+}
+
+void GameObject::setVisibility(const bool &isVisible)
+{
+    m_painter->setVisibility(isVisible);
+}
+const bool &GameObject::isVisible() const
+{
+    return m_painter->isVisible();
+}
 
 void GameObject::event_hasCollision(GameObject *other)
 {

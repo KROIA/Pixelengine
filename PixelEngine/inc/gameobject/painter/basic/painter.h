@@ -28,8 +28,12 @@ class Painter   :   public  LayerItem
         virtual void setX(const int &x);
         virtual void setY(const int &y);
 
+        virtual void setVisibility(const bool &isVisible);
+        virtual const bool &isVisible() const;
+
     protected:
         vector<Pixel> m_pixelList;
+        bool    m_isVisible;
     private:
 
 };

@@ -7,7 +7,7 @@
 #include "keyController.h"
 #include "keyboard.h"
 #include "gameobject.h"
-#include "interactiveGroup.h"
+#include "painterGroup.h"
 
 #include "pixelengine.h"
 
@@ -60,8 +60,8 @@ int main(int argc, char *argv[])
     object.setCollider(&collider1);
     //object.setController(&controller1);
     object.setPainter(&painter1);
-    InteractiveCollisionGroup groupPlayer;
-    groupPlayer.add(&object);
+    //InteractiveCollisionGroup groupPlayer;
+    //groupPlayer.add(&object);
 
     // Player
     Player player;
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
                          KEYBOARD_KEY_S,
                          KEYBOARD_KEY_D);
     player.buildPlayer();
-    groupPlayer.add(&player);
+    //groupPlayer.add(&player);
     //makeVisibleObsticle(*player.getCollider(),*player.getPainter());
 
     // Player 2
@@ -84,39 +84,48 @@ int main(int argc, char *argv[])
                           KEYBOARD_KEY_K,
                           KEYBOARD_KEY_L);
     player2.buildPlayer();
-    groupPlayer.add(&player2);
+    //groupPlayer.add(&player2);
     makeVisibleObsticle(*player2.getCollider(),*player2.getPainter());
 
     GameObject obsticle;
     obsticle.setCollider(&collider2);
     obsticle.setPainter(&painter2);
     obsticle.setController(&controller2);
-    InteractiveCollisionGroup groupObsticle;
-    groupObsticle.add(&obsticle);
+    //InteractiveCollisionGroup groupObsticle;
+    //groupObsticle.add(&obsticle);
 
-    groupPlayer.interactWith(&groupObsticle);
-    groupPlayer.interactWith(&groupPlayer);
+    //groupPlayer.interactWith(&groupObsticle);
+    //groupPlayer.interactWith(&groupPlayer);
 
     PainterGroup painterGroup;
     painterGroup.add(&object);
     painterGroup.add(&player2);
     painterGroup.add(&player);
-    PainterGroup painterGroup2;
-    painterGroup2.add(&obsticle);
-    painterGroup2.setVisibility(true);
+    painterGroup.setVisibility(true);
+    //PainterGroup painterGroup2;
+    //painterGroup2.add(&obsticle);
+    //painterGroup2.setVisibility(true);
 
     PixelEngine engine;
     engine.set_setting_gameTickInterval(0.02);
     engine.set_setting_displayInterval(0.02);
 
+    player.addInteraction_collision_with(&player2);
+    player.addInteraction_collision_with(&obsticle);
+    player2.addInteraction_collision_with(&player);
+    player2.addInteraction_collision_with(&obsticle);
+
+
+
+
     engine.addGameObject(&object);
     engine.addGameObject(&obsticle);
     engine.addGameObject(&player);
     engine.addGameObject(&player2);
-    engine.addGroup(groupPlayer);
-    engine.addGroup(groupObsticle);
-    engine.addGroup(painterGroup);
-    engine.addGroup(painterGroup2);
+    //engine.addGroup(groupPlayer);
+    //engine.addGroup(groupObsticle);
+    //engine.addGroup(painterGroup);
+    //engine.addGroup(painterGroup2);
 
 
 /*    Collider collider;

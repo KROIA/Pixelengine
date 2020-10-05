@@ -19,6 +19,10 @@ PainterGroup::~PainterGroup()
 void PainterGroup::setVisibility(const bool &isVisible)
 {
     m_isVisible = isVisible;
+    for(size_t i=0; i<m_objectList.size(); i++)
+    {
+        m_objectList[i]->setVisibility(isVisible);
+    }
 }
 const bool &PainterGroup::isVisible() const
 {
