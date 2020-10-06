@@ -74,6 +74,10 @@ const Rect &Collider::getBoundingBox() const
     return m_boundingBox;
 }
 
+void Collider::reserve(const size_t amount)
+{
+    m_hitBoxList.reserve(amount);
+}
 
 void Collider::addHitBox(Rect box)
 {

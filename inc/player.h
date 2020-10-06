@@ -21,7 +21,11 @@ class Player    :   public GameObject
                                    const int &DOWN_KEY,
                                    const int &RIGHT_KEY);
 
+        virtual void setStepSize(const unsigned int size);
+        virtual const unsigned int &getStepSize() const;
+
         virtual void buildPlayer(); // Generates The PlayerObject
+
 
 
     protected:

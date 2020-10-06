@@ -13,6 +13,7 @@ class KeyController     :   public Controller
         virtual ~KeyController();
 
         // From Controller
+        virtual void checkEvent();
         virtual void tick(const Point &direction);
         //virtual void move(const int &x,const int &y);
 
@@ -28,6 +29,9 @@ class KeyController     :   public Controller
         virtual void setKey_forMove_DOWN(const int &key);
         virtual void setKey_forMove_RIGHT(const int &key);
 
+        virtual void setStepSize(const unsigned int size);
+        virtual const unsigned int &getStepSize() const;
+
 
     protected:
         int m_key_forMove_UP;
@@ -40,6 +44,8 @@ class KeyController     :   public Controller
         size_t m_key_forMove_RIGHT_index;
 
         Vector m_currentMovingVec;
+
+        unsigned int m_stepSize;
     private:
 
 };

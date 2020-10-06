@@ -1,23 +1,62 @@
 #include "gameObjectGroup.h"
 
 GameObjectGroup::GameObjectGroup()
-    :   vector<GameObject *>()
 {
     this->setVisibility(true);
     this->setHitboxVisibility(false);
 }
 GameObjectGroup::GameObjectGroup(const GameObjectGroup &other)
-    :   vector<GameObject *>(other)
 {
     this->m_isVisible        = other.m_isVisible;
     this->m_hitBoxIsVisible  = other.m_hitBoxIsVisible;
+
+    this->m_list             = other.m_list;
 }
 
 GameObjectGroup::~GameObjectGroup()
 {
 
 }
-void GameObjectGroup::push_back(GameObject* obj)
+
+void GameObjectGroup::add(GameObject *object)
+{
+  /*  for(size_t i=0; i<m_list.size(); i++)
+        if(m_list[i] == object)
+            return; // GameObject already added to list*/
+    m_list.push_back(object);
+}
+void GameObjectGroup::add(GameObjectGroup *other)
+{
+    m_list.reserve(m_list.size() + other->size());
+    for(size_t i=0; i<other->size(); i++)
+        this->add((*other)[i]);
+}
+void GameObjectGroup::remove(GameObject *toRemove)
+{
+    for(size_t i=0; i<this->size(); i++)
+    {
+        if(m_list[i] == toRemove)
+        {
+            this->remove(i);
+        }
+    }
+}
+void GameObjectGroup::remove(GameObjectGroup *other)
+{
+    for(size_t i=0; i<this->size(); i++)
+    {
+        this->remove((*other)[i]);
+    }
+}
+void GameObjectGroup::remove(const size_t index)
+{
+    m_list.erase(m_list.begin()+index);
+}
+void GameObjectGroup::clear()
+{
+    m_list.clear();
+}
+/*void GameObjectGroup::push_back(GameObject* obj)
 {
     for(size_t i=0; i<this->size(); i++)
     {
@@ -29,8 +68,8 @@ void GameObjectGroup::push_back(GameObject* obj)
     if(obj->isRemoved())
         obj->reActivate();
     vector::push_back(obj);
-}
-void GameObjectGroup::append(const vector<GameObject*> &other)
+}*/
+/*void GameObjectGroup::append(const vector<GameObject*> &other)
 {
     for(size_t i=0; i<other.size(); i++)
     {
@@ -40,38 +79,14 @@ void GameObjectGroup::append(const vector<GameObject*> &other)
         }
     }
     this->insert(this->end(),other.begin(),other.end());
-}
-void GameObjectGroup::remove(GameObject *toRemove)
-{
-    for(size_t i=0; i<this->size(); i++)
-    {
-        if((*this)[i] == toRemove)
-        {
-            toRemove->remove();
-            this->erase(this->begin()+i);
-            if(i>0)
-                i--;
-        }
-    }
-}
-void GameObjectGroup::remove(const vector<GameObject*> &other)
-{
-    for(size_t i=0; i<this->size(); i++)
-    {
-        this->remove(other[i]);
-    }
-}
+}*/
+
 void GameObjectGroup::setVisibility(const bool &isVisible)
 {
     m_isVisible = isVisible;
     for(size_t i=0; i<this->size(); i++)
     {
-        if((*this)[i]->isRemoved())
-        {
-            this->remove((*this)[i]);
-            continue;
-        }
-        (*this)[i]->setVisibility(m_isVisible);
+        m_list[i]->setVisibility(m_isVisible);
     }
 }
 const bool &GameObjectGroup::isVisible() const
@@ -83,15 +98,23 @@ void GameObjectGroup::setHitboxVisibility(const bool &isVisible)
     m_hitBoxIsVisible = isVisible;
     for(size_t i=0; i<this->size(); i++)
     {
-        if((*this)[i]->isRemoved())
-        {
-            this->remove((*this)[i]);
-            continue;
-        }
-        (*this)[i]->setHitboxVisibility(m_hitBoxIsVisible);
+        m_list[i]->setHitboxVisibility(m_hitBoxIsVisible);
     }
 }
 const bool &GameObjectGroup::isHitboxVisible() const
 {
     return m_hitBoxIsVisible;
+}
+
+size_t GameObjectGroup::size() const
+{
+    return m_list.size();
+}
+GameObject *GameObjectGroup::operator[](const size_t &index) const
+{
+    return m_list[index];
+}
+const vector<GameObject*> &GameObjectGroup::getVector() const
+{
+    return m_list;
 }

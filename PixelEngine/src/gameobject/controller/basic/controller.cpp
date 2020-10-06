@@ -24,6 +24,10 @@ Controller::Controller(const Controller &other)
 
 }
 
+void Controller::checkEvent()
+{
+    EventHandler::checkEvent();
+}
 void Controller::tick(const Point &direction)
 {
     if(m_neededStepsForMove == 0)

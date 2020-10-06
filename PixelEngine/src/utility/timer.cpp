@@ -62,5 +62,6 @@ double Timer::getTime()
 {
     if(!m_timerStarted)
         return 0;
+    this->update();
     return m_runtime;
 }

@@ -6,6 +6,8 @@ KeyController::KeyController()
     m_key_forMove_LEFT      = -1;
     m_key_forMove_DOWN      = -1;
     m_key_forMove_RIGHT     = -1;
+
+    this->setStepSize(1);
 }
 KeyController::KeyController(const KeyController &other)
 {
@@ -27,16 +29,16 @@ KeyController::~KeyController()
 }
 
 // From Controller
-void KeyController::tick(const Point &direction)
+void KeyController::checkEvent()
 {
     // KeyController::tick gets called 2 times per GameTick,
     // so only handle events once per GameTick
-    if(direction.getX())
-    {
-        m_currentMovingVec.set(0,0);
-        this->checkEvent();
-        this->move(m_currentMovingVec);
-    }
+    m_currentMovingVec.set(0,0);
+    Controller::checkEvent();
+    this->move(m_currentMovingVec);
+}
+void KeyController::tick(const Point &direction)
+{
     Controller::tick(direction);
 }
 /*void KeyController::move(const int &x,const int &y)
@@ -47,13 +49,13 @@ void KeyController::tick(const Point &direction)
 void KeyController::receive_key_isPressed(const int &key)
 {
     if(key == m_key_forMove_UP)
-        m_currentMovingVec.moveY(-1);
+        m_currentMovingVec.moveY(-m_stepSize);
     else if(key == m_key_forMove_DOWN)
-        m_currentMovingVec.moveY(1);
+        m_currentMovingVec.moveY(m_stepSize);
     else if(key == m_key_forMove_LEFT)
-        m_currentMovingVec.moveX(-1);
+        m_currentMovingVec.moveX(-m_stepSize);
     else if(key == m_key_forMove_RIGHT)
-        m_currentMovingVec.moveX(1);
+        m_currentMovingVec.moveX(m_stepSize);
 
     //qDebug() << "KeyController Key: "<<key<<"\receive_key_isPressed";
 }
@@ -99,4 +101,12 @@ void KeyController::setKey_forMove_RIGHT(const int &key)
         removeEvent(m_key_forMove_RIGHT_index);
     m_key_forMove_RIGHT = key;
     m_key_forMove_RIGHT_index = this->addEvent(Event(m_key_forMove_RIGHT));
+}
+void KeyController::setStepSize(const unsigned int size)
+{
+    m_stepSize = size;
+}
+const unsigned int &KeyController::getStepSize() const
+{
+    return m_stepSize;
 }

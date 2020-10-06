@@ -17,6 +17,10 @@ Painter::~Painter()
 {
 
 }
+void Painter::reserve(const size_t amount)
+{
+    m_pixelList.reserve(amount);
+}
 void Painter::addPixel(const Pixel &pixel)
 {
     m_pixelList.push_back(pixel);

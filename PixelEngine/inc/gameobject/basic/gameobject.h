@@ -18,8 +18,9 @@ class GameObject
 
         virtual ~GameObject();
 
+        virtual void checkEvent();
         virtual void tick(const Point &direction);
-        virtual void checkCollision(); // Checks collision with this->m_collisionInteractionGroup
+        //virtual void checkCollision(); // Checks collision with this->m_collisionInteractionGroup
         virtual void checkCollision(const vector<GameObject*> &other);
         virtual void draw(PixelDisplay &display);
 
@@ -30,8 +31,8 @@ class GameObject
 
 
         // Collider settings
-        virtual void addInteraction_collision_with(GameObject *other);
-        virtual void addInteraction_collision_with(const vector<GameObject *> otherList);
+        //virtual void addInteraction_collision_with(GameObject *other);
+        //virtual void addInteraction_collision_with(const vector<GameObject *> otherList);
 
         // Painter settings
         virtual void setVisibility(const bool &isVisible);
@@ -39,15 +40,15 @@ class GameObject
         virtual void setHitboxVisibility(const bool &isVisible);
         virtual const bool &isHitboxVisible() const;
 
-        virtual void remove();
+       /* virtual void remove();
         virtual void reActivate();
-        virtual const bool &isRemoved() const;
+        virtual const bool &isRemoved() const;*/
 
     protected:
         virtual void event_hasCollision(GameObject *other);
 
         // List of objects, which can collide whit this object
-        vector<GameObject*> m_collisionInteractionGroup;
+        //vector<GameObject*> m_collisionInteractionGroup;
 
     private:
         Controller *m_controller;
@@ -56,6 +57,6 @@ class GameObject
 
         Painter    *m_hitboxPainter;
 
-        bool m_isRemoved;
+        //bool m_isRemoved;
 };
 #endif // GAMEOBJECT_H

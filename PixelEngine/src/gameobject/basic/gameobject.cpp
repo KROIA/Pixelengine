@@ -6,7 +6,7 @@ GameObject::GameObject()
     m_collider      = new Collider();
     m_painter       = new Painter();
     m_hitboxPainter = new Painter();
-    m_isRemoved     = false;
+    //m_isRemoved     = false;
 }
 GameObject::GameObject(const GameObject &other)
 {
@@ -14,7 +14,7 @@ GameObject::GameObject(const GameObject &other)
     *this->m_collider      = *other.m_collider;
     *this->m_painter       = *other.m_painter;
     *this->m_hitboxPainter = *other.m_hitboxPainter;
-    this->m_isRemoved      = other.m_isRemoved;
+    //this->m_isRemoved      = other.m_isRemoved;
 }
 GameObject::GameObject(Controller *controller,
                        Collider   *collider,
@@ -23,7 +23,7 @@ GameObject::GameObject(Controller *controller,
     this->setController(controller);
     this->setCollider(collider);
     this->setPainter(painter);
-    m_isRemoved = false;
+   // m_isRemoved = false;
 }
 
 GameObject::~GameObject()
@@ -33,14 +33,17 @@ GameObject::~GameObject()
     delete m_painter;
     delete m_hitboxPainter;
 }
-
+void GameObject::checkEvent()
+{
+    m_controller->checkEvent();
+}
 void GameObject::tick(const Point &direction)
 {
     m_controller->tick(direction);
     //m_collider->setPos(m_controller->getNextPos());
     m_collider->setPos(m_controller->getPos());
 }
-void GameObject::checkCollision()
+/*void GameObject::checkCollision()
 {
     for(size_t i=0; i<m_collisionInteractionGroup.size(); i++)
     {
@@ -48,7 +51,7 @@ void GameObject::checkCollision()
             m_collisionInteractionGroup.erase(m_collisionInteractionGroup.begin()+i);
     }
     this->checkCollision(m_collisionInteractionGroup);
-}
+}*/
 
 void GameObject::checkCollision(const vector<GameObject*> &other)
 {
@@ -95,7 +98,7 @@ void GameObject::setPainter(Painter *painter)
     delete m_painter;
     m_painter = painter;
 }
-void GameObject::addInteraction_collision_with(GameObject *other)
+/*void GameObject::addInteraction_collision_with(GameObject *other)
 {
     if(other == nullptr)
         throw std::runtime_error(std::string("GameObject::addCollisionWith(GameObject *[nullptr])): ")+
@@ -113,7 +116,7 @@ void GameObject::addInteraction_collision_with(const vector<GameObject *> otherL
     {
         this->addInteraction_collision_with(otherList[i]);
     }
-}
+}*/
 void GameObject::setVisibility(const bool &isVisible)
 {
     m_painter->setVisibility(isVisible);
@@ -135,7 +138,7 @@ const bool &GameObject::isHitboxVisible() const
 {
     return m_hitboxPainter->isVisible();
 }
-void GameObject::remove()
+/*void GameObject::remove()
 {
     m_isRemoved = true;
 }
@@ -146,7 +149,7 @@ void GameObject::reActivate()
 const bool &GameObject::isRemoved() const
 {
     return m_isRemoved;
-}
+}*/
 void GameObject::event_hasCollision(GameObject *other)
 {
     m_controller->setToLastPos();

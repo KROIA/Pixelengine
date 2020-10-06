@@ -56,6 +56,14 @@ void Player::setKeyBinding(const int &UP_KEY,
     m_keyRIGHT  = RIGHT_KEY;
 
 }
+void Player::setStepSize(const unsigned int size)
+{
+    m_controller->setStepSize(size);
+}
+const unsigned int &Player::getStepSize() const
+{
+    return m_controller->getStepSize();
+}
 
 void Player::buildPlayer()
 {
@@ -79,6 +87,7 @@ void Player::buildPlayer()
 
 
 }
+
 void Player::setupPLayerBody(Painter *p,Collider *c)
 {
     /**3**0**3*

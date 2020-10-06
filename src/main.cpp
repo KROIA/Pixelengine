@@ -53,30 +53,19 @@ Player *player2;
 GameObject *obsticle1;
 Wall *wall1;
 GameObject *imported;
-GameObjectGroup objectGroup;
+GameObjectGroup *objectGroup;
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    /*GameObject *test;
-    qDebug() << "test*="<<test;
-    if(test == nullptr)
-        qDebug() << "test deleted";
-    test = new GameObject();
-    qDebug() << "test*="<<test;
-    if(test == nullptr)
-        qDebug() << "test deleted";
-    delete test;
-    if(test == nullptr)
-        qDebug() << "test deleted";
-    qDebug() << "test*="<<test;
-    getchar();*/
+
     // Generate the engine
     unsigned int mapWidth = 500;
     PointU windowSize(1500,800);
     PixelEngine engine(PointU(mapWidth,double(mapWidth)*double(windowSize.getY())/double(windowSize.getX())),PointU(1500,800));
+    engine.set_setting_checkEventInterval(0.01);
     engine.set_setting_gameTickInterval(0.01);
-    engine.set_setting_displayInterval(0.02);
+    engine.set_setting_displayInterval(0.01);
 
     // Player 1
     player1 = new Player();
@@ -84,6 +73,7 @@ int main(int argc, char *argv[])
     player1->setStartPos(Point(50,50));
     player1->setKeyBinding(KEYBOARD_KEY_W, KEYBOARD_KEY_A,
                            KEYBOARD_KEY_S,  KEYBOARD_KEY_D);
+    player1->setStepSize(1);
     player1->buildPlayer();
 
     // Player 2
@@ -116,47 +106,32 @@ int main(int argc, char *argv[])
     imported = getimportedObject();
 
     // Make Boarder
-    GameObjectGroup boarderGroup = makeBoarder(&engine);
+    GameObjectGroup *boarderGroup = new GameObjectGroup();
+    *boarderGroup = makeBoarder(&engine);
 
     // Make Group of Objects for toggle hitbox in loop below
-
-    objectGroup.push_back(player1);
-    objectGroup.push_back(player2);
-    objectGroup.push_back(obsticle1);
-    objectGroup.push_back(wall1);
-    objectGroup.push_back(imported);
-    objectGroup.append(boarderGroup);
-
-    // Set Interactions
-    player1->addInteraction_collision_with(player2);
-    player1->addInteraction_collision_with(obsticle1);
-    player1->addInteraction_collision_with(wall1);
-    player1->addInteraction_collision_with(imported);
-    player1->addInteraction_collision_with(boarderGroup);
-
-    player2->addInteraction_collision_with(player1);
-    player2->addInteraction_collision_with(obsticle1);
-    player2->addInteraction_collision_with(wall1);
-    player2->addInteraction_collision_with(imported);
-    player2->addInteraction_collision_with(boarderGroup);
-
-    imported->addInteraction_collision_with(player1);
-    imported->addInteraction_collision_with(player2);
-    imported->addInteraction_collision_with(obsticle1);
-    imported->addInteraction_collision_with(wall1);
-    imported->addInteraction_collision_with(boarderGroup);
-    // End Interactions
+    objectGroup = new GameObjectGroup();
+    objectGroup->add(player1);
+    objectGroup->add(player2);
+    objectGroup->add(obsticle1);
+    objectGroup->add(wall1);
+    objectGroup->add(imported);
+    objectGroup->add(boarderGroup);
 
     // Engine
-
-    engine.addGameObject(obsticle1);
-    engine.addGameObject(player1);
-    engine.addGameObject(player2);
-    engine.addGameObject(wall1);
-    engine.addGameObject(imported);
-
     engine.setUserTickLoop(userTickLoop);
     engine.setUserDisplayLoop(userDisplayLoop);
+
+    engine.addGroup(objectGroup);
+
+
+
+    // Set Interactions
+    engine.setCollisionMultiInteraction({player1,player2,imported},{player1,player2,imported});
+
+    engine.setCollisionSingleInteraction({player1,player2,imported},{obsticle1,wall1});
+    engine.setCollisionSingleInteraction({player1,player2,imported},boarderGroup);
+    // End Interactions
 //-------------------------------
 
 
@@ -168,16 +143,20 @@ int main(int argc, char *argv[])
     {
         if(statsTimer.start(0.1))
         {
-            qDebug() << "FPS: "<<FPS<<"\tTPS: "<<TPS;
+            qDebug() << "FPS: "<<FPS<<"\tTPS: "<<TPS
+                     <<"\tCollisionChecks: "<<Rect::stats_collisionCheckCount<<"\tCollisions: "<<Rect::stats_collisionCount
+                     <<"\tC_Time: "<<engine.get_stats_checkCollisionTime();
         }
+
         if(deleteTimer.start(5) && !removed)
         {
             qDebug() << "delete obsticle1";
+            engine.deleteGameObject(obsticle1);
             //engine.removeGameObject(obsticle1);
-            obsticle1->remove();
             removed = true;
         }
 
+        engine.checkEvent();
         engine.tick();
         engine.display();
         if(engine.get_setting_displayInterval()  > 0.001 &&
@@ -191,7 +170,7 @@ int main(int argc, char *argv[])
 }
 void userTickLoop(double tickInterval)
 {
-
+    Rect::stats_reset();
     if(tpsTimer.start(tpsUpdateTimeInterval))
     {
         TPS = tpsCounter / tpsUpdateTimeInterval;
@@ -211,7 +190,7 @@ void userDisplayLoop(double frameInterval)
     fpsCounter++;
     if(timer.start(1))
     {
-        objectGroup.setHitboxVisibility(toggle);
+        objectGroup->setHitboxVisibility(toggle);
         toggle = !toggle;
     }
     if(fadeTimer.start(0.05))
@@ -234,20 +213,27 @@ GameObject *getimportedObject()
     controller->setKey_forMove_LEFT(KEYBOARD_KEY_F);
     controller->setKey_forMove_DOWN(KEYBOARD_KEY_G);
     controller->setKey_forMove_RIGHT(KEYBOARD_KEY_H);
-    controller->setPosInitial(150,100);
+    controller->setPosInitial(250,100);
 
     obj->setPainter(painter);
     obj->setCollider(collider);
     obj->setController(controller);
+    qDebug() << "import image...";
 
     Image image;
-    image.loadFromFile("C:\\Users\\KRIA\\Documents\\QT\\Projects\\Pixelengine\\bin\\Debug\\picture1.png");
+    image.loadFromFile("textues\\Einhornpng.png");
 
     sf::Vector2u size = image.getSize();
     Point middleOffset(-signed(size.x)/2,-signed(size.y)/2);
 
+    double progress = 0;
+    double maxProgress = size.x * size.y;
+
+    collider->reserve(size.x * size.y);
+    painter->reserve(size.x * size.y);
     for(unsigned int x=0; x<size.x; x++)
     {
+        qDebug() << "[\t"<<100.f*progress/maxProgress<<"\t]";
         for(unsigned int y=0; y<size.y; y++)
         {
             Color color = image.getPixel(x,y);
@@ -258,9 +244,10 @@ GameObject *getimportedObject()
                 collider->addHitBox(Rect(middleOffset.getX()+x,middleOffset.getY()+y,1,1));
                 painter->addPixel(Pixel(Point(middleOffset.getX()+x,middleOffset.getY()+y),color));
             }
+            progress += 1;
         }
     }
-
+    qDebug() << "import image done";
     return obj;
 }
 Color getRainbow(double phase)
@@ -302,10 +289,10 @@ GameObjectGroup makeBoarder(PixelEngine *engine)
     wall_4->setColor(color);
 
     GameObjectGroup group;
-    group.push_back(wall_1);
-    group.push_back(wall_2);
-    group.push_back(wall_3);
-    group.push_back(wall_4);
-    engine->addGameObject(group);
+    group.add(wall_1);
+    group.add(wall_2);
+    group.add(wall_3);
+    group.add(wall_4);
+    engine->addGameObject(&group);
     return group;
 }

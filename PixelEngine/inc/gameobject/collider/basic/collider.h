@@ -23,6 +23,7 @@ class Collider  :   public LayerItem
 
         virtual const Rect &getBoundingBox() const;
 
+        virtual void reserve(const size_t amount);
 
         virtual void addHitBox(Rect box);
         virtual void addHitBox(const vector<Rect> &boxList);

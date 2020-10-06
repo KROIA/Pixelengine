@@ -18,6 +18,8 @@ class Painter   :   public  LayerItem
 
         virtual ~Painter();
 
+        virtual void reserve(const size_t amount);
+
         virtual void addPixel(const Pixel &pixel);
         virtual const Pixel &getPixel(const size_t &index) const;
         virtual size_t getPixelAmount() const;

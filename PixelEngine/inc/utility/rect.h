@@ -47,6 +47,10 @@ class GeneralRect
         bool operator==(const GeneralRect<T> &other);
         bool operator!=(const GeneralRect<T> &other);
 
+        static void stats_reset();
+        static unsigned int stats_collisionCount;
+        static unsigned int stats_collisionCheckCount;
+
     protected:
 
     private:
@@ -188,8 +192,12 @@ bool GeneralRect<T>::intersectsY(const GeneralRect<T> &other) const
 template<class T>
 bool GeneralRect<T>::intersects(const GeneralRect<T> &other) const
 {
+    stats_collisionCheckCount++;
     if(intersectsX(other) && intersectsY(other))
+    {
+        stats_collisionCount++;
         return true;
+    }
     return false;
 }
 
@@ -218,5 +226,15 @@ bool GeneralRect<T>::operator!=(const GeneralRect<T> &other)
     if(this->getCornerPoint_BR() != other.getCornerPoint_BR())
         return true;
     return false;
+}
+template<class T>
+unsigned int GeneralRect<T>::stats_collisionCount = 0;
+template<class T>
+unsigned int GeneralRect<T>::stats_collisionCheckCount = 0;
+template<class T>
+void GeneralRect<T>::stats_reset()
+{
+    stats_collisionCount      = 0;
+    stats_collisionCheckCount = 0;
 }
 #endif // RECT_H

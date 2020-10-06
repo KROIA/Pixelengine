@@ -29,12 +29,16 @@ class PixelEngine
         virtual const PointU &getMapSize() const;
 
         // Userloops
+        virtual void setUserCheckEventLoop(p_func func);
         virtual void setUserDisplayLoop(p_func func);
         virtual void setUserTickLoop(p_func func);
 
+        virtual void checkEvent();
         virtual void tick();
         virtual void display();
 
+        virtual void set_setting_checkEventInterval(const double &seconds);
+        virtual const double &get_setting_eventHandleInterval() const;
         virtual void set_setting_gameTickInterval(const double &seconds);
         virtual const double &get_setting_gameTickInterval() const;
         virtual void set_setting_displayInterval(const double &seconds);
@@ -42,33 +46,72 @@ class PixelEngine
 
 
         virtual void addGameObject(GameObject *obj);
-        virtual void addGameObject(const vector<GameObject*> &group);
-        virtual void removeGameObject(GameObject *toRemove);
-        virtual void removeGameObject(const vector<GameObject*> &toRemoveGroup);
+        virtual void addGameObject(GameObjectGroup *group);
+        virtual void removeGameObject(GameObject *obj);
+        virtual void removeGameObject(GameObjectGroup *group);
+        virtual void deleteGameObject(GameObject *obj);
+        virtual void deleteGameObject(GameObjectGroup *group);
+
+        // obj1 only interacts with obj2 not obj2 with obj1
+        virtual void setCollisionSingleInteraction(GameObject *obj1,GameObject *obj2, const bool &doesCollide = true);
+        virtual void setCollisionSingleInteraction(GameObject *obj1,GameObjectGroup *obj2List, const bool &doesCollide = true);
+        virtual void setCollisionSingleInteraction(GameObjectGroup *obj1List,GameObjectGroup *obj2List, const bool &doesCollide = true);
+        virtual void setCollisionSingleInteraction(GameObject *obj1,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
+        virtual void setCollisionSingleInteraction(GameObjectGroup *obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
+        virtual void setCollisionSingleInteraction(const vector<GameObject*> &obj1List,GameObjectGroup *obj2List, const bool &doesCollide = true);
+        virtual void setCollisionSingleInteraction(const vector<GameObject*> &obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
+
+        // obj1 interacts with obj2 and other way around
+        virtual void setCollisionMultiInteraction(GameObject *obj1,GameObject *obj2, const bool &doesCollide = true);
+        virtual void setCollisionMultiInteraction(GameObject *obj1,GameObjectGroup *obj2List, const bool &doesCollide = true);
+        virtual void setCollisionMultiInteraction(GameObjectGroup *obj1List,GameObjectGroup *obj2List, const bool &doesCollide = true);
+        virtual void setCollisionMultiInteraction(GameObject *obj1,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
+        virtual void setCollisionMultiInteraction(GameObjectGroup *obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
+        virtual void setCollisionMultiInteraction(const vector<GameObject*> &obj1List,GameObjectGroup *obj2List, const bool &doesCollide = true);
+        virtual void setCollisionMultiInteraction(const vector<GameObject*> &obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
+
+        virtual void addGroup(GameObjectGroup *group);
+        virtual void removeGroup(GameObjectGroup *group); // Removes the Group from the engine.
+        virtual void deleteGroup(GameObjectGroup *group); // Removes the Group from the engine and deletes the pointer to the Group.
 
         // General functions
         static double random(double min, double max);
         static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter);
 
+
+        // Stats
+        virtual const double &get_stats_checkCollisionTime() const;
     protected:
         virtual void tickX();
         virtual void tickY();
         virtual void tickXY(const Point &dirLock);
 
     private:
+
+
+
         PixelDisplay *m_display;
         PointU m_windowSize;
         PointU m_mapSize;
 
+        Timer *m_eventTimer;
+        double m_eventInterval; // sec.
         Timer *m_mainTickTimer;
         double m_mainTickInterval; // sec.
         Timer *m_displayTimer;
         double m_displayInterval; // sec.
 
-        GameObjectGroup m_gameObjectGroup;
+        GameObjectGroup         m_gameMasterObjectGroup;
+        vector<GameObjectGroup> m_gameMasterObjectGroup_collisionInteractiveList;
 
+        vector<GameObjectGroup*> m_userGroups;
+
+        p_func m_p_func_userCheckEventLoop;
         p_func m_p_func_userDisplayLoop;
         p_func m_p_func_userTickLoop;
 
+
+        Timer *m_stats_collisionCheckTimer;
+        double m_stats_collisionCheckTime;
 };
 #endif // PIXELENGINE_H

@@ -19,6 +19,7 @@ class Controller    :   public EventHandler, public LayerItem
         Controller(const Controller &other);
         virtual  ~Controller();
 
+        virtual void checkEvent();
         virtual void tick(const Point &direction);
 
         //virtual void setPosInitial(const Point &pos);
