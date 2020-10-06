@@ -19,6 +19,12 @@ PixelEngine::PixelEngine(const PointU &mapsize,const PointU &displaySize)
 
     m_stats_collisionCheckTimer  = new Timer;
     m_stats_collisionCheckTime   = 0;
+
+    m_renderLayer.push_back(GameObjectGroup());
+    m_renderLayer.push_back(GameObjectGroup());
+    m_renderLayer.push_back(GameObjectGroup());
+    m_renderLayer.push_back(GameObjectGroup());
+    m_renderLayer.push_back(GameObjectGroup());
 }
 
 PixelEngine::PixelEngine(const PixelEngine &other)
@@ -36,8 +42,10 @@ PixelEngine::PixelEngine(const PixelEngine &other)
     *this->m_displayTimer       = *other.m_displayTimer;
     this->m_displayInterval     = other.m_displayInterval;
 
-    this->m_gameMasterObjectGroup     = other.m_gameMasterObjectGroup;
-    this->m_gameMasterObjectGroup_collisionInteractiveList = other.m_gameMasterObjectGroup_collisionInteractiveList;
+    this->m_mastergameObjectGroup     = other.m_mastergameObjectGroup;
+    this->m_mastergameObjectGroup_collisionInteractiveList = other.m_mastergameObjectGroup_collisionInteractiveList;
+
+    this->m_renderLayer         = other.m_renderLayer;
 
     this->m_userGroups          = other.m_userGroups;
 
@@ -55,11 +63,11 @@ PixelEngine::~PixelEngine()
     {
         delete m_userGroups[i];
     }
-    for(size_t i=0; i<m_gameMasterObjectGroup.size(); i++)
+    for(size_t i=0; i<m_mastergameObjectGroup.size(); i++)
     {
-        delete m_gameMasterObjectGroup[i];
+        delete m_mastergameObjectGroup[i];
     }
-    m_gameMasterObjectGroup.clear();
+    m_mastergameObjectGroup.clear();
 
     delete m_display;
     delete m_eventTimer;
@@ -97,9 +105,9 @@ void PixelEngine::checkEvent()
     if(m_p_func_userCheckEventLoop != nullptr)
         (*m_p_func_userCheckEventLoop)(m_eventInterval);
 
-    for(size_t i=0; i<m_gameMasterObjectGroup.size(); i++)
+    for(size_t i=0; i<m_mastergameObjectGroup.size(); i++)
     {
-        m_gameMasterObjectGroup[i]->checkEvent();
+        m_mastergameObjectGroup[i]->checkEvent();
     }
 }
 void PixelEngine::tick()
@@ -124,12 +132,12 @@ void PixelEngine::tickY()
 void PixelEngine::tickXY(const Point &dirLock)
 {
 
-    for(size_t i=0; i<m_gameMasterObjectGroup.size(); i++)
+    for(size_t i=0; i<m_mastergameObjectGroup.size(); i++)
     {
-        m_gameMasterObjectGroup[i]->tick(dirLock);
+        m_mastergameObjectGroup[i]->tick(dirLock);
 
         m_stats_collisionCheckTimer->start(1000);
-        m_gameMasterObjectGroup[i]->checkCollision(m_gameMasterObjectGroup_collisionInteractiveList[i].getVector());
+        m_mastergameObjectGroup[i]->checkCollision(m_mastergameObjectGroup_collisionInteractiveList[i].getVector());
         m_stats_collisionCheckTime += m_stats_collisionCheckTimer->getTime();
         m_stats_collisionCheckTimer->stop();
     }
@@ -142,10 +150,14 @@ void PixelEngine::display()
     if(m_p_func_userDisplayLoop != nullptr)
         (*m_p_func_userDisplayLoop)(m_displayInterval);
 
-    for(size_t i=0; i<m_gameMasterObjectGroup.size(); i++)
+    for(size_t i=0; i<m_renderLayer.size(); i++)
     {
-        m_gameMasterObjectGroup[i]->draw(*m_display);
+        m_renderLayer[i].draw(*m_display);
     }
+    /*for(size_t i=0; i<m_mastergameObjectGroup.size(); i++)
+    {
+        m_mastergameObjectGroup[i]->draw(*m_display);
+    }*/
 
     m_display->display();
     m_display->handleEvents();
@@ -176,31 +188,34 @@ const double  &PixelEngine::get_setting_displayInterval() const
 }
 void PixelEngine::addGameObject(GameObject *obj)
 {
-    for(size_t i=0; i<m_gameMasterObjectGroup.size(); i++)
-        if(m_gameMasterObjectGroup[i] == obj)
+    for(size_t i=0; i<m_mastergameObjectGroup.size(); i++)
+        if(m_mastergameObjectGroup[i] == obj)
             return; // Group already added to list
-    m_gameMasterObjectGroup.add(obj);
-    m_gameMasterObjectGroup_collisionInteractiveList.push_back(GameObjectGroup());
+    m_mastergameObjectGroup.add(obj);
+    m_mastergameObjectGroup_collisionInteractiveList.push_back(GameObjectGroup());
+    m_renderLayer[2].add(obj);
 }
 void PixelEngine::addGameObject(GameObjectGroup *group)
 {
-    m_gameMasterObjectGroup_collisionInteractiveList.reserve(m_gameMasterObjectGroup_collisionInteractiveList.size()+group->size());
+    m_mastergameObjectGroup_collisionInteractiveList.reserve(m_mastergameObjectGroup_collisionInteractiveList.size()+group->size());
     for(size_t i=0; i<group->size(); i++)
         this->addGameObject((*group)[i]);
 }
 void PixelEngine::removeGameObject(GameObject *obj)
 {
     // Remove the obj out of the masterList
-    for(size_t i=0; i<m_gameMasterObjectGroup.size(); i++)
+    for(size_t i=0; i<m_mastergameObjectGroup.size(); i++)
     {
-        if(m_gameMasterObjectGroup[i] == obj)
+        if(m_mastergameObjectGroup[i] == obj)
         {
-            for(size_t j=0; j<m_gameMasterObjectGroup.size(); j++)
+            for(size_t j=0; j<m_mastergameObjectGroup.size(); j++)
             {
-                this->setCollisionSingleInteraction(m_gameMasterObjectGroup[j],obj,false);
+                this->setCollisionSingleInteraction(m_mastergameObjectGroup[j],obj,false);
             }
-            m_gameMasterObjectGroup_collisionInteractiveList.erase(m_gameMasterObjectGroup_collisionInteractiveList.begin() + i);
-            m_gameMasterObjectGroup.remove(obj);
+            m_mastergameObjectGroup_collisionInteractiveList.erase(m_mastergameObjectGroup_collisionInteractiveList.begin() + i);
+            m_mastergameObjectGroup.remove(obj);
+            for(size_t j=0; j<m_renderLayer.size(); j++)
+                m_renderLayer[j].remove(obj);
        }
     }
     // Remove the obj out of all lists
@@ -216,7 +231,7 @@ void PixelEngine::removeGameObject(GameObjectGroup *group)
         this->removeGameObject((*group)[i]);
     }
     /*// Remove the obj out of the masterList
-    m_gameMasterObjectGroup.remove(group);
+    m_mastergameObjectGroup.remove(group);
 
     // Remove the obj out of all lists
     for(size_t i=0; i<m_userGroups.size(); i++)
@@ -247,13 +262,13 @@ void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObject *obj
     GameObject *object2 = nullptr;
     //size_t objext2_index;
 
-    for(size_t x=0; x<m_gameMasterObjectGroup.size(); x++)
+    for(size_t x=0; x<m_mastergameObjectGroup.size(); x++)
     {
-        if(m_gameMasterObjectGroup[x] == obj1)
+        if(m_mastergameObjectGroup[x] == obj1)
         {
             object1 = obj1;
             objext1_index = x;
-        }else if(m_gameMasterObjectGroup[x] == obj2)
+        }else if(m_mastergameObjectGroup[x] == obj2)
         {
             object2 = obj2;
             //objext2_index = x;
@@ -262,16 +277,16 @@ void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObject *obj
     if(object1 != nullptr && object2 != nullptr)
     {
         bool obj2Found = false;
-        for(size_t i=0; i<m_gameMasterObjectGroup_collisionInteractiveList[objext1_index].size(); i++)
+        for(size_t i=0; i<m_mastergameObjectGroup_collisionInteractiveList[objext1_index].size(); i++)
         {
-            if(m_gameMasterObjectGroup_collisionInteractiveList[objext1_index][i] == object2)
+            if(m_mastergameObjectGroup_collisionInteractiveList[objext1_index][i] == object2)
             {
                 obj2Found = true;
                 if(!doesCollide)
                 {
                     // Remove Object2 from the Object1's colliderList
                     // Object1 will no longer collide with Object2
-                    m_gameMasterObjectGroup_collisionInteractiveList[objext1_index].remove(object2);
+                    m_mastergameObjectGroup_collisionInteractiveList[objext1_index].remove(object2);
                 }
             }
         }
@@ -279,20 +294,20 @@ void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObject *obj
         {
             // Add Object2 to the Object1's colliderList
             // Object1 will now collide with Object2
-            m_gameMasterObjectGroup_collisionInteractiveList[objext1_index].add(object2);
+            m_mastergameObjectGroup_collisionInteractiveList[objext1_index].add(object2);
         }
 /*
         bool obj1Found = false;
-        for(size_t i=0; i<m_gameMasterObjectGroup_collisionInteractiveList[objext2_index].size(); i++)
+        for(size_t i=0; i<m_mastergameObjectGroup_collisionInteractiveList[objext2_index].size(); i++)
         {
-            if(m_gameMasterObjectGroup_collisionInteractiveList[objext2_index][i] == object1)
+            if(m_mastergameObjectGroup_collisionInteractiveList[objext2_index][i] == object1)
             {
                 obj2Found = true;
                 if(!doesCollide)
                 {
                     // Remove Object1 from the Object2's colliderList
                     // Object2 will no longer collide with Object1
-                    m_gameMasterObjectGroup_collisionInteractiveList[objext2_index].remove(object1);
+                    m_mastergameObjectGroup_collisionInteractiveList[objext2_index].remove(object1);
                 }
             }
         }
@@ -300,7 +315,7 @@ void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObject *obj
         {
             // Add Object1 to the Object2's colliderList
             // Object2 will now collide with Object1
-            m_gameMasterObjectGroup_collisionInteractiveList[objext2_index].add(object1);
+            m_mastergameObjectGroup_collisionInteractiveList[objext2_index].add(object1);
         }*/
     }
 }
@@ -370,7 +385,7 @@ void PixelEngine::setCollisionMultiInteraction(const vector<GameObject*> &obj1Li
         this->setCollisionMultiInteraction(obj1List[i],obj2List,doesCollide);
 }
 
-
+// Groups
 void PixelEngine::addGroup(GameObjectGroup *group)
 {
     for(size_t i=0; i<m_userGroups.size(); i++)
@@ -395,6 +410,87 @@ void PixelEngine::deleteGroup(GameObjectGroup *group)
             m_userGroups.erase(m_userGroups.begin() + i);
             delete group;
         }
+}
+
+// Rendering
+void PixelEngine::moveRenderLayer_UP(GameObject *obj)
+{
+    size_t currentLayer = 0;
+    for(size_t i=0; i<m_renderLayer.size(); i++)
+    {
+        for(size_t j=0; j<m_renderLayer[i].size(); j++)
+        {
+            if(m_renderLayer[i][j] == obj)
+            {
+                currentLayer = i;
+                m_renderLayer[currentLayer].remove(obj);
+                if(m_renderLayer.size() <= currentLayer+1)
+                    m_renderLayer.push_back(GameObjectGroup());
+                m_renderLayer[currentLayer+1].add(obj);
+                return;
+            }
+        }
+    }
+}
+void PixelEngine::moveRenderLayer_DOWN(GameObject *obj)
+{
+    size_t currentLayer = 0;
+    for(size_t i=0; i<m_renderLayer.size(); i++)
+    {
+        for(size_t j=0; j<m_renderLayer[i].size(); j++)
+        {
+            if(m_renderLayer[i][j] == obj)
+            {
+                currentLayer = i;
+                if(currentLayer > 0)
+                {
+                    m_renderLayer[currentLayer].remove(obj);
+                    m_renderLayer[currentLayer-1].add(obj);
+                }
+                return;
+            }
+        }
+    }
+}
+void PixelEngine::setRenderLayer_BOTTOM(GameObject *obj)
+{
+    size_t currentLayer = 0;
+    for(size_t i=0; i<m_renderLayer.size(); i++)
+    {
+        for(size_t j=0; j<m_renderLayer[i].size(); j++)
+        {
+            if(m_renderLayer[i][j] == obj)
+            {
+                currentLayer = i;
+                if(currentLayer > 0)
+                {
+                    m_renderLayer[currentLayer].remove(obj);
+                    m_renderLayer[0].add(obj);
+                }
+                return;
+            }
+        }
+    }
+}
+void PixelEngine::setRenderLayer_TOP(GameObject *obj)
+{
+    size_t currentLayer = 0;
+    for(size_t i=0; i<m_renderLayer.size(); i++)
+    {
+        for(size_t j=0; j<m_renderLayer[i].size(); j++)
+        {
+            if(m_renderLayer[i][j] == obj)
+            {
+                currentLayer = i;
+                 if(m_renderLayer.size()-1 > currentLayer)
+                {
+                    m_renderLayer[currentLayer].remove(obj);
+                    m_renderLayer[m_renderLayer.size()-1].add(obj);
+                }
+                return;
+            }
+        }
+    }
 }
 
 // General functions

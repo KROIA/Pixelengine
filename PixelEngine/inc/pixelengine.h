@@ -70,9 +70,16 @@ class PixelEngine
         virtual void setCollisionMultiInteraction(const vector<GameObject*> &obj1List,GameObjectGroup *obj2List, const bool &doesCollide = true);
         virtual void setCollisionMultiInteraction(const vector<GameObject*> &obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
 
+        // Groups
         virtual void addGroup(GameObjectGroup *group);
         virtual void removeGroup(GameObjectGroup *group); // Removes the Group from the engine.
         virtual void deleteGroup(GameObjectGroup *group); // Removes the Group from the engine and deletes the pointer to the Group.
+
+        // Rendering
+        virtual void moveRenderLayer_UP(GameObject *obj);
+        virtual void moveRenderLayer_DOWN(GameObject *obj);
+        virtual void setRenderLayer_BOTTOM(GameObject *obj);
+        virtual void setRenderLayer_TOP(GameObject *obj);
 
         // General functions
         static double random(double min, double max);
@@ -101,8 +108,10 @@ class PixelEngine
         Timer *m_displayTimer;
         double m_displayInterval; // sec.
 
-        GameObjectGroup         m_gameMasterObjectGroup;
-        vector<GameObjectGroup> m_gameMasterObjectGroup_collisionInteractiveList;
+        GameObjectGroup         m_mastergameObjectGroup;
+        vector<GameObjectGroup> m_mastergameObjectGroup_collisionInteractiveList;
+
+        vector<GameObjectGroup> m_renderLayer;
 
         vector<GameObjectGroup*> m_userGroups;
 

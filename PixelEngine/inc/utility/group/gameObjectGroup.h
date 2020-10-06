@@ -15,6 +15,8 @@ class GameObjectGroup  //:   public vector<GameObject*>
 
         virtual ~GameObjectGroup();
 
+        virtual void draw(PixelDisplay &display);
+
         virtual void add(GameObject *object);
         virtual void add(GameObjectGroup *other);
         virtual void remove(GameObject *toRemove);

@@ -17,7 +17,11 @@ GameObjectGroup::~GameObjectGroup()
 {
 
 }
-
+void GameObjectGroup::draw(PixelDisplay &display)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->draw(display);
+}
 void GameObjectGroup::add(GameObject *object)
 {
   /*  for(size_t i=0; i<m_list.size(); i++)
@@ -33,7 +37,7 @@ void GameObjectGroup::add(GameObjectGroup *other)
 }
 void GameObjectGroup::remove(GameObject *toRemove)
 {
-    for(size_t i=0; i<this->size(); i++)
+    for(size_t i=0; i<m_list.size(); i++)
     {
         if(m_list[i] == toRemove)
         {
@@ -43,7 +47,7 @@ void GameObjectGroup::remove(GameObject *toRemove)
 }
 void GameObjectGroup::remove(GameObjectGroup *other)
 {
-    for(size_t i=0; i<this->size(); i++)
+    for(size_t i=0; i<m_list.size(); i++)
     {
         this->remove((*other)[i]);
     }

@@ -63,8 +63,8 @@ int main(int argc, char *argv[])
     unsigned int mapWidth = 500;
     PointU windowSize(1500,800);
     PixelEngine engine(PointU(mapWidth,double(mapWidth)*double(windowSize.getY())/double(windowSize.getX())),PointU(1500,800));
-    engine.set_setting_checkEventInterval(0.01);
-    engine.set_setting_gameTickInterval(0.01);
+    engine.set_setting_checkEventInterval(0.005);
+    engine.set_setting_gameTickInterval(0.00001);
     engine.set_setting_displayInterval(0.01);
 
     // Player 1
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 
     // Wall
     wall1 = new Wall();
-    wall1->setDimension(PointU(50,1));
+    wall1->setDimension(PointU(100,100));
     wall1->getController()->setPosInitial(Point(20,150));
     wall1->setColor(Color(142,50,1));
 
@@ -129,9 +129,13 @@ int main(int argc, char *argv[])
     // Set Interactions
     engine.setCollisionMultiInteraction({player1,player2,imported},{player1,player2,imported});
 
-    engine.setCollisionSingleInteraction({player1,player2,imported},{obsticle1,wall1});
+    engine.setCollisionSingleInteraction({player1,player2,imported},{obsticle1});
     engine.setCollisionSingleInteraction({player1,player2,imported},boarderGroup);
     // End Interactions
+
+    // Set RenderLayer
+    engine.setRenderLayer_TOP(wall1);
+
 //-------------------------------
 
 
@@ -188,11 +192,11 @@ void userDisplayLoop(double frameInterval)
         fpsCounter = 0;
     }
     fpsCounter++;
-    if(timer.start(1))
+   /* if(timer.start(1))
     {
         objectGroup->setHitboxVisibility(toggle);
         toggle = !toggle;
-    }
+    }*/
     if(fadeTimer.start(0.05))
     {
         player1->setColor(getRainbow(rad));
