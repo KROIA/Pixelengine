@@ -15,6 +15,11 @@ class GameObjectGroup  :   public vector<GameObject*>
 
         virtual ~GameObjectGroup();
 
+        virtual void push_back(GameObject* obj);
+        virtual void append(const vector<GameObject*> &other);
+        virtual void remove(GameObject *toRemove);
+        virtual void remove(const vector<GameObject*> &other);
+
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;
         virtual void setHitboxVisibility(const bool &isVisible);

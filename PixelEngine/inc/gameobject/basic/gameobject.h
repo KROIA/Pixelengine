@@ -31,12 +31,17 @@ class GameObject
 
         // Collider settings
         virtual void addInteraction_collision_with(GameObject *other);
+        virtual void addInteraction_collision_with(const vector<GameObject *> otherList);
 
         // Painter settings
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;
         virtual void setHitboxVisibility(const bool &isVisible);
         virtual const bool &isHitboxVisible() const;
+
+        virtual void remove();
+        virtual void reActivate();
+        virtual const bool &isRemoved() const;
 
     protected:
         virtual void event_hasCollision(GameObject *other);
@@ -50,5 +55,7 @@ class GameObject
         Painter    *m_painter;
 
         Painter    *m_hitboxPainter;
+
+        bool m_isRemoved;
 };
 #endif // GAMEOBJECT_H

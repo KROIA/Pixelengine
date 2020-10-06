@@ -6,6 +6,7 @@ GameObject::GameObject()
     m_collider      = new Collider();
     m_painter       = new Painter();
     m_hitboxPainter = new Painter();
+    m_isRemoved     = false;
 }
 GameObject::GameObject(const GameObject &other)
 {
@@ -13,6 +14,7 @@ GameObject::GameObject(const GameObject &other)
     *this->m_collider      = *other.m_collider;
     *this->m_painter       = *other.m_painter;
     *this->m_hitboxPainter = *other.m_hitboxPainter;
+    this->m_isRemoved      = other.m_isRemoved;
 }
 GameObject::GameObject(Controller *controller,
                        Collider   *collider,
@@ -21,6 +23,7 @@ GameObject::GameObject(Controller *controller,
     this->setController(controller);
     this->setCollider(collider);
     this->setPainter(painter);
+    m_isRemoved = false;
 }
 
 GameObject::~GameObject()
@@ -39,6 +42,11 @@ void GameObject::tick(const Point &direction)
 }
 void GameObject::checkCollision()
 {
+    for(size_t i=0; i<m_collisionInteractionGroup.size(); i++)
+    {
+        if(m_collisionInteractionGroup[i]->isRemoved())
+            m_collisionInteractionGroup.erase(m_collisionInteractionGroup.begin()+i);
+    }
     this->checkCollision(m_collisionInteractionGroup);
 }
 
@@ -99,7 +107,13 @@ void GameObject::addInteraction_collision_with(GameObject *other)
     }
     m_collisionInteractionGroup.push_back(other);
 }
-
+void GameObject::addInteraction_collision_with(const vector<GameObject *> otherList)
+{
+    for(size_t i=0; i<otherList.size(); i++)
+    {
+        this->addInteraction_collision_with(otherList[i]);
+    }
+}
 void GameObject::setVisibility(const bool &isVisible)
 {
     m_painter->setVisibility(isVisible);
@@ -112,6 +126,7 @@ void GameObject::setHitboxVisibility(const bool &isVisible)
 {
     if(isVisible)
     {
+        m_hitboxPainter->setPos(m_controller->getPos());
         HitboxPainter::makeVisibleCollider(m_collider,m_hitboxPainter);
     }
     m_hitboxPainter->setVisibility(isVisible);
@@ -120,7 +135,18 @@ const bool &GameObject::isHitboxVisible() const
 {
     return m_hitboxPainter->isVisible();
 }
-
+void GameObject::remove()
+{
+    m_isRemoved = true;
+}
+void GameObject::reActivate()
+{
+    m_isRemoved = false;
+}
+const bool &GameObject::isRemoved() const
+{
+    return m_isRemoved;
+}
 void GameObject::event_hasCollision(GameObject *other)
 {
     m_controller->setToLastPos();
