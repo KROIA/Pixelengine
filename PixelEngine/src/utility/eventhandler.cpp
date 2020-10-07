@@ -6,11 +6,16 @@ EventHandler::EventHandler()
 }
 EventHandler::EventHandler(const EventHandler &other)
 {
-
+    *this = other;
 }
 EventHandler::~EventHandler()
 {
 
+}
+EventHandler &EventHandler::operator=(const EventHandler &other)
+{
+    this->m_eventList   = other.m_eventList;
+    return *this;
 }
 
 void EventHandler::checkEvent()

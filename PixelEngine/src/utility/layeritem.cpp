@@ -6,7 +6,7 @@ LayerItem::LayerItem()
 }
 LayerItem::LayerItem(const LayerItem &other)
 {
-    this->m_pos = other.m_pos;
+    *this = other;
 }
 LayerItem::LayerItem(const Point &pos)
 {
@@ -15,6 +15,12 @@ LayerItem::LayerItem(const Point &pos)
 LayerItem::~LayerItem()
 {
 
+}
+LayerItem &LayerItem::operator=(const LayerItem &other)
+{
+    this->m_pos = other.m_pos;
+    this->m_lastPos = other.m_lastPos;
+    return  *this;
 }
 void LayerItem::setPosInitial(const Point &pos)
 {

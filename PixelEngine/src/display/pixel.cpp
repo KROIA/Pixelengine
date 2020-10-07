@@ -36,6 +36,12 @@ Pixel::~Pixel()
 {
 
 }
+Pixel &Pixel::operator=(const Pixel &other)
+{
+    Color::operator=(other);
+    LayerItem::operator=(other);
+    return *this;
+}
 void Pixel::setColor(const Color &color)
 {
     this->r = color.r;

@@ -159,7 +159,7 @@ void PixelEngine::removeObjectFromList(vector<GameObjectGroup> &list,GameObjectG
 {
     for(size_t i=0; i<(*obj).size(); i++)
     {
-        this->removeObjectFromList(list,(*obj)[i]);
+        PixelEngine::removeObjectFromList(list,(*obj)[i]);
     }
 }
 void PixelEngine::removeObjectFromList(GameObjectGroup* &Group,GameObject* obj)
@@ -177,7 +177,7 @@ void PixelEngine::removeObjectFromList(vector<GameObjectGroup*> &list,GameObject
 {
     for(size_t i=0; i<(*obj).size(); i++)
     {
-        this->removeObjectFromList(list,(*obj)[i]);
+        PixelEngine::removeObjectFromList(list,(*obj)[i]);
     }
 }
 
@@ -469,6 +469,11 @@ void PixelEngine::moveRenderLayer_UP(GameObject *obj)
         }
     }
 }
+void PixelEngine::moveRenderLayer_UP(GameObjectGroup *objGroup)
+{
+    for(size_t i=0; i<objGroup->size(); i++)
+        this->moveRenderLayer_UP((*objGroup)[i]);
+}
 void PixelEngine::moveRenderLayer_DOWN(GameObject *obj)
 {
     size_t currentLayer = 0;
@@ -488,6 +493,11 @@ void PixelEngine::moveRenderLayer_DOWN(GameObject *obj)
             }
         }
     }
+}
+void PixelEngine::moveRenderLayer_DOWN(GameObjectGroup *objGroup)
+{
+    for(size_t i=0; i<objGroup->size(); i++)
+        this->moveRenderLayer_DOWN((*objGroup)[i]);
 }
 void PixelEngine::setRenderLayer_BOTTOM(GameObject *obj)
 {
@@ -509,6 +519,11 @@ void PixelEngine::setRenderLayer_BOTTOM(GameObject *obj)
         }
     }
 }
+void PixelEngine::setRenderLayer_BOTTOM(GameObjectGroup *objGroup)
+{
+    for(size_t i=0; i<objGroup->size(); i++)
+        this->setRenderLayer_BOTTOM((*objGroup)[i]);
+}
 void PixelEngine::setRenderLayer_TOP(GameObject *obj)
 {
     size_t currentLayer = 0;
@@ -528,6 +543,11 @@ void PixelEngine::setRenderLayer_TOP(GameObject *obj)
             }
         }
     }
+}
+void PixelEngine::setRenderLayer_TOP(GameObjectGroup *objGroup)
+{
+    for(size_t i=0; i<objGroup->size(); i++)
+        this->setRenderLayer_TOP((*objGroup)[i]);
 }
 
 // General functions
@@ -549,7 +569,33 @@ double PixelEngine::random(double min, double max)
     int seed = now->tm_year + now->tm_mon + now->tm_mday + now->tm_hour + now->tm_min + now->tm_sec;
     return double((min*1000.0)+((seed*rand())%(int)((max-min)*1000.0)))/1000.0;
 }
-bool   PixelEngine::loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const Point &origin)
+bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider, Painter *painter, const ImageOrigin &origin)
+{
+    Image image;
+    if(!image.loadFromFile(picture))
+        return false;
+    Point originPoint;
+    switch(origin)
+    {
+        case ImageOrigin::topRightCorner:
+            originPoint.set(image.getSize().x,0);
+        break;
+        case ImageOrigin::bottomLeftCorner:
+            originPoint.set(0,image.getSize().y);
+        break;
+        case ImageOrigin::bottomRightCorner:
+            originPoint.set(image.getSize().x,image.getSize().y);
+        break;
+        case ImageOrigin::center:
+            originPoint.set(image.getSize().x/2,image.getSize().y/2);
+        break;
+        case ImageOrigin::topLeftCorner:
+        default:
+             originPoint.set(0,0);
+    }
+    return PixelEngine::loadFromImage(picture,collider,painter,originPoint);
+}
+bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider, Painter *painter, const Point &origin)
 {
 
     /*Image image;
@@ -603,6 +649,9 @@ bool   PixelEngine::loadFromImage(const std::string &picture,Collider *collider,
     Rect rect;
     rect.setSize(1,1);
     Pixel pixel;
+#ifdef IMAGE_IMPORT_DEBUG
+    qDebug() << "Imagesize x="<<size.x<<"\ty="<<size.y;
+#endif
 
     // Each pixel in the image is set to Rect with the size of width=1 height=1
     // The list is converted into fewer rects
@@ -611,8 +660,6 @@ bool   PixelEngine::loadFromImage(const std::string &picture,Collider *collider,
     // Loop through all Pixels in x-direction
     for(unsigned int x=0; x<size.x; x++)
     {
-
-
         // Loop through all Pixels in y-direction
         for(unsigned int y=0; y<size.y; y++)
         {
@@ -626,14 +673,17 @@ bool   PixelEngine::loadFromImage(const std::string &picture,Collider *collider,
             // Only treat pixels that are not completely invisible (alpha == 0)
             // And only treat pixels that are not white -> So you can use white instead of adding an alpha channel
 #ifdef IMAGE_IMPORT_ALPHA_WHITE
-            if(color.a != 0 && (int(color.r) + int(color.g) + int(color.b) != 765)) //"  255*3 = 765 "
+            if(color.a != 0 &&
+                    !(color.r >= __color_minimalAlphaColor.r &&
+                      color.g >= __color_minimalAlphaColor.g &&
+                      color.b >= __color_minimalAlphaColor.b))
 #else
             if(color.a != 0)
 #endif
             {
 
                 pixel.setPos(x-origin.getX(),y-origin.getY());
-                rect.setPos(pixel.getPos());
+                rect.setPos(x,y);
                 pixel.setColor(color);
 
                 painter->addPixel(pixel);
@@ -647,7 +697,7 @@ bool   PixelEngine::loadFromImage(const std::string &picture,Collider *collider,
     vector<Rect> colliderRects;
 
     // Converts many small Rect's to a few large ones
-    PixelEngine::optimize_Hitboxes(rawRectList,colliderRects);
+    PixelEngine::optimize_Hitboxes(rawRectList,colliderRects,origin);
 
     collider->addHitbox(colliderRects);
     collider->updateBoundingBox();
@@ -659,7 +709,7 @@ bool   PixelEngine::loadFromImage(const std::string &picture,Collider *collider,
 #endif
     return true;
 }
-void PixelEngine::optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColliderList)
+void PixelEngine::optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColliderList,const Point origin)
 {
     size_t width = 0;
     size_t height = 0;
@@ -667,10 +717,10 @@ void PixelEngine::optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColl
     vector<vector<Rect*>    > map;
     for(size_t i=0; i<input.size(); i++)
     {
-        if(width < static_cast<size_t>(input[i].getX()))
-            width = static_cast<size_t>(input[i].getX());
-        if(height < static_cast<size_t>(input[i].getY()))
-            height = static_cast<size_t>(input[i].getY());
+        if(width < static_cast<size_t>(input[i].getX()+origin.getX()))
+            width = static_cast<size_t>(input[i].getX()+origin.getX());
+        if(height < static_cast<size_t>(input[i].getY()+origin.getY()))
+            height = static_cast<size_t>(input[i].getY()+origin.getY());
     }
     width++;
     height++;
@@ -691,6 +741,11 @@ void PixelEngine::optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColl
         *map[input[i].getX()][input[i].getY()] = input[i];
     }
     PixelEngine::optimize_HitboxMap(map,outputColliderList);
+    for(size_t i=0; i<outputColliderList.size(); i++)
+    {
+        outputColliderList[i].setPos(outputColliderList[i].getX()-origin.getX(),
+                                     outputColliderList[i].getY()-origin.getY());
+    }
     for(size_t x=0; x<width; x++)
     {
         for(size_t y=0; y<height; y++)
@@ -742,7 +797,7 @@ void PixelEngine::optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &
             }
             map[x][y]->setSize(colliderWidth,map[x][y]->getSize().getY());
             outputColliderList.push_back(Rect(*map[x][y]));
-            x+=toDeleteList.size()-1;
+            x+=xIterator-1;
         }
     }
 }

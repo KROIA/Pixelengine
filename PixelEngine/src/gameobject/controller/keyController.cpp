@@ -11,6 +11,16 @@ KeyController::KeyController()
 }
 KeyController::KeyController(const KeyController &other)
 {
+    *this = other;
+}
+
+KeyController::~KeyController()
+{
+
+}
+KeyController &KeyController::operator=(const KeyController &other)
+{
+    Controller::operator=(other);
     this->m_key_forMove_UP          = other.m_key_forMove_UP;
     this->m_key_forMove_UP_index    = other.m_key_forMove_UP_index;
     this->m_key_forMove_LEFT        = other.m_key_forMove_LEFT;
@@ -21,13 +31,10 @@ KeyController::KeyController(const KeyController &other)
     this->m_key_forMove_RIGHT_index = other.m_key_forMove_RIGHT_index;
 
     this->m_currentMovingVec        = other.m_currentMovingVec;
+
+    this->m_stepSize                = other.m_stepSize;
+    return *this;
 }
-
-KeyController::~KeyController()
-{
-
-}
-
 // From Controller
 void KeyController::checkEvent()
 {

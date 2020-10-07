@@ -11,19 +11,24 @@ Controller::Controller()
     m_movingStepCounter = 0;
 }
 Controller::Controller(const Controller &other)
-    :   EventHandler(other), LayerItem(other)
 {
-    this->m_currentMovingPos  = other.m_currentMovingPos;
-    this->m_currentDeltaMove  = other.m_currentDeltaMove;
-
-    this->m_neededStepsForMove = other.m_neededStepsForMove;
-    this->m_movingStepCounter = other.m_movingStepCounter;
+    *this = other;
 }
  Controller::~Controller()
 {
 
 }
+Controller &Controller::operator=(const Controller &other)
+{
+    EventHandler::operator=(other);
+    LayerItem::operator=(other);
+    this->m_currentMovingPos   = other.m_currentMovingPos;
+    this->m_currentDeltaMove   = other.m_currentDeltaMove;
 
+    this->m_neededStepsForMove = other.m_neededStepsForMove;
+    this->m_movingStepCounter  = other.m_movingStepCounter;
+    return *this;
+}
 void Controller::checkEvent()
 {
     EventHandler::checkEvent();

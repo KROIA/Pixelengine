@@ -19,6 +19,7 @@ class GeneralPoint
         GeneralPoint(const T &x, const T &y);
         GeneralPoint(const GeneralPoint<T> &other);
         virtual ~GeneralPoint();
+        virtual GeneralPoint<T> &operator=(const GeneralPoint<T> &other);
 
         virtual void set(const GeneralPoint<T> &other);
         virtual void set(const T &x, const T &y);
@@ -68,7 +69,12 @@ GeneralPoint<T>::~GeneralPoint()
 {
 
 }
-
+template<class T>
+GeneralPoint<T> &GeneralPoint<T>::operator=(const GeneralPoint<T> &other)
+{
+    this->set(other);
+    return *this;
+}
 template<class T>
 void GeneralPoint<T>::set(const GeneralPoint<T> &other)
 {

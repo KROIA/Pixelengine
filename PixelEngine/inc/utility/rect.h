@@ -19,8 +19,9 @@ class GeneralRect
         GeneralRect(const GeneralPoint<T> &size);
         GeneralRect(const T &xPos, const T &yPos, const T &width, const T &height);
         GeneralRect(const GeneralPoint<T> &pos, const GeneralPoint<T> &size);
-        GeneralRect(const GeneralRect &other);
+        GeneralRect(const GeneralRect<T> &other);
         virtual ~GeneralRect();
+        virtual GeneralRect<T> &operator=(const GeneralRect<T> &other);
 
         virtual void setPos(GeneralPoint<T> pos);
         virtual void setPos(const T &xPos, const T &yPos);
@@ -86,17 +87,22 @@ GeneralRect<T>::GeneralRect( const GeneralPoint<T> &pos,const GeneralPoint<T> &s
     this->setSize(size);
 }
 template<class T>
-GeneralRect<T>::GeneralRect(const GeneralRect &other)
+GeneralRect<T>::GeneralRect(const GeneralRect<T> &other)
 {
-    this->m_pos  = other.m_pos;
-    this->m_size = other.m_size;
+    *this = other;
 }
 template<class T>
 GeneralRect<T>::~GeneralRect()
 {
 
 }
-
+template<class T>
+GeneralRect<T> &GeneralRect<T>::operator=(const GeneralRect<T> &other)
+{
+    this->m_pos  = other.m_pos;
+    this->m_size = other.m_size;
+    return *this;
+}
 template<class T>
 void GeneralRect<T>::setPos(GeneralPoint<T> pos)
 {

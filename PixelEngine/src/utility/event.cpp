@@ -16,15 +16,20 @@ Event::Event(const int &key)
 }
 Event::Event(const Event &other)
 {
+    *this = other;
+}
+Event::~Event()
+{
+
+}
+Event &Event::operator=(const Event &other)
+{
     this->m_key         = other.m_key;
     this->m_isPressed   = other.m_isPressed;
     this->m_isToggled   = other.m_isToggled;
     this->m_isSinking   = other.m_isSinking;
     this->m_isRising    = other.m_isRising;
-}
-Event::~Event()
-{
-
+    return *this;
 }
 
 void Event::checkEvent()

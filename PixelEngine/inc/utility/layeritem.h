@@ -16,6 +16,8 @@ class LayerItem
         LayerItem(const Point &pos);
         virtual ~LayerItem();
 
+        virtual LayerItem &operator=(const LayerItem &other);
+
         virtual void setPosInitial(const Point &pos);
         virtual void setPosInitial(const int &x, const int &y);
 

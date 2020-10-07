@@ -12,6 +12,7 @@ class GameObjectGroup  //:   public vector<GameObject*>
     public:
         GameObjectGroup();
         GameObjectGroup(const GameObjectGroup &other);
+        virtual GameObjectGroup &operator=(const GameObjectGroup &other);
 
         virtual ~GameObjectGroup();
 

@@ -7,15 +7,20 @@ GameObjectGroup::GameObjectGroup()
 }
 GameObjectGroup::GameObjectGroup(const GameObjectGroup &other)
 {
-    this->m_isVisible        = other.m_isVisible;
-    this->m_hitboxIsVisible  = other.m_hitboxIsVisible;
-
-    this->m_list             = other.m_list;
+    *this = other;
 }
 
 GameObjectGroup::~GameObjectGroup()
 {
 
+}
+GameObjectGroup &GameObjectGroup::operator=(const GameObjectGroup &other)
+{
+    this->m_isVisible        = other.m_isVisible;
+    this->m_hitboxIsVisible  = other.m_hitboxIsVisible;
+
+    this->m_list             = other.m_list;
+    return *this;
 }
 void GameObjectGroup::draw(PixelDisplay &display)
 {

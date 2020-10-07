@@ -15,6 +15,7 @@ class EventHandler
         EventHandler();
         EventHandler(const EventHandler &other);
         virtual ~EventHandler();
+        virtual EventHandler &operator=(const EventHandler &other);
 
         virtual void checkEvent();
 

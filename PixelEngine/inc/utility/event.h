@@ -20,6 +20,8 @@ class Event
         Event(const int &key);
         Event(const Event &other);
         virtual ~Event();
+        virtual Event &operator=(const Event &other);
+
 
         virtual void checkEvent();
 

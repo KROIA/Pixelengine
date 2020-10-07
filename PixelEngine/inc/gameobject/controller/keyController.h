@@ -11,6 +11,7 @@ class KeyController     :   public Controller
         KeyController(const KeyController &other);
 
         virtual ~KeyController();
+        virtual KeyController &operator=(const KeyController &other);
 
         // From Controller
         virtual void checkEvent();

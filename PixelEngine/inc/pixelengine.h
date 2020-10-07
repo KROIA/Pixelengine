@@ -19,12 +19,25 @@
 // When this is defined, all completely white pixels in an imported image
 // are treated the same as alpha channel pixels
 // Object-body is only there, where alpha-chanal-pixelValue > 0
-#define IMAGE_IMPORT_ALPHA_WHITE
+//#define IMAGE_IMPORT_ALPHA_WHITE
+#ifdef IMAGE_IMPORT_ALPHA_WHITE
+// Set the uper limit for colors. all colors above/equal this value will be invisible
+const Color __color_minimalAlphaColor(255,255,255);
+#endif
 
 #define IMAGE_IMPORT_DEBUG
 
 
 typedef  void (*p_func)(double);
+
+enum ImageOrigin
+{
+    topLeftCorner,
+    topRightCorner,
+    bottomLeftCorner,
+    bottomRightCorner,
+    center
+};
 
 class PixelEngine
 {
@@ -85,14 +98,19 @@ class PixelEngine
 
         // Rendering
         virtual void moveRenderLayer_UP(GameObject *obj);
+        virtual void moveRenderLayer_UP(GameObjectGroup *objGroup);
         virtual void moveRenderLayer_DOWN(GameObject *obj);
+        virtual void moveRenderLayer_DOWN(GameObjectGroup *objGroup);
         virtual void setRenderLayer_BOTTOM(GameObject *obj);
+        virtual void setRenderLayer_BOTTOM(GameObjectGroup *objGroup);
         virtual void setRenderLayer_TOP(GameObject *obj);
+        virtual void setRenderLayer_TOP(GameObjectGroup *objGroup);
 
         // General functions
         static double random(double min, double max);
-        static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const Point &origin = Point(0,0));
-        static void   optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColliderList);
+        static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const ImageOrigin &origin = ImageOrigin::topLeftCorner);
+        static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const Point &origin);
+        static void   optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColliderList,const Point origin);
 
         // Stats
         virtual const double &get_stats_checkCollisionTime() const; // ms
@@ -105,12 +123,12 @@ class PixelEngine
         static void optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outputColliderList);
 
 
-        virtual void removeObjectFromList(GameObjectGroup &group,GameObject* obj);
-        virtual void removeObjectFromList(vector<GameObjectGroup> &list,GameObject* obj);
-        virtual void removeObjectFromList(vector<GameObjectGroup> &list,GameObjectGroup *obj);
-        virtual void removeObjectFromList(GameObjectGroup* &Group,GameObject* obj);
-        virtual void removeObjectFromList(vector<GameObjectGroup*> &list,GameObject* obj);
-        virtual void removeObjectFromList(vector<GameObjectGroup*> &list,GameObjectGroup *obj);
+        static void removeObjectFromList(GameObjectGroup &group,GameObject* obj);
+        static void removeObjectFromList(vector<GameObjectGroup> &list,GameObject* obj);
+        static void removeObjectFromList(vector<GameObjectGroup> &list,GameObjectGroup *obj);
+        static void removeObjectFromList(GameObjectGroup* &Group,GameObject* obj);
+        static void removeObjectFromList(vector<GameObjectGroup*> &list,GameObject* obj);
+        static void removeObjectFromList(vector<GameObjectGroup*> &list,GameObjectGroup *obj);
 
 
         PixelDisplay *m_display;

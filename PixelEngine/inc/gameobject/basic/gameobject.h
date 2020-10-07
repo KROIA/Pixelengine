@@ -17,6 +17,7 @@ class GameObject
                    Painter    *painter);
 
         virtual ~GameObject();
+        virtual GameObject &operator=(const GameObject &other);
 
         virtual void checkEvent();
         virtual void tick(const Point &direction);
@@ -28,6 +29,9 @@ class GameObject
         virtual void setController(Controller *controller);
         virtual void setCollider(Collider *collider);
         virtual void setPainter(Painter *painter);
+
+        virtual void setPosInitial(const Point &pos);
+        virtual void setPosInitial(const int &x, const int &y);
 
 
         // Collider settings

@@ -7,15 +7,20 @@ Painter::Painter()
     setVisibility(true);
 }
 Painter::Painter(const Painter &other)
-    :   LayerItem(other)
 {
-    this->m_pixelList  = other.m_pixelList;
-    this->m_isVisible  = other.m_isVisible;
+    *this = other;
 }
 
 Painter::~Painter()
 {
 
+}
+Painter &Painter::operator=(const Painter &other)
+{
+    LayerItem::operator=(other);
+    this->m_pixelList  = other.m_pixelList;
+    this->m_isVisible  = other.m_isVisible;
+    return *this;
 }
 void Painter::reserve(const size_t amount)
 {

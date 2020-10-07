@@ -6,15 +6,14 @@ GameObject::GameObject()
     m_collider      = new Collider();
     m_painter       = new Painter();
     m_hitboxPainter = new Painter();
-    //m_isRemoved     = false;
 }
 GameObject::GameObject(const GameObject &other)
 {
-    *this->m_controller    = *other.m_controller;
-    *this->m_collider      = *other.m_collider;
-    *this->m_painter       = *other.m_painter;
-    *this->m_hitboxPainter = *other.m_hitboxPainter;
-    //this->m_isRemoved      = other.m_isRemoved;
+    m_controller    = new Controller();
+    m_collider      = new Collider();
+    m_painter       = new Painter();
+    m_hitboxPainter = new Painter();
+    *this = other;
 }
 GameObject::GameObject(Controller *controller,
                        Collider   *collider,
@@ -23,7 +22,6 @@ GameObject::GameObject(Controller *controller,
     this->setController(controller);
     this->setCollider(collider);
     this->setPainter(painter);
-   // m_isRemoved = false;
 }
 
 GameObject::~GameObject()
@@ -32,6 +30,14 @@ GameObject::~GameObject()
     delete m_collider;
     delete m_painter;
     delete m_hitboxPainter;
+}
+GameObject &GameObject::operator=(const GameObject &other)
+{
+    *this->m_controller    = *other.m_controller;
+    *this->m_collider      = *other.m_collider;
+    *this->m_painter       = *other.m_painter;
+    *this->m_hitboxPainter = *other.m_hitboxPainter;
+    return *this;
 }
 void GameObject::checkEvent()
 {
@@ -98,6 +104,15 @@ void GameObject::setPainter(Painter *painter)
     delete m_painter;
     m_painter = painter;
 }
+void GameObject::setPosInitial(const Point &pos)
+{
+    m_controller->setPosInitial(pos);
+}
+void GameObject::setPosInitial(const int &x, const int &y)
+{
+    m_controller->setPosInitial(x,y);
+}
+
 /*void GameObject::addInteraction_collision_with(GameObject *other)
 {
     if(other == nullptr)

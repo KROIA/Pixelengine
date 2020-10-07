@@ -11,17 +11,22 @@ Collider::Collider()
 }
 
 Collider::Collider(const Collider &other)
-    :   LayerItem(other)
 {
-    this->m_hitboxList      = other.m_hitboxList;
-    this->m_boundingBox     = other.m_boundingBox;
-
-    this->m_boundingBoxUpdated = other.m_boundingBoxUpdated;
+    *this = other;
 }
 
 Collider::~Collider()
 {
 
+}
+Collider &Collider::operator=(const Collider &other)
+{
+    LayerItem::operator=(other);
+    this->m_hitboxList      = other.m_hitboxList;
+    this->m_boundingBox     = other.m_boundingBox;
+
+    this->m_boundingBoxUpdated = other.m_boundingBoxUpdated;
+    return *this;
 }
 
 void Collider::setPos(const int &x,const int &y)
