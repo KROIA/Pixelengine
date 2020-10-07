@@ -117,6 +117,14 @@ void GameObject::addInteraction_collision_with(const vector<GameObject *> otherL
         this->addInteraction_collision_with(otherList[i]);
     }
 }*/
+const bool &GameObject::isBoundingBoxUpdated() const
+{
+    return m_collider->isBoundingBoxUpdated();
+}
+void GameObject::updateBoundingBox()
+{
+    m_collider->updateBoundingBox();
+}
 void GameObject::setVisibility(const bool &isVisible)
 {
     m_painter->setVisibility(isVisible);

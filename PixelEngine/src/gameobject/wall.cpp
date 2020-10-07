@@ -67,7 +67,7 @@ void Wall::generateObject()
 {
     m_collider->clear();
     m_painter->clear();
-    m_collider->addHitBox(Rect(m_dimension.getX(),
+    m_collider->addHitbox(Rect(m_dimension.getX(),
                                m_dimension.getY()));
     for(unsigned int x=0; x<m_dimension.getX(); x++)
     {

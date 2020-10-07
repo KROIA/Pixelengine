@@ -33,6 +33,8 @@ class GameObject
         // Collider settings
         //virtual void addInteraction_collision_with(GameObject *other);
         //virtual void addInteraction_collision_with(const vector<GameObject *> otherList);
+        virtual const bool &isBoundingBoxUpdated() const;
+        virtual void updateBoundingBox();
 
         // Painter settings
         virtual void setVisibility(const bool &isVisible);

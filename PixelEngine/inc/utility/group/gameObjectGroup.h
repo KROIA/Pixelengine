@@ -39,7 +39,7 @@ class GameObjectGroup  //:   public vector<GameObject*>
 
     protected:
         bool m_isVisible;
-        bool m_hitBoxIsVisible;
+        bool m_hitboxIsVisible;
 
         vector<GameObject *> m_list;
     private:

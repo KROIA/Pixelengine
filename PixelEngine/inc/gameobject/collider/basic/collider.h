@@ -23,13 +23,13 @@ class Collider  :   public LayerItem
 
         virtual const Rect &getBoundingBox() const;
 
-        virtual void reserve(const size_t amount);
+        virtual void reserve(const size_t &amount);
 
-        virtual void addHitBox(Rect box);
-        virtual void addHitBox(const vector<Rect> &boxList);
+        virtual void addHitbox(const Rect &box);
+        virtual void addHitbox(const vector<Rect> &boxList);
 
-        virtual const Rect &getHitBox(const unsigned int &index) const;
-        virtual const vector<Rect> &getHitBox() const;
+        virtual const Rect &getHitbox(const unsigned int &index) const;
+        virtual const vector<Rect> &getHitbox() const;
 
         virtual bool intersectsBoundingBox(const Collider &other) const;
         virtual bool collides(const Collider &other) const;
@@ -37,6 +37,10 @@ class Collider  :   public LayerItem
         virtual void erase(const size_t &index);
         virtual void clear();
 
+        virtual const bool &isBoundingBoxUpdated() const;
+        virtual void updateBoundingBox();
+
+        virtual size_t getHitboxAmount() const;
     protected:
 
         virtual void setBoundingBox();
@@ -50,8 +54,9 @@ class Collider  :   public LayerItem
         virtual int getMaxY();
 
         Rect  m_boundingBox;
-        vector<Rect> m_hitBoxList;
+        vector<Rect> m_hitboxList;
 
+        bool m_boundingBoxUpdated;
 
         Rect m_dummy;
     private:

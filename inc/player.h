@@ -13,6 +13,7 @@ class Player    :   public GameObject
 
         virtual ~Player();
 
+        virtual void tick(const Point &direction);
 
         virtual void setColor(const Color &color);
         virtual void setStartPos(const Point &point);

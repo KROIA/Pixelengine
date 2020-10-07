@@ -138,8 +138,46 @@ void PixelEngine::tickXY(const Point &dirLock)
 
         m_stats_collisionCheckTimer->start(1000);
         m_mastergameObjectGroup[i]->checkCollision(m_mastergameObjectGroup_collisionInteractiveList[i].getVector());
-        m_stats_collisionCheckTime += m_stats_collisionCheckTimer->getTime();
+        m_stats_collisionCheckTime += m_stats_collisionCheckTimer->getTime()*1000;
         m_stats_collisionCheckTimer->stop();
+    }
+
+}
+
+void PixelEngine::removeObjectFromList(GameObjectGroup &group,GameObject* obj)
+{
+    group.remove(obj);
+}
+void PixelEngine::removeObjectFromList(vector<GameObjectGroup> &list,GameObject* obj)
+{
+    for(size_t i=0; i<list.size(); i++)
+    {
+        list[i].remove(obj);
+    }
+}
+void PixelEngine::removeObjectFromList(vector<GameObjectGroup> &list,GameObjectGroup *obj)
+{
+    for(size_t i=0; i<(*obj).size(); i++)
+    {
+        this->removeObjectFromList(list,(*obj)[i]);
+    }
+}
+void PixelEngine::removeObjectFromList(GameObjectGroup* &Group,GameObject* obj)
+{
+    Group->remove(obj);
+}
+void PixelEngine::removeObjectFromList(vector<GameObjectGroup*> &list,GameObject* obj)
+{
+    for(size_t i=0; i<list.size(); i++)
+    {
+        list[i]->remove(obj);
+    }
+}
+void PixelEngine::removeObjectFromList(vector<GameObjectGroup*> &list,GameObjectGroup *obj)
+{
+    for(size_t i=0; i<(*obj).size(); i++)
+    {
+        this->removeObjectFromList(list,(*obj)[i]);
     }
 }
 
@@ -191,6 +229,9 @@ void PixelEngine::addGameObject(GameObject *obj)
     for(size_t i=0; i<m_mastergameObjectGroup.size(); i++)
         if(m_mastergameObjectGroup[i] == obj)
             return; // Group already added to list
+
+    if(!obj->isBoundingBoxUpdated())
+        obj->updateBoundingBox();
     m_mastergameObjectGroup.add(obj);
     m_mastergameObjectGroup_collisionInteractiveList.push_back(GameObjectGroup());
     m_renderLayer[2].add(obj);
@@ -213,16 +254,12 @@ void PixelEngine::removeGameObject(GameObject *obj)
                 this->setCollisionSingleInteraction(m_mastergameObjectGroup[j],obj,false);
             }
             m_mastergameObjectGroup_collisionInteractiveList.erase(m_mastergameObjectGroup_collisionInteractiveList.begin() + i);
-            m_mastergameObjectGroup.remove(obj);
-            for(size_t j=0; j<m_renderLayer.size(); j++)
-                m_renderLayer[j].remove(obj);
+            this->removeObjectFromList(m_mastergameObjectGroup,obj);
+            this->removeObjectFromList(m_renderLayer,obj);
        }
     }
     // Remove the obj out of all lists
-    for(size_t i=0; i<m_userGroups.size(); i++)
-    {
-        m_userGroups[i]->remove(obj);
-    }
+    this->removeObjectFromList(m_userGroups,obj);
 }
 void PixelEngine::removeGameObject(GameObjectGroup *group)
 {
@@ -512,30 +549,202 @@ double PixelEngine::random(double min, double max)
     int seed = now->tm_year + now->tm_mon + now->tm_mday + now->tm_hour + now->tm_min + now->tm_sec;
     return double((min*1000.0)+((seed*rand())%(int)((max-min)*1000.0)))/1000.0;
 }
-bool   PixelEngine::loadFromImage(const std::string &picture,Collider *collider,Painter *painter)
+bool   PixelEngine::loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const Point &origin)
 {
-    Image image;
+
+    /*Image image;
     if(!image.loadFromFile(picture))
         return false;
 
     sf::Vector2u size = image.getSize();
     Point middleOffset(-signed(size.x)/2,-signed(size.y)/2);
 
-    collider->clear();
-    painter->clear();
+    double progress = 0;
+    double maxProgress = size.x * size.y;
+
+    collider->reserve(size.x * size.y);
+    painter->reserve(size.x * size.y);
     for(unsigned int x=0; x<size.x; x++)
     {
+        qDebug() << "[\t"<<100.f*progress/maxProgress<<"\t]";
         for(unsigned int y=0; y<size.y; y++)
         {
             Color color = image.getPixel(x,y);
+
+            //qDebug() << "Pixel at: x="<<x<<"\ty="<<y<<"\t: r="<<color.r<<"\tg="<<color.g<<"\t"<<color.b<<"\ta="<<color.a;
             if(color.a != 0 && !(color.r == 255 && color.g == 255 && color.b == 255))
             {
-                collider->addHitBox(Rect(middleOffset.getX()+x,middleOffset.getY()+y,1,1));
+                collider->addHitbox(Rect(middleOffset.getX()+x,middleOffset.getY()+y,1,1));
                 painter->addPixel(Pixel(Point(middleOffset.getX()+x,middleOffset.getY()+y),color));
             }
+            progress += 1;
         }
     }
+    qDebug() << "import image done";
+    return true;*/
+    Image image;
+    if(!image.loadFromFile(picture))
+        return false;
+#ifdef IMAGE_IMPORT_DEBUG
+    qDebug() << "import image: \""<<picture.c_str()<<"\"";
+    Timer dbgTimer;
+#endif
+    Timer timer;        // only for stats
+    timer.start(1000);  // only for stats
+    sf::Vector2u size = image.getSize();
+
+    double progress = 0;
+    double maxProgress = size.x * size.y;
+
+    // Reserve the maximum amount of possible pixels
+    painter->reserve(size.x * size.y);
+
+    Color color;
+    Rect rect;
+    rect.setSize(1,1);
+    Pixel pixel;
+
+    // Each pixel in the image is set to Rect with the size of width=1 height=1
+    // The list is converted into fewer rects
+    vector<Rect> rawRectList;
+
+    // Loop through all Pixels in x-direction
+    for(unsigned int x=0; x<size.x; x++)
+    {
+
+
+        // Loop through all Pixels in y-direction
+        for(unsigned int y=0; y<size.y; y++)
+        {
+#ifdef IMAGE_IMPORT_DEBUG
+            if(dbgTimer.start(0.01))
+                qDebug() << "[\t"<<100.f*progress/maxProgress<<"%\t]";
+#endif
+            // Get the color of the current pixel
+            color = image.getPixel(x,y);
+
+            // Only treat pixels that are not completely invisible (alpha == 0)
+            // And only treat pixels that are not white -> So you can use white instead of adding an alpha channel
+#ifdef IMAGE_IMPORT_ALPHA_WHITE
+            if(color.a != 0 && (int(color.r) + int(color.g) + int(color.b) != 765)) //"  255*3 = 765 "
+#else
+            if(color.a != 0)
+#endif
+            {
+
+                pixel.setPos(x-origin.getX(),y-origin.getY());
+                rect.setPos(pixel.getPos());
+                pixel.setColor(color);
+
+                painter->addPixel(pixel);
+                rawRectList.push_back(rect);
+            }
+            progress += 1;
+        }
+    }
+    // This is the new Collider-RectList
+    // This list will contain optimized colliders for this picture
+    vector<Rect> colliderRects;
+
+    // Converts many small Rect's to a few large ones
+    PixelEngine::optimize_Hitboxes(rawRectList,colliderRects);
+
+    collider->addHitbox(colliderRects);
+    collider->updateBoundingBox();
+#ifdef IMAGE_IMPORT_DEBUG
+    qDebug() << "[\t"<<100.f*progress/maxProgress<<"%\t]";
+    qDebug() << "import image done. Time: "<<timer.getTime();
+    qDebug() << "Pixels:       "<<painter->getPixelAmount();
+    qDebug() << "Hitboxamount: "<<collider->getHitboxAmount();
+#endif
     return true;
+}
+void PixelEngine::optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColliderList)
+{
+    size_t width = 0;
+    size_t height = 0;
+
+    vector<vector<Rect*>    > map;
+    for(size_t i=0; i<input.size(); i++)
+    {
+        if(width < static_cast<size_t>(input[i].getX()))
+            width = static_cast<size_t>(input[i].getX());
+        if(height < static_cast<size_t>(input[i].getY()))
+            height = static_cast<size_t>(input[i].getY());
+    }
+    width++;
+    height++;
+    map.reserve(width);
+    for(size_t x=0; x<width; x++)
+    {
+        map.push_back(vector<Rect*>());
+        map[x].reserve(height);
+
+        for(size_t y=0; y<height; y++)
+        {
+            map[x].push_back(nullptr);
+        }
+    }
+    for(size_t i=0; i<input.size(); i++)
+    {
+         map[input[i].getX()][input[i].getY()] = new Rect();
+        *map[input[i].getX()][input[i].getY()] = input[i];
+    }
+    PixelEngine::optimize_HitboxMap(map,outputColliderList);
+    for(size_t x=0; x<width; x++)
+    {
+        for(size_t y=0; y<height; y++)
+        {
+            delete map[x][y];
+        }
+    }
+}
+void PixelEngine::optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outputColliderList)
+{
+    if(map.size() == 0)
+        return;
+    if(map[0].size() == 0)
+        return;
+    outputColliderList.clear();
+    size_t width    = map.size();
+    size_t height   = map[0].size();
+
+    for(size_t y=0; y<height; y++)
+    {
+        for(size_t x=0; x<width; x++)
+        {
+            if(map[x][y] == nullptr)
+                continue;
+            bool endXloop = false;
+            size_t xIterator = 1;
+            unsigned int colliderWidth = map[x][y]->getSize().getX();
+            vector<Rect**> toDeleteList;
+            while(!endXloop)
+            {
+                if(x+xIterator >= width)
+                {
+                    endXloop = true;
+                    continue;
+                }
+                if(map[x+xIterator][y] == nullptr)
+                {
+                    endXloop = true;
+                    continue;
+                }
+                colliderWidth += map[x+xIterator][y]->getSize().getX();
+                toDeleteList.push_back(&map[x+xIterator][y]);
+                xIterator++;
+            }
+            for(size_t i=0; i<toDeleteList.size(); i++)
+            {
+                delete *toDeleteList[i];
+                *toDeleteList[i] = nullptr;
+            }
+            map[x][y]->setSize(colliderWidth,map[x][y]->getSize().getY());
+            outputColliderList.push_back(Rect(*map[x][y]));
+            x+=toDeleteList.size()-1;
+        }
+    }
 }
 // Stats
 const double &PixelEngine::get_stats_checkCollisionTime() const

@@ -28,6 +28,7 @@ void userTickLoop(double tickInterval);
 void userDisplayLoop(double frameInterval);
 
 GameObject *getimportedObject();
+
 Color getRainbow(double phase);
 GameObjectGroup makeBoarder(PixelEngine *engine);
 
@@ -90,7 +91,7 @@ int main(int argc, char *argv[])
     Controller *o1_controller = new Controller();
     o1_controller->setPosInitial(100,100);
     Collider   *o1_collider = new Collider();
-    o1_collider->addHitBox({Rect(PixelEngine::random(-10,10),PixelEngine::random(-10,10),PixelEngine::random(1,10),PixelEngine::random(1,10)),
+    o1_collider->addHitbox({Rect(PixelEngine::random(-10,10),PixelEngine::random(-10,10),PixelEngine::random(1,10),PixelEngine::random(1,10)),
                             Rect(PixelEngine::random(-10,10),PixelEngine::random(-10,10),PixelEngine::random(1,10),PixelEngine::random(1,10)),
                             Rect(PixelEngine::random(-10,10),PixelEngine::random(-10,10),PixelEngine::random(1,10),PixelEngine::random(1,10))});
     obsticle1->setCollider(o1_collider);
@@ -109,7 +110,7 @@ int main(int argc, char *argv[])
     GameObjectGroup *boarderGroup = new GameObjectGroup();
     *boarderGroup = makeBoarder(&engine);
 
-    // Make Group of Objects for toggle hitbox in loop below
+    // Make Group of Objects for toggle Hitbox in loop below
     objectGroup = new GameObjectGroup();
     objectGroup->add(player1);
     objectGroup->add(player2);
@@ -149,7 +150,7 @@ int main(int argc, char *argv[])
         {
             qDebug() << "FPS: "<<FPS<<"\tTPS: "<<TPS
                      <<"\tCollisionChecks: "<<Rect::stats_collisionCheckCount<<"\tCollisions: "<<Rect::stats_collisionCount
-                     <<"\tC_Time: "<<engine.get_stats_checkCollisionTime();
+                     <<"\tC_Time: "<<engine.get_stats_checkCollisionTime() << " ms";
         }
 
         if(deleteTimer.start(5) && !removed)
@@ -192,11 +193,11 @@ void userDisplayLoop(double frameInterval)
         fpsCounter = 0;
     }
     fpsCounter++;
-   /* if(timer.start(1))
+    if(timer.start(1))
     {
         objectGroup->setHitboxVisibility(toggle);
         toggle = !toggle;
-    }*/
+    }
     if(fadeTimer.start(0.05))
     {
         player1->setColor(getRainbow(rad));
@@ -208,6 +209,8 @@ void userDisplayLoop(double frameInterval)
 
 GameObject *getimportedObject()
 {
+    //Timer timer;
+    //timer.start(1000);
     GameObject *obj         = new GameObject();
     Collider   *collider    = new Collider();
     Painter    *painter     = new Painter();
@@ -217,43 +220,19 @@ GameObject *getimportedObject()
     controller->setKey_forMove_LEFT(KEYBOARD_KEY_F);
     controller->setKey_forMove_DOWN(KEYBOARD_KEY_G);
     controller->setKey_forMove_RIGHT(KEYBOARD_KEY_H);
-    controller->setPosInitial(250,100);
+    controller->setPosInitial(150,100);
+
 
     obj->setPainter(painter);
     obj->setCollider(collider);
     obj->setController(controller);
-    qDebug() << "import image...";
+    Point origin(0,0);
+    PixelEngine::loadFromImage("textures\\picture.png",collider,painter,origin);
+    //getchar();
 
-    Image image;
-    image.loadFromFile("textues\\Einhornpng.png");
-
-    sf::Vector2u size = image.getSize();
-    Point middleOffset(-signed(size.x)/2,-signed(size.y)/2);
-
-    double progress = 0;
-    double maxProgress = size.x * size.y;
-
-    collider->reserve(size.x * size.y);
-    painter->reserve(size.x * size.y);
-    for(unsigned int x=0; x<size.x; x++)
-    {
-        qDebug() << "[\t"<<100.f*progress/maxProgress<<"\t]";
-        for(unsigned int y=0; y<size.y; y++)
-        {
-            Color color = image.getPixel(x,y);
-
-            //qDebug() << "Pixel at: x="<<x<<"\ty="<<y<<"\t: r="<<color.r<<"\tg="<<color.g<<"\t"<<color.b<<"\ta="<<color.a;
-            if(color.a != 0 && !(color.r == 255 && color.g == 255 && color.b == 255))
-            {
-                collider->addHitBox(Rect(middleOffset.getX()+x,middleOffset.getY()+y,1,1));
-                painter->addPixel(Pixel(Point(middleOffset.getX()+x,middleOffset.getY()+y),color));
-            }
-            progress += 1;
-        }
-    }
-    qDebug() << "import image done";
     return obj;
 }
+
 Color getRainbow(double phase)
 {
       int center = 128;

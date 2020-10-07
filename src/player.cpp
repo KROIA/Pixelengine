@@ -35,7 +35,11 @@ Player::~Player()
 
 }
 
+void Player::tick(const Point &direction)
+{
+    GameObject::tick(direction);
 
+}
 void Player::setColor(const Color &color)
 {
     m_playerColor = color;
@@ -107,26 +111,26 @@ void Player::setupPLayerBody(Painter *p,Collider *c)
     p->addPixel(Pixel(Point( 1,-2),m_playerColor));
     p->addPixel(Pixel(Point( 0,-1),m_playerColor));
 
-    c->addHitBox(Rect(-1,-2,3,1));
-    c->addHitBox(Rect(0,-1,1,1));
+    c->addHitbox(Rect(-1,-2,3,1));
+    c->addHitbox(Rect(0,-1,1,1));
 
     // Arms and shoulders
     for(int x=-4; x<=4; x++)
         p->addPixel(Pixel(Point(x,0),m_playerColor));
-    c->addHitBox(Rect(-4,0,9,1));
+    c->addHitbox(Rect(-4,0,9,1));
 
     // Body
     for(int x=-1; x<=1; x++)
         for(int y=0; y<=3; y++)
             p->addPixel(Pixel(Point(x,y),m_playerColor));
-    c->addHitBox(Rect(-1,1,3,3));
+    c->addHitbox(Rect(-1,1,3,3));
 
     // Legs
     p->addPixel(Pixel(Point(-1,4),m_playerColor));
     p->addPixel(Pixel(Point(-1,5),m_playerColor));
     p->addPixel(Pixel(Point( 1,4),m_playerColor));
     p->addPixel(Pixel(Point( 1,5),m_playerColor));
-    c->addHitBox(Rect(-1,4,1,2));
-    c->addHitBox(Rect( 1,4,1,2));
+    c->addHitbox(Rect(-1,4,1,2));
+    c->addHitbox(Rect( 1,4,1,2));
 
 }
