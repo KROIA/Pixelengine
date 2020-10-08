@@ -20,7 +20,7 @@ class Pixel : public Color, public LayerItem
         Pixel(const Pixel &other);
 
         virtual ~Pixel();
-        virtual Pixel &operator=(const Pixel &other);
+        virtual const Pixel &operator=(const Pixel &other);
 
         virtual void setColor(const Color &color);
 

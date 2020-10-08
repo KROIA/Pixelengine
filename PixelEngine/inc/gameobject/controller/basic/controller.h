@@ -18,7 +18,7 @@ class Controller    :   public EventHandler, public LayerItem
         Controller();
         Controller(const Controller &other);
         virtual  ~Controller();
-        virtual Controller &operator=(const Controller &other);
+        virtual const Controller &operator=(const Controller &other);
 
         virtual void checkEvent();
         virtual void tick(const Point &direction);

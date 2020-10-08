@@ -17,7 +17,7 @@ class Painter   :   public  LayerItem
         Painter(const Painter &other);
 
         virtual ~Painter();
-        virtual Painter &operator=(const Painter &other);
+        virtual const Painter &operator=(const Painter &other);
 
         virtual void reserve(const size_t amount);
 

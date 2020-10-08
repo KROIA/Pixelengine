@@ -17,7 +17,7 @@ class GameObject
                    Painter    *painter);
 
         virtual ~GameObject();
-        virtual GameObject &operator=(const GameObject &other);
+        virtual const GameObject &operator=(const GameObject &other);
 
         virtual void checkEvent();
         virtual void tick(const Point &direction);

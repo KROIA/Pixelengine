@@ -1,6 +1,7 @@
 #include "keyController.h"
 
 KeyController::KeyController()
+    :   Controller()
 {
     m_key_forMove_UP        = -1;
     m_key_forMove_LEFT      = -1;
@@ -10,6 +11,7 @@ KeyController::KeyController()
     this->setStepSize(1);
 }
 KeyController::KeyController(const KeyController &other)
+    :   Controller()
 {
     *this = other;
 }
@@ -18,7 +20,7 @@ KeyController::~KeyController()
 {
 
 }
-KeyController &KeyController::operator=(const KeyController &other)
+const KeyController &KeyController::operator=(const KeyController &other)
 {
     Controller::operator=(other);
     this->m_key_forMove_UP          = other.m_key_forMove_UP;

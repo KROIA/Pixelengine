@@ -36,7 +36,7 @@ Pixel::~Pixel()
 {
 
 }
-Pixel &Pixel::operator=(const Pixel &other)
+const Pixel &Pixel::operator=(const Pixel &other)
 {
     Color::operator=(other);
     LayerItem::operator=(other);

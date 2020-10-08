@@ -7,6 +7,7 @@ Painter::Painter()
     setVisibility(true);
 }
 Painter::Painter(const Painter &other)
+    :   LayerItem()
 {
     *this = other;
 }
@@ -15,7 +16,7 @@ Painter::~Painter()
 {
 
 }
-Painter &Painter::operator=(const Painter &other)
+const Painter &Painter::operator=(const Painter &other)
 {
     LayerItem::operator=(other);
     this->m_pixelList  = other.m_pixelList;

@@ -11,6 +11,7 @@ Controller::Controller()
     m_movingStepCounter = 0;
 }
 Controller::Controller(const Controller &other)
+    :   EventHandler(), LayerItem()
 {
     *this = other;
 }
@@ -18,7 +19,7 @@ Controller::Controller(const Controller &other)
 {
 
 }
-Controller &Controller::operator=(const Controller &other)
+const Controller &Controller::operator=(const Controller &other)
 {
     EventHandler::operator=(other);
     LayerItem::operator=(other);

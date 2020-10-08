@@ -14,7 +14,7 @@ class Collider  :   public LayerItem
         Collider();
         Collider(const Collider &other);
         virtual ~Collider();
-        virtual Collider &operator=(const Collider &other);
+        virtual const Collider &operator=(const Collider &other);
 
         virtual void setPos(const int &x,const int &y);
         virtual void setPos(const Point &pos);

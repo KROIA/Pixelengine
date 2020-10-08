@@ -9,10 +9,7 @@ GameObject::GameObject()
 }
 GameObject::GameObject(const GameObject &other)
 {
-    m_controller    = new Controller();
-    m_collider      = new Collider();
-    m_painter       = new Painter();
-    m_hitboxPainter = new Painter();
+    GameObject();
     *this = other;
 }
 GameObject::GameObject(Controller *controller,
@@ -31,7 +28,7 @@ GameObject::~GameObject()
     delete m_painter;
     delete m_hitboxPainter;
 }
-GameObject &GameObject::operator=(const GameObject &other)
+const GameObject &GameObject::operator=(const GameObject &other)
 {
     *this->m_controller    = *other.m_controller;
     *this->m_collider      = *other.m_collider;

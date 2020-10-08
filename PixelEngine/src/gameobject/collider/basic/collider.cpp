@@ -11,6 +11,7 @@ Collider::Collider()
 }
 
 Collider::Collider(const Collider &other)
+    :   LayerItem()
 {
     *this = other;
 }
@@ -19,7 +20,7 @@ Collider::~Collider()
 {
 
 }
-Collider &Collider::operator=(const Collider &other)
+const Collider &Collider::operator=(const Collider &other)
 {
     LayerItem::operator=(other);
     this->m_hitboxList      = other.m_hitboxList;

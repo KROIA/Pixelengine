@@ -101,6 +101,7 @@ SOURCES += \
         $$PixelEngine_srcPath/gameobject/controller/basic/controller.cpp \
         $$PixelEngine_srcPath/gameobject/controller/keyController.cpp \
         $$PixelEngine_srcPath/gameobject/basic/gameobject.cpp \
+        $$PixelEngine_srcPath/gameobject/basic/property.cpp \
         $$PixelEngine_srcPath/gameobject/wall.cpp \
         $$PixelEngine_srcPath/utility/group/gameObjectGroup.cpp \
         $$PixelEngine_srcPath/utility/event.cpp \
@@ -118,6 +119,7 @@ HEADERS += \
         $$PixelEngine_incPath/gameobject/controller/basic/controller.h \
         $$PixelEngine_incPath/gameobject/controller/keyController.h \
         $$PixelEngine_incPath/gameobject/basic/gameobject.h \
+        $$PixelEngine_incPath/gameobject/basic/property.h \
         $$PixelEngine_incPath/gameobject/wall.h \
         $$PixelEngine_incPath/utility/event.h \
         $$PixelEngine_incPath/utility/eventhandler.h \
