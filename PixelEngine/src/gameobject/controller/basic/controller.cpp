@@ -45,13 +45,10 @@ void Controller::tick(const Point &direction)
     // direction: Zwei ticks pro Achsenrichtung 1. Tick = x Bewegung 2. Tick = y Bewegung
     if(direction.getX())
     {
-        /*this->setNextPos(m_pos.getX() + round(m_currentDeltaMove.getX()),
-                         m_nextPos.getY());*/
         this->setX(m_pos.getX() + round(m_currentDeltaMove.getX()));
     }
     else
     {
-        //this->setNextPos(m_nextPos.getX(),m_pos.getY() + round(m_currentDeltaMove.getY()));
         this->setY(m_pos.getY() + round(m_currentDeltaMove.getY()));
     }
     m_movingStepCounter++;
@@ -61,16 +58,6 @@ void Controller::tick(const Point &direction)
         m_neededStepsForMove = 0;
     }
 }
-/*void Controller::setPosInitial(const Point &pos)
-{
-    LayerItem::setPosInitial(pos);
-    m_nextPos = m_pos;
-}
-void Controller::setPosInitial(const int &x, const int &y)
-{
-    LayerItem::setPosInitial(x,y);
-    m_nextPos = m_pos;
-}*/
 
 void Controller::setPos(const int &x,const int &y)
 {
@@ -105,7 +92,6 @@ void Controller::move(const Point &directionVector)
 }
 void Controller::move(int x,int y)
 {
-    //double length = VectorF(double(x),double(y)).getLength();
     if(x == 0 && y == 0)
         return;
     if(m_neededStepsForMove > 0)
@@ -123,29 +109,12 @@ void Controller::move(int x,int y)
     m_currentDeltaMove.set(double(x)/double(m_neededStepsForMove),double(y)/double(m_neededStepsForMove));
     m_neededStepsForMove*=2; // Zwei ticks pro Achsenrichtung 1. Tick = x Bewegung 2. Tick = y Bewegung
 }
-/*void Controller::setToLastPos()
-{
-    //m_nextPos = m_pos;
-    LayerItem::setToLastPos();
-}*/
 
 const unsigned int &Controller::getNeededMovingSteps() const
 {
     return m_neededStepsForMove;
 }
-/*void Controller::setNextPos(const int &x, const int &y)
-{
-    m_nextPos.set(x,y);
-}
-const Point &Controller::getNextPos() const
-{
-    return m_nextPos;
-}
-void Controller::applyNextPos()
-{
-    this->setPos(m_nextPos);
-}
-*/
+
 // Eventhandler
 void Controller::receive_key_isPressed(const int &key)
 {

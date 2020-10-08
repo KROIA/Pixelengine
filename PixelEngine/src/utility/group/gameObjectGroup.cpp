@@ -29,9 +29,6 @@ void GameObjectGroup::draw(PixelDisplay &display)
 }
 void GameObjectGroup::add(GameObject *object)
 {
-  /*  for(size_t i=0; i<m_list.size(); i++)
-        if(m_list[i] == object)
-            return; // GameObject already added to list*/
     m_list.push_back(object);
 }
 void GameObjectGroup::add(GameObjectGroup *other)
@@ -65,30 +62,6 @@ void GameObjectGroup::clear()
 {
     m_list.clear();
 }
-/*void GameObjectGroup::push_back(GameObject* obj)
-{
-    for(size_t i=0; i<this->size(); i++)
-    {
-        if((*this)[i] == obj)
-        {
-            return; // Obj already exists in list
-        }
-    }
-    if(obj->isRemoved())
-        obj->reActivate();
-    vector::push_back(obj);
-}*/
-/*void GameObjectGroup::append(const vector<GameObject*> &other)
-{
-    for(size_t i=0; i<other.size(); i++)
-    {
-        if(other[i]->isRemoved())
-        {
-            other[i]->reActivate();
-        }
-    }
-    this->insert(this->end(),other.begin(),other.end());
-}*/
 
 void GameObjectGroup::setVisibility(const bool &isVisible)
 {

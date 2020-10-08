@@ -50,10 +50,7 @@ void KeyController::tick(const Point &direction)
 {
     Controller::tick(direction);
 }
-/*void KeyController::move(const int &x,const int &y)
-{
 
-}*/
 // Receiver Signal from Eventhandler
 void KeyController::receive_key_isPressed(const int &key)
 {
@@ -65,20 +62,15 @@ void KeyController::receive_key_isPressed(const int &key)
         m_currentMovingVec.moveX(-m_stepSize);
     else if(key == m_key_forMove_RIGHT)
         m_currentMovingVec.moveX(m_stepSize);
-
-    //qDebug() << "KeyController Key: "<<key<<"\receive_key_isPressed";
 }
 void KeyController::receive_key_toggle(const int &key)
 {
-    //qDebug() << "Key: "<<key<<"\receive_key_toggle";
 }
 void KeyController::reveive_key_goesDown(const int &key)
 {
-    //qDebug() << "Key: "<<key<<"\reveive_key_goesDown";
 }
 void KeyController::reveive_key_goesUp(const int &key)
 {
-    //qDebug() << "Key: "<<key<<"\reveive_key_goesUp";
 }
 
 

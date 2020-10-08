@@ -37,15 +37,12 @@ PixelDisplay::~PixelDisplay()
 void PixelDisplay::display()
 {
     m_texture.loadFromImage(m_image);
-    //m_renderWindow->clear(m_clearColor);
     m_renderWindow->draw(m_sprite);
     m_renderWindow->display();
     clear();
 }
 void PixelDisplay::clear()
 {
-    //auto px0 = const_cast<sf::Uint8*>(m_image.getPixelsPtr());
-    //std::fill(px0, px0 + m_image.getSize().x * m_image.getSize().y * 4, m_clearColor.toInteger());
     auto px1 = reinterpret_cast<sf::Color*>(const_cast<sf::Uint8*>(m_image.getPixelsPtr()));
     std::fill(px1, px1 + m_image.getSize().x * m_image.getSize().y, m_clearColor);
 }

@@ -59,7 +59,6 @@ void Painter::setPos(const Point &pos)
 {
     if(m_pos == pos)
         return;
-    //qDebug() << "Painter::setPos: "<<pos.getX()<<"\t"<<pos.getY();
     Point deltaPos(pos.getX() - m_pos.getX(),
                    pos.getY() - m_pos.getY());
     for(size_t i=0; i<m_pixelList.size(); i++)

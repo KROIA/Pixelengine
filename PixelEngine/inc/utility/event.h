@@ -4,19 +4,13 @@
 #include <windows.h>
 #include <QDebug>
 #include "keyboard.h"
-//#include "eventhandler.h"
 
 
 
 class Event
 {
     public:
-        /*enum Type{
-            KeyEvent = 0,
-            MouseEvent = 1
-        };*/
         Event();
-        //Event(Type);
         Event(const int &key);
         Event(const Event &other);
         virtual ~Event();
@@ -25,7 +19,6 @@ class Event
 
         virtual void checkEvent();
 
-        //virtual void setEventReceiver(EventHandler *handler);
         virtual void setKey(const int &key);
         virtual const int &getKey() const;
 
@@ -36,10 +29,8 @@ class Event
 
 
     protected:
-        //Type m_eventType;
         int m_key;
 
-        //EventHandler *m_handler;
 
         bool m_isPressed;
         bool m_isToggled;

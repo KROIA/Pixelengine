@@ -16,7 +16,6 @@ class KeyController     :   public Controller
         // From Controller
         virtual void checkEvent();
         virtual void tick(const Point &direction);
-        //virtual void move(const int &x,const int &y);
 
         // Receiver Signal from Eventhandler
         virtual void receive_key_isPressed(const int &key);

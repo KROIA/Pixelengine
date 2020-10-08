@@ -1,7 +1,7 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 
-
+#include "property.h"
 #include "controller.h"
 #include "collider.h"
 #include "painter.h"
@@ -21,7 +21,6 @@ class GameObject
 
         virtual void checkEvent();
         virtual void tick(const Point &direction);
-        //virtual void checkCollision(); // Checks collision with this->m_collisionInteractionGroup
         virtual void checkCollision(const vector<GameObject*> &other);
         virtual void draw(PixelDisplay &display);
 
@@ -35,8 +34,6 @@ class GameObject
 
 
         // Collider settings
-        //virtual void addInteraction_collision_with(GameObject *other);
-        //virtual void addInteraction_collision_with(const vector<GameObject *> otherList);
         virtual const bool &isBoundingBoxUpdated() const;
         virtual void updateBoundingBox();
 
@@ -46,15 +43,11 @@ class GameObject
         virtual void setHitboxVisibility(const bool &isVisible);
         virtual const bool &isHitboxVisible() const;
 
-       /* virtual void remove();
-        virtual void reActivate();
-        virtual const bool &isRemoved() const;*/
+        virtual void setProperty(const Property::Property &property);
+        virtual const Property::Property &getProperty() const;
 
     protected:
         virtual void event_hasCollision(GameObject *other);
-
-        // List of objects, which can collide whit this object
-        //vector<GameObject*> m_collisionInteractionGroup;
 
     private:
         Controller *m_controller;
@@ -63,6 +56,7 @@ class GameObject
 
         Painter    *m_hitboxPainter;
 
-        //bool m_isRemoved;
+        Property::Property m_property;
+
 };
 #endif // GAMEOBJECT_H

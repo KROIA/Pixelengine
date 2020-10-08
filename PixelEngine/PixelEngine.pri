@@ -89,6 +89,7 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/gameobject/controller/basic \
                $$PixelEngine_incPath/gameobject/painter \
                $$PixelEngine_incPath/gameobject/painter/basic \
+               $$PixelEngine_incPath/gameobject/property/ \
                $$PixelEngine_incPath/display
 
 SOURCES += \
@@ -101,7 +102,7 @@ SOURCES += \
         $$PixelEngine_srcPath/gameobject/controller/basic/controller.cpp \
         $$PixelEngine_srcPath/gameobject/controller/keyController.cpp \
         $$PixelEngine_srcPath/gameobject/basic/gameobject.cpp \
-        $$PixelEngine_srcPath/gameobject/basic/property.cpp \
+        $$PixelEngine_srcPath/gameobject/property/property.cpp \
         $$PixelEngine_srcPath/gameobject/wall.cpp \
         $$PixelEngine_srcPath/utility/group/gameObjectGroup.cpp \
         $$PixelEngine_srcPath/utility/event.cpp \
@@ -110,6 +111,10 @@ SOURCES += \
         $$PixelEngine_srcPath/utility/layeritem.cpp
 
 HEADERS += \
+        $$PWD/inc/gameobject/property/body.h \
+        $$PWD/inc/gameobject/property/food.h \
+        $$PWD/inc/gameobject/property/mood.h \
+        $$PWD/inc/gameobject/property/objectType.h \
         $$PixelEngine_incPath/pixelengine.h \
         $$PixelEngine_incPath/display/pixelDisplay.h \
         $$PixelEngine_incPath/display/pixel.h \
@@ -119,7 +124,7 @@ HEADERS += \
         $$PixelEngine_incPath/gameobject/controller/basic/controller.h \
         $$PixelEngine_incPath/gameobject/controller/keyController.h \
         $$PixelEngine_incPath/gameobject/basic/gameobject.h \
-        $$PixelEngine_incPath/gameobject/basic/property.h \
+        $$PixelEngine_incPath/gameobject/property/property.h \
         $$PixelEngine_incPath/gameobject/wall.h \
         $$PixelEngine_incPath/utility/event.h \
         $$PixelEngine_incPath/utility/eventhandler.h \

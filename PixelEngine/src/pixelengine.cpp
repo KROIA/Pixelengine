@@ -192,10 +192,6 @@ void PixelEngine::display()
     {
         m_renderLayer[i].draw(*m_display);
     }
-    /*for(size_t i=0; i<m_mastergameObjectGroup.size(); i++)
-    {
-        m_mastergameObjectGroup[i]->draw(*m_display);
-    }*/
 
     m_display->display();
     m_display->handleEvents();
@@ -267,14 +263,6 @@ void PixelEngine::removeGameObject(GameObjectGroup *group)
     {
         this->removeGameObject((*group)[i]);
     }
-    /*// Remove the obj out of the masterList
-    m_mastergameObjectGroup.remove(group);
-
-    // Remove the obj out of all lists
-    for(size_t i=0; i<m_userGroups.size(); i++)
-    {
-        m_userGroups[i]->remove(group);
-    }*/
 }
 void PixelEngine::deleteGameObject(GameObject *obj)
 {
@@ -297,7 +285,6 @@ void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObject *obj
     GameObject *object1 = nullptr;
     size_t objext1_index;
     GameObject *object2 = nullptr;
-    //size_t objext2_index;
 
     for(size_t x=0; x<m_mastergameObjectGroup.size(); x++)
     {
@@ -308,7 +295,6 @@ void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObject *obj
         }else if(m_mastergameObjectGroup[x] == obj2)
         {
             object2 = obj2;
-            //objext2_index = x;
         }
     }
     if(object1 != nullptr && object2 != nullptr)
@@ -333,27 +319,6 @@ void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObject *obj
             // Object1 will now collide with Object2
             m_mastergameObjectGroup_collisionInteractiveList[objext1_index].add(object2);
         }
-/*
-        bool obj1Found = false;
-        for(size_t i=0; i<m_mastergameObjectGroup_collisionInteractiveList[objext2_index].size(); i++)
-        {
-            if(m_mastergameObjectGroup_collisionInteractiveList[objext2_index][i] == object1)
-            {
-                obj2Found = true;
-                if(!doesCollide)
-                {
-                    // Remove Object1 from the Object2's colliderList
-                    // Object2 will no longer collide with Object1
-                    m_mastergameObjectGroup_collisionInteractiveList[objext2_index].remove(object1);
-                }
-            }
-        }
-        if(!obj1Found)
-        {
-            // Add Object1 to the Object2's colliderList
-            // Object2 will now collide with Object1
-            m_mastergameObjectGroup_collisionInteractiveList[objext2_index].add(object1);
-        }*/
     }
 }
 void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObjectGroup *obj2List, const bool &doesCollide)
@@ -597,37 +562,6 @@ bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider
 }
 bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider, Painter *painter, const Point &origin)
 {
-
-    /*Image image;
-    if(!image.loadFromFile(picture))
-        return false;
-
-    sf::Vector2u size = image.getSize();
-    Point middleOffset(-signed(size.x)/2,-signed(size.y)/2);
-
-    double progress = 0;
-    double maxProgress = size.x * size.y;
-
-    collider->reserve(size.x * size.y);
-    painter->reserve(size.x * size.y);
-    for(unsigned int x=0; x<size.x; x++)
-    {
-        qDebug() << "[\t"<<100.f*progress/maxProgress<<"\t]";
-        for(unsigned int y=0; y<size.y; y++)
-        {
-            Color color = image.getPixel(x,y);
-
-            //qDebug() << "Pixel at: x="<<x<<"\ty="<<y<<"\t: r="<<color.r<<"\tg="<<color.g<<"\t"<<color.b<<"\ta="<<color.a;
-            if(color.a != 0 && !(color.r == 255 && color.g == 255 && color.b == 255))
-            {
-                collider->addHitbox(Rect(middleOffset.getX()+x,middleOffset.getY()+y,1,1));
-                painter->addPixel(Pixel(Point(middleOffset.getX()+x,middleOffset.getY()+y),color));
-            }
-            progress += 1;
-        }
-    }
-    qDebug() << "import image done";
-    return true;*/
     Image image;
     if(!image.loadFromFile(picture))
         return false;

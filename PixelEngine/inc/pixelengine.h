@@ -74,22 +74,22 @@ class PixelEngine
         virtual void deleteGameObject(GameObjectGroup *group);
 
         // obj1 only interacts with obj2 not obj2 with obj1
-        virtual void setCollisionSingleInteraction(GameObject *obj1,GameObject *obj2, const bool &doesCollide = true);
-        virtual void setCollisionSingleInteraction(GameObject *obj1,GameObjectGroup *obj2List, const bool &doesCollide = true);
-        virtual void setCollisionSingleInteraction(GameObjectGroup *obj1List,GameObjectGroup *obj2List, const bool &doesCollide = true);
-        virtual void setCollisionSingleInteraction(GameObject *obj1,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
-        virtual void setCollisionSingleInteraction(GameObjectGroup *obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
-        virtual void setCollisionSingleInteraction(const vector<GameObject*> &obj1List,GameObjectGroup *obj2List, const bool &doesCollide = true);
-        virtual void setCollisionSingleInteraction(const vector<GameObject*> &obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
+        virtual void setCollisionSingleInteraction(GameObject                *obj1      ,GameObject                *obj2    , const bool &doesCollide = true);
+        virtual void setCollisionSingleInteraction(GameObject                *obj1      ,GameObjectGroup           *obj2List, const bool &doesCollide = true);
+        virtual void setCollisionSingleInteraction(GameObjectGroup           *obj1List  ,GameObjectGroup           *obj2List, const bool &doesCollide = true);
+        virtual void setCollisionSingleInteraction(GameObject                *obj1      ,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
+        virtual void setCollisionSingleInteraction(GameObjectGroup           *obj1List  ,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
+        virtual void setCollisionSingleInteraction(const vector<GameObject*> &obj1List  ,GameObjectGroup           *obj2List, const bool &doesCollide = true);
+        virtual void setCollisionSingleInteraction(const vector<GameObject*> &obj1List  ,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
 
         // obj1 interacts with obj2 and other way around
-        virtual void setCollisionMultiInteraction(GameObject *obj1,GameObject *obj2, const bool &doesCollide = true);
-        virtual void setCollisionMultiInteraction(GameObject *obj1,GameObjectGroup *obj2List, const bool &doesCollide = true);
-        virtual void setCollisionMultiInteraction(GameObjectGroup *obj1List,GameObjectGroup *obj2List, const bool &doesCollide = true);
-        virtual void setCollisionMultiInteraction(GameObject *obj1,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
-        virtual void setCollisionMultiInteraction(GameObjectGroup *obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
-        virtual void setCollisionMultiInteraction(const vector<GameObject*> &obj1List,GameObjectGroup *obj2List, const bool &doesCollide = true);
-        virtual void setCollisionMultiInteraction(const vector<GameObject*> &obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
+        virtual void setCollisionMultiInteraction(GameObject                 *obj1      ,GameObject                *obj2    , const bool &doesCollide = true);
+        virtual void setCollisionMultiInteraction(GameObject                 *obj1      ,GameObjectGroup           *obj2List, const bool &doesCollide = true);
+        virtual void setCollisionMultiInteraction(GameObjectGroup            *obj1List  ,GameObjectGroup           *obj2List, const bool &doesCollide = true);
+        virtual void setCollisionMultiInteraction(GameObject                 *obj1      ,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
+        virtual void setCollisionMultiInteraction(GameObjectGroup            *obj1List  ,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
+        virtual void setCollisionMultiInteraction(const vector<GameObject*>  &obj1List  ,GameObjectGroup           *obj2List, const bool &doesCollide = true);
+        virtual void setCollisionMultiInteraction(const vector<GameObject*>  &obj1List  ,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
 
         // Groups
         virtual void addGroup(GameObjectGroup *group);

@@ -40,7 +40,6 @@ void Collider::setPos(const Point &pos)
 {
     if(m_pos == pos)
         return;
-    //qDebug() << "collider::setPos"<<pos.getX()<<"\t"<<pos.getY();
     Point deltaPos(pos.getX() - m_pos.getX(),
                    pos.getY() - m_pos.getY());
     m_boundingBox.setPos(m_boundingBox.getX() + deltaPos.getX(),
@@ -90,18 +89,10 @@ void Collider::reserve(const size_t &amount)
 
 void Collider::addHitbox(const Rect &box)
 {
-    /*for(size_t i=0; i<m_hitboxList.size(); i++)
-    {
-        if(m_hitboxList[i] == box)
-            return;
-    }*/
     m_boundingBoxUpdated = false;
     m_hitboxList.push_back(box);
     m_hitboxList[m_hitboxList.size()-1].setPos(box.getPos().getX()+m_pos.getX(),
                                                box.getPos().getY()+m_pos.getY());
-
-   // this->setBoundingBox();
-
 }
 
 void Collider::addHitbox(const vector<Rect> &boxList)

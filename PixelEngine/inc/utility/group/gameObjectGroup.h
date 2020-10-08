@@ -7,7 +7,7 @@
 
 using std::vector;
 
-class GameObjectGroup  //:   public vector<GameObject*>
+class GameObjectGroup
 {
     public:
         GameObjectGroup();
@@ -24,10 +24,6 @@ class GameObjectGroup  //:   public vector<GameObject*>
         virtual void remove(GameObjectGroup *other);
         virtual void remove(const size_t index);
         virtual void clear();
-
-        //virtual void push_back(GameObject* obj);
-        //virtual void append(const vector<GameObject*> &other);
-
 
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;

@@ -37,10 +37,8 @@ void LayerItem::setPos(const Point &pos)
 {
     if(m_pos == pos)
         return;
-    //qDebug() << "LayerItem::setPos"<<pos.getX()<<"\t"<<pos.getY();
     m_lastPos   = m_pos;
     m_pos       = pos;
-    //qDebug() << "LayerItem::setPos="<<m_pos.getX()<<"\t"<<m_pos.getY();
 }
 void LayerItem::setPos(const int &x, const int &y)
 {
