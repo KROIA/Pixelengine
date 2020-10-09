@@ -202,11 +202,11 @@ void userDisplayLoop(double frameInterval)
         fpsCounter = 0;
     }
     fpsCounter++;
-   /* if(timer.start(1))
+    if(timer.start(1))
     {
         objectGroup->setHitboxVisibility(toggle);
         toggle = !toggle;
-    }*/
+    }
     if(fadeTimer.start(0.05))
     {
         player2->setColor(getRainbow(rad));
@@ -232,12 +232,17 @@ GameObject *getimportedObject()
     controller->setPosInitial(50,50);
     controller->setStepSize(1);
 
+    Property::Property property = obj->getProperty();
+    property.setBody_weight(1);
+    property.setBody_material(Property::Material::Grass);
+    property.setType_description(Property::Description::dynamicObsticle);
+    obj->setProperty(property);
+
 
     obj->setPainter(painter);
     obj->setCollider(collider);
     obj->setController(controller);
     PixelEngine::loadFromImage("textures\\minecraft\\textures\\block\\grass_block_side.png",collider,painter,ImageOrigin::bottomRightCorner);
-    //getchar();
 
     return obj;
 }
@@ -301,6 +306,12 @@ GameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &
     grassBlock->setPainter(painter);
     grassBlock->setController(controller);
     grassBlock->setPosInitial(bottomLeftOrigin);
+
+    Property::Property property = grassBlock->getProperty();
+    property.setBody_weight(1);
+    property.setBody_material(Property::Material::Grass);
+    property.setType_description(Property::Description::staticObsticle);
+    grassBlock->setProperty(property);
 
 
     Point blockSize(16,16);

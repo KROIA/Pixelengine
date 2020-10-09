@@ -53,6 +53,9 @@ class GameObject
     protected:
         virtual void event_hasCollision(GameObject *other);
 
+        Property::Property m_property;
+        GameObjectEventHandler *m_objEventHandler;
+
     private:
         Controller *m_controller;
         Collider   *m_collider;
@@ -60,9 +63,7 @@ class GameObject
 
         Painter    *m_hitboxPainter;
 
-        Property::Property m_property;
 
-        GameObjectEventHandler *m_objEventHandler;
 
 };
 #endif // GAMEOBJECT_H

@@ -1,4 +1,5 @@
 #include "player.h"
+#include "gameObjectEventHandler.h"
 
 Player::Player()
     :   GameObject()
@@ -16,6 +17,16 @@ Player::Player()
     this->setPainter(m_painter);
     this->setCollider(m_collider);
     this->setController(m_controller);
+
+    Property::Property property;
+    property.setBody_fat(5);
+    property.setBody_health(100);
+    property.setBody_stamina(100);
+    property.setBody_weight(10);
+    property.setBody_strength(10);
+    property.setBody_material(Property::Material::Flesh);
+    property.setType_description(Property::Description::player);
+    this->setProperty(property);
 }
 Player::Player(const Player &other)
     :   GameObject(other)
@@ -133,4 +144,20 @@ void Player::setupPLayerBody(Painter *p,Collider *c)
     c->addHitbox(Rect(-1,4,1,2));
     c->addHitbox(Rect( 1,4,1,2));
 
+}
+void Player::event_hasCollision(GameObject *other)
+{
+    if(this->m_objEventHandler != nullptr)
+        m_objEventHandler->collisionOccured(this,other);
+    Property::Property otherProperty = other->getProperty();
+
+    if(otherProperty.getBody().material    == Property::Material::Grass &&
+       otherProperty.getType().description != Property::Description::dynamicObsticle)
+    {
+        if(m_objEventHandler != nullptr)
+           m_objEventHandler->removeFromEngine(other);
+    }
+
+    m_controller->setToLastPos();
+    m_collider->setPos(m_controller->getPos());
 }

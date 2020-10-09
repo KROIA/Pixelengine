@@ -27,6 +27,7 @@ class Player    :   public GameObject
 
         virtual void buildPlayer(); // Generates The PlayerObject
 
+        virtual void event_hasCollision(GameObject *other);
 
 
     protected:

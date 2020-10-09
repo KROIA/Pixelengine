@@ -526,9 +526,14 @@ void PixelEngine::removeFromEngine(GameObject *obj)
 {
     this->removeGameObject(obj);
 }
+void PixelEngine::deleteObject(GameObject *obj)
+{
+    this->deleteGameObject(obj);
+}
 void PixelEngine::collisionOccured(GameObject *obj1,GameObject *obj2)
 {
     qDebug() << "collision"<<obj1<<"\t"<<obj2;
+    //if(obj)
 }
 
 // General functions

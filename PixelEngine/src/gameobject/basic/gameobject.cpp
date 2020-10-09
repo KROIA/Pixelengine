@@ -40,6 +40,7 @@ const GameObject &GameObject::operator=(const GameObject &other)
     *this->m_collider      = *other.m_collider;
     *this->m_painter       = *other.m_painter;
     *this->m_hitboxPainter = *other.m_hitboxPainter;
+    this->m_property       = other.m_property;
     this->m_objEventHandler = other.m_objEventHandler;
     return *this;
 }

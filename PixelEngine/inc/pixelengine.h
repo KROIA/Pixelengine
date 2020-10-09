@@ -111,6 +111,7 @@ class PixelEngine   :   public GameObjectEventHandler
         // These functions will be called from the GameObject's
         virtual void kill(GameObject *obj);
         virtual void removeFromEngine(GameObject *obj);
+        virtual void deleteObject(GameObject *obj);
         virtual void collisionOccured(GameObject *obj1,GameObject *obj2);
 
         // General functions
