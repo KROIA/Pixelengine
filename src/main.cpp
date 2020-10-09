@@ -16,7 +16,7 @@
 #include "timer.h"
 
 #include "event.h"
-#include "eventhandler.h"
+#include "userEventHandler.h"
 
 
 #include "player.h"
@@ -267,7 +267,7 @@ GameObjectGroup makeBoarder(PixelEngine *engine)
 
     Wall *wall_2 = new Wall();
     wall_2->setDimension(PointU(boarderSize,mapSize.getY()+2*boarderSize));
-    wall_2->getController()->setPosInitial(Point(mapSize.getX()+boarderSize,-boarderSize));
+    wall_2->getController()->setPosInitial(Point(mapSize.getX(),-boarderSize));
     wall_2->setColor(color);
 
     Wall *wall_3 = new Wall();
@@ -277,7 +277,7 @@ GameObjectGroup makeBoarder(PixelEngine *engine)
 
     Wall *wall_4 = new Wall();
     wall_4->setDimension(PointU(mapSize.getX(),boarderSize));
-    wall_4->getController()->setPosInitial(Point(0,mapSize.getY()+boarderSize));
+    wall_4->getController()->setPosInitial(Point(0,mapSize.getY()));
     wall_4->setColor(color);
 
     GameObjectGroup group;

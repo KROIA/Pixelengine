@@ -1,5 +1,5 @@
-#ifndef EVENTHANDLER_H
-#define EVENTHANDLER_H
+#ifndef USEREVENTHANDLER_H
+#define USEREVENTHANDLER_H
 
 #include <windows.h>
 #include "event.h"
@@ -9,13 +9,13 @@
 
 using std::vector;
 
-class EventHandler
+class UserEventHandler
 {
     public:
-        EventHandler();
-        EventHandler(const EventHandler &other);
-        virtual ~EventHandler();
-        virtual EventHandler &operator=(const EventHandler &other);
+        UserEventHandler();
+        UserEventHandler(const UserEventHandler &other);
+        virtual ~UserEventHandler();
+        virtual UserEventHandler &operator=(const UserEventHandler &other);
 
         virtual void checkEvent();
 

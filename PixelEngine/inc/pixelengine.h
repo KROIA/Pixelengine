@@ -15,6 +15,7 @@
 
 #include "gameobject.h"
 #include "gameObjectGroup.h"
+#include "gameObjectEventHandler.h"
 
 // When this is defined, all completely white pixels in an imported image
 // are treated the same as alpha channel pixels
@@ -39,7 +40,7 @@ enum ImageOrigin
     center
 };
 
-class PixelEngine
+class PixelEngine   :   public GameObjectEventHandler
 {
     public:
         PixelEngine(const PointU &mapsize,const PointU &displaySize);
@@ -105,6 +106,12 @@ class PixelEngine
         virtual void setRenderLayer_BOTTOM(GameObjectGroup *objGroup);
         virtual void setRenderLayer_TOP(GameObject *obj);
         virtual void setRenderLayer_TOP(GameObjectGroup *objGroup);
+
+        // GameObject Events from GameObjectEventHandler
+        // These functions will be called from the GameObject's
+        virtual void kill(GameObject *obj);
+        virtual void removeFromEngine(GameObject *obj);
+        virtual void collisionOccured(GameObject *obj1,GameObject *obj2);
 
         // General functions
         static double random(double min, double max);

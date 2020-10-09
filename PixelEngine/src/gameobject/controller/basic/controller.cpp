@@ -1,7 +1,7 @@
 #include "controller.h"
 
 Controller::Controller()
-    :   EventHandler(), LayerItem()
+    :   UserEventHandler(), LayerItem()
 {
     m_currentMovingPos.setX(m_pos.getX());
     m_currentMovingPos.setY(m_pos.getY());
@@ -11,7 +11,7 @@ Controller::Controller()
     m_movingStepCounter = 0;
 }
 Controller::Controller(const Controller &other)
-    :   EventHandler(), LayerItem()
+    :   UserEventHandler(), LayerItem()
 {
     *this = other;
 }
@@ -21,7 +21,7 @@ Controller::Controller(const Controller &other)
 }
 const Controller &Controller::operator=(const Controller &other)
 {
-    EventHandler::operator=(other);
+    UserEventHandler::operator=(other);
     LayerItem::operator=(other);
     this->m_currentMovingPos   = other.m_currentMovingPos;
     this->m_currentDeltaMove   = other.m_currentDeltaMove;
@@ -32,7 +32,7 @@ const Controller &Controller::operator=(const Controller &other)
 }
 void Controller::checkEvent()
 {
-    EventHandler::checkEvent();
+    UserEventHandler::checkEvent();
 }
 void Controller::tick(const Point &direction)
 {

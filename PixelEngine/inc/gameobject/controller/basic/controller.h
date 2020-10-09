@@ -7,12 +7,12 @@
 #include "point.h"
 #include "vector.h"
 
-#include "eventhandler.h"
+#include "userEventHandler.h"
 #include "event.h"
 
 using std::vector;
 
-class Controller    :   public EventHandler, public LayerItem
+class Controller    :   public UserEventHandler, public LayerItem
 {
     public:
         Controller();

@@ -1,24 +1,24 @@
-#include "eventhandler.h"
+#include "userEventHandler.h"
 
-EventHandler::EventHandler()
+UserEventHandler::UserEventHandler()
 {
 
 }
-EventHandler::EventHandler(const EventHandler &other)
+UserEventHandler::UserEventHandler(const UserEventHandler &other)
 {
     *this = other;
 }
-EventHandler::~EventHandler()
+UserEventHandler::~UserEventHandler()
 {
 
 }
-EventHandler &EventHandler::operator=(const EventHandler &other)
+UserEventHandler &UserEventHandler::operator=(const UserEventHandler &other)
 {
     this->m_eventList   = other.m_eventList;
     return *this;
 }
 
-void EventHandler::checkEvent()
+void UserEventHandler::checkEvent()
 {
     // Check for all events
     for(size_t i=0; i<m_eventList.size(); i++)
@@ -40,42 +40,42 @@ void EventHandler::checkEvent()
     }
 }
 
-size_t EventHandler::addEvent(const Event &e)
+size_t UserEventHandler::addEvent(const Event &e)
 {
     m_eventList.push_back(e);
     return m_eventList.size();
 }
-const Event &EventHandler::getEvent(const size_t &index)
+const Event &UserEventHandler::getEvent(const size_t &index)
 {
     if(index >= m_eventList.size())
     {
-        qDebug() << "const Event &EventHandler::getEvent(const size_t &["<<index<<"]): out of range";
+        qDebug() << "const Event &UserEventHandler::getEvent(const size_t &["<<index<<"]): out of range";
         return m_dummyEvent;
     }
     return m_eventList[index];
 }
-void EventHandler::removeEvent(const size_t &index)
+void UserEventHandler::removeEvent(const size_t &index)
 {
     if(index >= m_eventList.size())
     {
-        qDebug() << "const Event &EventHandler::removeEvent(const size_t &["<<index<<"]): out of range";
+        qDebug() << "const Event &UserEventHandler::removeEvent(const size_t &["<<index<<"]): out of range";
     }
     m_eventList.erase(m_eventList.begin()+index);
 }
 
-void EventHandler::receive_key_isPressed(const int &key)
+void UserEventHandler::receive_key_isPressed(const int &key)
 {
     qDebug() << "Key: "<<key<<"\receive_key_isPressed";
 }
-void EventHandler::receive_key_toggle(const int &key)
+void UserEventHandler::receive_key_toggle(const int &key)
 {
     qDebug() << "Key: "<<key<<"\receive_key_toggle";
 }
-void EventHandler::reveive_key_goesDown(const int &key)
+void UserEventHandler::reveive_key_goesDown(const int &key)
 {
     qDebug() << "Key: "<<key<<"\reveive_key_goesDown";
 }
-void EventHandler::reveive_key_goesUp(const int &key)
+void UserEventHandler::reveive_key_goesUp(const int &key)
 {
     qDebug() << "Key: "<<key<<"\reveive_key_goesUp";
 }

@@ -228,6 +228,7 @@ void PixelEngine::addGameObject(GameObject *obj)
 
     if(!obj->isBoundingBoxUpdated())
         obj->updateBoundingBox();
+    obj->setEventHandler(this);
     m_mastergameObjectGroup.add(obj);
     m_mastergameObjectGroup_collisionInteractiveList.push_back(GameObjectGroup());
     m_renderLayer[2].add(obj);
@@ -256,6 +257,7 @@ void PixelEngine::removeGameObject(GameObject *obj)
     }
     // Remove the obj out of all lists
     this->removeObjectFromList(m_userGroups,obj);
+    obj->setEventHandler(nullptr);
 }
 void PixelEngine::removeGameObject(GameObjectGroup *group)
 {
@@ -513,6 +515,20 @@ void PixelEngine::setRenderLayer_TOP(GameObjectGroup *objGroup)
 {
     for(size_t i=0; i<objGroup->size(); i++)
         this->setRenderLayer_TOP((*objGroup)[i]);
+}
+
+// GameObject Events from GameObjectEventHandler
+void PixelEngine::kill(GameObject *obj)
+{
+
+}
+void PixelEngine::removeFromEngine(GameObject *obj)
+{
+    this->removeGameObject(obj);
+}
+void PixelEngine::collisionOccured(GameObject *obj1,GameObject *obj2)
+{
+    qDebug() << "collision"<<obj1<<"\t"<<obj2;
 }
 
 // General functions

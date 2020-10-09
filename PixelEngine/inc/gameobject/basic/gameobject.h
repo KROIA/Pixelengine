@@ -7,6 +7,8 @@
 #include "painter.h"
 #include "hitboxPainter.h"
 
+class GameObjectEventHandler;
+
 class GameObject
 {
     public:
@@ -28,6 +30,7 @@ class GameObject
         virtual void setController(Controller *controller);
         virtual void setCollider(Collider *collider);
         virtual void setPainter(Painter *painter);
+        virtual void setEventHandler(GameObjectEventHandler *handler);
 
         virtual void setPosInitial(const Point &pos);
         virtual void setPosInitial(const int &x, const int &y);
@@ -43,6 +46,7 @@ class GameObject
         virtual void setHitboxVisibility(const bool &isVisible);
         virtual const bool &isHitboxVisible() const;
 
+        // Properties
         virtual void setProperty(const Property::Property &property);
         virtual const Property::Property &getProperty() const;
 
@@ -57,6 +61,8 @@ class GameObject
         Painter    *m_hitboxPainter;
 
         Property::Property m_property;
+
+        GameObjectEventHandler *m_objEventHandler;
 
 };
 #endif // GAMEOBJECT_H

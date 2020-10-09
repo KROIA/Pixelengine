@@ -1,4 +1,5 @@
 #include "gameobject.h"
+#include "gameObjectEventHandler.h"
 
 GameObject::GameObject()
 {
@@ -6,6 +7,7 @@ GameObject::GameObject()
     m_collider      = new Collider();
     m_painter       = new Painter();
     m_hitboxPainter = new Painter();
+    m_objEventHandler = nullptr;
 }
 GameObject::GameObject(const GameObject &other)
 {
@@ -13,6 +15,7 @@ GameObject::GameObject(const GameObject &other)
     m_collider      = new Collider();
     m_painter       = new Painter();
     m_hitboxPainter = new Painter();
+    m_objEventHandler = nullptr;
     *this = other;
 }
 GameObject::GameObject(Controller *controller,
@@ -37,6 +40,7 @@ const GameObject &GameObject::operator=(const GameObject &other)
     *this->m_collider      = *other.m_collider;
     *this->m_painter       = *other.m_painter;
     *this->m_hitboxPainter = *other.m_hitboxPainter;
+    this->m_objEventHandler = other.m_objEventHandler;
     return *this;
 }
 void GameObject::checkEvent()
@@ -95,6 +99,10 @@ void GameObject::setPainter(Painter *painter)
     delete m_painter;
     m_painter = painter;
 }
+void GameObject::setEventHandler(GameObjectEventHandler *handler)
+{
+    m_objEventHandler = handler;
+}
 void GameObject::setPosInitial(const Point &pos)
 {
     m_controller->setPosInitial(pos);
@@ -144,6 +152,10 @@ const Property::Property &GameObject::getProperty() const
 }
 void GameObject::event_hasCollision(GameObject *other)
 {
+    if(m_objEventHandler != nullptr)
+        m_objEventHandler->collisionOccured(this,other);
+    /*if(m_objEventHandler != nullptr)
+        m_objEventHandler->removeFromEngine(this);*/
     m_controller->setToLastPos();
     m_collider->setPos(m_controller->getPos());
 }
