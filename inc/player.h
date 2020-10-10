@@ -3,7 +3,9 @@
 
 #include "gameobject.h"
 #include "keyController.h"
+#include "sensor.h"
 #include <QDebug>
+#include "timer.h"
 
 class Player    :   public GameObject
 {
@@ -14,6 +16,8 @@ class Player    :   public GameObject
         virtual ~Player();
 
         virtual void tick(const Point &direction);
+        virtual void checkCollision(const vector<GameObject*> &other);
+        virtual void draw(PixelDisplay &display);
 
         virtual void setColor(const Color &color);
         virtual void setStartPos(const Point &point);
@@ -44,7 +48,11 @@ class Player    :   public GameObject
     private:
         bool m_onceBuild;
         Collider *m_collider;
+        Collider *sensorCollider;
         Painter  *m_painter;
         KeyController *m_controller;
+
+        Sensor m_sensor;
+        Timer m_sensorDebugTimer;
 };
 #endif

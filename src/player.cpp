@@ -27,6 +27,12 @@ Player::Player()
     property.setBody_material(Property::Material::Flesh);
     property.setType_description(Property::Description::player);
     this->setProperty(property);
+
+    m_sensor.setOwner(this);
+    sensorCollider = new Collider();
+    sensorCollider->addHitbox(Rect(-10,-10,20,5));
+    sensorCollider->updateBoundingBox();
+    m_sensor.setSensorCollider(sensorCollider);
 }
 Player::Player(const Player &other)
     :   GameObject(other)
@@ -49,7 +55,33 @@ Player::~Player()
 void Player::tick(const Point &direction)
 {
     GameObject::tick(direction);
+}
+void Player::checkCollision(const vector<GameObject*> &other)
+{
+    GameObject::checkCollision(other);
+    m_sensor.checkCollision(other);
 
+    if(m_sensorDebugTimer.start(1))
+    {
+        if(m_sensor.getDetectedObjects().size()>0)
+        {
+            vector<GameObject*>list  = m_sensor.getDetectedObjects();
+            qDebug()<<"sensor detects "<<m_sensor.getDetectedObjects().size()<<" objects";
+            for(size_t i=0; i<list.size(); i++)
+            {
+                Property::Property p = list[i]->getProperty();
+                qDebug() << p.toString().c_str();
+                qDebug() << "";
+                p.setMood_inLove(p.getMood().inLove+0.001);
+                list[i]->setProperty(p);
+            }
+        }
+    }
+}
+void Player::draw(PixelDisplay &display)
+{
+    GameObject::draw(display);
+    m_sensor.draw(display);
 }
 void Player::setColor(const Color &color)
 {
@@ -143,7 +175,6 @@ void Player::setupPLayerBody(Painter *p,Collider *c)
     p->addPixel(Pixel(Point( 1,5),m_playerColor));
     c->addHitbox(Rect(-1,4,1,2));
     c->addHitbox(Rect( 1,4,1,2));
-
 }
 void Player::event_hasCollision(GameObject *other)
 {

@@ -1,6 +1,10 @@
 #ifndef BODY_H
 #define BODY_H
 
+#include <string>
+
+using std::string;
+
 namespace Property
 {
     enum Material
@@ -29,6 +33,30 @@ namespace Property
         double density;
         Material material;
     };
+    inline string material_toString(const Material &mat)
+    {
+         switch(mat)
+         {
+             case Material::Water:
+                 return "Water";
+             case Material::Air:
+                 return "Air";
+             case Material::Dirt:
+                 return "Dirt";
+             case Material::Grass:
+                 return "Grass";
+             case Material::Wood:
+                 return "Wood";
+             case Material::Stone:
+                 return "Stone";
+             case Material::Metal:
+                 return "Metal";
+             case Material::Flesh:
+                 return "Flesh";
+             default:
+                 return "notDefined";
+         }
+    }
 }
 
 #endif // BODY_H

@@ -57,20 +57,47 @@ void GameObject::tick(const Point &direction)
 
 void GameObject::checkCollision(const vector<GameObject*> &other)
 {
+    vector<GameObject*> collided = GameObject::getCollidedObjects(this, m_collider, other);
+    if(collided.size() > 0)
+    {
+        event_hasCollision(collided[0]);
+    }
+}
+vector<GameObject*> GameObject::getCollidedObjects(GameObject *owner, Collider *collider,const vector<GameObject*> &other)
+{
+    vector<GameObject*> collided;
+    collided.reserve(10);
     for(size_t i=0; i<other.size(); i++)
     {
-        if(this == other[i])
+        if(owner == other[i])
             continue; // This is the same object like other[i]
-        if(m_collider->intersectsBoundingBox(*other[i]->m_collider))
+        if(collider->intersectsBoundingBox(*other[i]->m_collider))
         {
-            if(m_collider->collides(*other[i]->m_collider))
+            if(collider->collides(*other[i]->m_collider))
             {
-                this->event_hasCollision(other[i]);
+                collided.push_back(other[i]);
+            }
+        }
+    }
+    return collided;
+}
+/*void GameObject::checkCollision(GameObject *owner,collisionSlot slot,Collider *collider,const vector<GameObject*> &other)
+{
+    for(size_t i=0; i<other.size(); i++)
+    {
+        if(owner == other[i])
+            continue; // This is the same object like other[i]
+        if(collider->intersectsBoundingBox(*other[i]->m_collider))
+        {
+            if(collider->collides(*other[i]->m_collider))
+            {
+                (owner->*slot)(other[i]);
                 return;
             }
         }
     }
-}
+}*/
+
 void GameObject::draw(PixelDisplay &display)
 {
     m_painter->setPos(m_controller->getPos());
@@ -86,6 +113,10 @@ void GameObject::setController(Controller *controller)
     delete m_controller;
     m_controller = controller;
 }
+const Controller &GameObject::getController() const
+{
+    return *m_controller;
+}
 void GameObject::setCollider(Collider *collider)
 {
     if(m_collider == collider || collider == nullptr)
@@ -93,12 +124,20 @@ void GameObject::setCollider(Collider *collider)
     delete m_collider;
     m_collider = collider;
 }
+const Collider &GameObject::getCollider() const
+{
+    return *m_collider;
+}
 void GameObject::setPainter(Painter *painter)
 {
     if(m_painter == painter || painter == nullptr)
         return;
     delete m_painter;
     m_painter = painter;
+}
+const Painter &GameObject::getPainter() const
+{
+    return *m_painter;
 }
 void GameObject::setEventHandler(GameObjectEventHandler *handler)
 {
@@ -112,7 +151,44 @@ void GameObject::setPosInitial(const int &x, const int &y)
 {
     m_controller->setPosInitial(x,y);
 }
+void GameObject::setPos(const int &x,const int &y)
+{
+    m_controller->setPos(x,y);
+}
+void GameObject::setPos(const Point &pos)
+{
+    m_controller->setPos(pos);
+}
 
+void GameObject::setX(const int &x)
+{
+    m_controller->setX(x);
+}
+void GameObject::setY(const int &y)
+{
+    m_controller->setY(y);
+}
+
+void GameObject::moveToPos(const Point &destination)
+{
+    m_controller->moveToPos(destination);
+}
+void GameObject::moveToPos(const int &x,const int &y)
+{
+    m_controller->moveToPos(x,y);
+}
+void GameObject::move(const Point &directionVector)
+{
+    m_controller->move(directionVector);
+}
+void GameObject::move(int x,int y)
+{
+    m_controller->move(x,y);
+}
+const Point &GameObject::getPos()
+{
+    return m_controller->getPos();
+}
 
 const bool &GameObject::isBoundingBoxUpdated() const
 {

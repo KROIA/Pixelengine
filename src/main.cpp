@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     // Generate the engine
-    unsigned int mapWidth = 800;
+    unsigned int mapWidth = 300;
     PointU windowSize(1500,800);
     PixelEngine engine(PointU(mapWidth,double(mapWidth)*double(windowSize.getY())/double(windowSize.getX())),PointU(1500,800));
     engine.set_setting_checkEventInterval(1.0f/200.0f);

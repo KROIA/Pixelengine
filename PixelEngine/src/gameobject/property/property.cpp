@@ -38,7 +38,15 @@ const Property &Property::operator=(const Property &other)
     this->m_mood = other.m_mood;
     return *this;
 }
-
+string Property::toString(const string &newLine) const
+{
+    string str = "Property:"+newLine;
+    str+=getType_toString(newLine);
+    str+=getBody_toString(newLine);
+    str+=getFood_toString(newLine);
+    str+=getMood_toString(newLine);
+    return str;
+}
 // Type
 void Property::setType(const Type &type)
 {
@@ -51,6 +59,13 @@ void Property::setType_description(const Description &description)
 const Type Property::getType() const
 {
     return m_type;
+}
+string Property::getType_toString(const string &newLine) const
+{
+    string str = "Type:"+newLine;
+    str += "   Description  :  "+description_toString(m_type.description)+newLine;
+
+    return str;
 }
 
 // Body
@@ -93,6 +108,20 @@ void Property::setBody_material(const Material &material)
 const Body &Property::getBody() const
 {
     return m_body;
+}
+string Property::getBody_toString(const string &newLine) const
+{
+    string str = "Body:"+newLine;
+    str += "   Fat               : "+to_string(m_body.fat)+newLine;
+    str += "   NutritionalValue  : "+to_string(m_body.nutritionalValue)+newLine;
+    str += "   Stamina           : "+to_string(m_body.stamina)+newLine;
+    str += "   Health            : "+to_string(m_body.health)+newLine;
+    str += "   Strength          : "+to_string(m_body.strength)+newLine;
+    str += "   Weight            : "+to_string(m_body.weight)+newLine;
+    str += "   Density           : "+to_string(m_body.density)+newLine;
+    str += "   Material          : "+material_toString(m_body.material)+newLine;
+
+    return str;
 }
 
 // Food
@@ -137,6 +166,17 @@ const Food &Property::getFood() const
 {
     return m_food;
 }
+string Property::getFood_toString(const string &newLine) const
+{
+    string str = "Food"+newLine;
+    str += "   IsEatable     : "+string(m_food.isEatable?"true":"false")+newLine;
+    str += "   FoodAmount    : "+to_string(m_food.foodAmount)+newLine;
+    str += "   Taste:"+newLine;
+    for(size_t i=0; i<m_food.taste.size(); i++)
+        str += "      "+taste_toString(m_food.taste[i])+newLine;
+    str += "   HealthyLevel  : "+to_string(m_food.healthyLevel)+newLine;
+    return str;
+}
 
 // Mood
 void Property::setMood(const Mood &mood)
@@ -162,5 +202,15 @@ void Property::setMood_druglevel(const double &druglevel)
 const Mood &Property::getMood() const
 {
     return m_mood;
+}
+string Property::getMood_toString(const string &newLine) const
+{
+    string str = "Mood:"+newLine;
+    str += "   Stresslevel  : "+to_string(m_mood.stresslevel)+newLine;
+    str += "   Angrylevel   : "+to_string(m_mood.angrylevel)+newLine;
+    str += "   InLove       : "+to_string(m_mood.inLove)+newLine;
+    str += "   Druglevel    : "+to_string(m_mood.druglevel)+newLine;
+
+    return str;
 }
 }

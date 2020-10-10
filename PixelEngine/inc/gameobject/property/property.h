@@ -5,6 +5,10 @@
 #include "food.h"
 #include "objectType.h"
 #include "mood.h"
+#include <string>
+
+using std::string;
+using std::to_string;
 
 
 namespace Property {
@@ -17,11 +21,13 @@ class Property
         Property(const Property &other);
         virtual ~Property();
         virtual const Property &operator=(const Property &other);
+        virtual string toString(const string &newLine = "\n") const;
 
         // Type
         virtual void setType(const Type &type);
         virtual void setType_description(const Description &description);
         virtual const Type getType() const;
+        virtual string getType_toString(const string &newLine = "\n") const;
 
         // Body
         virtual void setBody(const Body &body);
@@ -34,6 +40,7 @@ class Property
         virtual void setBody_density(const double &density);
         virtual void setBody_material(const Material &material);
         virtual const Body &getBody() const;
+        virtual string getBody_toString(const string &newLine = "\n") const;
 
         // Food
         virtual void setFood(const Food &food);
@@ -44,6 +51,7 @@ class Property
         virtual void removeFood_taste(const Food::Taste &taste);
         virtual void setFood_healthyLevel(const double &level);
         virtual const Food &getFood() const;
+        virtual string getFood_toString(const string &newLine = "\n") const;
 
         // Mood
         virtual void setMood(const Mood &mood);
@@ -52,6 +60,7 @@ class Property
         virtual void setMood_inLove(const double &inLove);
         virtual void setMood_druglevel(const double &druglevel);
         virtual const Mood &getMood() const;
+        virtual string getMood_toString(const string &newLine = "\n") const;
 
     protected:
         Type m_type;
