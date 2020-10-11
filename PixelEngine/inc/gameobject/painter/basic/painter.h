@@ -41,6 +41,8 @@ class Painter   :   public  LayerItem
         virtual void erasePixel(const size_t &index);
         virtual void clear(); // Deletes all pixels
 
+        virtual void rotate_90();
+
     protected:
         vector<Pixel> m_pixelList;
         bool    m_isVisible;

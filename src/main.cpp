@@ -60,6 +60,13 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
+    for(int i=0; i<10; i++)
+    {
+        Vector vec(cos(i)*10,sin(i)*10);
+        Vector vec2 = Vector::rotate_90(vec);
+        qDebug() <<"x="<<vec.getX()<<"\ty="<<vec.getY()<<"\tr90 x="<<vec2.getX()<<"\ty="<<vec2.getY();
+    }
+
     // Generate the engine
     unsigned int mapWidth = 300;
     PointU windowSize(1500,800);
@@ -75,7 +82,7 @@ int main(int argc, char *argv[])
     player2->setKeyBinding(KEYBOARD_KEY_I, KEYBOARD_KEY_J,
                            KEYBOARD_KEY_K, KEYBOARD_KEY_L);
     player2->buildPlayer();
-    player2->setHitboxVisibility(false);
+    player2->setHitboxVisibility(true);
 
     // Obsticle 1
     obsticle1   = new GameObject();
@@ -96,6 +103,7 @@ int main(int argc, char *argv[])
     wall1->setColor(Color(142,50,1));
 
     imported = getimportedObject();
+    imported->setHitboxVisibility(true);
 
     // Background
     /*GameObject *background = new GameObject();
@@ -204,8 +212,9 @@ void userDisplayLoop(double frameInterval)
     fpsCounter++;
     if(timer.start(1))
     {
-        objectGroup->setHitboxVisibility(toggle);
-        toggle = !toggle;
+        imported->rotate_90();
+       // objectGroup->setHitboxVisibility(toggle);
+       // toggle = !toggle;
     }
     if(fadeTimer.start(0.05))
     {

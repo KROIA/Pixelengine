@@ -44,6 +44,7 @@ class GeneralVector : public GeneralPoint<T>
         GeneralPoint<T> toPoint() const;
 
         double getLength() const;
+        static GeneralVector<T> rotate_90(const GeneralVector<T> &vec);
 
     protected:
 
@@ -88,6 +89,7 @@ template<class T>
 GeneralVector<T> &GeneralVector<T>::operator+=(const GeneralVector<T> &vec)
 {
     GeneralVector sum = *this+vec;
+    this->set(sum);
     return *this;
 }
 template<class T>
@@ -106,14 +108,14 @@ GeneralVector<T> &GeneralVector<T>::operator+=(const std::vector<GeneralVector<T
 template<class T>
 GeneralVector<T> GeneralVector<T>::operator+(const GeneralVector<T> &vec) const
 {
-    unsigned int x1 = this->getX();
-    unsigned int y1 = this->getY();
+    T x1 = this->getX();
+    T y1 = this->getY();
 
-    unsigned int x2 = vec.getX();
-    unsigned int y2 = vec.getY();
+    T x2 = vec.getX();
+    T y2 = vec.getY();
 
-    unsigned int x3 = x1 + x2;
-    unsigned int y3 = y1 + y2;
+    T x3 = x1 + x2;
+    T y3 = y1 + y2;
     GeneralVector<T> res;
     res.setX(x3);
     res.setY(y3);
@@ -130,6 +132,7 @@ template<class T>
 GeneralVector<T> &GeneralVector<T>::operator-=(const GeneralVector<T> &vec)
 {
     GeneralVector<T> div = *this-vec;
+    this->set(div);
     return *this;
 }
 template<class T>
@@ -148,14 +151,14 @@ GeneralVector<T> &GeneralVector<T>::operator-=(const std::vector<GeneralVector<T
 template<class T>
 GeneralVector<T> GeneralVector<T>::operator-(const GeneralVector<T> &vec) const
 {
-    unsigned int x1 = this->getX();
-    unsigned int y1 = this->getY();
+    T x1 = this->getX();
+    T y1 = this->getY();
 
-    unsigned int x2 = vec.getX();
-    unsigned int y2 = vec.getY();
+    T x2 = vec.getX();
+    T y2 = vec.getY();
 
-    unsigned int x3 = x1 - x2;
-    unsigned int y3 = y1 - y2;
+    T x3 = x1 - x2;
+    T y3 = y1 - y2;
     GeneralVector<T> res;
     res.setX(x3);
     res.setY(y3);
@@ -166,6 +169,7 @@ template<class T>
 GeneralVector<T> &GeneralVector<T>::operator*=(const T &scalar)
 {
     GeneralVector<T> product = *this*scalar;
+    this->set(product);
     return *this;
 }
 template<class T>
@@ -209,5 +213,20 @@ template<class T>
 double GeneralVector<T>::getLength() const
 {
     return sqrt(pow(this->m_x,2) + pow(this->m_y,2));
+}
+template<class T>
+GeneralVector<T> GeneralVector<T>::rotate_90(const GeneralVector<T> &vec)
+{
+    if(vec.getLength() == 0)
+        return vec;
+    double angle = asin(double(vec.getY())/vec.getLength());
+    if(vec.getX() < 0)
+        angle = M_PI - angle;
+    angle += M_PI/2;
+    double l = vec.getLength();
+    double xComp = cos(angle)*l;
+    double yComp = sin(angle)*l;
+    GeneralVector<T> res(xComp,yComp);
+    return res;
 }
 #endif // GeneralVector_H

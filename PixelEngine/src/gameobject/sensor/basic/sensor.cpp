@@ -67,3 +67,8 @@ const vector<GameObject*> &Sensor::getDetectedObjects() const
 {
     return m_detected;
 }
+void Sensor::rotate_90()
+{
+    m_sensorPainter->rotate_90();
+    m_sensorCollider->rotate_90();
+}

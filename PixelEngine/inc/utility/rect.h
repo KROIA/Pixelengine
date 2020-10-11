@@ -2,6 +2,7 @@
 #define RECT_H
 
 #include "point.h"
+#include "vector.h"
 
 template<class T>
 class GeneralRect;
@@ -51,6 +52,9 @@ class GeneralRect
         static void stats_reset();
         static unsigned int stats_collisionCount;
         static unsigned int stats_collisionCheckCount;
+
+
+        static GeneralRect<T> rotate_90(GeneralRect<T> rect);
 
     protected:
 
@@ -242,5 +246,23 @@ void GeneralRect<T>::stats_reset()
 {
     stats_collisionCount      = 0;
     stats_collisionCheckCount = 0;
+}
+template<class T>
+GeneralRect<T>  GeneralRect<T>::rotate_90(GeneralRect<T> rect)
+{
+    GeneralVector<T> vec(rect.m_size);
+    vec = GeneralVector<T>::rotate_90(vec);
+    if(vec.getX()<0)
+    {
+        rect.m_pos.setX(rect.m_pos.getX()+vec.getX()+1);
+        vec.setX(-vec.getX());
+    }
+    if(vec.getY()<0)
+    {
+        rect.m_pos.setY(rect.m_pos.getY()+vec.getY()+1);
+        vec.setY(-vec.getY());
+    }
+    rect.m_size.set(vec.toPoint());
+    return  rect;
 }
 #endif // RECT_H

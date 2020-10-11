@@ -28,7 +28,6 @@ class GameObject
         virtual void tick(const Point &direction);
         virtual void checkCollision(const vector<GameObject*> &other);
         static vector<GameObject*> getCollidedObjects(GameObject *owner, Collider *collider,const vector<GameObject*> &other);
-        //static  void checkCollision(GameObject *owner,collisionSlot slot,Collider *collider,const vector<GameObject*> &other);
         virtual void draw(PixelDisplay &display);
 
 
@@ -56,6 +55,8 @@ class GameObject
         virtual void move(int x,int y);
 
         virtual const Point &getPos();
+
+        virtual void rotate_90();
 
 
         // Collider settings

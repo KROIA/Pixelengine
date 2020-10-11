@@ -63,6 +63,7 @@ void Player::checkCollision(const vector<GameObject*> &other)
 
     if(m_sensorDebugTimer.start(1))
     {
+        this->rotate_90();
         if(m_sensor.getDetectedObjects().size()>0)
         {
             vector<GameObject*>list  = m_sensor.getDetectedObjects();
@@ -175,6 +176,11 @@ void Player::setupPLayerBody(Painter *p,Collider *c)
     p->addPixel(Pixel(Point( 1,5),m_playerColor));
     c->addHitbox(Rect(-1,4,1,2));
     c->addHitbox(Rect( 1,4,1,2));
+}
+void Player::rotate_90()
+{
+    GameObject::rotate_90();
+    m_sensor.rotate_90();
 }
 void Player::event_hasCollision(GameObject *other)
 {

@@ -190,6 +190,17 @@ const Point &GameObject::getPos()
     return m_controller->getPos();
 }
 
+void GameObject::rotate_90()
+{
+    m_collider->rotate_90();
+    m_painter->rotate_90();
+    if(m_hitboxPainter->isVisible())
+    {
+        this->setHitboxVisibility(false);
+        this->setHitboxVisibility(true);
+    }
+}
+
 const bool &GameObject::isBoundingBoxUpdated() const
 {
     return m_collider->isBoundingBoxUpdated();

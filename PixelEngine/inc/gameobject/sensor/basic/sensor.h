@@ -23,6 +23,8 @@ class Sensor
 
         virtual const vector<GameObject*> &getDetectedObjects() const;
 
+        virtual void rotate_90();
+
     protected:
 
     private:
