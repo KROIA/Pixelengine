@@ -53,8 +53,11 @@ class GeneralRect
         static unsigned int stats_collisionCount;
         static unsigned int stats_collisionCheckCount;
 
-
+        static GeneralRect<T> rotate(GeneralRect<T> rect,const double &rad);
         static GeneralRect<T> rotate_90(GeneralRect<T> rect);
+        static GeneralRect<T> rotate_180(GeneralRect<T> rect);
+        static GeneralRect<T> rotate_270(GeneralRect<T> rect);
+
 
     protected:
 
@@ -248,10 +251,10 @@ void GeneralRect<T>::stats_reset()
     stats_collisionCheckCount = 0;
 }
 template<class T>
-GeneralRect<T>  GeneralRect<T>::rotate_90(GeneralRect<T> rect)
+GeneralRect<T> GeneralRect<T>::rotate(GeneralRect<T> rect,const double &rad)
 {
     GeneralVector<T> vec(rect.m_size);
-    vec = GeneralVector<T>::rotate_90(vec);
+    vec = GeneralVector<T>::rotate(vec,rad);
     if(vec.getX()<0)
     {
         rect.m_pos.setX(rect.m_pos.getX()+vec.getX()+1);
@@ -264,5 +267,20 @@ GeneralRect<T>  GeneralRect<T>::rotate_90(GeneralRect<T> rect)
     }
     rect.m_size.set(vec.toPoint());
     return  rect;
+}
+template<class T>
+GeneralRect<T>  GeneralRect<T>::rotate_90(GeneralRect<T> rect)
+{
+    GeneralRect<T>::rotate(rect,M_PI_2);
+}
+template<class T>
+GeneralRect<T>  GeneralRect<T>::rotate_180(GeneralRect<T> rect)
+{
+    GeneralRect<T>::rotate(rect,M_PI);
+}
+template<class T>
+GeneralRect<T>  GeneralRect<T>::rotate_270(GeneralRect<T> rect)
+{
+    GeneralRect<T>::rotate(rect,-M_PI_2);
 }
 #endif // RECT_H

@@ -36,6 +36,9 @@ class Controller    :   public UserEventHandler, public LayerItem
 
         virtual const unsigned int &getNeededMovingSteps() const;
 
+        virtual void rotate_90();
+        virtual void rotate_180();
+        virtual void rotate_270();
 
     protected:
         // Receiver Signal from Eventhandler
@@ -49,6 +52,8 @@ class Controller    :   public UserEventHandler, public LayerItem
         PointF m_currentDeltaMove;
         unsigned int m_neededStepsForMove;
         unsigned int m_movingStepCounter;
+
+        unsigned int m_rotationDeg;
     private:
 
 };

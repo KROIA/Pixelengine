@@ -16,6 +16,9 @@ class KeyController     :   public Controller
         // From Controller
         virtual void checkEvent();
         virtual void tick(const Point &direction);
+        virtual void rotate_90();
+        virtual void rotate_180();
+        virtual void rotate_270();
 
         // Receiver Signal from Eventhandler
         virtual void receive_key_isPressed(const int &key);
@@ -33,6 +36,7 @@ class KeyController     :   public Controller
         virtual const unsigned int &getStepSize() const;
 
 
+
     protected:
         int m_key_forMove_UP;
         size_t m_key_forMove_UP_index;
@@ -46,7 +50,13 @@ class KeyController     :   public Controller
         Vector m_currentMovingVec;
 
         unsigned int m_stepSize;
+        Point m_stepUp;
+        Point m_stepLeft;
+        Point m_stepDown;
+        Point m_stepRight;
     private:
+
+        void setRotation();
 
 };
 #endif // KEYCONTROLLER_H

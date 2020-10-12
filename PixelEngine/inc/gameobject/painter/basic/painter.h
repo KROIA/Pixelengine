@@ -42,11 +42,15 @@ class Painter   :   public  LayerItem
         virtual void clear(); // Deletes all pixels
 
         virtual void rotate_90();
+        virtual void rotate_180();
+        virtual void rotate_270();
 
     protected:
         vector<Pixel> m_pixelList;
         bool    m_isVisible;
     private:
+
+        virtual void rotate(const double &rad);
 
 };
 #endif

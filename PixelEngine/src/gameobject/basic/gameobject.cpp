@@ -8,6 +8,7 @@ GameObject::GameObject()
     m_painter       = new Painter();
     m_hitboxPainter = new Painter();
     m_objEventHandler = nullptr;
+    m_rotation      = 90; // 90 deg
 }
 GameObject::GameObject(const GameObject &other)
 {
@@ -42,6 +43,7 @@ const GameObject &GameObject::operator=(const GameObject &other)
     *this->m_hitboxPainter = *other.m_hitboxPainter;
     this->m_property       = other.m_property;
     this->m_objEventHandler = other.m_objEventHandler;
+    this->m_rotation       = other.m_rotation;
     return *this;
 }
 void GameObject::checkEvent()
@@ -190,15 +192,37 @@ const Point &GameObject::getPos()
     return m_controller->getPos();
 }
 
-void GameObject::rotate_90()
+void GameObject::rotate(const double &rad)
 {
-    m_collider->rotate_90();
-    m_painter->rotate_90();
     if(m_hitboxPainter->isVisible())
     {
         this->setHitboxVisibility(false);
         this->setHitboxVisibility(true);
     }
+    m_rotation+=rad*180/M_PI;
+    if(m_rotation >= 360)
+        m_rotation = m_rotation%360;
+}
+void GameObject::rotate_90()
+{
+    m_controller->rotate_90();
+    m_collider->rotate_90();
+    m_painter->rotate_90();
+    rotate(M_PI_2);
+}
+void GameObject::rotate_180()
+{
+    m_controller->rotate_180();
+    m_collider->rotate_180();
+    m_painter->rotate_180();
+    rotate(M_PI);
+}
+void GameObject::rotate_270()
+{
+    m_controller->rotate_270();
+    m_collider->rotate_270();
+    m_painter->rotate_270();
+    rotate(M_PI_2*3);
 }
 
 const bool &GameObject::isBoundingBoxUpdated() const

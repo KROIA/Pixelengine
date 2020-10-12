@@ -9,6 +9,7 @@ Controller::Controller()
     m_currentDeltaMove.setY(0.0);
     m_neededStepsForMove = 0;
     m_movingStepCounter = 0;
+    m_rotationDeg       = 0;
 }
 Controller::Controller(const Controller &other)
     :   UserEventHandler(), LayerItem()
@@ -28,6 +29,8 @@ const Controller &Controller::operator=(const Controller &other)
 
     this->m_neededStepsForMove = other.m_neededStepsForMove;
     this->m_movingStepCounter  = other.m_movingStepCounter;
+
+    this->m_rotationDeg        = other.m_rotationDeg;
     return *this;
 }
 void Controller::checkEvent()
@@ -115,6 +118,24 @@ const unsigned int &Controller::getNeededMovingSteps() const
     return m_neededStepsForMove;
 }
 
+void Controller::rotate_90()
+{
+    m_rotationDeg += 90;
+    if(m_rotationDeg >= 360)
+        m_rotationDeg = m_rotationDeg % 360;
+}
+void Controller::rotate_180()
+{
+    m_rotationDeg += 180;
+    if(m_rotationDeg >= 360)
+        m_rotationDeg = m_rotationDeg % 360;
+}
+void Controller::rotate_270()
+{
+    m_rotationDeg += 270;
+    if(m_rotationDeg >= 360)
+        m_rotationDeg = m_rotationDeg % 360;
+}
 // Eventhandler
 void Controller::receive_key_isPressed(const int &key)
 {

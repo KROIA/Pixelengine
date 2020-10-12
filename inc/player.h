@@ -32,6 +32,8 @@ class Player    :   public GameObject
         virtual void buildPlayer(); // Generates The PlayerObject
 
         virtual void rotate_90();
+        virtual void rotate_180();
+        virtual void rotate_270();
 
         virtual void event_hasCollision(GameObject *other);
 

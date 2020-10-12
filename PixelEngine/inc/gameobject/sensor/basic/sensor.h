@@ -24,15 +24,15 @@ class Sensor
         virtual const vector<GameObject*> &getDetectedObjects() const;
 
         virtual void rotate_90();
+        virtual void rotate_180();
+        virtual void rotate_270();
 
     protected:
-
-    private:
-
         Collider *m_sensorCollider;
         Painter  *m_sensorPainter;
         vector<GameObject*> m_detected;
         GameObject *m_owner;
+    private:
 };
 
 #endif

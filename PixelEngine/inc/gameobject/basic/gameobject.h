@@ -57,6 +57,8 @@ class GameObject
         virtual const Point &getPos();
 
         virtual void rotate_90();
+        virtual void rotate_180();
+        virtual void rotate_270();
 
 
         // Collider settings
@@ -90,9 +92,11 @@ class GameObject
 
         Painter    *m_hitboxPainter;
 
+        unsigned int m_rotation;
+
     private:
 
-
+        void rotate(const double &rad);
 
 
 };

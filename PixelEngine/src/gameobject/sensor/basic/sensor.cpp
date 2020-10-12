@@ -72,3 +72,13 @@ void Sensor::rotate_90()
     m_sensorPainter->rotate_90();
     m_sensorCollider->rotate_90();
 }
+void Sensor::rotate_180()
+{
+    m_sensorPainter->rotate_180();
+    m_sensorCollider->rotate_180();
+}
+void Sensor::rotate_270()
+{
+    m_sensorPainter->rotate_270();
+    m_sensorCollider->rotate_270();
+}

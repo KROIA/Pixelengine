@@ -44,7 +44,10 @@ class GeneralVector : public GeneralPoint<T>
         GeneralPoint<T> toPoint() const;
 
         double getLength() const;
+        static GeneralVector<T> rotate(const GeneralVector<T> &vec,const double &angleRad);
         static GeneralVector<T> rotate_90(const GeneralVector<T> &vec);
+        static GeneralVector<T> rotate_180(const GeneralVector<T> &vec);
+        static GeneralVector<T> rotate_270(const GeneralVector<T> &vec);
 
     protected:
 
@@ -215,18 +218,33 @@ double GeneralVector<T>::getLength() const
     return sqrt(pow(this->m_x,2) + pow(this->m_y,2));
 }
 template<class T>
-GeneralVector<T> GeneralVector<T>::rotate_90(const GeneralVector<T> &vec)
+GeneralVector<T> GeneralVector<T>::rotate(const GeneralVector<T> &vec,const double &angleRad)
 {
     if(vec.getLength() == 0)
         return vec;
-    double angle = asin(double(vec.getY())/vec.getLength());
+    double newAngle = asin(double(vec.getY())/vec.getLength());
     if(vec.getX() < 0)
-        angle = M_PI - angle;
-    angle += M_PI/2;
+        newAngle = M_PI - newAngle;
+    newAngle += angleRad;
     double l = vec.getLength();
-    double xComp = cos(angle)*l;
-    double yComp = sin(angle)*l;
+    double xComp = cos(newAngle)*l;
+    double yComp = sin(newAngle)*l;
     GeneralVector<T> res(xComp,yComp);
     return res;
+}
+template<class T>
+GeneralVector<T> GeneralVector<T>::rotate_90(const GeneralVector<T> &vec)
+{
+    return GeneralVector<T>::rotate(vec,M_PI_2);
+}
+template<class T>
+GeneralVector<T> GeneralVector<T>::rotate_180(const GeneralVector<T> &vec)
+{
+    return GeneralVector<T>::rotate(vec,M_PI);
+}
+template<class T>
+GeneralVector<T> GeneralVector<T>::rotate_270(const GeneralVector<T> &vec)
+{
+    return GeneralVector<T>::rotate(vec,-M_PI_2);
 }
 #endif // GeneralVector_H

@@ -112,7 +112,7 @@ void Painter::clear()
 {
     m_pixelList.clear();
 }
-void Painter::rotate_90()
+void Painter::rotate(const double &rad)
 {
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
@@ -121,8 +121,19 @@ void Painter::rotate_90()
         offset.moveX(-0.5);
         offset.moveY(-0.5);
         vec -= offset;
-        PointF newPos = (GeneralVector<double>::rotate_90(vec)+offset).toPoint();
+        PointF newPos = (GeneralVector<double>::rotate(vec,rad)+offset).toPoint();
         m_pixelList[i].setPos(round(newPos.getX()),round(newPos.getY()));
     }
 }
-
+void Painter::rotate_90()
+{
+    this->rotate(M_PI_2);
+}
+void Painter::rotate_180()
+{
+    this->rotate(M_PI);
+}
+void Painter::rotate_270()
+{
+    this->rotate(-M_PI_2);
+}

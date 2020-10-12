@@ -241,6 +241,20 @@ size_t Collider::getHitboxAmount() const
 }
 void Collider::rotate_90()
 {
+    this->rotate(M_PI_2);
+}
+void Collider::rotate_180()
+{
+    this->rotate(M_PI);
+}
+void Collider::rotate_270()
+{
+    this->rotate(-M_PI_2);
+}
+
+
+void Collider::rotate(const double &rad)
+{
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
         GeneralVector<double> vec(m_hitboxList[i].getPos().getX(),m_hitboxList[i].getPos().getY());
@@ -248,10 +262,10 @@ void Collider::rotate_90()
         offset.moveX(-0.5);
         offset.moveY(-0.5);
         vec -= offset;
-        PointF newPos = (GeneralVector<double>::rotate_90(vec)+offset).toPoint();
+        PointF newPos = (GeneralVector<double>::rotate(vec,rad)+offset).toPoint();
         m_hitboxList[i].setPos(round(newPos.getX()),round(newPos.getY()));
 
-        RectF newRect = RectF::rotate_90(RectF(m_hitboxList[i].getX(),m_hitboxList[i].getY(),m_hitboxList[i].getSize().getX(),m_hitboxList[i].getSize().getY()));
+        RectF newRect = RectF::rotate(RectF(m_hitboxList[i].getX(),m_hitboxList[i].getY(),m_hitboxList[i].getSize().getX(),m_hitboxList[i].getSize().getY()),rad);
 
         m_hitboxList[i].setPos(round(newRect.getX()),round(newRect.getY()));
         m_hitboxList[i].setSize(round(newRect.getSize().getX()),round(newRect.getSize().getY()));

@@ -63,31 +63,6 @@ void GameObjectGroup::clear()
     m_list.clear();
 }
 
-void GameObjectGroup::setVisibility(const bool &isVisible)
-{
-    m_isVisible = isVisible;
-    for(size_t i=0; i<this->size(); i++)
-    {
-        m_list[i]->setVisibility(m_isVisible);
-    }
-}
-const bool &GameObjectGroup::isVisible() const
-{
-    return m_isVisible;
-}
-void GameObjectGroup::setHitboxVisibility(const bool &isVisible)
-{
-    m_hitboxIsVisible = isVisible;
-    for(size_t i=0; i<this->size(); i++)
-    {
-        m_list[i]->setHitboxVisibility(m_hitboxIsVisible);
-    }
-}
-const bool &GameObjectGroup::isHitboxVisible() const
-{
-    return m_hitboxIsVisible;
-}
-
 size_t GameObjectGroup::size() const
 {
     return m_list.size();
@@ -100,3 +75,94 @@ const vector<GameObject*> &GameObjectGroup::getVector() const
 {
     return m_list;
 }
+// GameObject stuff
+void GameObjectGroup::setPosInitial(const Point &pos)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->setPosInitial(pos);
+}
+void GameObjectGroup::setPosInitial(const int &x, const int &y)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->setPosInitial(x,y);
+}
+void GameObjectGroup::setPos(const int &x,const int &y)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->setPos(x,y);
+}
+void GameObjectGroup::setPos(const Point &pos)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->setPos(pos);
+}
+void GameObjectGroup::setX(const int &x)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->setX(x);
+}
+void GameObjectGroup::setY(const int &y)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->setY(y);
+}
+void GameObjectGroup::moveToPos(const Point &destination)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->moveToPos(destination);
+}
+void GameObjectGroup::moveToPos(const int &x,const int &y)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->moveToPos(x,y);
+}
+void GameObjectGroup::move(const Point &directionVector)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->move(directionVector);
+}
+void GameObjectGroup::move(int x,int y)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->move(x,y);
+}
+void GameObjectGroup::rotate_90()
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->rotate_90();
+}
+void GameObjectGroup::rotate_180()
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->rotate_180();
+}
+void GameObjectGroup::rotate_270()
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->rotate_270();
+}
+void GameObjectGroup::setVisibility(const bool &isVisible)
+{
+    m_isVisible = isVisible;
+    for(size_t i=0; i<m_list.size(); i++)
+    {
+        m_list[i]->setVisibility(m_isVisible);
+    }
+}
+const bool &GameObjectGroup::isVisible() const
+{
+    return m_isVisible;
+}
+void GameObjectGroup::setHitboxVisibility(const bool &isVisible)
+{
+    m_hitboxIsVisible = isVisible;
+    for(size_t i=0; i<m_list.size(); i++)
+    {
+        m_list[i]->setHitboxVisibility(m_hitboxIsVisible);
+    }
+}
+const bool &GameObjectGroup::isHitboxVisible() const
+{
+    return m_hitboxIsVisible;
+}
+
