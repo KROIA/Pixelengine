@@ -41,6 +41,8 @@ class Painter   :   public  LayerItem
         virtual void erasePixel(const size_t &index);
         virtual void clear(); // Deletes all pixels
 
+        virtual void setRotation(const double &deg);
+        virtual double getRotation() const;
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
@@ -48,6 +50,8 @@ class Painter   :   public  LayerItem
     protected:
         vector<Pixel> m_pixelList;
         bool    m_isVisible;
+
+        double  m_rotationRad;
     private:
 
         virtual void rotate(const double &rad);

@@ -43,6 +43,7 @@ class GameObjectGroup
         virtual void move(const Point &directionVector);
         virtual void move(int x,int y);
 
+        virtual void setRotation(const double &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();

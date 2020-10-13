@@ -8,7 +8,7 @@ GameObject::GameObject()
     m_painter       = new Painter();
     m_hitboxPainter = new Painter();
     m_objEventHandler = nullptr;
-    m_rotation      = 90; // 90 deg
+    m_rotationDeg      = 90; // 90 deg
 }
 GameObject::GameObject(const GameObject &other)
 {
@@ -43,7 +43,7 @@ const GameObject &GameObject::operator=(const GameObject &other)
     *this->m_hitboxPainter = *other.m_hitboxPainter;
     this->m_property       = other.m_property;
     this->m_objEventHandler = other.m_objEventHandler;
-    this->m_rotation       = other.m_rotation;
+    this->m_rotationDeg       = other.m_rotationDeg;
     return *this;
 }
 void GameObject::checkEvent()
@@ -199,9 +199,21 @@ void GameObject::rotate(const double &rad)
         this->setHitboxVisibility(false);
         this->setHitboxVisibility(true);
     }
-    m_rotation+=rad*180/M_PI;
-    if(m_rotation >= 360)
-        m_rotation = m_rotation%360;
+    m_rotationDeg+=rad*180/M_PI;
+    if(m_rotationDeg >= 360)
+        m_rotationDeg = m_rotationDeg%360;
+}
+void GameObject::setRotation(const double &deg)
+{
+    double rot = m_rotationDeg - deg;
+    m_controller->setRotation(deg);
+    m_collider->setRotation(deg);
+    m_painter->setRotation(deg);
+    rotate(rot*180.f/M_PI);
+}
+double GameObject::getRotation() const
+{
+    return m_rotationDeg;
 }
 void GameObject::rotate_90()
 {

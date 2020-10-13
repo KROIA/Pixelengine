@@ -43,6 +43,8 @@ class Collider  :   public LayerItem
 
         virtual size_t getHitboxAmount() const;
 
+        virtual void setRotation(const double &deg);
+        virtual double getRotation() const;
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
@@ -65,6 +67,8 @@ class Collider  :   public LayerItem
         bool m_boundingBoxUpdated;
 
         Rect m_dummy;
+
+        double m_rotationRad;
     private:
 
         virtual void rotate(const double &rad);

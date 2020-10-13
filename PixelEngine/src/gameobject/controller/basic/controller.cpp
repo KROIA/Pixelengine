@@ -118,23 +118,28 @@ const unsigned int &Controller::getNeededMovingSteps() const
     return m_neededStepsForMove;
 }
 
+void Controller::setRotation(const double &deg)
+{
+    m_rotationDeg = int(deg) % 360;
+}
+double Controller::getRotation() const
+{
+    return m_rotationDeg;
+}
 void Controller::rotate_90()
 {
     m_rotationDeg += 90;
-    if(m_rotationDeg >= 360)
-        m_rotationDeg = m_rotationDeg % 360;
+    m_rotationDeg = m_rotationDeg % 360;
 }
 void Controller::rotate_180()
 {
     m_rotationDeg += 180;
-    if(m_rotationDeg >= 360)
-        m_rotationDeg = m_rotationDeg % 360;
+    m_rotationDeg = m_rotationDeg % 360;
 }
 void Controller::rotate_270()
 {
     m_rotationDeg += 270;
-    if(m_rotationDeg >= 360)
-        m_rotationDeg = m_rotationDeg % 360;
+    m_rotationDeg = m_rotationDeg % 360;
 }
 // Eventhandler
 void Controller::receive_key_isPressed(const int &key)

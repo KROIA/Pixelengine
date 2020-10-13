@@ -56,6 +56,8 @@ class GameObject
 
         virtual const Point &getPos();
 
+        virtual void setRotation(const double &deg);
+        virtual double getRotation() const;
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
@@ -92,7 +94,7 @@ class GameObject
 
         Painter    *m_hitboxPainter;
 
-        unsigned int m_rotation;
+        unsigned int m_rotationDeg;
 
     private:
 

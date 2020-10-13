@@ -36,6 +36,8 @@ class Controller    :   public UserEventHandler, public LayerItem
 
         virtual const unsigned int &getNeededMovingSteps() const;
 
+        virtual void setRotation(const double &deg);
+        virtual double getRotation() const;
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
@@ -53,7 +55,7 @@ class Controller    :   public UserEventHandler, public LayerItem
         unsigned int m_neededStepsForMove;
         unsigned int m_movingStepCounter;
 
-        unsigned int m_rotationDeg;
+        int m_rotationDeg;
     private:
 
 };

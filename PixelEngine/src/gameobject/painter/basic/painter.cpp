@@ -5,6 +5,7 @@ Painter::Painter()
 {
     setPos(0,0);
     setVisibility(true);
+    m_rotationRad = 0;
 }
 Painter::Painter(const Painter &other)
     :   LayerItem()
@@ -21,6 +22,7 @@ const Painter &Painter::operator=(const Painter &other)
     LayerItem::operator=(other);
     this->m_pixelList  = other.m_pixelList;
     this->m_isVisible  = other.m_isVisible;
+    this->m_rotationRad= other.m_rotationRad;
     return *this;
 }
 void Painter::reserve(const size_t amount)
@@ -124,6 +126,17 @@ void Painter::rotate(const double &rad)
         PointF newPos = (GeneralVector<double>::rotate(vec,rad)+offset).toPoint();
         m_pixelList[i].setPos(round(newPos.getX()),round(newPos.getY()));
     }
+    m_rotationRad += rad;
+    m_rotationRad = double(int(m_rotationRad*1000) % int(2*M_PI *1000))/1000.f;
+
+}
+void Painter::setRotation(const double &deg)
+{
+    this->rotate((deg*M_PI/180.f) - m_rotationRad);
+}
+double Painter::getRotation() const
+{
+    return m_rotationRad * 180.f/M_PI;
 }
 void Painter::rotate_90()
 {

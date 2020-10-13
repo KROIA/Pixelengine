@@ -54,6 +54,15 @@ void KeyController::tick(const Point &direction)
 {
     Controller::tick(direction);
 }
+void KeyController::setRotation(const double &deg)
+{
+    Controller::setRotation(deg);
+    this->setRotation();
+}
+double KeyController::getRotation() const
+{
+    return Controller::getRotation();
+}
 void KeyController::rotate_90()
 {
     Controller::rotate_90();

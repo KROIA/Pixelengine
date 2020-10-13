@@ -126,6 +126,11 @@ void GameObjectGroup::move(int x,int y)
     for(size_t i=0; i<m_list.size(); i++)
         m_list[i]->move(x,y);
 }
+void GameObjectGroup::setRotation(const double &deg)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->setRotation(deg);
+}
 void GameObjectGroup::rotate_90()
 {
     for(size_t i=0; i<m_list.size(); i++)

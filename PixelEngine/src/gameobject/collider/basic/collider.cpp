@@ -8,6 +8,7 @@ Collider::Collider()
     m_dummy.setPos(0,0);
     m_dummy.setSize(0,0);
     m_boundingBoxUpdated = false;
+    m_rotationRad = 0;
 }
 
 Collider::Collider(const Collider &other)
@@ -27,6 +28,7 @@ const Collider &Collider::operator=(const Collider &other)
     this->m_boundingBox     = other.m_boundingBox;
 
     this->m_boundingBoxUpdated = other.m_boundingBoxUpdated;
+    this->m_rotationRad     = other.m_rotationRad;
     return *this;
 }
 
@@ -238,6 +240,14 @@ int Collider::getMaxY()
 size_t Collider::getHitboxAmount() const
 {
     return m_hitboxList.size();
+}
+void Collider::setRotation(const double &deg)
+{
+    this->rotate(m_rotationRad - (deg*M_PI/180.f));
+}
+double Collider::getRotation() const
+{
+    return m_rotationRad*180.f/M_PI;
 }
 void Collider::rotate_90()
 {
