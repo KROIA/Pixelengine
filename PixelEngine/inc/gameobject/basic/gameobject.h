@@ -12,7 +12,7 @@ class GameObject;
 
 //typedef  void (GameObject::*collisionSlot)(GameObject *);
 
-class GameObject
+class GameObject    :   public LayerItem
 {
     public:
         GameObject();
@@ -40,7 +40,7 @@ class GameObject
         virtual void setEventHandler(GameObjectEventHandler *handler);
 
         // Controller stuff
-        virtual void setPosInitial(const Point &pos);
+        /*virtual void setPosInitial(const Point &pos);
         virtual void setPosInitial(const int &x, const int &y);
 
         virtual void setPos(const int &x,const int &y);
@@ -48,13 +48,13 @@ class GameObject
 
         virtual void setX(const int &x);
         virtual void setY(const int &y);
-
+*/
         virtual void moveToPos(const Point &destination);
         virtual void moveToPos(const int &x,const int &y);
-        virtual void move(const Point &directionVector);
-        virtual void move(int x,int y);
+        virtual void move(const Vector &vec);
+        virtual void move(const int &deltaX, const int &deltaY);
 
-        virtual const Point &getPos();
+        //virtual const Point &getPos() const;
 
         virtual void setRotation(const double &deg);
         virtual double getRotation() const;

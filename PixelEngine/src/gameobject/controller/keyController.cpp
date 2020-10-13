@@ -50,9 +50,9 @@ void KeyController::checkEvent()
     Controller::checkEvent();
     this->move(m_currentMovingVec);
 }
-void KeyController::tick(const Point &direction)
+void KeyController::tick()
 {
-    Controller::tick(direction);
+    Controller::tick();
 }
 void KeyController::setRotation(const double &deg)
 {

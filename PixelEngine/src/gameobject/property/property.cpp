@@ -3,7 +3,7 @@
 namespace Property {
 Property::Property()
 {
-    m_type.description      = Description::staticObsticle;
+    m_type.description      = Description::staticObstacle;
 
     m_body.fat              = 0;
     m_body.health           = 0;

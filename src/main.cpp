@@ -51,7 +51,7 @@ double TPS = 0;
 double tpsCounter = 0;
 
 Player *player2;
-GameObject *obsticle1;
+GameObject *obstacle1;
 Wall *wall1;
 GameObject *imported;
 GameObjectGroup *objectGroup;
@@ -71,39 +71,39 @@ int main(int argc, char *argv[])
     unsigned int mapWidth = 300;
     PointU windowSize(1500,800);
     PixelEngine engine(PointU(mapWidth,double(mapWidth)*double(windowSize.getY())/double(windowSize.getX())),PointU(1500,800));
-    engine.set_setting_checkEventInterval(1.0f/200.0f);
+    engine.set_setting_checkEventInterval(1.0f/30.0f);
     engine.set_setting_gameTickInterval(1.0f/1000.0f);
     engine.set_setting_displayInterval(1.0f/60.0f);
 
     // Player 2
     player2 = new Player();
     player2->setColor(Color(255,0,0));
-    player2->setStartPos(Point(30,150));
+    player2->setStartPos(Point(30,50));
     player2->setKeyBinding(KEYBOARD_KEY_I, KEYBOARD_KEY_J,
                            KEYBOARD_KEY_K, KEYBOARD_KEY_L);
     player2->buildPlayer();
     player2->setHitboxVisibility(true);
 
-    // Obsticle 1
-    obsticle1   = new GameObject();
+    // Obstacle 1
+    obstacle1   = new GameObject();
     Controller *o1_controller = new Controller();
-    o1_controller->setPosInitial(100,100);
+    obstacle1->setPosInitial(100,100);
     Collider   *o1_collider = new Collider();
     o1_collider->addHitbox({Rect(PixelEngine::random(-10,10),PixelEngine::random(-10,10),PixelEngine::random(1,10),PixelEngine::random(1,10)),
                             Rect(PixelEngine::random(-10,10),PixelEngine::random(-10,10),PixelEngine::random(1,10),PixelEngine::random(1,10)),
                             Rect(PixelEngine::random(-10,10),PixelEngine::random(-10,10),PixelEngine::random(1,10),PixelEngine::random(1,10))});
-    obsticle1->setCollider(o1_collider);
-    obsticle1->setController(o1_controller);
-    obsticle1->setHitboxVisibility(true);
+    obstacle1->setCollider(o1_collider);
+    obstacle1->setController(o1_controller);
+    obstacle1->setHitboxVisibility(true);
 
     // Wall
     wall1 = new Wall();
     wall1->setDimension(PointU(1,50));
-    wall1->getController()->setPosInitial(Point(10,10));
+    wall1->setPosInitial(Point(10,10));
     wall1->setColor(Color(142,50,1));
 
     imported = getimportedObject();
-    imported->setHitboxVisibility(true);
+    imported->setHitboxVisibility(false);
 
     // Background
     /*GameObject *background = new GameObject();
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     // Make Group of Objects for toggle Hitbox in loop below
     objectGroup = new GameObjectGroup();
     objectGroup->add(player2);
-    objectGroup->add(obsticle1);
+    objectGroup->add(obstacle1);
     objectGroup->add(wall1);
     objectGroup->add(imported);
     objectGroup->add(boarderGroup);
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
     // Set Interactions
     engine.setCollisionMultiInteraction({player2,imported},{player2,imported});
 
-    engine.setCollisionSingleInteraction({player2,imported},{obsticle1});
+    engine.setCollisionSingleInteraction({player2,imported},{obstacle1});
     engine.setCollisionSingleInteraction({player2,imported},boarderGroup);
 
     engine.setCollisionSingleInteraction({player2,imported},terainGroup);
@@ -171,9 +171,9 @@ int main(int argc, char *argv[])
 
         if(deleteTimer.start(5) && !removed)
         {
-            qDebug() << "delete obsticle1";
-            engine.deleteGameObject(obsticle1);
-            //engine.removeGameObject(obsticle1);
+            qDebug() << "delete obstacle1";
+            engine.deleteGameObject(obstacle1);
+            //engine.removeGameObject(obstacle1);
             removed = true;
         }
 
@@ -212,9 +212,9 @@ void userDisplayLoop(double frameInterval)
     fpsCounter++;
     if(timer.start(1))
     {
-        imported->rotate_90();
-       // objectGroup->setHitboxVisibility(toggle);
-       // toggle = !toggle;
+        //imported->rotate_90();
+        objectGroup->setHitboxVisibility(toggle);
+        toggle = !toggle;
     }
     if(fadeTimer.start(0.05))
     {
@@ -238,15 +238,14 @@ GameObject *getimportedObject()
     controller->setKey_forMove_LEFT(KEYBOARD_KEY_A);
     controller->setKey_forMove_DOWN(KEYBOARD_KEY_S);
     controller->setKey_forMove_RIGHT(KEYBOARD_KEY_D);
-    controller->setPosInitial(50,50);
     controller->setStepSize(1);
 
     Property::Property property = obj->getProperty();
     property.setBody_weight(1);
     property.setBody_material(Property::Material::Grass);
-    property.setType_description(Property::Description::dynamicObsticle);
+    property.setType_description(Property::Description::dynamicObstacle);
     obj->setProperty(property);
-
+    obj->setPosInitial(50,50);
 
     obj->setPainter(painter);
     obj->setCollider(collider);
@@ -276,22 +275,22 @@ GameObjectGroup makeBoarder(PixelEngine *engine)
 
     Wall *wall_1 = new Wall();
     wall_1->setDimension(PointU(boarderSize,mapSize.getY()+2*boarderSize));
-    wall_1->getController()->setPosInitial(Point(-boarderSize,-boarderSize));
+    wall_1->setPosInitial(Point(-boarderSize,-boarderSize));
     wall_1->setColor(color);
 
     Wall *wall_2 = new Wall();
     wall_2->setDimension(PointU(boarderSize,mapSize.getY()+2*boarderSize));
-    wall_2->getController()->setPosInitial(Point(mapSize.getX(),-boarderSize));
+    wall_2->setPosInitial(Point(mapSize.getX(),-boarderSize));
     wall_2->setColor(color);
 
     Wall *wall_3 = new Wall();
     wall_3->setDimension(PointU(mapSize.getX(),boarderSize));
-    wall_3->getController()->setPosInitial(Point(0,-boarderSize));
+    wall_3->setPosInitial(Point(0,-boarderSize));
     wall_3->setColor(color);
 
     Wall *wall_4 = new Wall();
     wall_4->setDimension(PointU(mapSize.getX(),boarderSize));
-    wall_4->getController()->setPosInitial(Point(0,mapSize.getY()));
+    wall_4->setPosInitial(Point(0,mapSize.getY()));
     wall_4->setColor(color);
 
     GameObjectGroup group;
@@ -319,7 +318,7 @@ GameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &
     Property::Property property = grassBlock->getProperty();
     property.setBody_weight(1);
     property.setBody_material(Property::Material::Grass);
-    property.setType_description(Property::Description::staticObsticle);
+    property.setType_description(Property::Description::staticObstacle);
     grassBlock->setProperty(property);
 
 

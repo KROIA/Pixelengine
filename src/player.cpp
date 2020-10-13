@@ -63,7 +63,7 @@ void Player::checkCollision(const vector<GameObject*> &other)
 
     if(m_sensorDebugTimer.start(1))
     {
-        this->rotate_270();
+
         if(m_sensor.getDetectedObjects().size()>0)
         {
             vector<GameObject*>list  = m_sensor.getDetectedObjects();
@@ -126,7 +126,7 @@ void Player::buildPlayer()
     m_controller->setKey_forMove_LEFT(m_keyLEFT);
     m_controller->setKey_forMove_RIGHT(m_keyRIGHT);
     m_controller->setKey_forMove_DOWN(m_keyDOWN);
-    m_controller->setPosInitial(m_initalPos);
+    GameObject::setPosInitial(m_initalPos);
 
     m_painter->clear();
     m_collider->clear();
@@ -199,12 +199,13 @@ void Player::event_hasCollision(GameObject *other)
     Property::Property otherProperty = other->getProperty();
 
     if(otherProperty.getBody().material    == Property::Material::Grass &&
-       otherProperty.getType().description != Property::Description::dynamicObsticle)
+       otherProperty.getType().description != Property::Description::dynamicObstacle)
     {
-        if(m_objEventHandler != nullptr)
-           m_objEventHandler->removeFromEngine(other);
+        //if(m_objEventHandler != nullptr)
+        //   m_objEventHandler->removeFromEngine(other);
+        this->rotate_270();
     }
 
-    m_controller->setToLastPos();
-    m_collider->setPos(m_controller->getPos());
+    LayerItem::setToLastPos();
+    LayerItem::setPos(LayerItem::getPos());
 }

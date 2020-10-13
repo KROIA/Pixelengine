@@ -8,8 +8,8 @@ using std::string;
 namespace Property {
     enum Description
     {
-        staticObsticle,
-        dynamicObsticle,
+        staticObstacle,
+        dynamicObstacle,
         player,
         bot,
         AI
@@ -23,10 +23,10 @@ namespace Property {
     {
         switch(des)
         {
-            case Description::staticObsticle:
+            case Description::staticObstacle:
                 return "staticObject";
-            case Description::dynamicObsticle:
-                return "dynamicObsticle";
+            case Description::dynamicObstacle:
+                return "dynamicObstacle";
             case Description::player:
                 return "player";
             case Description::bot:

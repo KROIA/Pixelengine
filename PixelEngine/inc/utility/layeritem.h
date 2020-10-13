@@ -3,6 +3,7 @@
 
 #include "vector"
 #include "point.h"
+#include "vector.h"
 
 #include <QDebug>
 
@@ -30,6 +31,11 @@ class LayerItem
 
         virtual const int &getX() const;
         virtual const int &getY() const;
+
+        virtual void move(const Vector &vec);
+        virtual void move(const int &deltaX, const int &deltaY);
+        virtual void moveX(const int &delta);
+        virtual void moveY(const int &delta);
 
         virtual void setToLastPos();
 

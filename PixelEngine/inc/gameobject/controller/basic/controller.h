@@ -12,7 +12,7 @@
 
 using std::vector;
 
-class Controller    :   public UserEventHandler, public LayerItem
+class Controller    :   public UserEventHandler//, public LayerItem
 {
     public:
         Controller();
@@ -21,19 +21,22 @@ class Controller    :   public UserEventHandler, public LayerItem
         virtual const Controller &operator=(const Controller &other);
 
         virtual void checkEvent();
-        virtual void tick(const Point &direction);
+       // virtual void tick(const Point &direction);
+        virtual void tick();
 
-        virtual void setPos(const int &x,const int &y);
+        /*virtual void setPos(const int &x,const int &y);
         virtual void setPos(const Point &pos);
 
         virtual void setX(const int &x);
-        virtual void setY(const int &y);
+        virtual void setY(const int &y);*/
 
-        virtual void moveToPos(const Point &destination);
-        virtual void moveToPos(const int &x,const int &y);
+        virtual void moveToPos(const Point &currentPos,const Point &destination);
+        virtual void moveToPos(const int &currentX,const int &currentY,
+                               const int &destinationX,const int &destinationY);
         virtual void move(const Point &directionVector);
         virtual void move(int x,int y);
 
+        virtual const VectorF &getMovingVector() const;
         virtual const unsigned int &getNeededMovingSteps() const;
 
         virtual void setRotation(const double &deg);
@@ -49,9 +52,7 @@ class Controller    :   public UserEventHandler, public LayerItem
         virtual void reveive_key_goesDown(const int &key);
         virtual void reveive_key_goesUp(const int &key);
 
-        //Point  m_nextPos;
-        PointF m_currentMovingPos;
-        PointF m_currentDeltaMove;
+        VectorF m_currentDeltaMove;
         unsigned int m_neededStepsForMove;
         unsigned int m_movingStepCounter;
 

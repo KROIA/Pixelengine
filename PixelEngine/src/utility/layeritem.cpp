@@ -78,6 +78,26 @@ const int &LayerItem::getY() const
 void LayerItem::setToLastPos()
 {
     Point bufferPos = m_lastPos;
-    this->setPos(bufferPos.getX(),bufferPos.getY());
+    LayerItem::setPos(bufferPos.getX(),bufferPos.getY());
     m_lastPos = bufferPos;
+}
+void LayerItem::move(const Vector &vec)
+{
+    LayerItem::move(vec.getX(),vec.getY());
+}
+
+void LayerItem::move(const int &deltaX, const int &deltaY)
+{
+    if(deltaX == m_pos.getX() && deltaY == m_pos.getY())
+        return;
+    m_lastPos   = m_pos;
+    this->m_pos.move(deltaX,deltaY);
+}
+void LayerItem::moveX(const int &delta)
+{
+    LayerItem::setX(m_pos.getX() + delta);
+}
+void LayerItem::moveY(const int &delta)
+{
+    LayerItem::setY(m_pos.getY() + delta);
 }
