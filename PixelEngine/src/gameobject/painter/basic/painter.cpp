@@ -59,10 +59,10 @@ void Painter::draw(PixelDisplay &display)
 
 void Painter::setPos(const Point &pos)
 {
-    if(m_pos == pos)
+    if(LayerItem::getPos() == pos)
         return;
-    Point deltaPos(pos.getX() - m_pos.getX(),
-                   pos.getY() - m_pos.getY());
+    Point deltaPos(pos.getX() - LayerItem::getX(),
+                   pos.getY() - LayerItem::getY());
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
         m_pixelList[i].setX(m_pixelList[i].getX() + deltaPos.getX());
@@ -72,15 +72,15 @@ void Painter::setPos(const Point &pos)
 }
 void Painter::setPos(const int &x, const int &y)
 {
-    if(m_pos.getX() == x && m_pos.getY() == y)
+    if(LayerItem::getX() == x && LayerItem::getY() == y)
         return;
     this->setPos(Point(x,y));
 }
 void Painter::setX(const int &x)
 {
-    if(m_pos.getX() == x)
+    if(LayerItem::getX() == x)
         return;
-    int deltaX = x - m_pos.getX();
+    int deltaX = x - LayerItem::getX();
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
         m_pixelList[i].setX(m_pixelList[i].getX() + deltaX);
@@ -89,9 +89,9 @@ void Painter::setX(const int &x)
 }
 void Painter::setY(const int &y)
 {
-    if(m_pos.getX() == y)
+    if(LayerItem::getX() == y)
         return;
-    int deltaY = y - m_pos.getY();
+    int deltaY = y - LayerItem::getY();
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
         m_pixelList[i].setY(m_pixelList[i].getY() + deltaY);

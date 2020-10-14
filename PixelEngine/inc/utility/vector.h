@@ -28,6 +28,7 @@ class GeneralVector : public GeneralPoint<T>
         GeneralVector<T> &operator+=(const std::vector<GeneralVector<T>> &vecList);
         GeneralVector<T> operator+(const GeneralVector<T> &vec) const; // adds it self and the other GeneralVector and gives the resault back
         GeneralVector<T> &operator++(); // doubles its length
+        static GeneralVector<T> sum(const std::vector<GeneralVector<T> >   &vecList);
 
         GeneralVector<T> &operator-=(const GeneralVector<T> &vec); // subtracts a GeneralVector to it
         GeneralVector<T> &operator-=(const std::vector<GeneralVector<T>> &vecList);
@@ -129,6 +130,15 @@ GeneralVector<T> &GeneralVector<T>::operator++()
 {
     *this*=2;
     return *this;
+}
+template<class T>
+GeneralVector<T> GeneralVector<T>::sum(const std::vector<GeneralVector<T> >   &vecList)
+{
+    GeneralVector<T> sum(0,0);
+    for(size_t i=0; i<vecList.size(); i++)
+        sum += vecList[i];
+
+    return sum;
 }
 
 template<class T>

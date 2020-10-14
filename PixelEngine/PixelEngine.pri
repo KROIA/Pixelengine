@@ -95,6 +95,7 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/display
 
 SOURCES += \
+        $$PWD/src/gameobject/controller/basic/dynamicCoordinator.cpp \
         $$PixelEngine_srcPath/pixelengine.cpp \
         $$PixelEngine_srcPath/display/pixelDisplay.cpp \
         $$PixelEngine_srcPath/display/pixel.cpp \
@@ -114,6 +115,7 @@ SOURCES += \
         $$PixelEngine_srcPath/utility/layeritem.cpp
 
 HEADERS += \
+        $$PWD/inc/gameobject/controller/basic/dynamicCoordinator.h \
         $$PixelEngine_incPath/gameobject/property/body.h \
         $$PixelEngine_incPath/gameobject/property/food.h \
         $$PixelEngine_incPath/gameobject/property/mood.h \

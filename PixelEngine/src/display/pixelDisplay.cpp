@@ -55,7 +55,7 @@ void PixelDisplay::setPixel(const PointU &pos, const Color &color)
 }
 void PixelDisplay::setPixel(const Pixel &pixel)
 {
-    if(pixel.getX() >= m_pixelSize.getX() || pixel.getY() >= m_pixelSize.getY())
+    if(unsigned(pixel.getX()) >= m_pixelSize.getX() || unsigned(pixel.getY()) >= m_pixelSize.getY())
         return;
     m_image.setPixel(pixel.getX(),pixel.getY(),pixel);
 }

@@ -15,6 +15,11 @@ using std::vector;
 class Controller    :   public UserEventHandler//, public LayerItem
 {
     public:
+        enum MovingMode
+        {
+            add,        // Will add the vector to the other movement Vectors
+            override,   // Will reset the sum of others, and adds this Vector
+        };
         Controller();
         Controller(const Controller &other);
         virtual  ~Controller();
@@ -30,14 +35,20 @@ class Controller    :   public UserEventHandler//, public LayerItem
         virtual void setX(const int &x);
         virtual void setY(const int &y);*/
 
-        virtual void moveToPos(const Point &currentPos,const Point &destination);
+        virtual void setMovingMode(MovingMode mode);
+        virtual MovingMode getMovingMode() const;
+
+        virtual void moveToPos(const Point &currentPos,const Point &destination,MovingMode mode = MovingMode::add);
         virtual void moveToPos(const int &currentX,const int &currentY,
-                               const int &destinationX,const int &destinationY);
-        virtual void move(const Point &directionVector);
-        virtual void move(int x,int y);
+                               const int &destinationX,const int &destinationY,MovingMode mode = MovingMode::override);
+        virtual void move(const Point &directionVector,MovingMode mode = MovingMode::add);
+        virtual void move(const PointF &directionVector,MovingMode mode = MovingMode::add);
+        virtual void move(double x,double y,MovingMode mode = MovingMode::add);
+        virtual void moveX(double x,MovingMode mode = MovingMode::add);
+        virtual void moveY(double y,MovingMode mode = MovingMode::add);
 
         virtual const VectorF &getMovingVector() const;
-        virtual const unsigned int &getNeededMovingSteps() const;
+        //virtual const unsigned int &getNeededMovingSteps() const;
 
         virtual void setRotation(const double &deg);
         virtual double getRotation() const;
@@ -53,10 +64,12 @@ class Controller    :   public UserEventHandler//, public LayerItem
         virtual void reveive_key_goesUp(const int &key);
 
         VectorF m_currentDeltaMove;
-        unsigned int m_neededStepsForMove;
-        unsigned int m_movingStepCounter;
+        //unsigned int m_neededStepsForMove;
+        //unsigned int m_movingStepCounter;
 
         int m_rotationDeg;
+
+        MovingMode m_movingMode;
     private:
 
 };

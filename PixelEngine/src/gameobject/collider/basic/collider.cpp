@@ -34,16 +34,16 @@ const Collider &Collider::operator=(const Collider &other)
 
 void Collider::setPos(const int &x,const int &y)
 {
-    if(m_pos.getX() == x && m_pos.getY() == y)
+    if(LayerItem::getX() == x && LayerItem::getY() == y)
         return;
     this->setPos(Point(x,y));
 }
 void Collider::setPos(const Point &pos)
 {
-    if(m_pos == pos)
+    if(LayerItem::getPos() == pos)
         return;
-    Point deltaPos(pos.getX() - m_pos.getX(),
-                   pos.getY() - m_pos.getY());
+    Point deltaPos(pos.getX() - LayerItem::getX(),
+                   pos.getY() - LayerItem::getY());
     m_boundingBox.setPos(m_boundingBox.getX() + deltaPos.getX(),
                          m_boundingBox.getY() + deltaPos.getY());
     for(size_t i=0; i<m_hitboxList.size(); i++)
@@ -55,9 +55,9 @@ void Collider::setPos(const Point &pos)
 }
 void Collider::setX(const int &x)
 {
-    if(m_pos.getX() == x)
+    if(LayerItem::getX() == x)
         return;
-    int deltaX = x - m_pos.getX();
+    int deltaX = x - LayerItem::getX();
     m_boundingBox.setX(m_boundingBox.getPos().getX() + deltaX);
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
@@ -67,9 +67,9 @@ void Collider::setX(const int &x)
 }
 void Collider::setY(const int &y)
 {
-    if(m_pos.getX() == y)
+    if(LayerItem::getX() == y)
         return;
-    int deltaY = y - m_pos.getY();
+    int deltaY = y - LayerItem::getY();
     m_boundingBox.setY(m_boundingBox.getPos().getY() + deltaY);
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
@@ -93,8 +93,8 @@ void Collider::addHitbox(const Rect &box)
 {
     m_boundingBoxUpdated = false;
     m_hitboxList.push_back(box);
-    m_hitboxList[m_hitboxList.size()-1].setPos(box.getPos().getX()+m_pos.getX(),
-                                               box.getPos().getY()+m_pos.getY());
+    m_hitboxList[m_hitboxList.size()-1].setPos(box.getPos().getX()+LayerItem::getX(),
+                                               box.getPos().getY()+LayerItem::getY());
 }
 
 void Collider::addHitbox(const vector<Rect> &boxList)
@@ -123,7 +123,7 @@ const vector<Rect> &Collider::getHitbox() const
 
 bool Collider::intersectsBoundingBox(const Collider &other) const
 {
-    if(this->m_lastPos == this->m_pos && other.m_lastPos == other.m_pos)
+    if(LayerItem::getLastPos() == LayerItem::getPos() && other.LayerItem::getLastPos() == other.LayerItem::getPos())
         return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben
 
     return this->m_boundingBox.intersects(other.m_boundingBox);
@@ -131,7 +131,7 @@ bool Collider::intersectsBoundingBox(const Collider &other) const
 
 bool Collider::collides(const Collider &other) const
 {
-    if(this->m_lastPos == this->m_pos && other.m_lastPos == other.m_pos)
+    if(LayerItem::getLastPos() == LayerItem::getPos() && other.LayerItem::getLastPos() == other.LayerItem::getPos())
         return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben
 
     for(size_t x=0; x<this->m_hitboxList.size(); x++)

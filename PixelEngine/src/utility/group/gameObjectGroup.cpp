@@ -76,16 +76,16 @@ const vector<GameObject*> &GameObjectGroup::getVector() const
     return m_list;
 }
 // GameObject stuff
-void GameObjectGroup::setPosInitial(const Point &pos)
+/*void GameObjectGroup::setPosInitial(const Point &pos)
 {
     for(size_t i=0; i<m_list.size(); i++)
-        m_list[i]->setPosInitial(pos);
+        m_list[i]->setPos(pos);
 }
 void GameObjectGroup::setPosInitial(const int &x, const int &y)
 {
     for(size_t i=0; i<m_list.size(); i++)
-        m_list[i]->setPosInitial(x,y);
-}
+        m_list[i]->setPos(x,y);
+}*/
 void GameObjectGroup::setPos(const int &x,const int &y)
 {
     for(size_t i=0; i<m_list.size(); i++)

@@ -24,8 +24,8 @@
 
 using sf::Image;
 
-void userTickLoop(double tickInterval);
-void userDisplayLoop(double frameInterval);
+void userTickLoop(double tickInterval,unsigned long long tick);
+void userDisplayLoop(double frameInterval,unsigned long long tick);
 
 GameObject *getimportedObject();
 
@@ -50,6 +50,8 @@ double tpsUpdateTimeInterval = 0.1;
 double TPS = 0;
 double tpsCounter = 0;
 
+Timer moveTimer;
+
 Player *player2;
 GameObject *obstacle1;
 Wall *wall1;
@@ -72,7 +74,7 @@ int main(int argc, char *argv[])
     PointU windowSize(1500,800);
     PixelEngine engine(PointU(mapWidth,double(mapWidth)*double(windowSize.getY())/double(windowSize.getX())),PointU(1500,800));
     engine.set_setting_checkEventInterval(1.0f/30.0f);
-    engine.set_setting_gameTickInterval(1.0f/1000.0f);
+    engine.set_setting_gameTickInterval(1.0f/120.0f);
     engine.set_setting_displayInterval(1.0f/60.0f);
 
     // Player 2
@@ -87,19 +89,19 @@ int main(int argc, char *argv[])
     // Obstacle 1
     obstacle1   = new GameObject();
     Controller *o1_controller = new Controller();
-    obstacle1->setPosInitial(100,100);
+    obstacle1->setPos(100,100);
     Collider   *o1_collider = new Collider();
     o1_collider->addHitbox({Rect(PixelEngine::random(-10,10),PixelEngine::random(-10,10),PixelEngine::random(1,10),PixelEngine::random(1,10)),
                             Rect(PixelEngine::random(-10,10),PixelEngine::random(-10,10),PixelEngine::random(1,10),PixelEngine::random(1,10)),
                             Rect(PixelEngine::random(-10,10),PixelEngine::random(-10,10),PixelEngine::random(1,10),PixelEngine::random(1,10))});
     obstacle1->setCollider(o1_collider);
-    obstacle1->setController(o1_controller);
+    obstacle1->addController(o1_controller);
     obstacle1->setHitboxVisibility(true);
 
     // Wall
     wall1 = new Wall();
     wall1->setDimension(PointU(1,50));
-    wall1->setPosInitial(Point(10,10));
+    wall1->setPos(Point(10,10));
     wall1->setColor(Color(142,50,1));
 
     imported = getimportedObject();
@@ -190,7 +192,7 @@ int main(int argc, char *argv[])
 
     return a.exec();
 }
-void userTickLoop(double tickInterval)
+void userTickLoop(double tickInterval,unsigned long long tick)
 {
     Rect::stats_reset();
     if(tpsTimer.start(tpsUpdateTimeInterval))
@@ -200,9 +202,15 @@ void userTickLoop(double tickInterval)
     }
     tpsCounter++;
 
+    //if(moveTimer.start(tickInterval))
+    {
+        imported->move(10*sin(double((tick*5)%360)*M_PI/180),
+                       10*cos(double((tick*5)%360)*M_PI/180),Controller::MovingMode::override);
+    }
+
 
 }
-void userDisplayLoop(double frameInterval)
+void userDisplayLoop(double frameInterval,unsigned long long tick)
 {
     if(fpsTimer.start(fpsUpdateTimeInterval))
     {
@@ -210,9 +218,11 @@ void userDisplayLoop(double frameInterval)
         fpsCounter = 0;
     }
     fpsCounter++;
-    if(timer.start(1))
+    if(timer.start(1)/* && !toggle*/)
     {
         //imported->rotate_90();
+
+        //imported->move(50,20);
         objectGroup->setHitboxVisibility(toggle);
         toggle = !toggle;
     }
@@ -245,11 +255,11 @@ GameObject *getimportedObject()
     property.setBody_material(Property::Material::Grass);
     property.setType_description(Property::Description::dynamicObstacle);
     obj->setProperty(property);
-    obj->setPosInitial(50,50);
+    obj->setPos(50,50);
 
     obj->setPainter(painter);
     obj->setCollider(collider);
-    obj->setController(controller);
+    obj->addController(controller);
     PixelEngine::loadFromImage("textures\\minecraft\\textures\\block\\grass_block_side.png",collider,painter,ImageOrigin::bottomRightCorner);
 
     return obj;
@@ -275,22 +285,22 @@ GameObjectGroup makeBoarder(PixelEngine *engine)
 
     Wall *wall_1 = new Wall();
     wall_1->setDimension(PointU(boarderSize,mapSize.getY()+2*boarderSize));
-    wall_1->setPosInitial(Point(-boarderSize,-boarderSize));
+    wall_1->setPos(Point(-boarderSize,-boarderSize));
     wall_1->setColor(color);
 
     Wall *wall_2 = new Wall();
     wall_2->setDimension(PointU(boarderSize,mapSize.getY()+2*boarderSize));
-    wall_2->setPosInitial(Point(mapSize.getX(),-boarderSize));
+    wall_2->setPos(Point(mapSize.getX(),-boarderSize));
     wall_2->setColor(color);
 
     Wall *wall_3 = new Wall();
     wall_3->setDimension(PointU(mapSize.getX(),boarderSize));
-    wall_3->setPosInitial(Point(0,-boarderSize));
+    wall_3->setPos(Point(0,-boarderSize));
     wall_3->setColor(color);
 
     Wall *wall_4 = new Wall();
     wall_4->setDimension(PointU(mapSize.getX(),boarderSize));
-    wall_4->setPosInitial(Point(0,mapSize.getY()));
+    wall_4->setPos(Point(0,mapSize.getY()));
     wall_4->setColor(color);
 
     GameObjectGroup group;
@@ -312,8 +322,8 @@ GameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &
         qDebug() << "can't load image";
     grassBlock->setCollider(collider);
     grassBlock->setPainter(painter);
-    grassBlock->setController(controller);
-    grassBlock->setPosInitial(bottomLeftOrigin);
+    grassBlock->addController(controller);
+    grassBlock->setPos(bottomLeftOrigin);
 
     Property::Property property = grassBlock->getProperty();
     property.setBody_weight(1);
@@ -329,7 +339,7 @@ GameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &
         for(size_t y=0; y<blocksY; y++)
         {
             GameObject *newBlock = new GameObject(*grassBlock);
-            newBlock->setPosInitial(bottomLeftOrigin.getX()+blockSize.getX()*x,bottomLeftOrigin.getY()-blockSize.getY()*y);
+            newBlock->setPos(bottomLeftOrigin.getX()+blockSize.getX()*x,bottomLeftOrigin.getY()-blockSize.getY()*y);
             group->add(newBlock);
             if(rand() % 5 == 0)
                 y = blocksY;

@@ -5,8 +5,8 @@ Controller::Controller()
 {
     m_currentDeltaMove.setX(0.0);
     m_currentDeltaMove.setY(0.0);
-    m_neededStepsForMove = 0;
-    m_movingStepCounter = 0;
+    //m_neededStepsForMove = 0;
+    //m_movingStepCounter = 0;
     m_rotationDeg       = 0;
 }
 Controller::Controller(const Controller &other)
@@ -24,8 +24,8 @@ const Controller &Controller::operator=(const Controller &other)
     //LayerItem::operator=(other);
     this->m_currentDeltaMove   = other.m_currentDeltaMove;
 
-    this->m_neededStepsForMove = other.m_neededStepsForMove;
-    this->m_movingStepCounter  = other.m_movingStepCounter;
+    //this->m_neededStepsForMove = other.m_neededStepsForMove;
+    //this->m_movingStepCounter  = other.m_movingStepCounter;
 
     this->m_rotationDeg        = other.m_rotationDeg;
     return *this;
@@ -37,27 +37,21 @@ void Controller::checkEvent()
 //void Controller::tick(const Point &direction)
 void Controller::tick()
 {
-    if(m_neededStepsForMove == 0)
+    m_currentDeltaMove.set(0,0);
+   /* if(m_neededStepsForMove == 0)
     {
        //w m_lastPos   = m_pos;
         return;
     }
 
     // direction: Zwei ticks pro Achsenrichtung 1. Tick = x Bewegung 2. Tick = y Bewegung
-    /*if(direction.getX())
-    {
-        this->setX(m_pos.getX() + round(m_currentDeltaMove.getX()));
-    }
-    else
-    {
-        this->setY(m_pos.getY() + round(m_currentDeltaMove.getY()));
-    }*/
+
     m_movingStepCounter++;
     if(m_movingStepCounter > m_neededStepsForMove)
     {
         m_currentDeltaMove.set(0,0);
         m_neededStepsForMove = 0;
-    }
+    }*/
 }
 
 /*void Controller::setPos(const int &x,const int &y)
@@ -78,23 +72,41 @@ void Controller::setY(const int &y)
     LayerItem::setY(y);
 }
 */
-void Controller::moveToPos(const Point &currentPos,const Point &destination)
+void Controller::setMovingMode(MovingMode mode)
+{
+    m_movingMode = mode;
+}
+Controller::MovingMode Controller::getMovingMode() const
+{
+    return m_movingMode;
+}
+void Controller::moveToPos(const Point &currentPos,const Point &destination,MovingMode mode)
 {
     this->move(destination.getX() - currentPos.getX(),
                destination.getY() - currentPos.getY());
+    setMovingMode(mode);
 }
 void Controller::moveToPos(const int &currentX,const int &currentY,
-                           const int &destinationX,const int &destinationY)
+                           const int &destinationX,const int &destinationY,MovingMode mode)
 {
     this->move(destinationX - currentX, destinationY - currentY);
+    setMovingMode(mode);
 }
-void Controller::move(const Point &directionVector)
+void Controller::move(const Point &directionVector,MovingMode mode)
 {
     this->move(directionVector.getX(),directionVector.getY());
+    setMovingMode(mode);
 }
-void Controller::move(int x,int y)
+void Controller::move(const PointF &directionVector,MovingMode mode)
 {
-    if(x == 0 && y == 0)
+    this->move(directionVector.getX(),directionVector.getY());
+    setMovingMode(mode);
+}
+void Controller::move(double x,double y,MovingMode mode)
+{
+    m_currentDeltaMove += VectorF(x,y);
+    setMovingMode(mode);
+    /*if(x == 0 && y == 0)
         return;
     if(m_neededStepsForMove > 0)
     {
@@ -115,17 +127,27 @@ void Controller::move(int x,int y)
     }
 
     m_currentDeltaMove.set(double(x)/double(m_neededStepsForMove),double(y)/double(m_neededStepsForMove));
+    */
     //m_neededStepsForMove*=2; // Zwei ticks pro Achsenrichtung 1. Tick = x Bewegung 2. Tick = y Bewegung
 }
-
+void Controller::moveX(double x,MovingMode mode)
+{
+    m_currentDeltaMove += VectorF(x,0);
+    setMovingMode(mode);
+}
+void Controller::moveY(double y,MovingMode mode)
+{
+    m_currentDeltaMove += VectorF(0,y);
+    setMovingMode(mode);
+}
 const VectorF &Controller::getMovingVector() const
 {
     return m_currentDeltaMove;
 }
-const unsigned int &Controller::getNeededMovingSteps() const
+/*const unsigned int &Controller::getNeededMovingSteps() const
 {
     return m_neededStepsForMove;
-}
+}*/
 
 void Controller::setRotation(const double &deg)
 {

@@ -103,7 +103,7 @@ void PixelEngine::checkEvent()
     if(!m_eventTimer->start(m_eventInterval))
         return;// Time not finished
     if(m_p_func_userCheckEventLoop != nullptr)
-        (*m_p_func_userCheckEventLoop)(m_eventInterval);
+        (*m_p_func_userCheckEventLoop)(m_eventInterval,m_tick);
 
     for(size_t i=0; i<m_mastergameObjectGroup.size(); i++)
     {
@@ -114,8 +114,9 @@ void PixelEngine::tick()
 {
     if(!m_mainTickTimer->start(m_mainTickInterval))
         return; // Time not finished
+    m_tick++;
     if(m_p_func_userTickLoop != nullptr)
-        (*m_p_func_userTickLoop)(m_mainTickInterval);
+        (*m_p_func_userTickLoop)(m_mainTickInterval,m_tick);
 
     m_stats_collisionCheckTime = 0;
     tickX();
@@ -186,7 +187,7 @@ void PixelEngine::display()
     if(!m_displayTimer->start(m_displayInterval))
         return;
     if(m_p_func_userDisplayLoop != nullptr)
-        (*m_p_func_userDisplayLoop)(m_displayInterval);
+        (*m_p_func_userDisplayLoop)(m_displayInterval,m_tick);
 
     for(size_t i=0; i<m_renderLayer.size(); i++)
     {
@@ -755,6 +756,15 @@ void PixelEngine::optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &
             x+=xIterator-1;
         }
     }
+}
+
+const unsigned long long &PixelEngine::getTick() const
+{
+    return m_tick;
+}
+void PixelEngine::resetTick()
+{
+    m_tick = 0;
 }
 // Stats
 const double &PixelEngine::get_stats_checkCollisionTime() const

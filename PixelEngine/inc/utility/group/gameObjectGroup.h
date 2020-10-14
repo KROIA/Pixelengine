@@ -29,8 +29,8 @@ class GameObjectGroup
         virtual const vector<GameObject*> &getVector() const;
 
         // GameObject stuff
-        virtual void setPosInitial(const Point &pos);
-        virtual void setPosInitial(const int &x, const int &y);
+       // virtual void setPosInitial(const Point &pos);
+       // virtual void setPosInitial(const int &x, const int &y);
 
         virtual void setPos(const int &x,const int &y);
         virtual void setPos(const Point &pos);

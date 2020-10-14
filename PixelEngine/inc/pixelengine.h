@@ -29,7 +29,7 @@ const Color __color_minimalAlphaColor(255,255,255);
 #define IMAGE_IMPORT_DEBUG
 
 
-typedef  void (*p_func)(double);
+typedef  void (*p_func)(double,unsigned long long);
 
 enum ImageOrigin
 {
@@ -119,6 +119,8 @@ class PixelEngine   :   public GameObjectEventHandler
         static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const ImageOrigin &origin = ImageOrigin::topLeftCorner);
         static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const Point &origin);
         static void   optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColliderList,const Point origin);
+        virtual const unsigned long long &getTick() const;
+        virtual void resetTick();
 
         // Stats
         virtual const double &get_stats_checkCollisionTime() const; // ms
@@ -164,5 +166,7 @@ class PixelEngine   :   public GameObjectEventHandler
 
         Timer *m_stats_collisionCheckTimer;
         double m_stats_collisionCheckTime;
+
+        unsigned long long m_tick;
 };
 #endif // PIXELENGINE_H

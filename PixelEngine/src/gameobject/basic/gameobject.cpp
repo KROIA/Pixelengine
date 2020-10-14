@@ -3,7 +3,7 @@
 
 GameObject::GameObject()
 {
-    m_controller    = new Controller();
+    this->addController(new Controller());
     m_collider      = new Collider();
     m_painter       = new Painter();
     m_hitboxPainter = new Painter();
@@ -12,7 +12,7 @@ GameObject::GameObject()
 }
 GameObject::GameObject(const GameObject &other)
 {
-    m_controller    = new Controller();
+    this->addController(new Controller());
     m_collider      = new Collider();
     m_painter       = new Painter();
     m_hitboxPainter = new Painter();
@@ -23,21 +23,23 @@ GameObject::GameObject(Controller *controller,
                        Collider   *collider,
                        Painter    *painter)
 {
-    this->setController(controller);
+    this->addController(controller);
     this->setCollider(collider);
     this->setPainter(painter);
 }
 
 GameObject::~GameObject()
 {
-    delete m_controller;
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        delete m_controllerList[i];
+    m_controllerList.clear();
     delete m_collider;
     delete m_painter;
     delete m_hitboxPainter;
 }
 const GameObject &GameObject::operator=(const GameObject &other)
 {
-    *this->m_controller    = *other.m_controller;
+    this->m_controllerList    = other.m_controllerList;
     *this->m_collider      = *other.m_collider;
     *this->m_painter       = *other.m_painter;
     *this->m_hitboxPainter = *other.m_hitboxPainter;
@@ -48,27 +50,42 @@ const GameObject &GameObject::operator=(const GameObject &other)
 }
 void GameObject::checkEvent()
 {
-    m_controller->checkEvent();
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_controllerList[i]->checkEvent();
 }
 void GameObject::tick(const Point &direction)
 {
+    m_layerItem.swapPosToLastPos();
     if(direction.getX() > 0)
     {
-        m_controller->tick();
-        LayerItem::moveX(long(round(m_controller->getMovingVector().getX())));
+
+        for(size_t i=0; i<m_controllerList.size(); i++)
+        {
+            if(m_controllerList[i]->getMovingMode() == Controller::MovingMode::override)
+                m_movementCoordinator.clearMovement();
+            m_movementCoordinator.addMovement(m_controllerList[i]->getMovingVector());
+            m_controllerList[i]->tick(); // Clears the movingVector
+        }
+        m_movementCoordinator.calculateMovement();
+        //m_controller->tick();
+        //m_layerItem.moveX(int(round(m_controller->getMovingVector().getX())));
+
+        m_layerItem.moveX_F(m_movementCoordinator.getMovingVector_X());
+        //m_layerItem.moveX(round(m_movementCoordinator.getMovingVector_X()));
+        //if(m_movementCoordinator.getMovingVector().getX() != 0 || m_movementCoordinator.getMovingVector().getY() != 0)
+        //   qDebug() << "vec: "<<m_movementCoordinator.getMovingVector_X()<<"\t"<<m_movementCoordinator.getMovingVector_Y();
     }
     else
     {
-        LayerItem::moveY(static_cast<int>(round(m_controller->getMovingVector().getY())));
+        //m_layerItem.moveY(int(round(m_controller->getMovingVector().getY())));
 
-
+        m_layerItem.moveY_F(m_movementCoordinator.getMovingVector_Y());
+        //m_layerItem.moveY(round(m_movementCoordinator.getMovingVector_Y()));
+        m_movementCoordinator.tick();
     }
-   // Vector toMove(round(m_controller->getMovingVector().getX()),
-    //              round(m_controller->getMovingVector().getY()));
+    m_collider->setPos(m_layerItem.getPos());
 
-    //LayerItem::move(toMove);
-    // LayerItem::move(m_controller->getMovingVector());
-    m_collider->setPos(LayerItem::getPos());
+
 }
 
 
@@ -117,23 +134,27 @@ vector<GameObject*> GameObject::getCollidedObjects(GameObject *owner, Collider *
 
 void GameObject::draw(PixelDisplay &display)
 {
-    m_painter->setPos(LayerItem::getPos());
-    m_hitboxPainter->setPos(LayerItem::getPos());
+    m_painter->setPos(m_layerItem.getPos());
+    m_hitboxPainter->setPos(m_layerItem.getPos());
     m_painter->draw(display);
     m_hitboxPainter->draw(display);
 }
 
-void GameObject::setController(Controller *controller)
+void GameObject::addController(Controller *controller)
 {
-    if(m_controller == controller || controller == nullptr)
+    if(controller == nullptr)
         return;
-    delete m_controller;
-    m_controller = controller;
+
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        if(m_controllerList[i] == controller)
+            return;
+
+    m_controllerList.push_back(controller);
 }
-const Controller &GameObject::getController() const
+/*const Controller &GameObject::getController() const
 {
     return *m_controller;
-}
+}*/
 void GameObject::setCollider(Collider *collider)
 {
     if(m_collider == collider || collider == nullptr)
@@ -186,27 +207,58 @@ void GameObject::setY(const int &y)
     m_controller->setY(y);
 }*/
 
-void GameObject::moveToPos(const Point &destination)
+void GameObject::setPos(const int &x,const int &y)
 {
-    m_controller->moveToPos(m_pos,destination);
+    m_layerItem.setPosInitial(x,y);
 }
-void GameObject::moveToPos(const int &x,const int &y)
+void GameObject::setPos(const Point &pos)
 {
-    m_controller->moveToPos(m_pos.getX(),m_pos.getY(),x,y);
+    m_layerItem.setPosInitial(pos);
 }
-void GameObject::move(const Vector &vec)
+
+void GameObject::setX(const int &x)
 {
-    m_controller->move(vec);
+    m_layerItem.setPosInitial(x,m_layerItem.getY());
 }
-void GameObject::move(const int &deltaX, const int &deltaY)
+void GameObject::setY(const int &y)
 {
-    m_controller->move(deltaX,deltaY);
+    m_layerItem.setPosInitial(m_layerItem.getX(),y);
 }
-/*const Point &GameObject::getPos() const
+
+void GameObject::moveToPos(const Point &destination,Controller::MovingMode mode)
 {
-    return m_controller->getPos();
+    m_controllerList[0]->moveToPos(m_layerItem.getPos(),destination,mode);
 }
-*/
+void GameObject::moveToPos(const int &x,const int &y,Controller::MovingMode mode)
+{
+    m_controllerList[0]->moveToPos(m_layerItem.getPos().getX(),m_layerItem.getPos().getY(),x,y,mode);
+}
+void GameObject::move(const Vector &vec,Controller::MovingMode mode)
+{
+    m_controllerList[0]->move(vec,mode);
+}
+void GameObject::move(const VectorF &vec,Controller::MovingMode mode)
+{
+    m_controllerList[0]->move(vec,mode);
+}
+void GameObject::move(const double &deltaX, const double &deltaY,Controller::MovingMode mode)
+{
+    m_controllerList[0]->move(deltaX,deltaY,mode);
+}
+void GameObject::moveX(const double &delta,Controller::MovingMode mode)
+{
+    m_controllerList[0]->moveX(delta,mode);
+}
+void GameObject::moveY(const double &delta,Controller::MovingMode mode)
+{
+    m_controllerList[0]->moveY(delta,mode);
+}
+
+const Point GameObject::getPos() const
+{
+    return m_layerItem.getPos();
+}
+
 void GameObject::rotate(const double &rad)
 {
     if(m_hitboxPainter->isVisible())
@@ -221,7 +273,8 @@ void GameObject::rotate(const double &rad)
 void GameObject::setRotation(const double &deg)
 {
     double rot = m_rotationDeg - deg;
-    m_controller->setRotation(deg);
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_controllerList[i]->setRotation(deg);
     m_collider->setRotation(deg);
     m_painter->setRotation(deg);
     rotate(rot*180.f/M_PI);
@@ -232,21 +285,24 @@ double GameObject::getRotation() const
 }
 void GameObject::rotate_90()
 {
-    m_controller->rotate_90();
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_controllerList[i]->rotate_90();
     m_collider->rotate_90();
     m_painter->rotate_90();
     rotate(M_PI_2);
 }
 void GameObject::rotate_180()
 {
-    m_controller->rotate_180();
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_controllerList[i]->rotate_180();
     m_collider->rotate_180();
     m_painter->rotate_180();
     rotate(M_PI);
 }
 void GameObject::rotate_270()
 {
-    m_controller->rotate_270();
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_controllerList[i]->rotate_270();
     m_collider->rotate_270();
     m_painter->rotate_270();
     rotate(M_PI_2*3);
@@ -272,7 +328,7 @@ void GameObject::setHitboxVisibility(const bool &isVisible)
 {
     if(isVisible)
     {
-        m_hitboxPainter->setPos(LayerItem::getPos());
+        m_hitboxPainter->setPos(m_layerItem.getPos());
         HitboxPainter::makeVisibleCollider(m_collider,m_hitboxPainter);
     }
     m_hitboxPainter->setVisibility(isVisible);
@@ -295,6 +351,6 @@ void GameObject::event_hasCollision(GameObject *other)
         m_objEventHandler->collisionOccured(this,other);
     /*if(m_objEventHandler != nullptr)
         m_objEventHandler->removeFromEngine(this);*/
-    LayerItem::setToLastPos();
-    m_collider->setPos(LayerItem::getPos());
+    m_layerItem.setToLastPos();
+    m_collider->setPos(m_layerItem.getPos());
 }

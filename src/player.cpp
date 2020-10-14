@@ -16,7 +16,7 @@ Player::Player()
 
     this->setPainter(m_painter);
     this->setCollider(m_collider);
-    this->setController(m_controller);
+    this->addController(m_controller);
 
     Property::Property property;
     property.setBody_fat(5);
@@ -126,7 +126,7 @@ void Player::buildPlayer()
     m_controller->setKey_forMove_LEFT(m_keyLEFT);
     m_controller->setKey_forMove_RIGHT(m_keyRIGHT);
     m_controller->setKey_forMove_DOWN(m_keyDOWN);
-    GameObject::setPosInitial(m_initalPos);
+    GameObject::setPos(m_initalPos);
 
     m_painter->clear();
     m_collider->clear();
@@ -203,9 +203,9 @@ void Player::event_hasCollision(GameObject *other)
     {
         //if(m_objEventHandler != nullptr)
         //   m_objEventHandler->removeFromEngine(other);
-        this->rotate_270();
+        //this->rotate_270();
     }
 
-    LayerItem::setToLastPos();
-    LayerItem::setPos(LayerItem::getPos());
+    m_layerItem.setToLastPos();
+    //m_layerItem.setPos(m_layerItem.getPos());
 }
