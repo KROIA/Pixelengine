@@ -146,6 +146,26 @@ void GameObjectGroup::rotate_270()
     for(size_t i=0; i<m_list.size(); i++)
         m_list[i]->rotate_270();
 }
+void GameObjectGroup::setRotation(const PointF &rotationPoint,const double &deg)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->setRotation(rotationPoint,deg);
+}
+void GameObjectGroup::rotate_90(const PointF &rotationPoint)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->rotate_90(rotationPoint);
+}
+void GameObjectGroup::rotate_180(const PointF &rotationPoint)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->rotate_180(rotationPoint);
+}
+void GameObjectGroup::rotate_270(const PointF &rotationPoint)
+{
+    for(size_t i=0; i<m_list.size(); i++)
+        m_list[i]->rotate_270(rotationPoint);
+}
 void GameObjectGroup::setVisibility(const bool &isVisible)
 {
     m_isVisible = isVisible;

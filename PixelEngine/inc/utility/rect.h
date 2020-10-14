@@ -54,9 +54,11 @@ class GeneralRect
         static unsigned int stats_collisionCheckCount;
 
         static GeneralRect<T> rotate(GeneralRect<T> rect,const double &rad);
-        static GeneralRect<T> rotate_90(GeneralRect<T> rect);
-        static GeneralRect<T> rotate_180(GeneralRect<T> rect);
-        static GeneralRect<T> rotate_270(GeneralRect<T> rect);
+        static GeneralRect<T> rotate(GeneralRect<T> rect,const PointF &rotationPoint,const double &rad);
+        static GeneralRect<T> rotate_90(GeneralRect<T> rect,const PointF &rotationPoint = PointF(0,0));
+        static GeneralRect<T> rotate_180(GeneralRect<T> rect,const PointF &rotationPoint = PointF(0,0));
+        static GeneralRect<T> rotate_270(GeneralRect<T> rect,const PointF &rotationPoint = PointF(0,0));
+
 
 
     protected:
@@ -253,8 +255,13 @@ void GeneralRect<T>::stats_reset()
 template<class T>
 GeneralRect<T> GeneralRect<T>::rotate(GeneralRect<T> rect,const double &rad)
 {
+    return GeneralRect<T>::rotate(rect,GeneralPoint<T>(0,0),rad);
+}
+template<class T>
+GeneralRect<T> GeneralRect<T>::rotate(GeneralRect<T> rect,const PointF &rotationPoint,const double &rad)
+{
     GeneralVector<T> vec(rect.m_size);
-    vec = GeneralVector<T>::rotate(vec,rad);
+    vec = GeneralVector<T>::rotate(vec,rotationPoint,rad);
     if(vec.getX()<0)
     {
         rect.m_pos.setX(rect.m_pos.getX()+vec.getX()+1);
@@ -269,18 +276,18 @@ GeneralRect<T> GeneralRect<T>::rotate(GeneralRect<T> rect,const double &rad)
     return  rect;
 }
 template<class T>
-GeneralRect<T>  GeneralRect<T>::rotate_90(GeneralRect<T> rect)
+GeneralRect<T>  GeneralRect<T>::rotate_90(GeneralRect<T> rect,const PointF &rotationPoint)
 {
-    GeneralRect<T>::rotate(rect,M_PI_2);
+    GeneralRect<T>::rotate(rect,M_PI_2,rotationPoint);
 }
 template<class T>
-GeneralRect<T>  GeneralRect<T>::rotate_180(GeneralRect<T> rect)
+GeneralRect<T>  GeneralRect<T>::rotate_180(GeneralRect<T> rect,const PointF &rotationPoint)
 {
-    GeneralRect<T>::rotate(rect,M_PI);
+    GeneralRect<T>::rotate(rect,M_PI,rotationPoint);
 }
 template<class T>
-GeneralRect<T>  GeneralRect<T>::rotate_270(GeneralRect<T> rect)
+GeneralRect<T>  GeneralRect<T>::rotate_270(GeneralRect<T> rect,const PointF &rotationPoint)
 {
-    GeneralRect<T>::rotate(rect,-M_PI_2);
+    GeneralRect<T>::rotate(rect,-M_PI_2,rotationPoint);
 }
 #endif // RECT_H

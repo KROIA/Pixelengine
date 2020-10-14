@@ -30,10 +30,10 @@ class Painter   :   public  LayerItem
         virtual void draw(PixelDisplay &display);
 
         virtual void setPos(const Point &pos);
-        virtual void setPos(const int &x, const int &y);
+        virtual void setPos(int x, int y);
 
-        virtual void setX(const int &x);
-        virtual void setY(const int &y);
+        virtual void setX(int x);
+        virtual void setY(int y);
 
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;
@@ -41,11 +41,15 @@ class Painter   :   public  LayerItem
         virtual void erasePixel(const size_t &index);
         virtual void clear(); // Deletes all pixels
 
-        virtual void setRotation(const double &deg);
         virtual double getRotation() const;
+        virtual void setRotation(const double &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
+        virtual void setRotation(const PointF &rotationPoint,const double &deg);
+        virtual void rotate_90(const PointF &rotationPoint);
+        virtual void rotate_180(const PointF &rotationPoint);
+        virtual void rotate_270(const PointF &rotationPoint);
 
     protected:
         vector<Pixel> m_pixelList;
@@ -54,7 +58,7 @@ class Painter   :   public  LayerItem
         double  m_rotationRad;
     private:
 
-        virtual void rotate(const double &rad);
+        virtual void rotate(const PointF &rotPoint,const double &rad);
 
 };
 #endif

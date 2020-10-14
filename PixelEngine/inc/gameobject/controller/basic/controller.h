@@ -26,14 +26,7 @@ class Controller    :   public UserEventHandler//, public LayerItem
         virtual const Controller &operator=(const Controller &other);
 
         virtual void checkEvent();
-       // virtual void tick(const Point &direction);
         virtual void tick();
-
-        /*virtual void setPos(const int &x,const int &y);
-        virtual void setPos(const Point &pos);
-
-        virtual void setX(const int &x);
-        virtual void setY(const int &y);*/
 
         virtual void setMovingMode(MovingMode mode);
         virtual MovingMode getMovingMode() const;
@@ -48,7 +41,6 @@ class Controller    :   public UserEventHandler//, public LayerItem
         virtual void moveY(double y,MovingMode mode = MovingMode::add);
 
         virtual const VectorF &getMovingVector() const;
-        //virtual const unsigned int &getNeededMovingSteps() const;
 
         virtual void setRotation(const double &deg);
         virtual double getRotation() const;
@@ -64,11 +56,7 @@ class Controller    :   public UserEventHandler//, public LayerItem
         virtual void reveive_key_goesUp(const int &key);
 
         VectorF m_currentDeltaMove;
-        //unsigned int m_neededStepsForMove;
-        //unsigned int m_movingStepCounter;
-
         int m_rotationDeg;
-
         MovingMode m_movingMode;
     private:
 

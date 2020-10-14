@@ -23,11 +23,12 @@ class Sensor
 
         virtual const vector<GameObject*> &getDetectedObjects() const;
 
-        virtual void setRotation(const double &deg);
         virtual double getRotation() const;
+        virtual void setRotation(const double &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
+
 
     protected:
         Collider *m_sensorCollider;

@@ -31,9 +31,14 @@ class Player    :   public GameObject
 
         virtual void buildPlayer(); // Generates The PlayerObject
 
+        virtual void setRotation(const double &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
+        virtual void setRotation(const PointF &rotationPoint,const double &deg);
+        virtual void rotate_90(const PointF &rotationPoint);
+        virtual void rotate_180(const PointF &rotationPoint);
+        virtual void rotate_270(const PointF &rotationPoint);
 
         virtual void event_hasCollision(GameObject *other);
 

@@ -70,13 +70,13 @@ void Painter::setPos(const Point &pos)
     }
     LayerItem::setPos(pos);
 }
-void Painter::setPos(const int &x, const int &y)
+void Painter::setPos(int x, int y)
 {
     if(LayerItem::getX() == x && LayerItem::getY() == y)
         return;
     this->setPos(Point(x,y));
 }
-void Painter::setX(const int &x)
+void Painter::setX(int x)
 {
     if(LayerItem::getX() == x)
         return;
@@ -87,7 +87,7 @@ void Painter::setX(const int &x)
     }
     LayerItem::setX(x);
 }
-void Painter::setY(const int &y)
+void Painter::setY(int y)
 {
     if(LayerItem::getX() == y)
         return;
@@ -114,39 +114,52 @@ void Painter::clear()
 {
     m_pixelList.clear();
 }
-void Painter::rotate(const double &rad)
+void Painter::rotate(const PointF &rotPoint,const double &rad)
 {
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
         GeneralVector<double> vec(m_pixelList[i].getPos().getX(),m_pixelList[i].getPos().getY());
-        GeneralVector<double> offset(this->getPos().getX(),this->getPos().getY());
-        offset.moveX(-0.5);
-        offset.moveY(-0.5);
-        vec -= offset;
-        PointF newPos = (GeneralVector<double>::rotate(vec,rad)+offset).toPoint();
+        PointF newPos = (GeneralVector<double>::rotate(vec,rotPoint,rad)).toPoint();
         m_pixelList[i].setPos(round(newPos.getX()),round(newPos.getY()));
     }
     m_rotationRad += rad;
     m_rotationRad = double(int(m_rotationRad*1000) % int(2*M_PI *1000))/1000.f;
 
 }
-void Painter::setRotation(const double &deg)
-{
-    this->rotate((deg*M_PI/180.f) - m_rotationRad);
-}
+
 double Painter::getRotation() const
 {
     return m_rotationRad * 180.f/M_PI;
 }
+void Painter::setRotation(const double &deg)
+{
+    this->rotate(PointF(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
+}
 void Painter::rotate_90()
 {
-    this->rotate(M_PI_2);
+    this->rotate(PointF(this->getX(),this->getY()),M_PI_2);
 }
 void Painter::rotate_180()
 {
-    this->rotate(M_PI);
+    this->rotate(PointF(this->getX(),this->getY()),M_PI);
 }
 void Painter::rotate_270()
 {
-    this->rotate(-M_PI_2);
+    this->rotate(PointF(this->getX(),this->getY()),-M_PI_2);
+}
+void Painter::setRotation(const PointF &rotationPoint,const double &deg)
+{
+    this->rotate(rotationPoint,(deg*M_PI/180.f) - m_rotationRad);
+}
+void Painter::rotate_90(const PointF &rotationPoint)
+{
+    this->rotate(rotationPoint,M_PI_2);
+}
+void Painter::rotate_180(const PointF &rotationPoint)
+{
+    this->rotate(rotationPoint,M_PI);
+}
+void Painter::rotate_270(const PointF &rotationPoint)
+{
+    this->rotate(rotationPoint,-M_PI_2);
 }

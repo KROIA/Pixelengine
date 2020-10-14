@@ -177,6 +177,11 @@ void Player::setupPLayerBody(Painter *p,Collider *c)
     c->addHitbox(Rect(-1,4,1,2));
     c->addHitbox(Rect( 1,4,1,2));
 }
+void Player::setRotation(const double &deg)
+{
+    GameObject::setRotation(deg);
+    m_sensor.setRotation(deg);
+}
 void Player::rotate_90()
 {
     GameObject::rotate_90();
@@ -190,6 +195,26 @@ void Player::rotate_180()
 void Player::rotate_270()
 {
     GameObject::rotate_270();
+    m_sensor.rotate_270();
+}
+void Player::setRotation(const PointF &rotationPoint,const double &deg)
+{
+    GameObject::setRotation(rotationPoint,deg);
+    m_sensor.setRotation(deg);
+}
+void Player::rotate_90(const PointF &rotationPoint)
+{
+    GameObject::rotate_90(rotationPoint);
+    m_sensor.rotate_90();
+}
+void Player::rotate_180(const PointF &rotationPoint)
+{
+    GameObject::rotate_180(rotationPoint);
+    m_sensor.rotate_180();
+}
+void Player::rotate_270(const PointF &rotationPoint)
+{
+    GameObject::rotate_270(rotationPoint);
     m_sensor.rotate_270();
 }
 void Player::event_hasCollision(GameObject *other)
@@ -207,5 +232,4 @@ void Player::event_hasCollision(GameObject *other)
     }
 
     m_layerItem.setToLastPos();
-    //m_layerItem.setPos(m_layerItem.getPos());
 }

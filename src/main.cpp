@@ -220,10 +220,12 @@ void userDisplayLoop(double frameInterval,unsigned long long tick)
     fpsCounter++;
     if(timer.start(1)/* && !toggle*/)
     {
-        //imported->rotate_90();
+        player2->rotate_90(PointF(50,50));
+        //qDebug() << "POS: "<<player2->getPos().getX()<< "\t"<<player2->getPos().getY();
 
         //imported->move(50,20);
-        objectGroup->setHitboxVisibility(toggle);
+        objectGroup->setHitboxVisibility(true);
+        //objectGroup->rotate_90(PointF(50,50));
         toggle = !toggle;
     }
     if(fadeTimer.start(0.05))

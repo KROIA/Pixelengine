@@ -27,6 +27,5 @@ class Pixel : public Color, public LayerItem
     protected:
 
     private:
-        //PointU m_pos;
 };
 #endif // PIXEL_H

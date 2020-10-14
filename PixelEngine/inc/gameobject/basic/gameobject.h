@@ -11,8 +11,6 @@
 class GameObjectEventHandler;
 class GameObject;
 
-//typedef  void (GameObject::*collisionSlot)(GameObject *);
-
 class GameObject
 {
     public:
@@ -33,16 +31,11 @@ class GameObject
 
 
         virtual void addController(Controller *controller);
-        //virtual const Controller &getController() const;
         virtual void setCollider(Collider *collider);
         virtual const Collider &getCollider() const;
         virtual void setPainter(Painter *painter);
         virtual const Painter &getPainter() const;
         virtual void setEventHandler(GameObjectEventHandler *handler);
-
-        // Controller stuff
-        //virtual void setPosInitial(const Point &pos);
-        //virtual void setPosInitial(const int &x, const int &y);
 
         virtual void setPos(const int &x,const int &y);
         virtual void setPos(const Point &pos);
@@ -59,11 +52,16 @@ class GameObject
         virtual void moveY(const double &delta,Controller::MovingMode mode = Controller::MovingMode::add);
         virtual const Point getPos() const;
 
-        virtual void setRotation(const double &deg);
         virtual double getRotation() const;
+        virtual void setRotation(const double &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
+        virtual void setRotation(const PointF &rotationPoint,const double &deg);
+        virtual void rotate_90(const PointF &rotationPoint);
+        virtual void rotate_180(const PointF &rotationPoint);
+        virtual void rotate_270(const PointF &rotationPoint);
+
 
 
         // Collider settings

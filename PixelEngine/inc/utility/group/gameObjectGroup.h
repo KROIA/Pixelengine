@@ -47,6 +47,10 @@ class GameObjectGroup
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
+        virtual void setRotation(const PointF &rotationPoint,const double &deg);
+        virtual void rotate_90(const PointF &rotationPoint);
+        virtual void rotate_180(const PointF &rotationPoint);
+        virtual void rotate_270(const PointF &rotationPoint);
 
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;

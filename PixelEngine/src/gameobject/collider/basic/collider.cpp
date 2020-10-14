@@ -241,38 +241,54 @@ size_t Collider::getHitboxAmount() const
 {
     return m_hitboxList.size();
 }
-void Collider::setRotation(const double &deg)
-{
-    this->rotate(m_rotationRad - (deg*M_PI/180.f));
-}
 double Collider::getRotation() const
 {
     return m_rotationRad*180.f/M_PI;
 }
+void Collider::setRotation(const double &deg)
+{
+    this->rotate(PointF(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
+}
 void Collider::rotate_90()
 {
-    this->rotate(M_PI_2);
+    this->rotate(PointF(this->getX(),this->getY()),M_PI_2);
 }
 void Collider::rotate_180()
 {
-    this->rotate(M_PI);
+    this->rotate(PointF(this->getX(),this->getY()),M_PI);
 }
 void Collider::rotate_270()
 {
-    this->rotate(-M_PI_2);
+    this->rotate(PointF(this->getX(),this->getY()),-M_PI_2);
+}
+void Collider::setRotation(const PointF &rotationPoint,const double &deg)
+{
+    this->rotate(rotationPoint,(deg*M_PI/180.f) - m_rotationRad);
+}
+void Collider::rotate_90(const PointF &rotationPoint)
+{
+    this->rotate(rotationPoint,M_PI_2);
+}
+void Collider::rotate_180(const PointF &rotationPoint)
+{
+    this->rotate(rotationPoint,M_PI);
+}
+void Collider::rotate_270(const PointF &rotationPoint)
+{
+    this->rotate(rotationPoint,-M_PI_2);
 }
 
 
-void Collider::rotate(const double &rad)
+void Collider::rotate(const PointF &rotPoint,const double &rad)
 {
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
         GeneralVector<double> vec(m_hitboxList[i].getPos().getX(),m_hitboxList[i].getPos().getY());
-        GeneralVector<double> offset(this->getPos().getX(),this->getPos().getY());
-        offset.moveX(-0.5);
-        offset.moveY(-0.5);
-        vec -= offset;
-        PointF newPos = (GeneralVector<double>::rotate(vec,rad)+offset).toPoint();
+        //GeneralVector<double> offset(this->getPos().getX(),this->getPos().getY());
+        //offset.moveX(-0.5);
+        //offset.moveY(-0.5);
+        //vec -= offset;
+        PointF newPos = GeneralVector<double>::rotate(vec,rotPoint,rad).toPoint();
         m_hitboxList[i].setPos(round(newPos.getX()),round(newPos.getY()));
 
         RectF newRect = RectF::rotate(RectF(m_hitboxList[i].getX(),m_hitboxList[i].getY(),m_hitboxList[i].getSize().getX(),m_hitboxList[i].getSize().getY()),rad);

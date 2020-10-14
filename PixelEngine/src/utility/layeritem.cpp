@@ -77,9 +77,6 @@ void LayerItem::setPos(int x, int y)
 }
 void LayerItem::setPos_F(const double &x, const double &y)
 {
-    //if(LayerItem::getX() == x && LayerItem::getY() == y)
-    //    return;
-   // m_lastPos   = m_pos;
     m_floatingPos.setX(x);
     m_floatingPos.setY(y);
 }
@@ -95,30 +92,18 @@ Point LayerItem::getLastPos() const
 }
 void LayerItem::setX(int x)
 {
-   // if(LayerItem::getX() == x)
-   //     return;
-   // m_lastPos.setX(LayerItem::getX());
     m_floatingPos.setX(double(x));
 }
 void LayerItem::setX_F(const double &x)
 {
-   // if(LayerItem::getX() == x)
-   //     return;
-   // m_lastPos.setX(LayerItem::getX());
     m_floatingPos.setX(x);
 }
 void LayerItem::setY(int y)
 {
-    //if(LayerItem::getY() == y)
-    //    return;
-    //m_lastPos.setY(LayerItem::getY());
     m_floatingPos.setY(double(y));
 }
 void LayerItem::setY_F(const double &y)
 {
-    //if(LayerItem::getY() == y)
-    //    return;
-    //m_lastPos.setY(LayerItem::getY());
     m_floatingPos.setY(y);
 }
 
@@ -146,16 +131,10 @@ void LayerItem::move(const VectorF &vec)
 
 void LayerItem::move(int deltaX, int deltaY)
 {
-   // if(deltaX == LayerItem::getX() && deltaY == LayerItem::getY())
-   //     return;
-    //m_lastPos   = m_pos;
     m_floatingPos.move(double(deltaX),double(deltaY));
 }
 void LayerItem::move_F(const double &deltaX, const double &deltaY)
 {
-   // if(deltaX == LayerItem::getX() && deltaY == LayerItem::getY())
-   //     return;
-    //m_lastPos   = m_pos;
     m_floatingPos.move(deltaX,deltaY);
 }
 void LayerItem::moveX(int delta)
