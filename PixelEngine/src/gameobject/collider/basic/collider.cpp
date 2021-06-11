@@ -296,5 +296,7 @@ void Collider::rotate(const PointF &rotPoint,const double &rad)
         m_hitboxList[i].setPos(round(newRect.getX()),round(newRect.getY()));
         m_hitboxList[i].setSize(round(newRect.getSize().getX()),round(newRect.getSize().getY()));
     }
+    m_rotationRad += rad;
+    m_rotationRad = double(int(m_rotationRad*1000) % int(2*M_PI *1000))/1000.f;
     this->updateBoundingBox();
 }

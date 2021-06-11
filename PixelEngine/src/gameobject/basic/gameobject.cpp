@@ -223,15 +223,15 @@ double GameObject::getRotation() const
 {
     return m_rotationDeg;
 }
+//this->rotate(PointF(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
 void GameObject::setRotation(const double &deg)
 {
     double rot = m_rotationDeg - deg;
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->setRotation(deg);
     m_collider->setRotation(deg);
-    m_painter->setPos(m_layerItem.getPos());
     m_painter->setRotation(deg);
-    rotate(rot*180.f/M_PI);
+    rotate(rot/180.f*M_PI);
 }
 void GameObject::rotate_90()
 {
@@ -247,7 +247,6 @@ void GameObject::rotate_180()
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate_180();
     m_collider->rotate_180();
-    m_painter->setPos(m_layerItem.getPos());
     m_painter->rotate_180();
     rotate(M_PI);
 }
@@ -256,53 +255,48 @@ void GameObject::rotate_270()
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate_270();
     m_collider->rotate_270();
-    m_painter->setPos(m_layerItem.getPos());
     m_painter->rotate_270();
     rotate(M_PI_2*3);
 }
 void GameObject::setRotation(const PointF &rotationPoint,const double &deg)
 {
+    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,deg*M_PI/180).toPoint();
+    this->setPos(round(newPos.getX()),round(newPos.getY()));
     double rot = m_rotationDeg - deg;
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->setRotation(deg);
     m_collider->setRotation(deg);
-    m_painter->setPos(m_layerItem.getPos());
     m_painter->setRotation(deg);
-    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,deg*M_PI/180).toPoint();
-    this->setPos(round(newPos.getX()),round(newPos.getY()));
-    rotate(rot*180.f/M_PI);
+    rotate(rot/180.f*M_PI);
 }
 void GameObject::rotate_90(const PointF &rotationPoint)
 {
+    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI_2).toPoint();
+    this->setPos(round(newPos.getX()),round(newPos.getY()));
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate_90();
     m_collider->rotate_90();
-    m_painter->setPos(m_layerItem.getPos());
     m_painter->rotate_90();
-    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI_2).toPoint();
-    this->setPos(round(newPos.getX()),round(newPos.getY()));
     rotate(M_PI_2);
 }
 void GameObject::rotate_180(const PointF &rotationPoint)
 {
+    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI).toPoint();
+    this->setPos(round(newPos.getX()),round(newPos.getY()));
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate_180();
     m_collider->rotate_180();
-    m_painter->setPos(m_layerItem.getPos());
     m_painter->rotate_180();
-    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI).toPoint();
-    this->setPos(round(newPos.getX()),round(newPos.getY()));
     rotate(M_PI);
 }
 void GameObject::rotate_270(const PointF &rotationPoint)
 {
+    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI_2*3).toPoint();
+    this->setPos(round(newPos.getX()),round(newPos.getY()));
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate_270();
     m_collider->rotate_270();
-    m_painter->setPos(m_layerItem.getPos());
     m_painter->rotate_270();
-    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI_2*3).toPoint();
-    this->setPos(round(newPos.getX()),round(newPos.getY()));
     rotate(M_PI_2*3);
 }
 

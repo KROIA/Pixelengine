@@ -236,7 +236,7 @@ GeneralVector<T> GeneralVector<T>::rotate(const GeneralVector<T> &vec, const dou
 template<class T>
 GeneralVector<T> GeneralVector<T>::rotate(const GeneralVector<T> &vec,const GeneralPoint<T> &rotationPoint,const double &angleRad)
 {
-    if(vec.getLength() == 0)
+    if((vec-GeneralVector<T>(rotationPoint)).getLength() == 0)
         return vec;
     double newAngle = asin(double(vec.getY()-rotationPoint.getY())/(vec-GeneralVector<T>(rotationPoint)).getLength());
     if((vec.getX()-rotationPoint.getX()) < 0)

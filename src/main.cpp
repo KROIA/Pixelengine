@@ -79,10 +79,10 @@ int main(int argc, char *argv[])
 
     // Player 2
     player2 = new Player();
-    player2->setColor(Color(255,0,0));
-    player2->setStartPos(Point(30,50));
-    player2->setKeyBinding(KEYBOARD_KEY_I, KEYBOARD_KEY_J,
-                           KEYBOARD_KEY_K, KEYBOARD_KEY_L);
+    player2->setColor(Color(0,255,0));
+    player2->setStartPos(Point(100,100));
+    player2->setKeyBinding(KEYBOARD_KEY_W, KEYBOARD_KEY_A,
+                           KEYBOARD_KEY_S, KEYBOARD_KEY_D);
     player2->buildPlayer();
     player2->setHitboxVisibility(true);
 
@@ -137,8 +137,9 @@ int main(int argc, char *argv[])
     engine.setUserTickLoop(userTickLoop);
     engine.setUserDisplayLoop(userDisplayLoop);
 
-    engine.addGroup(objectGroup);
-    engine.addGroup(terainGroup);
+    engine.addGameObject(player2);
+    //engine.addGroup(objectGroup);
+    //engine.addGroup(terainGroup);
 
 
     // Set Interactions
@@ -171,13 +172,13 @@ int main(int argc, char *argv[])
                      <<"\tC_Time: "<<engine.get_stats_checkCollisionTime() << " ms";
         }
 
-        if(deleteTimer.start(5) && !removed)
+        /*if(deleteTimer.start(5) && !removed)
         {
             qDebug() << "delete obstacle1";
             engine.deleteGameObject(obstacle1);
             //engine.removeGameObject(obstacle1);
             removed = true;
-        }
+        }*/
 
         engine.checkEvent();
         engine.tick();
@@ -220,7 +221,10 @@ void userDisplayLoop(double frameInterval,unsigned long long tick)
     fpsCounter++;
     if(timer.start(1)/* && !toggle*/)
     {
-        player2->rotate_90(PointF(50,50));
+        //player2->rotate_90(PointF(80,100));
+        //player2->rotate_90(PointF(player2->getPos().getX(),player2->getPos().getY()));
+        player2->rotate_270();
+        //player2->setRotation(90);
         //qDebug() << "POS: "<<player2->getPos().getX()<< "\t"<<player2->getPos().getY();
 
         //imported->move(50,20);
@@ -262,7 +266,7 @@ GameObject *getimportedObject()
     obj->setPainter(painter);
     obj->setCollider(collider);
     obj->addController(controller);
-    PixelEngine::loadFromImage("textures\\minecraft\\textures\\block\\grass_block_side.png",collider,painter,ImageOrigin::bottomRightCorner);
+    PixelEngine::loadFromImage("textures\\Grass.png",collider,painter,ImageOrigin::bottomRightCorner);
 
     return obj;
 }
