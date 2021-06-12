@@ -95,6 +95,7 @@ void Collider::addHitbox(const Rect &box)
     m_hitboxList.push_back(box);
     m_hitboxList[m_hitboxList.size()-1].setPos(box.getPos().getX()+LayerItem::getX(),
                                                box.getPos().getY()+LayerItem::getY());
+    updateBoundingBox();
 }
 
 void Collider::addHitbox(const vector<Rect> &boxList)
@@ -105,6 +106,7 @@ void Collider::addHitbox(const vector<Rect> &boxList)
     {
         this->addHitbox(boxList[i]);
     }
+    updateBoundingBox();
 }
 
 

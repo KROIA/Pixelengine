@@ -52,22 +52,22 @@ double tpsCounter = 0;
 
 Timer moveTimer;
 
-Player *player2;
-GameObject *obstacle1;
-Wall *wall1;
-GameObject *imported;
+Player          *player;
+GameObject      *obstacle1;
+Wall            *wall1;
+GameObject      *imported;
 GameObjectGroup *objectGroup;
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    for(int i=0; i<10; i++)
+    /*for(int i=0; i<10; i++)
     {
         Vector vec(cos(i)*10,sin(i)*10);
         Vector vec2 = Vector::rotate_90(vec);
         qDebug() <<"x="<<vec.getX()<<"\ty="<<vec.getY()<<"\tr90 x="<<vec2.getX()<<"\ty="<<vec2.getY();
-    }
+    }*/
 
     // Generate the engine
     unsigned int mapWidth = 300;
@@ -78,13 +78,13 @@ int main(int argc, char *argv[])
     engine.set_setting_displayInterval(1.0f/60.0f);
 
     // Player 2
-    player2 = new Player();
-    player2->setColor(Color(0,255,0));
-    player2->setStartPos(Point(100,100));
-    player2->setKeyBinding(KEYBOARD_KEY_W, KEYBOARD_KEY_A,
-                           KEYBOARD_KEY_S, KEYBOARD_KEY_D);
-    player2->buildPlayer();
-    player2->setHitboxVisibility(true);
+    player = new Player();
+    player->setColor(Color(0,255,0));
+    player->setStartPos(Point(50,50));
+    player->setKeyBinding(KEYBOARD_KEY_W, KEYBOARD_KEY_A,
+                          KEYBOARD_KEY_S, KEYBOARD_KEY_D);
+    player->buildPlayer();
+    player->setHitboxVisibility(true);
 
     // Obstacle 1
     obstacle1   = new GameObject();
@@ -97,6 +97,7 @@ int main(int argc, char *argv[])
     obstacle1->setCollider(o1_collider);
     obstacle1->addController(o1_controller);
     obstacle1->setHitboxVisibility(true);
+
 
     // Wall
     wall1 = new Wall();
@@ -127,8 +128,8 @@ int main(int argc, char *argv[])
 
     // Make Group of Objects for toggle Hitbox in loop below
     objectGroup = new GameObjectGroup();
-    objectGroup->add(player2);
-    objectGroup->add(obstacle1);
+    objectGroup->add(player);
+   // objectGroup->add(obstacle1);
     objectGroup->add(wall1);
     objectGroup->add(imported);
     objectGroup->add(boarderGroup);
@@ -137,18 +138,18 @@ int main(int argc, char *argv[])
     engine.setUserTickLoop(userTickLoop);
     engine.setUserDisplayLoop(userDisplayLoop);
 
-    engine.addGameObject(player2);
-    //engine.addGroup(objectGroup);
-    //engine.addGroup(terainGroup);
+    engine.addGameObject(obstacle1);
+    engine.addGroup(objectGroup);
+    engine.addGroup(terainGroup);
 
 
     // Set Interactions
-    engine.setCollisionMultiInteraction({player2,imported},{player2,imported});
+    engine.setCollisionMultiInteraction({player,imported},{player,imported});
 
-    engine.setCollisionSingleInteraction({player2,imported},{obstacle1});
-    engine.setCollisionSingleInteraction({player2,imported},boarderGroup);
+    engine.setCollisionSingleInteraction({player,imported},{obstacle1});
+    engine.setCollisionSingleInteraction({player,imported},boarderGroup);
 
-    engine.setCollisionSingleInteraction({player2,imported},terainGroup);
+    engine.setCollisionSingleInteraction({player,imported},terainGroup);
     // End Interactions
 
     // Set RenderLayer
@@ -165,12 +166,12 @@ int main(int argc, char *argv[])
 
     while(1)
     {
-        if(statsTimer.start(0.1))
+        /*if(statsTimer.start(0.1))
         {
             qDebug() << "FPS: "<<FPS<<"\tTPS: "<<TPS
                      <<"\tCollisionChecks: "<<Rect::stats_collisionCheckCount<<"\tCollisions: "<<Rect::stats_collisionCount
                      <<"\tC_Time: "<<engine.get_stats_checkCollisionTime() << " ms";
-        }
+        }*/
 
         /*if(deleteTimer.start(5) && !removed)
         {
@@ -221,20 +222,22 @@ void userDisplayLoop(double frameInterval,unsigned long long tick)
     fpsCounter++;
     if(timer.start(1)/* && !toggle*/)
     {
-        //player2->rotate_90(PointF(80,100));
-        //player2->rotate_90(PointF(player2->getPos().getX(),player2->getPos().getY()));
-        player2->rotate_270();
-        //player2->setRotation(90);
-        //qDebug() << "POS: "<<player2->getPos().getX()<< "\t"<<player2->getPos().getY();
+        //player->rotate_90(PointF(80,100));
+        //player->rotate_90(PointF(player->getPos().getX(),player->getPos().getY()));
+        //player->rotate_270();
+        //player->setRotation(90);
+        //qDebug() << "POS: "<<player->getPos().getX()<< "\t"<<player->getPos().getY();
 
         //imported->move(50,20);
-        objectGroup->setHitboxVisibility(true);
+        //objectGroup->setHitboxVisibility(true);
+        //obstacle1->setHitboxVisibility(true);
+        obstacle1->setPos(200,100);
         //objectGroup->rotate_90(PointF(50,50));
         toggle = !toggle;
     }
     if(fadeTimer.start(0.05))
     {
-        player2->setColor(getRainbow(rad));
+        player->setColor(getRainbow(rad));
         rad += M_PI/10;
         if(rad >= 2*M_PI)
             rad -= 2*M_PI;

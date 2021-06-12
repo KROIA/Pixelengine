@@ -320,7 +320,7 @@ void GameObject::setHitboxVisibility(const bool &isVisible)
 {
     if(isVisible)
     {
-        m_hitboxPainter->setPos(m_layerItem.getPos());
+        //m_hitboxPainter->setPos(m_layerItem.getPos());
         HitboxPainter::makeVisibleCollider(m_collider,m_hitboxPainter);
     }
     m_hitboxPainter->setVisibility(isVisible);
