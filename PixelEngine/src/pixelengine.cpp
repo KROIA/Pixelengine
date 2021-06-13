@@ -558,7 +558,17 @@ bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider
 {
     Image image;
     if(!image.loadFromFile(picture))
+    {
+
+        #ifdef IMAGE_IMPORT_DEBUG
+        qDebug() << "Can't load File: \""<<picture.c_str()<<"\"";
+        #endif
         return false;
+    }
+#ifdef IMAGE_IMPORT_DEBUG
+    qDebug() << "import image: \""<<picture.c_str()<<"\"";
+    Timer dbgTimer;
+#endif
     Point originPoint;
     switch(origin)
     {
@@ -584,7 +594,13 @@ bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider
 {
     Image image;
     if(!image.loadFromFile(picture))
+    {
+
+        #ifdef IMAGE_IMPORT_DEBUG
+        qDebug() << "Can't load File: \""<<picture.c_str()<<"\"";
+        #endif
         return false;
+    }
 #ifdef IMAGE_IMPORT_DEBUG
     qDebug() << "import image: \""<<picture.c_str()<<"\"";
     Timer dbgTimer;

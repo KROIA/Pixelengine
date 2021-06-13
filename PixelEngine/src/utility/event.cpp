@@ -4,6 +4,10 @@ Event::Event()
 {
     m_isPressed = false;
     m_key       = -1;
+
+    m_keyState = false;
+    m_keyLastState1 = false;
+    m_keyLastState2 = false;
 }
 /*Event(Type)
 {
@@ -12,6 +16,10 @@ Event::Event()
 Event::Event(const int &key)
 {
     m_isPressed = false;
+
+    m_keyState = false;
+    m_keyLastState1 = false;
+    m_keyLastState2 = false;
     this->setKey(key);
 }
 Event::Event(const Event &other)
@@ -38,26 +46,49 @@ void Event::checkEvent()
         return;
     m_isToggled = false;
     m_isRising  = false;
+    m_isSinking = false;
 
     unsigned int state = GetAsyncKeyState(m_key);
-    if(state == 1 && !m_isPressed)// Key was toggled
+
+    // If state is == 1, key isn't pressed any more.
+    // If state is >  1, ( Bit 0x8000 is == 1) key is pressed.
+    if(state <= 1)
     {
-        m_isToggled = true;
-    } else if(state > 1)          // Key Is Pressed now
+        m_keyState = false;
+    }
+    else
     {
-        if(!m_isPressed && !m_isSinking) // Key wasn't Pressed before -> sinking
+        m_keyState = true;
+    }
+
+    if(m_keyState)
+    {
+        if(m_keyLastState1)
         {
-            m_isSinking = true;
-        }else if(m_isSinking)
-        {
-            m_isSinking = false;
+            // is pressed
             m_isPressed = true;
         }
-    }else if(state == 0 && m_isPressed) // Key is no longer pressed -> rising
-    {
-        m_isPressed = false;
-        m_isRising  = true;
+        else
+        {
+            // falling edge
+            m_isSinking = true;
+        }
     }
+    else if(m_keyLastState1)
+    {
+        // rising edge
+        m_isRising  = true;
+        m_isPressed = false;
+       if(!m_keyLastState2)
+       {
+           // After 3 zycles of this checkEvent function,
+           // if it was a toggle event.
+           m_isToggled = true;
+       }
+    }
+
+    m_keyLastState2 = m_keyLastState1;
+    m_keyLastState1 = m_keyState;
 }
 
 void Event::setKey(const int &key)

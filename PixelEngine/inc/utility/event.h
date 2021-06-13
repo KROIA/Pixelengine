@@ -30,6 +30,9 @@ class Event
 
     protected:
         int m_key;
+        bool m_keyState;
+        bool m_keyLastState1;
+        bool m_keyLastState2;
 
 
         bool m_isPressed;

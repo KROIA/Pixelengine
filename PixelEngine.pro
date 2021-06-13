@@ -24,10 +24,12 @@ INCLUDEPATH += $$incPath
 
 SOURCES += \
         $$srcPath/main.cpp \
-        $$srcPath/player.cpp
+        $$srcPath/player.cpp \
+        src/level.cpp
 
 HEADERS += \
-        $$incPath/player.h
+        $$incPath/player.h \
+        inc/level.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

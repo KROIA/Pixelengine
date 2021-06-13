@@ -27,6 +27,7 @@ const Color __color_minimalAlphaColor(255,255,255);
 #endif
 
 #define IMAGE_IMPORT_DEBUG
+#include "QDebug"
 
 
 typedef  void (*p_func)(double,unsigned long long);
