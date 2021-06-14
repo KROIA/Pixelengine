@@ -16,14 +16,25 @@ PixelEngine::PixelEngine(const PointU &mapsize,const PointU &displaySize)
     m_p_func_userDisplayLoop     = nullptr;
     m_p_func_userTickLoop        = nullptr;
 
-    m_stats_collisionCheckTimer  = new Timer;
-    m_stats_collisionCheckTime   = 0;
+    m_renderLayer.push_back(GameObjectGroup());
+    m_renderLayer.push_back(GameObjectGroup());
+    m_renderLayer.push_back(GameObjectGroup());
+    m_renderLayer.push_back(GameObjectGroup());
+    m_renderLayer.push_back(GameObjectGroup());
 
-    m_renderLayer.push_back(GameObjectGroup());
-    m_renderLayer.push_back(GameObjectGroup());
-    m_renderLayer.push_back(GameObjectGroup());
-    m_renderLayer.push_back(GameObjectGroup());
-    m_renderLayer.push_back(GameObjectGroup());
+    m_statistics.framesPerSecond        = 0;
+    m_statistics.ticksPerSecond         = 0;
+    m_statistics.collisionsPerTick      = 0;
+    m_statistics.collisionChecksPerTick = 0;
+    m_statistics.objectsInEngine        = 0;
+    m_statistics.collisionCheckTime     = 0;
+    m_statistics.gameObjectTickTime     = 0;
+    m_statistics.checkEventTime         = 0;
+    m_statistics.tickTime               = 0;
+    m_statistics.displayTime            = 0;
+    m_statistics.checkUserEventTime     = 0;
+    m_statistics.userTickTime           = 0;
+    m_statistics.userDisplayTime        = 0;
 }
 
 PixelEngine::PixelEngine(const PixelEngine &other)
@@ -52,8 +63,7 @@ PixelEngine::PixelEngine(const PixelEngine &other)
     this->m_p_func_userTickLoop    = other.m_p_func_userTickLoop;
     this->m_p_func_userTickLoop    = other.m_p_func_userTickLoop;
 
-    *this->m_stats_collisionCheckTimer = *other.m_stats_collisionCheckTimer;
-    this->m_stats_collisionCheckTime   = other.m_stats_collisionCheckTime;
+    this->m_statistics             = other.m_statistics;
 }
 
 PixelEngine::~PixelEngine()
@@ -73,7 +83,6 @@ PixelEngine::~PixelEngine()
     delete m_mainTickTimer;
     delete m_displayTimer;
 
-    delete m_stats_collisionCheckTimer;
 }
 const PointU &PixelEngine::getWindwoSize() const
 {
@@ -101,25 +110,61 @@ void PixelEngine::checkEvent()
 {
     if(!m_eventTimer->start(m_eventInterval))
         return;// Time not finished
+#ifdef STATISTICS
+    auto stats_checkUserEvent_timer_start = std::chrono::system_clock::now();
+#endif
     if(m_p_func_userCheckEventLoop != nullptr)
         (*m_p_func_userCheckEventLoop)(m_eventInterval,m_tick);
-
+#ifdef STATISTICS
+    auto stats_checkEvent_timer_start = std::chrono::system_clock::now();
+    std::chrono::duration<double> time_span_checkUserEvent_time = stats_checkEvent_timer_start - stats_checkUserEvent_timer_start;
+    m_statistics.checkUserEventTime = time_span_checkUserEvent_time.count();
+#endif
     for(size_t i=0; i<m_mastergameObjectGroup.size(); i++)
     {
         m_mastergameObjectGroup[i]->checkEvent();
     }
+#ifdef STATISTICS
+    auto stats_checkEvent_timer_end = std::chrono::system_clock::now();
+    std::chrono::duration<double> time_span_checkEvent_time = stats_checkEvent_timer_end - stats_checkEvent_timer_start;
+    m_statistics.checkEventTime = time_span_checkEvent_time.count();
+#endif
 }
 void PixelEngine::tick()
 {
     if(!m_mainTickTimer->start(m_mainTickInterval))
         return; // Time not finished
     m_tick++;
+
+#ifdef STATISTICS
+    m_statistics.objectsInEngine = m_mastergameObjectGroup.size();
+    auto stats_userTick_timer_start = std::chrono::system_clock::now();
+#endif
     if(m_p_func_userTickLoop != nullptr)
         (*m_p_func_userTickLoop)(m_mainTickInterval,m_tick);
+#ifdef STATISTICS
+    m_statistics.collisionsPerTick      = 0;
+    m_statistics.collisionChecksPerTick = 0;
+    m_statistics.gameObjectTickTime     = 0;
+    m_statistics.collisionCheckTime     = 0;
+    auto stats_tick_timer_start = std::chrono::system_clock::now();
+    std::chrono::duration<double> time_span_userEventEvent_time = stats_tick_timer_start - stats_userTick_timer_start;
+    m_statistics.userTickTime = time_span_userEventEvent_time.count();
+#endif
 
-    m_stats_collisionCheckTime = 0;
     tickX();
     tickY();
+
+#ifdef STATISTICS
+    m_stats_tps_timer_end = std::chrono::system_clock::now();
+    std::chrono::duration<double> time_span_tick_time = m_stats_tps_timer_end - stats_tick_timer_start;
+    m_statistics.tickTime = time_span_tick_time.count();
+
+    std::chrono::duration<double> time_span = m_stats_tps_timer_end - m_stats_tps_timer_start;
+    m_stats_tps_timer_start = std::chrono::system_clock::now();
+    if(time_span.count() != 0.f)
+        m_statistics.ticksPerSecond = 1.f/time_span.count();
+#endif
 }
 void PixelEngine::tickX()
 {
@@ -134,12 +179,25 @@ void PixelEngine::tickXY(const Point &dirLock)
 
     for(size_t i=0; i<m_mastergameObjectGroup.size(); i++)
     {
+#ifdef STATISTICS
+        m_statistics.collisionChecksPerTick += m_mastergameObjectGroup_collisionInteractiveList[i].size();
+        auto stats_timer_start = std::chrono::system_clock::now();
+
+#endif
         m_mastergameObjectGroup[i]->tick(dirLock);
 
-        m_stats_collisionCheckTimer->start(1000);
-        m_mastergameObjectGroup[i]->checkCollision(m_mastergameObjectGroup_collisionInteractiveList[i].getVector());
-        m_stats_collisionCheckTime += m_stats_collisionCheckTimer->getTime()*1000;
-        m_stats_collisionCheckTimer->stop();
+#ifdef STATISTICS
+        auto stats_timer_end = std::chrono::system_clock::now();
+        std::chrono::duration<double> stats_time_span = stats_timer_end - stats_timer_start;
+        m_statistics.gameObjectTickTime += stats_time_span.count();
+        stats_timer_start = std::chrono::system_clock::now();
+#endif
+        m_statistics.collisionsPerTick += m_mastergameObjectGroup[i]->checkCollision(m_mastergameObjectGroup_collisionInteractiveList[i].getVector());
+#ifdef STATISTICS
+        stats_timer_end = std::chrono::system_clock::now();
+        stats_time_span = stats_timer_end - stats_timer_start;
+        m_statistics.collisionCheckTime += stats_time_span.count();
+#endif
     }
 
 }
@@ -185,8 +243,17 @@ void PixelEngine::display()
 {
     if(!m_displayTimer->start(m_displayInterval))
         return;
+
+#ifdef STATISTICS
+    auto stats_userDisplay_timer_start = std::chrono::system_clock::now();
+#endif
     if(m_p_func_userDisplayLoop != nullptr)
         (*m_p_func_userDisplayLoop)(m_displayInterval,m_tick);
+#ifdef STATISTICS
+    auto stats_display_timer_start = std::chrono::system_clock::now();
+    std::chrono::duration<double> time_span_userDisplay_time = stats_display_timer_start - stats_userDisplay_timer_start;
+    m_statistics.userDisplayTime = time_span_userDisplay_time.count();
+#endif
 
     for(size_t i=0; i<m_renderLayer.size(); i++)
     {
@@ -195,6 +262,17 @@ void PixelEngine::display()
 
     m_display->display();
     m_display->handleEvents();
+#ifdef STATISTICS
+    m_stats_fps_timer_end = std::chrono::system_clock::now();
+    std::chrono::duration<double> m_time_span_display_time = m_stats_fps_timer_end - stats_display_timer_start;
+    m_statistics.displayTime = m_time_span_display_time.count();
+
+    std::chrono::duration<double> time_span = m_stats_fps_timer_end - m_stats_fps_timer_start;
+    m_stats_fps_timer_start = std::chrono::system_clock::now();
+    if(time_span.count() != 0.f)
+        m_statistics.framesPerSecond = 1.f/time_span.count();
+
+#endif
 }
 void PixelEngine::set_setting_checkEventInterval(const double &seconds)
 {
@@ -532,7 +610,7 @@ void PixelEngine::deleteObject(GameObject *obj)
 }
 void PixelEngine::collisionOccured(GameObject *obj1,GameObject *obj2)
 {
-    qDebug() << "collision"<<obj1<<"\t"<<obj2;
+   // qDebug() << "collision"<<obj1<<"\t"<<obj2;
 }
 
 // General functions
@@ -559,7 +637,6 @@ bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider
     Image image;
     if(!image.loadFromFile(picture))
     {
-
         #ifdef IMAGE_IMPORT_DEBUG
         qDebug() << "Can't load File: \""<<picture.c_str()<<"\"";
         #endif
@@ -595,7 +672,6 @@ bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider
     Image image;
     if(!image.loadFromFile(picture))
     {
-
         #ifdef IMAGE_IMPORT_DEBUG
         qDebug() << "Can't load File: \""<<picture.c_str()<<"\"";
         #endif
@@ -781,7 +857,14 @@ void PixelEngine::resetTick()
     m_tick = 0;
 }
 // Stats
-const double &PixelEngine::get_stats_checkCollisionTime() const
+const PixelEngine::Statistics &PixelEngine::get_statistics() const
 {
-    return m_stats_collisionCheckTime;
+    return m_statistics;
+}
+
+
+void PixelEngine::resetStatistics()
+{
+    m_statistics.collisionChecksPerTick = 0;
+    m_statistics.collisionsPerTick      = 0;
 }

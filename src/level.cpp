@@ -152,6 +152,8 @@ void userTickLoop(double tickInterval,unsigned long long tick)
                  <<"\tCollisionChecks: "<<Rect::stats_collisionCheckCount<<"\tCollisions: "<<Rect::stats_collisionCount
                  <<"\tC_Time: "<<engine->get_stats_checkCollisionTime() << " ms";
     }*/
+   // PixelEngine::Statistics stats = engine->get_statistics();
+   // qDebug() << "TPS: "<<stats.ticksPerSecond <<"\tFPS: "<<stats.framesPerSecond;
 
     Rect::stats_reset();
     if(tpsTimer.start(tpsUpdateTimeInterval))
@@ -273,7 +275,7 @@ GameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &
     Collider *collider = new Collider();
     Painter  *painter = new Painter();
     Controller *controller = new Controller();
-    if(!PixelEngine::loadFromImage("textures\\minecraft\\textures\\block\\grass_block_side.png",
+    if(!PixelEngine::loadFromImage("textures\\Grass2.png",
                                    collider,painter,ImageOrigin::bottomLeftCorner))
         qDebug() << "can't load image";
     grassBlock->setCollider(collider);

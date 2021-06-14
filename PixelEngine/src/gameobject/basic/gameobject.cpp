@@ -78,13 +78,14 @@ void GameObject::tick(const Point &direction)
 }
 
 
-void GameObject::checkCollision(const vector<GameObject*> &other)
+unsigned int GameObject::checkCollision(const vector<GameObject*> &other)
 {
     vector<GameObject*> collided = GameObject::getCollidedObjects(this, m_collider, other);
     if(collided.size() > 0)
     {
         event_hasCollision(collided[0]);
     }
+    return collided.size();
 }
 vector<GameObject*> GameObject::getCollidedObjects(GameObject *owner, Collider *collider,const vector<GameObject*> &other)
 {

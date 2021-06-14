@@ -56,9 +56,9 @@ void Player::tick(const Point &direction)
 {
     GameObject::tick(direction);
 }
-void Player::checkCollision(const vector<GameObject*> &other)
+unsigned int Player::checkCollision(const vector<GameObject*> &other)
 {
-    GameObject::checkCollision(other);
+    unsigned int collisionAmount = GameObject::checkCollision(other);
     m_sensor.checkCollision(other);
 
     if(m_sensorDebugTimer.start(1))
@@ -78,6 +78,7 @@ void Player::checkCollision(const vector<GameObject*> &other)
             }
         }
     }
+    return collisionAmount;
 }
 void Player::draw(PixelDisplay &display)
 {

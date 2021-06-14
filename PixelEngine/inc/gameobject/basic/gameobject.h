@@ -25,7 +25,7 @@ class GameObject
 
         virtual void checkEvent();
         virtual void tick(const Point &direction);
-        virtual void checkCollision(const vector<GameObject*> &other);
+        virtual unsigned int checkCollision(const vector<GameObject*> &other);
         static vector<GameObject*> getCollidedObjects(GameObject *owner, Collider *collider,const vector<GameObject*> &other);
         virtual void draw(PixelDisplay &display);
 

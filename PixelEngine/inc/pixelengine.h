@@ -7,6 +7,7 @@
 #include <windows.h>
 #include <ctime>
 #include <math.h>
+#include <chrono>
 
 #include "pixelDisplay.h"
 #include "point.h"
@@ -27,6 +28,8 @@ const Color __color_minimalAlphaColor(255,255,255);
 #endif
 
 #define IMAGE_IMPORT_DEBUG
+#define STATISTICS
+
 #include "QDebug"
 
 
@@ -41,9 +44,30 @@ enum ImageOrigin
     center
 };
 
+
 class PixelEngine   :   public GameObjectEventHandler
 {
+
+
     public:
+        struct Statistics
+        {
+            double  framesPerSecond;
+            double  ticksPerSecond;
+            unsigned long collisionsPerTick;
+            unsigned long collisionChecksPerTick;
+            unsigned long objectsInEngine;
+
+            double  collisionCheckTime;
+            double  gameObjectTickTime;
+            double  checkEventTime;
+            double  tickTime;
+            double  displayTime;
+
+            double  checkUserEventTime;
+            double  userTickTime;
+            double  userDisplayTime;
+        };
         PixelEngine(const PointU &mapsize,const PointU &displaySize);
         PixelEngine(const PixelEngine &other);
         virtual ~PixelEngine();
@@ -124,7 +148,7 @@ class PixelEngine   :   public GameObjectEventHandler
         virtual void resetTick();
 
         // Stats
-        virtual const double &get_stats_checkCollisionTime() const; // ms
+        virtual const Statistics &get_statistics() const;
     protected:
         virtual void tickX();
         virtual void tickY();
@@ -141,6 +165,7 @@ class PixelEngine   :   public GameObjectEventHandler
         static void removeObjectFromList(vector<GameObjectGroup*> &list,GameObject* obj);
         static void removeObjectFromList(vector<GameObjectGroup*> &list,GameObjectGroup *obj);
 
+        virtual void resetStatistics();
 
         PixelDisplay *m_display;
         PointU m_windowSize;
@@ -164,10 +189,19 @@ class PixelEngine   :   public GameObjectEventHandler
         p_func m_p_func_userDisplayLoop;
         p_func m_p_func_userTickLoop;
 
-
-        Timer *m_stats_collisionCheckTimer;
-        double m_stats_collisionCheckTime;
-
         unsigned long long m_tick;
+
+        // Statistics
+        Statistics m_statistics;
+        // -> Timing Stats
+#ifdef STATISTICS
+        std::chrono::high_resolution_clock::time_point m_stats_fps_timer_start;
+        std::chrono::high_resolution_clock::time_point m_stats_fps_timer_end;
+
+        std::chrono::high_resolution_clock::time_point m_stats_tps_timer_start;
+        std::chrono::high_resolution_clock::time_point m_stats_tps_timer_end;
+
+
+#endif
 };
 #endif // PIXELENGINE_H

@@ -16,7 +16,7 @@ class Player    :   public GameObject
         virtual ~Player();
 
         virtual void tick(const Point &direction);
-        virtual void checkCollision(const vector<GameObject*> &other);
+        virtual unsigned int checkCollision(const vector<GameObject*> &other);
         virtual void draw(PixelDisplay &display);
 
         virtual void setColor(const Color &color);
