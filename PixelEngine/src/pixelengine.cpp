@@ -5,6 +5,7 @@ PixelEngine::PixelEngine(const PointU &mapsize,const PointU &displaySize)
     m_mapSize = mapsize;
     m_windowSize = displaySize;
     m_display       = new PixelDisplay(m_windowSize,m_mapSize);
+    m_engineIsRunning = true;
     m_eventTimer    = new Timer;
     m_mainTickTimer = new Timer;
     m_displayTimer  = new Timer;
@@ -35,6 +36,17 @@ PixelEngine::PixelEngine(const PointU &mapsize,const PointU &displaySize)
     m_statistics.checkUserEventTime     = 0;
     m_statistics.userTickTime           = 0;
     m_statistics.userDisplayTime        = 0;
+
+    m_display->loadFontFromFile("C:\\Windows\\Fonts\\cour.ttf");
+    m_stats_text = new PixelDisplay::Text();
+    m_stats_text->isVisible = false;
+    m_stats_text->text.setString("");
+    m_stats_text->text.setCharacterSize(m_windowSize.getX()/100); // in pixels, not points!
+    sf::Color col(255,255,255,100); // Transparent white
+    m_stats_text->text.setFillColor(col);
+    m_stats_text->text.setPosition(5,5);
+
+    m_display->addText(m_stats_text);
 }
 
 PixelEngine::PixelEngine(const PixelEngine &other)
@@ -64,6 +76,8 @@ PixelEngine::PixelEngine(const PixelEngine &other)
     this->m_p_func_userTickLoop    = other.m_p_func_userTickLoop;
 
     this->m_statistics             = other.m_statistics;
+
+    this->m_stats_text             = other.m_stats_text;
 }
 
 PixelEngine::~PixelEngine()
@@ -83,6 +97,11 @@ PixelEngine::~PixelEngine()
     delete m_mainTickTimer;
     delete m_displayTimer;
 
+    delete m_stats_text;
+}
+bool PixelEngine::running()
+{
+    return m_engineIsRunning;
 }
 const PointU &PixelEngine::getWindwoSize() const
 {
@@ -120,6 +139,16 @@ void PixelEngine::checkEvent()
     std::chrono::duration<double> time_span_checkUserEvent_time = stats_checkEvent_timer_start - stats_checkUserEvent_timer_start;
     m_statistics.checkUserEventTime = time_span_checkUserEvent_time.count();
 #endif
+    switch(m_display->handleEvents().type)
+    {
+        case sf::Event::Closed:
+        {
+            qDebug() << "Window closed";
+            m_engineIsRunning = false;
+            return;
+        }
+    }
+
     for(size_t i=0; i<m_mastergameObjectGroup.size(); i++)
     {
         m_mastergameObjectGroup[i]->checkEvent();
@@ -201,6 +230,11 @@ void PixelEngine::tickXY(const Point &dirLock)
     }
 
 }
+void PixelEngine::updateText()
+{
+    if(m_stats_text->isVisible)
+        updateStatsText();
+}
 
 void PixelEngine::removeObjectFromList(GameObjectGroup &group,GameObject* obj)
 {
@@ -260,8 +294,10 @@ void PixelEngine::display()
         m_renderLayer[i].draw(*m_display);
     }
 
+    updateText();
+
     m_display->display();
-    m_display->handleEvents();
+
 #ifdef STATISTICS
     m_stats_fps_timer_end = std::chrono::system_clock::now();
     std::chrono::duration<double> m_time_span_display_time = m_stats_fps_timer_end - stats_display_timer_start;
@@ -861,10 +897,35 @@ const PixelEngine::Statistics &PixelEngine::get_statistics() const
 {
     return m_statistics;
 }
-
+void PixelEngine::display_stats(bool enable)
+{
+    m_stats_text->isVisible = enable;
+}
+bool PixelEngine::display_stats()
+{
+    return m_stats_text->isVisible;
+}
 
 void PixelEngine::resetStatistics()
 {
     m_statistics.collisionChecksPerTick = 0;
     m_statistics.collisionsPerTick      = 0;
+}
+void PixelEngine::updateStatsText()
+{
+    std::string text =
+     "framesPerSecond:       \t" + to_string(m_statistics.framesPerSecond) +        "\n"+
+     "ticksPerSecond:        \t" + to_string(m_statistics.ticksPerSecond) +         "\n"+
+     "collisionsPerTick:     \t" + to_string(m_statistics.collisionsPerTick) +      "\n"+
+     "collisionChecksPerTick:\t"+ to_string(m_statistics.collisionChecksPerTick) + "\n"+
+     "objectsInEngine:       \t" + to_string(m_statistics.objectsInEngine) +        "\n"+
+     "collisionCheckTime:    \t" + to_string(m_statistics.collisionCheckTime) +     "\n"+
+     "gameObjectTickTime:    \t" + to_string(m_statistics.gameObjectTickTime) +     "\n"+
+     "checkEventTime:        \t" + to_string(m_statistics.checkEventTime) +         "\n"+
+     "tickTime:              \t" + to_string(m_statistics.tickTime) +               "\n"+
+     "displayTime:           \t" + to_string(m_statistics.displayTime) +            "\n"+
+     "checkUserEventTime:    \t" + to_string(m_statistics.checkUserEventTime) +     "\n"+
+     "userTickTime:          \t" + to_string(m_statistics.userTickTime) +           "\n"+
+     "userDisplayTime:       \t" + to_string(m_statistics.userDisplayTime);
+    m_stats_text->text.setString(text);
 }

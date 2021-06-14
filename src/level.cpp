@@ -36,8 +36,10 @@ void setup_level()
 {
     // Generate the engine
     unsigned int mapWidth = 300;
-    PointU windowSize(1500,800);
-    engine = new PixelEngine (PointU(mapWidth,double(mapWidth)*double(windowSize.getY())/double(windowSize.getX())),PointU(1500,800));
+
+
+    PointU windowSize(3000,1600);
+    engine = new PixelEngine (PointU(mapWidth,double(mapWidth)*double(windowSize.getY())/double(windowSize.getX())),windowSize);
     engine->set_setting_checkEventInterval(1.0f/30.0f);
     engine->set_setting_gameTickInterval(1.0f/120.0f);
     engine->set_setting_displayInterval(1.0f/60.0f);
@@ -127,9 +129,10 @@ void userEventLoop(double tickInterval,unsigned long long tick)
     keyEvent_I->checkEvent();
     if(keyEvent_I->isSinking())
     {
-        qDebug() << "keyEvent_I Sinking";
+        //qDebug() << "keyEvent_I Sinking";
+        engine->display_stats(!engine->display_stats());
     }
-    if(keyEvent_I->isPressed())
+    /*if(keyEvent_I->isPressed())
     {
         qDebug() << "keyEvent_I Pressed";
     }
@@ -140,7 +143,7 @@ void userEventLoop(double tickInterval,unsigned long long tick)
     if(keyEvent_I->isToggled())
     {
         qDebug() << "keyEvent_I Toggled";
-    }
+    }*/
 
 
 }

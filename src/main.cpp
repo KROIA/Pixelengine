@@ -23,21 +23,16 @@
 #include "wall.h"
 
 #include "level.h"
+#include <Windows.h>
 
+#include <iostream>
 using sf::Image;
-
-
-void printStats(const PixelEngine::Statistics &stats);
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
-
-    Timer statsTimer;
-
     setup_level();
 
-    while(1)
+    while(engine->running())
     {
         engine->checkEvent();
         engine->tick();
@@ -46,32 +41,9 @@ int main(int argc, char *argv[])
            engine->get_setting_gameTickInterval() > 0.002 &&
            engine->get_setting_eventHandleInterval() > 0.002)
         {
-            //Sleep(1);
             nanosleep((const struct timespec[]){{0, 500000L}}, NULL);
         }
-        if(statsTimer.start(0.1))
-            printStats(engine->get_statistics());
     }
-
-    return a.exec();
+    return 1;
 }
 
-void printStats(const PixelEngine::Statistics &stats)
-{
-    qDebug() << "  Stats: ";
-    qDebug() << "framesPerSecond:      \t" << stats.framesPerSecond;
-    qDebug() << "ticksPerSecond:       \t" << stats.ticksPerSecond;
-    qDebug() << "collisionsPerTick:    \t" << stats.collisionsPerTick;
-    qDebug() << "collisionChecksPerTick:\t"<< stats.collisionChecksPerTick;
-    qDebug() << "objectsInEngine:      \t" << stats.objectsInEngine;
-    qDebug() << "collisionCheckTime:   \t" << stats.collisionCheckTime;
-    qDebug() << "gameObjectTickTime:   \t" << stats.gameObjectTickTime;
-    qDebug() << "checkEventTime:       \t" << stats.checkEventTime;
-    qDebug() << "tickTime:             \t" << stats.tickTime;
-    qDebug() << "displayTime:          \t" << stats.displayTime;
-    qDebug() << "checkUserEventTime:   \t" << stats.checkUserEventTime;
-    qDebug() << "userTickTime:         \t" << stats.userTickTime;
-    qDebug() << "userDisplayTime:      \t" << stats.userDisplayTime;
-
-    qDebug() << "  Stats end ";
-}

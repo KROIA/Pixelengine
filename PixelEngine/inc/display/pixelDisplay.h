@@ -16,15 +16,24 @@ using std::vector;
 
 typedef void (*fp)();
 
-struct KeyEvent{
+struct KeyEvent
+{
         sf::Keyboard::Key key;
         fp callbackFunction;
 };
 
 
+
 class PixelDisplay
 {
     public:
+        struct Text
+        {
+                sf::Text text;
+                bool     isVisible;
+        };
+
+
         PixelDisplay(const PointU &windowSize, const PointU &pixelSize);
         PixelDisplay(const PixelDisplay &other);
         virtual ~PixelDisplay();
@@ -38,9 +47,15 @@ class PixelDisplay
 
         virtual bool isOpen() const;
 
-        virtual bool handleEvents();
-        virtual bool handleEvents(const KeyEvent &eventHandler);
-        virtual bool handleEvents(const vector<KeyEvent> &eventHandlerList);
+       // virtual bool
+        virtual sf::Event handleEvents();
+        virtual sf::Event handleEvents(const KeyEvent &eventHandler);
+        virtual sf::Event handleEvents(const vector<KeyEvent> &eventHandlerList);
+
+        virtual bool loadFontFromFile(const std::string& filename);
+        virtual bool addText(Text *text);       // This function will not own the Text Object!
+        virtual bool removeText(Text *text);
+        virtual void clearText();
 
     protected:
 
@@ -55,7 +70,9 @@ class PixelDisplay
         Sprite m_sprite;
 
         Color m_clearColor;
-
+        //sf::Text text;
+        vector<Text*> m_textList;
+        sf::Font m_font;
     private:
 
 

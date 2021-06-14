@@ -72,6 +72,8 @@ class PixelEngine   :   public GameObjectEventHandler
         PixelEngine(const PixelEngine &other);
         virtual ~PixelEngine();
 
+        virtual bool running(); // this returns false, if the window is closed.
+
         virtual const PointU &getWindwoSize() const;
         virtual const PointU &getMapSize() const;
 
@@ -149,10 +151,13 @@ class PixelEngine   :   public GameObjectEventHandler
 
         // Stats
         virtual const Statistics &get_statistics() const;
+        virtual void display_stats(bool enable);
+        virtual bool display_stats();
     protected:
         virtual void tickX();
         virtual void tickY();
         virtual void tickXY(const Point &dirLock);
+        virtual void updateText();
 
     private:
         static void optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outputColliderList);
@@ -166,8 +171,10 @@ class PixelEngine   :   public GameObjectEventHandler
         static void removeObjectFromList(vector<GameObjectGroup*> &list,GameObjectGroup *obj);
 
         virtual void resetStatistics();
+        virtual void updateStatsText();
 
         PixelDisplay *m_display;
+        bool   m_engineIsRunning;
         PointU m_windowSize;
         PointU m_mapSize;
 
@@ -201,7 +208,7 @@ class PixelEngine   :   public GameObjectEventHandler
         std::chrono::high_resolution_clock::time_point m_stats_tps_timer_start;
         std::chrono::high_resolution_clock::time_point m_stats_tps_timer_end;
 
-
+        PixelDisplay::Text *m_stats_text;
 #endif
 };
 #endif // PIXELENGINE_H

@@ -16,6 +16,37 @@ PixelDisplay::PixelDisplay(const PointU &windowSize, const PointU &pixelSize)
     m_sprite.setTexture(m_texture);
     m_sprite.setScale((double)windowSize.getX()/(double)pixelSize.getX(),
                       (double)windowSize.getY()/(double)pixelSize.getY());
+
+
+
+    // select the font
+   // sf::Font MyFont = new sf::Font();
+  /*  if (!m_font.loadFromFile("Fonts\\arial.ttf"))
+    {
+        qDebug()  << "can't load font";
+    }
+  //  sf::Text text;
+
+    // select the font
+    text.setFont(m_font); // font is a sf::Font
+
+    // set the string to display
+    text.setString("Hello world\n test");
+
+    // set the character size
+    text.setCharacterSize(24); // in pixels, not points!
+
+    // set the color
+    text.setFillColor(sf::Color::White);
+    text.setPosition(50,50);
+*/
+
+    // set the text style
+    //text.setStyle(sf::Text::Bold);
+
+
+
+    // inside the main loop, between window.clear() and window.display()
 }
 PixelDisplay::PixelDisplay(const PixelDisplay &other)
 {
@@ -36,8 +67,18 @@ PixelDisplay::~PixelDisplay()
 
 void PixelDisplay::display()
 {
+
+    m_renderWindow->clear();
     m_texture.loadFromImage(m_image);
     m_renderWindow->draw(m_sprite);
+    for(Text* &text : m_textList)
+    {
+        if(text == nullptr)
+            continue;
+        if(text->isVisible)
+            m_renderWindow->draw(text->text);
+    }
+
     m_renderWindow->display();
     clear();
 }
@@ -71,24 +112,25 @@ bool PixelDisplay::isOpen() const
     return m_renderWindow->isOpen();
 }
 
-bool PixelDisplay::handleEvents()
+sf::Event PixelDisplay::handleEvents()
 {
     KeyEvent e;
     e.callbackFunction = nullptr;
-    return this->handleEvents(e);
+   return this->handleEvents(e);
 }
-bool PixelDisplay::handleEvents(const KeyEvent &eventHandler)
+sf::Event PixelDisplay::handleEvents(const KeyEvent &eventHandler)
 {
     vector<KeyEvent> eh{eventHandler};
     return this->handleEvents(eh);
 }
-bool PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
+sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
 {
+    sf::Event event;
     if(!m_renderWindow->isOpen())
     {
-        return true;
+        return event;
     }
-    sf::Event event;
+
     while(m_renderWindow->pollEvent(event))
     {
 
@@ -145,5 +187,51 @@ bool PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
             (eventHandlerList[i].callbackFunction)();
         }
     }
+    return event;
+}
+
+bool PixelDisplay::loadFontFromFile(const std::string& filename)
+{
+    bool ret = m_font.loadFromFile(filename);
+    if (!ret)
+    {
+        qDebug()  << "can't load font";
+    }
+    else
+    {
+        for(Text* &listedText : m_textList)
+        {
+            listedText->text.setFont(m_font);
+        }
+    }
+    return ret;
+}
+bool PixelDisplay::addText(Text *text)       // This function will not own the Text Object!
+{
+    for(Text* &listedText : m_textList)
+    {
+        if(listedText == text)
+            return true;
+        if(text == nullptr)
+            return false;
+    }
+    text->text.setFont(m_font);
+    m_textList.push_back(text);
+    return true;
+}
+bool PixelDisplay::removeText(Text *text)
+{
+    for(size_t i=0; i<m_textList.size(); i++)
+    {
+        if(m_textList[i] == text)
+        {
+            m_textList.erase(m_textList.begin()+i);
+            return true;
+        }
+    }
     return false;
+}
+void PixelDisplay::clearText()
+{
+    m_textList.clear();
 }
