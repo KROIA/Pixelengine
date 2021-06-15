@@ -126,6 +126,7 @@ sf::Event PixelDisplay::handleEvents(const KeyEvent &eventHandler)
 sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
 {
     sf::Event event;
+    event.type = sf::Event::EventType::Count;
     if(!m_renderWindow->isOpen())
     {
         return event;
