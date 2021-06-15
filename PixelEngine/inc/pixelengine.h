@@ -1,6 +1,5 @@
 #ifndef PIXELENGINE_H
 #define PIXELENGINE_H
-//test
 
 #include "iostream"
 #include "stdio.h"
