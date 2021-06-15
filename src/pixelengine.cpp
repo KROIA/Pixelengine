@@ -147,6 +147,10 @@ void PixelEngine::checkEvent()
             m_engineIsRunning = false;
             return;
         }
+        default:
+        {
+
+        }
     }
 
     for(size_t i=0; i<m_mastergameObjectGroup.size(); i++)
