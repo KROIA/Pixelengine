@@ -16,7 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 isEmpty(ENGINE_PATH) {
     message( 'ENGINE_PATH is empty. use default value.' )
-    ENGINE_PATH = $$PWD/PixelEngine
+    ENGINE_PATH = $$PWD
 } else {
     message( 'ENGINE_PATH is not empty.' )
     message( $${ENGINE_PATH} )
@@ -28,7 +28,7 @@ SFML_PATH               = "$$ENGINE_PATH/extern/SFML"
 SFML_DEBUG_DLL_BASE     = $$SFML_PATH\bin\Debug\lib    # Path to the dll's from SFML
 SFML_RELEASE_DLL_BASE   = $$SFML_PATH\bin\Release\lib  # Path to the dll's from SFML
 isEmpty(SFML_PATH) {
-    SFML_PATH = $$PWD/PixelEngine/extern/SFML
+    SFML_PATH = $$PWD/extern/SFML
 } else {
     message( 'SFML_PATH is not empty: \"$${SFML_PATH}\"' )
 }
