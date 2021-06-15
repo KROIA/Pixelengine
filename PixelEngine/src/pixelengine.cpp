@@ -47,7 +47,6 @@ PixelEngine::PixelEngine(const PointU &mapsize,const PointU &displaySize)
     m_stats_text->text.setPosition(5,5);
 
     m_display->addText(m_stats_text);
-    this->display_stats(true);
 }
 
 PixelEngine::PixelEngine(const PixelEngine &other)
