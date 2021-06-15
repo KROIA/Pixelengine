@@ -51,6 +51,7 @@ class GameObject
         virtual void moveX(const double &delta,Controller::MovingMode mode = Controller::MovingMode::add);
         virtual void moveY(const double &delta,Controller::MovingMode mode = Controller::MovingMode::add);
         virtual const Point getPos() const;
+        virtual const VectorF      &getMovingVector() const;
 
         virtual double getRotation() const;
         virtual void setRotation(const double &deg);

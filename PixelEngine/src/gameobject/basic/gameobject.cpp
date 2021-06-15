@@ -204,6 +204,10 @@ const Point GameObject::getPos() const
 {
     return m_layerItem.getPos();
 }
+const VectorF &GameObject::getMovingVector() const
+{
+    return m_movementCoordinator.getMovingVector();
+}
 
 void GameObject::rotate(const double &rad)
 {

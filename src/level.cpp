@@ -29,7 +29,13 @@ double tpsCounter = 0;
 
 Timer moveTimer;
 
-Event *keyEvent_I;
+Event *keyEvent_P;
+Event *keyEvent_O;
+
+// toggle Hitbox
+Event *keyEvent_H;
+GameObjectGroup hitboxObjectList;
+bool hitboxIsVisible;
 
 
 void setup_level()
@@ -37,8 +43,9 @@ void setup_level()
     // Generate the engine
     unsigned int mapWidth = 300;
 
-
-    PointU windowSize(3000,1600);
+    RECT dispaySize;
+    GetWindowRect(GetDesktopWindow(), &dispaySize);
+    PointU windowSize(dispaySize.right,dispaySize.bottom-20);
     engine = new PixelEngine (PointU(mapWidth,double(mapWidth)*double(windowSize.getY())/double(windowSize.getX())),windowSize);
     engine->set_setting_checkEventInterval(1.0f/30.0f);
     engine->set_setting_gameTickInterval(1.0f/120.0f);
@@ -52,7 +59,7 @@ void setup_level()
     player->setKeyBinding(KEYBOARD_KEY_W, KEYBOARD_KEY_A,
                           KEYBOARD_KEY_S, KEYBOARD_KEY_D);
     player->buildPlayer();
-    player->setHitboxVisibility(true);
+    //player->setHitboxVisibility(true);
 
     // Obstacle 1
     obstacle1   = new GameObject();
@@ -86,6 +93,7 @@ void setup_level()
 
     // Make Group of Objects for toggle Hitbox in loop below
     objectGroup = new GameObjectGroup();
+
     objectGroup->add(player);
     objectGroup->add(obstacle1);
     objectGroup->add(wall1);
@@ -103,9 +111,12 @@ void setup_level()
     engine->addGroup(objectGroup);
     engine->addGroup(terainGroup);
 
+    hitboxObjectList.add(objectGroup);
+    hitboxObjectList.add(terainGroup);
+
 
     // Set Interactions
-    engine->setCollisionMultiInteraction({player,imported},{player,imported});
+    engine->setCollisionMultiInteraction(player,imported);
 
     engine->setCollisionSingleInteraction({player,imported},{obstacle1});
     engine->setCollisionSingleInteraction({player,imported},boarderGroup);
@@ -121,29 +132,44 @@ void setup_level()
 
 
     //Key Events
-     keyEvent_I = new Event(KEYBOARD_KEY_I);
+     keyEvent_P = new Event(KEYBOARD_KEY_P);
+     keyEvent_O = new Event(KEYBOARD_KEY_O);
+     keyEvent_H = new Event(KEYBOARD_KEY_H);
+}
+void clear_level()
+{
+    delete keyEvent_P;
+    delete keyEvent_O;
+    delete keyEvent_H;
 }
 
 void userEventLoop(double tickInterval,unsigned long long tick)
 {
-    keyEvent_I->checkEvent();
-    if(keyEvent_I->isSinking())
+    keyEvent_P->checkEvent();
+    keyEvent_O->checkEvent();
+    keyEvent_H->checkEvent();
+
+    if(keyEvent_P->isSinking())
     {
-        //qDebug() << "keyEvent_I Sinking";
+        //qDebug() << "keyEvent_P Sinking";
         engine->display_stats(!engine->display_stats());
     }
-    /*if(keyEvent_I->isPressed())
+    if(keyEvent_O->isPressed())
     {
-        qDebug() << "keyEvent_I Pressed";
+        VectorF moving = imported->getMovingVector();
+            if(moving.getLength() == 0)
+                moving.setX(3);
+            moving = VectorF::rotate(moving,(double)((rand() % 100)-50)/10);
+            imported->move(moving);
     }
-    if(keyEvent_I->isRising())
+
+    if(keyEvent_H->isSinking())
     {
-        qDebug() << "keyEvent_I Rising";
+        hitboxIsVisible = !hitboxIsVisible;
+        hitboxObjectList.setHitboxVisibility(hitboxIsVisible);
     }
-    if(keyEvent_I->isToggled())
-    {
-        qDebug() << "keyEvent_I Toggled";
-    }*/
+
+
 
 
 }
@@ -166,10 +192,17 @@ void userTickLoop(double tickInterval,unsigned long long tick)
     }
     tpsCounter++;
 
+    qDebug() << "vec: " << imported->getMovingVector().getX() << " " << imported->getMovingVector().getY();
 
+   /* VectorF moving = imported->getMovingVector();
+    if(moving.getLength() == 0)
+        moving.setX(3);
+    moving = VectorF::rotate(moving,(double)((rand() % 100)-50)/10);
+    imported->move(moving);*/
 
-    imported->move(10*sin(double((tick*5)%360)*M_PI/180),
-                   10*cos(double((tick*5)%360)*M_PI/180),Controller::MovingMode::override);
+    //imported->move(10*sin(double((tick*5)%360)*M_PI/180),
+    //               10*cos(double((tick*5)%360)*M_PI/180),Controller::MovingMode::override);
+
 
 }
 void userDisplayLoop(double frameInterval,unsigned long long tick)
@@ -205,10 +238,10 @@ GameObject *getimportedObject()
     Painter    *painter     = new Painter();
     KeyController *controller = new KeyController();
 
-    controller->setKey_forMove_UP(KEYBOARD_KEY_W);
-    controller->setKey_forMove_LEFT(KEYBOARD_KEY_A);
-    controller->setKey_forMove_DOWN(KEYBOARD_KEY_S);
-    controller->setKey_forMove_RIGHT(KEYBOARD_KEY_D);
+    controller->setKey_forMove_UP(KEYBOARD_KEY_I);
+    controller->setKey_forMove_LEFT(KEYBOARD_KEY_J);
+    controller->setKey_forMove_DOWN(KEYBOARD_KEY_K);
+    controller->setKey_forMove_RIGHT(KEYBOARD_KEY_L);
     controller->setStepSize(1);
 
     Property::Property property = obj->getProperty();
@@ -221,7 +254,7 @@ GameObject *getimportedObject()
     obj->setPainter(painter);
     obj->setCollider(collider);
     obj->addController(controller);
-    PixelEngine::loadFromImage("textures\\Grass.png",collider,painter,ImageOrigin::bottomRightCorner);
+    PixelEngine::loadFromImage("..\\textures\\minecraft\\textures\\block\\allium.png",collider,painter,ImageOrigin::bottomRightCorner);
 
     return obj;
 }
@@ -278,7 +311,7 @@ GameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &
     Collider *collider = new Collider();
     Painter  *painter = new Painter();
     Controller *controller = new Controller();
-    if(!PixelEngine::loadFromImage("textures\\Grass2.png",
+    if(!PixelEngine::loadFromImage("..\\textures\\minecraft\\textures\\block\\grass_block_side.png",
                                    collider,painter,ImageOrigin::bottomLeftCorner))
         qDebug() << "can't load image";
     grassBlock->setCollider(collider);

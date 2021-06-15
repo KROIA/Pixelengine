@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
             nanosleep((const struct timespec[]){{0, 500000L}}, NULL);
         }
     }
+    clear_level();
     return 1;
 }
 

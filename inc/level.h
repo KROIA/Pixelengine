@@ -32,8 +32,13 @@ extern double TPS;
 extern double tpsCounter;
 
 
-extern Event *keyEvent_I;
+extern Event *keyEvent_P;
+extern Event *keyEvent_O;
 
+// toggle Hitbox
+extern Event *keyEvent_H;
+extern GameObjectGroup hitboxObjectList;
+extern bool hitboxIsVisible;
 
 void userEventLoop(double tickInterval,unsigned long long tick);
 void userTickLoop(double tickInterval,unsigned long long tick);
@@ -47,5 +52,6 @@ GameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &
 
 
 void setup_level();
+void clear_level();
 
 #endif // LEVEL_H

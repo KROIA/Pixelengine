@@ -220,6 +220,7 @@ void Player::rotate_270(const PointF &rotationPoint)
 }
 void Player::event_hasCollision(GameObject *other)
 {
+    GameObject::event_hasCollision(other);
     if(this->m_objEventHandler != nullptr)
         m_objEventHandler->collisionOccured(this,other);
     Property::Property otherProperty = other->getProperty();
@@ -232,5 +233,5 @@ void Player::event_hasCollision(GameObject *other)
         //this->rotate_270();
     }
 
-    m_layerItem.setToLastPos();
+    //m_layerItem.setToLastPos();
 }
