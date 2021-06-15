@@ -17,15 +17,6 @@ Timer dbgTimer;
 bool toggle = false;
 double rad = 0;
 
-Timer fpsTimer;
-double fpsUpdateTimeInterval = 1;
-double FPS = 0;
-double fpsCounter = 0;
-
-Timer tpsTimer;
-double tpsUpdateTimeInterval = 1;
-double TPS = 0;
-double tpsCounter = 0;
 
 Timer moveTimer;
 
@@ -184,15 +175,7 @@ void userTickLoop(double tickInterval,unsigned long long tick)
    // PixelEngine::Statistics stats = engine->get_statistics();
    // qDebug() << "TPS: "<<stats.ticksPerSecond <<"\tFPS: "<<stats.framesPerSecond;
 
-    Rect::stats_reset();
-    if(tpsTimer.start(tpsUpdateTimeInterval))
-    {
-        TPS = tpsCounter / tpsUpdateTimeInterval;
-        tpsCounter = 0;
-    }
-    tpsCounter++;
-
-    qDebug() << "vec: " << imported->getMovingVector().getX() << " " << imported->getMovingVector().getY();
+    //qDebug() << "vec: " << imported->getMovingVector().getX() << " " << imported->getMovingVector().getY();
 
    /* VectorF moving = imported->getMovingVector();
     if(moving.getLength() == 0)
@@ -207,12 +190,6 @@ void userTickLoop(double tickInterval,unsigned long long tick)
 }
 void userDisplayLoop(double frameInterval,unsigned long long tick)
 {
-    if(fpsTimer.start(fpsUpdateTimeInterval))
-    {
-        FPS = fpsCounter / fpsUpdateTimeInterval;
-        fpsCounter = 0;
-    }
-    fpsCounter++;
     if(timer.start(1)/* && !toggle*/)
     {
 

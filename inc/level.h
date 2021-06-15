@@ -21,16 +21,6 @@ extern Timer dbgTimer;
 extern bool toggle;
 extern double rad;
 
-extern Timer fpsTimer;
-extern double fpsUpdateTimeInterval;
-extern double FPS;
-extern double fpsCounter;
-
-extern Timer tpsTimer;
-extern double tpsUpdateTimeInterval;
-extern double TPS;
-extern double tpsCounter;
-
 
 extern Event *keyEvent_P;
 extern Event *keyEvent_O;
