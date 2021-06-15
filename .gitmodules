@@ -1,3 +1,4 @@
-[submodule "PixelEngine/extern/SFML"]
-	path = PixelEngine/extern/SFML
+[submodule "extern/SFML"]
+	path = extern/SFML
 	url = https://github.com/SFML/SFML.git
+	branch = master
