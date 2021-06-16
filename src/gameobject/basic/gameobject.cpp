@@ -9,6 +9,7 @@ GameObject::GameObject()
     m_hitboxPainter = new Painter();
     m_objEventHandler = nullptr;
     m_rotationDeg      = 90; // 90 deg
+    setHitboxVisibility(false);
 }
 GameObject::GameObject(const GameObject &other)
 {
@@ -18,6 +19,7 @@ GameObject::GameObject(const GameObject &other)
     m_hitboxPainter = new Painter();
     m_objEventHandler = nullptr;
     *this = other;
+    setHitboxVisibility(false);
 }
 GameObject::GameObject(Controller *controller,
                        Collider   *collider,
@@ -26,6 +28,7 @@ GameObject::GameObject(Controller *controller,
     this->addController(controller);
     this->setCollider(collider);
     this->setPainter(painter);
+
 }
 
 GameObject::~GameObject()
@@ -74,7 +77,7 @@ void GameObject::tick(const Point &direction)
         m_movementCoordinator.tick();
     }
     m_collider->setPos(m_layerItem.getPos());
-    m_painter->setPos(m_layerItem.getPos());
+    //m_painter->setPos(m_layerItem.getPos());
 }
 
 
@@ -156,6 +159,8 @@ void GameObject::setEventHandler(GameObjectEventHandler *handler)
 void GameObject::setPos(const int &x,const int &y)
 {
     m_layerItem.setPosInitial(x,y);
+    //m_collider->setPos(x,y);
+   // m_painter->setPos(x,y);
 }
 void GameObject::setPos(const Point &pos)
 {

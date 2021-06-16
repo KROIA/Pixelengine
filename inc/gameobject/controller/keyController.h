@@ -41,13 +41,13 @@ class KeyController     :   public Controller
 
     protected:
         int m_key_forMove_UP;
-        size_t m_key_forMove_UP_index;
+        Event* m_key_forMove_UP_event;
         int m_key_forMove_LEFT;
-        size_t m_key_forMove_LEFT_index;
+        Event* m_key_forMove_LEFT_event;
         int m_key_forMove_DOWN;
-        size_t m_key_forMove_DOWN_index;
+        Event* m_key_forMove_DOWN_event;
         int m_key_forMove_RIGHT;
-        size_t m_key_forMove_RIGHT_index;
+        Event* m_key_forMove_RIGHT_event;
 
         Vector m_currentMovingVec;
 

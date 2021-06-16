@@ -1,5 +1,6 @@
 #ifndef PIXELENGINE_H
 #define PIXELENGINE_H
+//test1
 
 #include "iostream"
 #include "stdio.h"
@@ -152,6 +153,8 @@ class PixelEngine   :   public GameObjectEventHandler
         // Stats
         virtual const Statistics &get_statistics() const;
         virtual void display_stats(bool enable);
+        virtual void display_stats(bool enable,const Color &color);
+        virtual void display_stats(bool enable,const Color &color, const Point &pos, const unsigned int size = 0);
         virtual bool display_stats();
     protected:
         virtual void tickX();
@@ -200,6 +203,8 @@ class PixelEngine   :   public GameObjectEventHandler
 
         // Statistics
         Statistics m_statistics;
+        double m_statsFilterFactor;
+        void filter(double &oldValue, double newValue, double filterFactor = 0.5);
         // -> Timing Stats
 #ifdef STATISTICS
         std::chrono::high_resolution_clock::time_point m_stats_fps_timer_start;

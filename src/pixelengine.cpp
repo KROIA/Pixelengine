@@ -36,6 +36,7 @@ PixelEngine::PixelEngine(const PointU &mapsize,const PointU &displaySize)
     m_statistics.checkUserEventTime     = 0;
     m_statistics.userTickTime           = 0;
     m_statistics.userDisplayTime        = 0;
+    m_statsFilterFactor                 = 0.98;
 
     m_display->loadFontFromFile("C:\\Windows\\Fonts\\cour.ttf");
     m_stats_text = new PixelDisplay::Text();
@@ -43,7 +44,7 @@ PixelEngine::PixelEngine(const PointU &mapsize,const PointU &displaySize)
     m_stats_text->text.setString("");
     m_stats_text->text.setCharacterSize(m_windowSize.getX()/100); // in pixels, not points!
     sf::Color col(255,255,255,100); // Transparent white
-    m_stats_text->text.setFillColor(col);
+    display_stats(false,col);
     m_stats_text->text.setPosition(5,5);
 
     m_display->addText(m_stats_text);
@@ -76,6 +77,7 @@ PixelEngine::PixelEngine(const PixelEngine &other)
     this->m_p_func_userTickLoop    = other.m_p_func_userTickLoop;
 
     this->m_statistics             = other.m_statistics;
+    this->m_statsFilterFactor      = other.m_statsFilterFactor;
 
     this->m_stats_text             = other.m_stats_text;
 }
@@ -137,7 +139,7 @@ void PixelEngine::checkEvent()
 #ifdef STATISTICS
     auto stats_checkEvent_timer_start = std::chrono::system_clock::now();
     std::chrono::duration<double> time_span_checkUserEvent_time = stats_checkEvent_timer_start - stats_checkUserEvent_timer_start;
-    m_statistics.checkUserEventTime = time_span_checkUserEvent_time.count();
+    filter(m_statistics.checkUserEventTime,time_span_checkUserEvent_time.count()*1000.f,m_statsFilterFactor);
 #endif
     switch(m_display->handleEvents().type)
     {
@@ -160,7 +162,8 @@ void PixelEngine::checkEvent()
 #ifdef STATISTICS
     auto stats_checkEvent_timer_end = std::chrono::system_clock::now();
     std::chrono::duration<double> time_span_checkEvent_time = stats_checkEvent_timer_end - stats_checkEvent_timer_start;
-    m_statistics.checkEventTime = time_span_checkEvent_time.count();
+    filter(m_statistics.checkEventTime,time_span_checkEvent_time.count()*1000.f,m_statsFilterFactor);
+
 #endif
 }
 void PixelEngine::tick()
@@ -178,11 +181,11 @@ void PixelEngine::tick()
 #ifdef STATISTICS
     m_statistics.collisionsPerTick      = 0;
     m_statistics.collisionChecksPerTick = 0;
-    m_statistics.gameObjectTickTime     = 0;
-    m_statistics.collisionCheckTime     = 0;
+    m_statistics.gameObjectTickTime     *= m_statsFilterFactor;
+    m_statistics.collisionCheckTime     *= m_statsFilterFactor;
     auto stats_tick_timer_start = std::chrono::system_clock::now();
     std::chrono::duration<double> time_span_userEventEvent_time = stats_tick_timer_start - stats_userTick_timer_start;
-    m_statistics.userTickTime = time_span_userEventEvent_time.count();
+    filter(m_statistics.userTickTime, time_span_userEventEvent_time.count()*1000.f,m_statsFilterFactor);
 #endif
 
     tickX();
@@ -191,12 +194,12 @@ void PixelEngine::tick()
 #ifdef STATISTICS
     m_stats_tps_timer_end = std::chrono::system_clock::now();
     std::chrono::duration<double> time_span_tick_time = m_stats_tps_timer_end - stats_tick_timer_start;
-    m_statistics.tickTime = time_span_tick_time.count();
+    filter(m_statistics.tickTime, time_span_tick_time.count()*1000.f,m_statsFilterFactor);
 
     std::chrono::duration<double> time_span = m_stats_tps_timer_end - m_stats_tps_timer_start;
     m_stats_tps_timer_start = std::chrono::system_clock::now();
     if(time_span.count() != 0.f)
-        m_statistics.ticksPerSecond = 1.f/time_span.count();
+        filter(m_statistics.ticksPerSecond, 1.f/time_span.count(),m_statsFilterFactor);
 #endif
 }
 void PixelEngine::tickX()
@@ -222,14 +225,14 @@ void PixelEngine::tickXY(const Point &dirLock)
 #ifdef STATISTICS
         auto stats_timer_end = std::chrono::system_clock::now();
         std::chrono::duration<double> stats_time_span = stats_timer_end - stats_timer_start;
-        m_statistics.gameObjectTickTime += stats_time_span.count();
+        m_statistics.gameObjectTickTime += stats_time_span.count()*1000.f*(1.f-m_statsFilterFactor);
         stats_timer_start = std::chrono::system_clock::now();
 #endif
         m_statistics.collisionsPerTick += m_mastergameObjectGroup[i]->checkCollision(m_mastergameObjectGroup_collisionInteractiveList[i].getVector());
 #ifdef STATISTICS
         stats_timer_end = std::chrono::system_clock::now();
         stats_time_span = stats_timer_end - stats_timer_start;
-        m_statistics.collisionCheckTime += stats_time_span.count();
+        m_statistics.collisionCheckTime += stats_time_span.count()*1000.f*(1.f-m_statsFilterFactor);
 #endif
     }
 
@@ -290,7 +293,7 @@ void PixelEngine::display()
 #ifdef STATISTICS
     auto stats_display_timer_start = std::chrono::system_clock::now();
     std::chrono::duration<double> time_span_userDisplay_time = stats_display_timer_start - stats_userDisplay_timer_start;
-    m_statistics.userDisplayTime = time_span_userDisplay_time.count();
+    filter(m_statistics.userDisplayTime,time_span_userDisplay_time.count()*1000.f,m_statsFilterFactor);
 #endif
 
     for(size_t i=0; i<m_renderLayer.size(); i++)
@@ -305,12 +308,12 @@ void PixelEngine::display()
 #ifdef STATISTICS
     m_stats_fps_timer_end = std::chrono::system_clock::now();
     std::chrono::duration<double> m_time_span_display_time = m_stats_fps_timer_end - stats_display_timer_start;
-    m_statistics.displayTime = m_time_span_display_time.count();
+    filter(m_statistics.displayTime, m_time_span_display_time.count()*1000.f,m_statsFilterFactor);
 
     std::chrono::duration<double> time_span = m_stats_fps_timer_end - m_stats_fps_timer_start;
     m_stats_fps_timer_start = std::chrono::system_clock::now();
     if(time_span.count() != 0.f)
-        m_statistics.framesPerSecond = 1.f/time_span.count();
+        filter(m_statistics.framesPerSecond, 1.f/time_span.count(),m_statsFilterFactor);
 
 #endif
 }
@@ -656,7 +659,7 @@ void PixelEngine::collisionOccured(GameObject *obj1,GameObject *obj2)
 // General functions
 double PixelEngine::random(double min, double max)
 {
-    if(min == max)
+    if(min == max || abs(min - max) < 0.000001)
     {
         return min;
     }
@@ -903,7 +906,21 @@ const PixelEngine::Statistics &PixelEngine::get_statistics() const
 }
 void PixelEngine::display_stats(bool enable)
 {
-    m_stats_text->isVisible = enable;
+     m_stats_text->isVisible = enable;
+}
+void PixelEngine::display_stats(bool enable, const Color &color)
+{
+    m_stats_text->text.setFillColor(color);
+    display_stats(enable);
+}
+void PixelEngine::display_stats(bool enable,const Color &color, const Point &pos, const unsigned int size)
+{
+    m_stats_text->text.setPosition(pos.getX(),pos.getY());
+    if(size > 0)
+        m_stats_text->text.setCharacterSize(size);
+    else
+        m_stats_text->text.setCharacterSize(m_windowSize.getX()/100);
+    display_stats(enable,color);
 }
 bool PixelEngine::display_stats()
 {
@@ -921,15 +938,19 @@ void PixelEngine::updateStatsText()
      "framesPerSecond:       \t" + to_string(m_statistics.framesPerSecond) +        "\n"+
      "ticksPerSecond:        \t" + to_string(m_statistics.ticksPerSecond) +         "\n"+
      "collisionsPerTick:     \t" + to_string(m_statistics.collisionsPerTick) +      "\n"+
-     "collisionChecksPerTick:\t"+ to_string(m_statistics.collisionChecksPerTick) + "\n"+
+     "collisionChecksPerTick:\t" + to_string(m_statistics.collisionChecksPerTick) + "\n"+
      "objectsInEngine:       \t" + to_string(m_statistics.objectsInEngine) +        "\n"+
-     "collisionCheckTime:    \t" + to_string(m_statistics.collisionCheckTime) +     "\n"+
-     "gameObjectTickTime:    \t" + to_string(m_statistics.gameObjectTickTime) +     "\n"+
-     "checkEventTime:        \t" + to_string(m_statistics.checkEventTime) +         "\n"+
-     "tickTime:              \t" + to_string(m_statistics.tickTime) +               "\n"+
-     "displayTime:           \t" + to_string(m_statistics.displayTime) +            "\n"+
-     "checkUserEventTime:    \t" + to_string(m_statistics.checkUserEventTime) +     "\n"+
-     "userTickTime:          \t" + to_string(m_statistics.userTickTime) +           "\n"+
-     "userDisplayTime:       \t" + to_string(m_statistics.userDisplayTime);
+     "collisionCheckTime:    \t" + to_string(m_statistics.collisionCheckTime) +     " ms\n"+
+     "gameObjectTickTime:    \t" + to_string(m_statistics.gameObjectTickTime) +     " ms\n"+
+     "checkEventTime:        \t" + to_string(m_statistics.checkEventTime) +         " ms\n"+
+     "tickTime:              \t" + to_string(m_statistics.tickTime) +               " ms\n"+
+     "displayTime:           \t" + to_string(m_statistics.displayTime) +            " ms\n"+
+     "checkUserEventTime:    \t" + to_string(m_statistics.checkUserEventTime) +     " ms\n"+
+     "userTickTime:          \t" + to_string(m_statistics.userTickTime) +           " ms\n"+
+     "userDisplayTime:       \t" + to_string(m_statistics.userDisplayTime) +        " ms";
     m_stats_text->text.setString(text);
+}
+void PixelEngine::filter(double &oldValue, double newValue, double filterFactor)
+{
+    oldValue = oldValue * filterFactor + (1.f-filterFactor) * newValue;
 }
