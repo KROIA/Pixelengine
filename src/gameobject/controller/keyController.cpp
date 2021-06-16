@@ -82,7 +82,7 @@ void KeyController::rotate_270()
 // Receiver Signal from Eventhandler
 void KeyController::receive_key_isPressed(const int &key)
 {
-    if(key == m_key_forMove_UP)
+   if(key == m_key_forMove_UP)
         m_currentMovingVec.move(m_stepUp);
     else if(key == m_key_forMove_DOWN)
         m_currentMovingVec.move(m_stepDown);
