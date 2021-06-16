@@ -24,13 +24,13 @@ const KeyController &KeyController::operator=(const KeyController &other)
 {
     Controller::operator=(other);
     this->m_key_forMove_UP          = other.m_key_forMove_UP;
-    this->m_key_forMove_UP_index    = other.m_key_forMove_UP_index;
+    this->m_key_forMove_UP_event    = other.m_key_forMove_UP_event;
     this->m_key_forMove_LEFT        = other.m_key_forMove_LEFT;
-    this->m_key_forMove_LEFT_index  = other.m_key_forMove_LEFT_index;
+    this->m_key_forMove_LEFT_event  = other.m_key_forMove_LEFT_event;
     this->m_key_forMove_DOWN        = other.m_key_forMove_DOWN;
-    this->m_key_forMove_DOWN_index  = other.m_key_forMove_DOWN_index;
+    this->m_key_forMove_DOWN_event  = other.m_key_forMove_DOWN_event;
     this->m_key_forMove_RIGHT       = other.m_key_forMove_RIGHT;
-    this->m_key_forMove_RIGHT_index = other.m_key_forMove_RIGHT_index;
+    this->m_key_forMove_RIGHT_event = other.m_key_forMove_RIGHT_event;
 
     this->m_currentMovingVec        = other.m_currentMovingVec;
 
@@ -107,30 +107,34 @@ void KeyController::reveive_key_goesUp(const int &key)
 void KeyController::setKey_forMove_UP(const int &key)
 {
     if(m_key_forMove_UP != -1)
-        removeEvent(m_key_forMove_UP_index);
+        removeEvent(m_key_forMove_UP_event);
     m_key_forMove_UP = key;
-    m_key_forMove_UP_index = this->addEvent(Event(m_key_forMove_UP));
+    m_key_forMove_UP_event = new Event(m_key_forMove_UP);
+    this->addEvent(m_key_forMove_UP_event);
 }
 void KeyController::setKey_forMove_LEFT(const int &key)
 {
     if(m_key_forMove_LEFT != -1)
-        removeEvent(m_key_forMove_LEFT_index);
+        removeEvent(m_key_forMove_LEFT_event);
     m_key_forMove_LEFT = key;
-    m_key_forMove_LEFT_index = this->addEvent(Event(m_key_forMove_LEFT));
+    m_key_forMove_LEFT_event = new Event(m_key_forMove_LEFT);
+    this->addEvent(m_key_forMove_LEFT_event);
 }
 void KeyController::setKey_forMove_DOWN(const int &key)
 {
     if(m_key_forMove_DOWN != -1)
-        removeEvent(m_key_forMove_DOWN_index);
+        removeEvent(m_key_forMove_DOWN_event);
     m_key_forMove_DOWN = key;
-    m_key_forMove_DOWN_index = this->addEvent(Event(m_key_forMove_DOWN));
+    m_key_forMove_DOWN_event = new Event(m_key_forMove_DOWN);
+    this->addEvent(m_key_forMove_DOWN_event);
 }
 void KeyController::setKey_forMove_RIGHT(const int &key)
 {
     if(m_key_forMove_RIGHT != -1)
-        removeEvent(m_key_forMove_RIGHT_index);
+        removeEvent(m_key_forMove_RIGHT_event);
     m_key_forMove_RIGHT = key;
-    m_key_forMove_RIGHT_index = this->addEvent(Event(m_key_forMove_RIGHT));
+    m_key_forMove_RIGHT_event = new Event(m_key_forMove_RIGHT);
+    this->addEvent(m_key_forMove_RIGHT_event);
 }
 void KeyController::setStepSize(const unsigned int size)
 {
