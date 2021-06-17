@@ -39,7 +39,7 @@ class GeneralPoint
         bool operator==(const GeneralPoint<T> &other) const;
         bool operator!=(const GeneralPoint<T> &other) const;
 
-        virtual T getDistance(const GeneralPoint<T> &other);
+        virtual T getDistance(const GeneralPoint<T> &other) const;
 
         static T getDistance(const GeneralPoint<T> &p1,const GeneralPoint<T> &p2);
 
@@ -155,7 +155,7 @@ bool GeneralPoint<T>::operator!=(const GeneralPoint<T> &other) const
     return false;
 }
 template<class T>
-T GeneralPoint<T>::getDistance(const GeneralPoint<T> &other)
+T GeneralPoint<T>::getDistance(const GeneralPoint<T> &other) const
 {
     return getDistance(*this,other);
 }

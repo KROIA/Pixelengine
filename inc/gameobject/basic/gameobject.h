@@ -7,6 +7,7 @@
 #include "painter.h"
 #include "hitboxPainter.h"
 #include "dynamicCoordinator.h"
+#include "texture.h"
 
 class GameObjectEventHandler;
 class GameObject;
@@ -66,14 +67,41 @@ class GameObject
 
 
         // Collider settings
+        virtual void addHitbox(const Rect &box);
+        virtual void addHitbox(const vector<Rect> &boxList);
+        virtual void eraseHitbox(const size_t &index);
+        virtual void clearCollider();
         virtual const bool &isBoundingBoxUpdated() const;
         virtual void updateBoundingBox();
-
-        // Painter settings
-        virtual void setVisibility(const bool &isVisible);
-        virtual const bool &isVisible() const;
+        virtual void setHitboxFromTexture();
+        virtual void setHitboxFromTexture(const Texture &texture);
         virtual void setHitboxVisibility(const bool &isVisible);
         virtual const bool &isHitboxVisible() const;
+
+        // Painter settings
+        virtual void reservePixelAmount(const size_t amount);
+        virtual void addPixel(const Pixel &pixel);
+        virtual void addPixel(const vector<Pixel> &pixelList);
+        virtual const Pixel &getPixel(const size_t &index) const;
+        virtual const Pixel &getPixel(const Point &pixelPos) const;
+        virtual const Pixel &getPixel(int x, int y) const;
+        virtual size_t getPixelAmount() const;
+        virtual void setPixelColor(const size_t &index, const Color &color);
+        virtual void setPixelColor(const Point &pixelPos, const Color &color);
+        virtual void setPixelColor(int x, int y, const Color &color);
+        virtual void setPixelColor(const Color &color);
+        virtual void erasePixel(const size_t &index);
+        virtual void erasePixel(const Point &pixelPos);
+        virtual void erasePixel(int x, int y);
+        virtual void clearPainter(); // Deletes all pixels
+        virtual void setVisibility(const bool &isVisible);
+        virtual const bool &isVisible() const;
+        virtual void setTexture(Texture *texture);
+        virtual void setTexturePath(const string &path);
+        virtual void loadTexture();
+        const virtual Texture &getTexture() const;
+        virtual void setTextureOnPainter();
+        virtual void setTextureOnPainter(const Texture &texture);
 
         // Properties
         virtual void setProperty(const Property::Property &property);
@@ -81,24 +109,19 @@ class GameObject
 
     protected:
         virtual void event_hasCollision(GameObject *other);
-   /*     virtual void event_hasCollision_slot2(GameObject *other) = 0;
-        virtual void event_hasCollision_slot3(GameObject *other) = 0;
-        virtual void event_hasCollision_slot4(GameObject *other) = 0;
-        virtual void event_hasCollision_slot5(GameObject *other) = 0;
-        virtual void event_hasCollision_slot6(GameObject *other) = 0;
-*/
+
         LayerItem m_layerItem;
 
         Property::Property m_property;
         GameObjectEventHandler *m_objEventHandler;
 
         vector<Controller*> m_controllerList;
-        //Controller *m_controller;
         DynamicCoordinator m_movementCoordinator;
         Collider   *m_collider;
         Painter    *m_painter;
-
         Painter    *m_hitboxPainter;
+        Texture    *m_texture;
+
 
         unsigned int m_rotationDeg;
 

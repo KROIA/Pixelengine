@@ -144,8 +144,8 @@ class PixelEngine   :   public GameObjectEventHandler
 
         // General functions
         static double random(double min, double max);
-        static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const ImageOrigin &origin = ImageOrigin::topLeftCorner);
-        static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const Point &origin);
+      //  static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const ImageOrigin &origin = ImageOrigin::topLeftCorner);
+      //  static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const Point &origin);
         static void   optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColliderList,const Point origin);
         virtual const unsigned long long &getTick() const;
         virtual void resetTick();

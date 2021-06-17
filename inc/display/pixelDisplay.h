@@ -9,7 +9,7 @@
 using sf::Color;
 using sf::RenderWindow;
 using sf::View;
-using sf::Texture;
+//using sf::Texture;
 using sf::Image;
 using sf::Sprite;
 using std::vector;
@@ -65,7 +65,7 @@ class PixelDisplay
 
         RenderWindow *m_renderWindow;
         View m_windowView;
-        Texture m_texture;
+        sf::Texture m_texture;
         Image m_image;
         Sprite m_sprite;
 
