@@ -69,6 +69,10 @@ void setup_level()
     wall1->setDimension(PointU(1,50));
     wall1->setPos(Point(10,10));
     wall1->setColor(Color(142,50,1));
+    wall1->addPixel({Pixel(Point(5,5),Color(255,0,0)),
+                    Pixel(Point(6,6),Color(255,0,0)),
+                    Pixel(Point(7,7),Color(255,0,0)),
+                    Pixel(Point(8,8),Color(255,0,0))});
 
     imported = getimportedObject();
     imported->setHitboxVisibility(false);
@@ -118,7 +122,7 @@ void setup_level()
     // Set RenderLayer
     // engine->setRenderLayer_BOTTOM(background);
     engine->setRenderLayer_TOP(wall1);
-    engine->setRenderLayer_TOP(terainGroup);
+    engine->setRenderLayer_BOTTOM(terainGroup);
 
 
 
@@ -166,25 +170,6 @@ void userEventLoop(double tickInterval,unsigned long long tick)
 }
 void userTickLoop(double tickInterval,unsigned long long tick)
 {
-  /*  if(statsTimer.start(0.1))
-    {
-        qDebug() << "FPS: "<<FPS<<"\tTPS: "<<TPS
-                 <<"\tCollisionChecks: "<<Rect::stats_collisionCheckCount<<"\tCollisions: "<<Rect::stats_collisionCount
-                 <<"\tC_Time: "<<engine->get_stats_checkCollisionTime() << " ms";
-    }*/
-   // PixelEngine::Statistics stats = engine->get_statistics();
-   // qDebug() << "TPS: "<<stats.ticksPerSecond <<"\tFPS: "<<stats.framesPerSecond;
-
-    //qDebug() << "vec: " << imported->getMovingVector().getX() << " " << imported->getMovingVector().getY();
-
-   /* VectorF moving = imported->getMovingVector();
-    if(moving.getLength() == 0)
-        moving.setX(3);
-    moving = VectorF::rotate(moving,(double)((rand() % 100)-50)/10);
-    imported->move(moving);*/
-
-    //imported->move(10*sin(double((tick*5)%360)*M_PI/180),
-    //               10*cos(double((tick*5)%360)*M_PI/180),Controller::MovingMode::override);
 
 
 }
@@ -231,7 +216,11 @@ GameObject *getimportedObject()
     obj->setPainter(painter);
     obj->setCollider(collider);
     obj->addController(controller);
-    PixelEngine::loadFromImage("..\\textures\\minecraft\\textures\\block\\allium.png",collider,painter,ImageOrigin::bottomRightCorner);
+    obj->setTexturePath("..\\textures\\minecraft\\textures\\block\\allium.png");
+    obj->loadTexture();
+    obj->setHitboxFromTexture();
+    obj->setTextureOnPainter();
+    //PixelEngine::loadFromImage("..\\textures\\minecraft\\textures\\block\\allium.png",collider,painter,ImageOrigin::bottomRightCorner);
 
     return obj;
 }
@@ -288,13 +277,23 @@ GameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &
     Collider *collider = new Collider();
     Painter  *painter = new Painter();
     Controller *controller = new Controller();
-    if(!PixelEngine::loadFromImage("..\\textures\\minecraft\\textures\\block\\grass_block_side.png",
+   /* if(!PixelEngine::loadFromImage("..\\textures\\minecraft\\textures\\block\\grass_block_side.png",
                                    collider,painter,ImageOrigin::bottomLeftCorner))
-        qDebug() << "can't load image";
+        qDebug() << "can't load image";*/
     grassBlock->setCollider(collider);
     grassBlock->setPainter(painter);
     grassBlock->addController(controller);
     grassBlock->setPos(bottomLeftOrigin);
+    grassBlock->setTexturePath("..\\textures\\minecraft\\textures\\block\\grass_block_side.png");
+    grassBlock->loadTexture();
+
+
+   /* Texture texture;
+    texture.setFilePath("..\\textures\\minecraft\\textures\\block\\allium.png");
+    texture.loadTexture();
+    grassBlock->setHitboxFromTexture(texture);*/
+    grassBlock->setHitboxFromTexture();
+    grassBlock->setTextureOnPainter();
 
     Property::Property property = grassBlock->getProperty();
     property.setBody_weight(1);

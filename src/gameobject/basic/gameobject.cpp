@@ -7,6 +7,8 @@ GameObject::GameObject()
     m_collider      = new Collider();
     m_painter       = new Painter();
     m_hitboxPainter = new Painter();
+    m_texture       = new Texture();
+   // m_texture->setAlphaColor(Color(255,255,255,255));
     m_objEventHandler = nullptr;
     m_rotationDeg      = 90; // 90 deg
     setHitboxVisibility(false);
@@ -17,7 +19,9 @@ GameObject::GameObject(const GameObject &other)
     m_collider      = new Collider();
     m_painter       = new Painter();
     m_hitboxPainter = new Painter();
+    m_texture       = new Texture();
     m_objEventHandler = nullptr;
+
     *this = other;
     setHitboxVisibility(false);
 }
@@ -42,13 +46,14 @@ GameObject::~GameObject()
 }
 const GameObject &GameObject::operator=(const GameObject &other)
 {
-    this->m_controllerList    = other.m_controllerList;
-    *this->m_collider      = *other.m_collider;
-    *this->m_painter       = *other.m_painter;
-    *this->m_hitboxPainter = *other.m_hitboxPainter;
-    this->m_property       = other.m_property;
-    this->m_objEventHandler = other.m_objEventHandler;
-    this->m_rotationDeg       = other.m_rotationDeg;
+    this->m_controllerList      = other.m_controllerList;
+    *this->m_collider           = *other.m_collider;
+    *this->m_painter            = *other.m_painter;
+    *this->m_hitboxPainter      = *other.m_hitboxPainter;
+    *this->m_texture            = *other.m_texture;
+    this->m_property            = other.m_property;
+    this->m_objEventHandler     = other.m_objEventHandler;
+    this->m_rotationDeg         = other.m_rotationDeg;
     return *this;
 }
 void GameObject::checkEvent()
@@ -309,7 +314,22 @@ void GameObject::rotate_270(const PointF &rotationPoint)
     m_painter->rotate_270();
     rotate(M_PI_2*3);
 }
-
+void GameObject::addHitbox(const Rect &box)
+{
+    m_collider->addHitbox(box);
+}
+void GameObject::addHitbox(const vector<Rect> &boxList)
+{
+    m_collider->addHitbox(boxList);
+}
+void GameObject::eraseHitbox(const size_t &index)
+{
+    m_collider->erase(index);
+}
+void GameObject::clearCollider()
+{
+    m_collider->clear();
+}
 const bool &GameObject::isBoundingBoxUpdated() const
 {
     return m_collider->isBoundingBoxUpdated();
@@ -317,6 +337,87 @@ const bool &GameObject::isBoundingBoxUpdated() const
 void GameObject::updateBoundingBox()
 {
     m_collider->updateBoundingBox();
+}
+void GameObject::setHitboxFromTexture()
+{
+    m_collider->setHitboxFromTexture(m_texture);
+}
+void GameObject::setHitboxFromTexture(const Texture &texture)
+{
+    m_collider->setHitboxFromTexture(&texture);
+}
+void GameObject::setHitboxVisibility(const bool &isVisible)
+{
+    if(isVisible)
+    {
+        HitboxPainter::makeVisibleCollider(m_collider,m_hitboxPainter);
+    }
+    m_hitboxPainter->setVisibility(isVisible);
+}
+const bool &GameObject::isHitboxVisible() const
+{
+    return m_hitboxPainter->isVisible();
+}
+
+void GameObject::reservePixelAmount(const size_t amount)
+{
+    m_painter->reserve(amount);
+}
+void GameObject::addPixel(const Pixel &pixel)
+{
+    m_painter->addPixel(pixel);
+}
+void GameObject::addPixel(const vector<Pixel> &pixelList)
+{
+    m_painter->addPixel(pixelList);
+}
+const Pixel &GameObject::getPixel(const size_t &index) const
+{
+    return m_painter->getPixel(index);
+}
+const Pixel &GameObject::getPixel(const Point &pixelPos) const
+{
+    return m_painter->getPixel(pixelPos);
+}
+const Pixel &GameObject::getPixel(int x, int y) const
+{
+    return m_painter->getPixel(x,y);
+}
+size_t GameObject::getPixelAmount() const
+{
+    return m_painter->getPixelAmount();
+}
+void GameObject::setPixelColor(const size_t &index, const Color &color)
+{
+    m_painter->setPixelColor(index,color);
+}
+void GameObject::setPixelColor(const Point &pixelPos, const Color &color)
+{
+    m_painter->setPixelColor(pixelPos,color);
+}
+void GameObject::setPixelColor(int x, int y, const Color &color)
+{
+    m_painter->setPixelColor(x,y,color);
+}
+void GameObject::setPixelColor(const Color &color)
+{
+    m_painter->setPixelColor(color);
+}
+void GameObject::erasePixel(const size_t &index)
+{
+    m_painter->erasePixel(index);
+}
+void GameObject::erasePixel(const Point &pixelPos)
+{
+    m_painter->erasePixel(pixelPos);
+}
+void GameObject::erasePixel(int x, int y)
+{
+    m_painter->erasePixel(x,y);
+}
+void GameObject::clearPainter()
+{
+    m_painter->clear();
 }
 void GameObject::setVisibility(const bool &isVisible)
 {
@@ -326,19 +427,38 @@ const bool &GameObject::isVisible() const
 {
     return m_painter->isVisible();
 }
-void GameObject::setHitboxVisibility(const bool &isVisible)
+
+void GameObject::setTexture(Texture *texture)
 {
-    if(isVisible)
-    {
-        //m_hitboxPainter->setPos(m_layerItem.getPos());
-        HitboxPainter::makeVisibleCollider(m_collider,m_hitboxPainter);
-    }
-    m_hitboxPainter->setVisibility(isVisible);
+    if(texture == nullptr)
+        return;
+    if(texture == m_texture)
+        return;
+    delete m_texture;
+    m_texture = texture;
 }
-const bool &GameObject::isHitboxVisible() const
+void GameObject::setTexturePath(const string &path)
 {
-    return m_hitboxPainter->isVisible();
+    m_texture->setFilePath(path);
 }
+void GameObject::loadTexture()
+{
+    m_texture->loadTexture();
+}
+const Texture &GameObject::getTexture() const
+{
+    return *m_texture;
+}
+void GameObject::setTextureOnPainter()
+{
+    m_painter->setTexture(m_texture);
+}
+void GameObject::setTextureOnPainter(const Texture &texture)
+{
+    m_painter->setTexture(&texture);
+}
+
+
 void GameObject::setProperty(const Property::Property &property)
 {
     m_property = property;

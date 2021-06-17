@@ -191,7 +191,7 @@ void Collider::setBoundingBox(const int &x,const int &y,
     m_boundingBoxUpdated = true;
 }
 
-int Collider::getMinX()
+int Collider::getMinX() const
 {
     if(m_hitboxList.size() == 0)
         return 0;
@@ -203,7 +203,7 @@ int Collider::getMinX()
     }
     return minX;
 }
-int Collider::getMaxX()
+int Collider::getMaxX() const
 {
     if(m_hitboxList.size() == 0)
         return 0;
@@ -215,7 +215,7 @@ int Collider::getMaxX()
     }
     return maxX;
 }
-int Collider::getMinY()
+int Collider::getMinY() const
 {
     if(m_hitboxList.size() == 0)
         return 0;
@@ -227,7 +227,7 @@ int Collider::getMinY()
     }
     return minY;
 }
-int Collider::getMaxY()
+int Collider::getMaxY() const
 {
     if(m_hitboxList.size() == 0)
         return 0;
@@ -278,6 +278,12 @@ void Collider::rotate_180(const PointF &rotationPoint)
 void Collider::rotate_270(const PointF &rotationPoint)
 {
     this->rotate(rotationPoint,-M_PI_2);
+}
+
+void Collider::setHitboxFromTexture(const Texture *texture)
+{
+    this->clear();
+    this->addHitbox(texture->getRects());
 }
 
 

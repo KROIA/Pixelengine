@@ -1,6 +1,6 @@
 
 cd extern\SFML
-git checkout master
-git pull
+@rem git checkout master
+@rem git pull
 git submodule update --init --recursive 
 pause

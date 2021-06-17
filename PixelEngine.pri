@@ -92,10 +92,11 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/gameobject/property/ \
                $$PixelEngine_incPath/gameobject/sensor \
                $$PixelEngine_incPath/gameobject/sensor/basic \
+               $$PixelEngine_incPath/gameobject/texture \
                $$PixelEngine_incPath/display
 
 SOURCES += \
-        $$PWD/src/gameobject/controller/basic/dynamicCoordinator.cpp \
+        $$PixelEngine_srcPath/gameobject/controller/basic/dynamicCoordinator.cpp \
         $$PixelEngine_srcPath/pixelengine.cpp \
         $$PixelEngine_srcPath/display/pixelDisplay.cpp \
         $$PixelEngine_srcPath/display/pixel.cpp \
@@ -108,6 +109,7 @@ SOURCES += \
         $$PixelEngine_srcPath/gameobject/property/property.cpp \
         $$PixelEngine_srcPath/gameobject/sensor/basic/sensor.cpp \
         $$PixelEngine_srcPath/gameobject/wall.cpp \
+        $$PixelEngine_srcPath/gameobject/texture/texture.cpp \
         $$PixelEngine_srcPath/utility/group/gameObjectGroup.cpp \
         $$PixelEngine_srcPath/utility/event.cpp \
         $$PixelEngine_srcPath/utility/userEventHandler.cpp \
@@ -115,7 +117,7 @@ SOURCES += \
         $$PixelEngine_srcPath/utility/layeritem.cpp
 
 HEADERS += \
-        $$PWD/inc/gameobject/controller/basic/dynamicCoordinator.h \
+        $$PixelEngine_incPath/gameobject/controller/basic/dynamicCoordinator.h \
         $$PixelEngine_incPath/gameobject/property/body.h \
         $$PixelEngine_incPath/gameobject/property/food.h \
         $$PixelEngine_incPath/gameobject/property/mood.h \
@@ -132,6 +134,7 @@ HEADERS += \
         $$PixelEngine_incPath/gameobject/basic/gameobject.h \
         $$PixelEngine_incPath/gameobject/property/property.h \
         $$PixelEngine_incPath/gameobject/sensor/basic/sensor.h \
+        $$PixelEngine_incPath/gameobject/texture/texture.h \
         $$PixelEngine_incPath/gameobject/wall.h \
         $$PixelEngine_incPath/utility/event.h \
         $$PixelEngine_incPath/utility/userEventHandler.h \

@@ -45,7 +45,7 @@ size_t UserEventHandler::addEvent(Event *e)
     m_eventList.push_back(e);
     return m_eventList.size()-1;
 }
-Event *UserEventHandler::getEvent(const size_t &index)
+Event *UserEventHandler::getEvent(const size_t &index) const
 {
     if(index >= m_eventList.size())
     {

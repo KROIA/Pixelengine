@@ -4,6 +4,7 @@
 #include "pixelengine.h"
 #include "wall.h"
 #include "player.h"
+#include "texture.h"
 
 extern PixelEngine     *engine;
 
