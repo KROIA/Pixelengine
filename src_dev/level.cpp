@@ -38,9 +38,11 @@ void setup_level()
     // Generate the engine
     unsigned int mapWidth = 300;
 
-    RECT dispaySize;
-    GetWindowRect(GetDesktopWindow(), &dispaySize);
-    PointU windowSize(dispaySize.right,dispaySize.bottom-60);
+    //RECT dispaySize;
+    //GetWindowRect(GetDesktopWindow(), &dispaySize);
+    //PointU windowSize(dispaySize.right,dispaySize.bottom-60);
+    double displayScale = 1.8;
+    PointU windowSize(1900*displayScale,1000*displayScale);
     engine = new PixelEngine (PointU(mapWidth,double(mapWidth)*double(windowSize.getY())/double(windowSize.getX())),windowSize);
     engine->set_setting_checkEventInterval(1.0f/30.0f);
     engine->set_setting_gameTickInterval(1.0f/120.0f);
