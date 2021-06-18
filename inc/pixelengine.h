@@ -11,13 +11,30 @@
 #include <chrono>
 
 #include "pixelDisplay.h"
-#include "point.h"
-#include "vector.h"
-#include "timer.h"
+#include "pixel.h"
 
 #include "gameobject.h"
 #include "gameObjectGroup.h"
 #include "gameObjectEventHandler.h"
+
+#include "collider.h"
+#include "controller.h"
+#include "keyController.h"
+#include "painter.h"
+#include "hitboxPainter.h"
+#include "property.h"
+#include "sensor.h"
+#include "texture.h"
+#include "animatedTexture.h"
+
+#include "event.h"
+#include "keyboard.h"
+#include "layeritem.h"
+#include "rect.h"
+#include "point.h"
+#include "vector.h"
+#include "timer.h"
+#include "userEventHandler.h"
 
 // When this is defined, all completely white pixels in an imported image
 // are treated the same as alpha channel pixels

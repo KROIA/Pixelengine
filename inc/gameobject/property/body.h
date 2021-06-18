@@ -15,6 +15,7 @@ namespace Property
         Grass,
         Wood,
         Stone,
+        Sand,
         Metal,
         Flesh
     };
@@ -49,6 +50,8 @@ namespace Property
                  return "Wood";
              case Material::Stone:
                  return "Stone";
+             case Material::Sand:
+                 return "Sand";
              case Material::Metal:
                  return "Metal";
              case Material::Flesh:
