@@ -40,7 +40,7 @@ void setup_level()
 
     RECT dispaySize;
     GetWindowRect(GetDesktopWindow(), &dispaySize);
-    PointU windowSize(dispaySize.right,dispaySize.bottom-20);
+    PointU windowSize(dispaySize.right,dispaySize.bottom-60);
     engine = new PixelEngine (PointU(mapWidth,double(mapWidth)*double(windowSize.getY())/double(windowSize.getX())),windowSize);
     engine->set_setting_checkEventInterval(1.0f/30.0f);
     engine->set_setting_gameTickInterval(1.0f/120.0f);
