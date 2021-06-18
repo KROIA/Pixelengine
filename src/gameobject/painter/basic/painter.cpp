@@ -211,5 +211,8 @@ void Painter::rotate_270(const PointF &rotationPoint)
 void Painter::setTexture(const Texture *texture)
 {
     this->clear();
+    Point oldPos = this->getPos();
+    this->setPos(Point(0,0));
     this->addPixel(texture->getPixels());
+    this->setPos(oldPos);
 }

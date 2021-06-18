@@ -110,6 +110,7 @@ SOURCES += \
         $$PixelEngine_srcPath/gameobject/sensor/basic/sensor.cpp \
         $$PixelEngine_srcPath/gameobject/wall.cpp \
         $$PixelEngine_srcPath/gameobject/texture/texture.cpp \
+        $$PixelEngine_srcPath/gameobject/texture/animatedTexture.cpp \
         $$PixelEngine_srcPath/utility/group/gameObjectGroup.cpp \
         $$PixelEngine_srcPath/utility/event.cpp \
         $$PixelEngine_srcPath/utility/userEventHandler.cpp \
@@ -135,6 +136,7 @@ HEADERS += \
         $$PixelEngine_incPath/gameobject/property/property.h \
         $$PixelEngine_incPath/gameobject/sensor/basic/sensor.h \
         $$PixelEngine_incPath/gameobject/texture/texture.h \
+        $$PixelEngine_incPath/gameobject/texture/animatedTexture.h \
         $$PixelEngine_incPath/gameobject/wall.h \
         $$PixelEngine_incPath/utility/event.h \
         $$PixelEngine_incPath/utility/userEventHandler.h \

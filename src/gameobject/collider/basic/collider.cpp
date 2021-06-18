@@ -283,7 +283,10 @@ void Collider::rotate_270(const PointF &rotationPoint)
 void Collider::setHitboxFromTexture(const Texture *texture)
 {
     this->clear();
+    Point lastPos = this->getPos();
+    this->setPos(0,0);
     this->addHitbox(texture->getRects());
+    this->setPos(lastPos);
 }
 
 

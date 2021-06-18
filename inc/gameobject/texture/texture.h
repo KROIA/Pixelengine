@@ -22,9 +22,10 @@ class Texture
         Texture();
         Texture(const Texture &other);
         virtual ~Texture();
+        virtual Texture &operator=(const Texture &other);
 
         virtual void setFilePath(const string &filePath);
-        virtual const string &getFileName() const;
+        virtual const string &getFilePath() const;
 
         virtual void setAlphaColor(const Color &alphaColor);
         virtual const Color &getAlphaColor() const;
@@ -38,7 +39,8 @@ class Texture
         virtual const vector<Pixel> &getPixels() const; // Returns all Pixel's of the Texture
         virtual const vector<Rect>  &getRects() const;  // Returns all Rects which cover the Texture (for collider)
 
-
+        virtual bool changesAvailable();
+        virtual void changesApplied();
 
     protected:
         virtual void fillPixelList(const Image &image);
@@ -50,6 +52,8 @@ class Texture
         Color  m_alpha;
         vector<Pixel> m_pixelList;
         vector<Rect>  m_pixelRectList;
+
+        bool   m_changesAvailable;
     private:
 
 

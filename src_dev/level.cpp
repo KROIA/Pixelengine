@@ -8,10 +8,14 @@ GameObject      *obstacle1;
 Wall            *wall1;
 GameObject      *imported;
 GameObjectGroup *objectGroup;
-
+AnimatedTexture *animatedTexture;
+GameObject      *waterBlock;
+AnimatedTexture *waterTexture;
+vector<AnimatedTexture *>waterTextureList;
 
 Timer statsTimer;
 Timer timer;
+Timer timer2;
 Timer fadeTimer;
 Timer dbgTimer;
 bool toggle = false;
@@ -34,9 +38,11 @@ void setup_level()
     // Generate the engine
     unsigned int mapWidth = 300;
 
-    RECT dispaySize;
-    GetWindowRect(GetDesktopWindow(), &dispaySize);
-    PointU windowSize(dispaySize.right,dispaySize.bottom-20);
+    //RECT dispaySize;
+    //GetWindowRect(GetDesktopWindow(), &dispaySize);
+    //PointU windowSize(dispaySize.right,dispaySize.bottom-60);
+    double displayScale = 1.8;
+    PointU windowSize(1900*displayScale,1000*displayScale);
     engine = new PixelEngine (PointU(mapWidth,double(mapWidth)*double(windowSize.getY())/double(windowSize.getX())),windowSize);
     engine->set_setting_checkEventInterval(1.0f/30.0f);
     engine->set_setting_gameTickInterval(1.0f/120.0f);
@@ -86,13 +92,50 @@ void setup_level()
     GameObjectGroup *boarderGroup = new GameObjectGroup();
     *boarderGroup = makeBoarder(engine);
 
+    // Make water Block
+    waterBlock = new GameObject();
+    waterTexture = new AnimatedTexture();
+    waterTexture->addTexture("..\\textures\\minecraft\\textures\\block\\water\\water_0.png");
+    waterTexture->addTexture("..\\textures\\minecraft\\textures\\block\\water\\water_1.png");
+    waterTexture->addTexture("..\\textures\\minecraft\\textures\\block\\water\\water_2.png");
+    waterTexture->addTexture("..\\textures\\minecraft\\textures\\block\\water\\water_3.png");
+    waterTexture->addTexture("..\\textures\\minecraft\\textures\\block\\water\\water_4.png");
+    waterTexture->addTexture("..\\textures\\minecraft\\textures\\block\\water\\water_5.png");
+    waterTexture->loadTexture();
+   /* waterBlock->setTexture(waterTexture);
+    waterBlock->loadTexture();
+    waterBlock->setHitboxFromTexture();
+    waterBlock->setTextureOnPainter();*/
+    GameObjectGroup *waterGroup = new GameObjectGroup();
+
+    Point offsetPos(30,30);
+    for(int x=0; x<3; x++)
+    {
+        for(int y=0; y<3; y++)
+        {
+            GameObject *obj = new GameObject(*waterBlock);
+            AnimatedTexture *texture = new AnimatedTexture(*waterTexture);
+            obj->setPos(Vector(offsetPos) + Vector(Point(x*16,y*16)));
+            obj->setTexture(texture);
+            obj->setHitboxFromTexture();
+            obj->setTextureOnPainter();
+
+            waterTextureList.push_back(texture);
+            waterGroup->add(obj);
+        }
+    }
+
+
+
     // Make Group of Objects for toggle Hitbox in loop below
     objectGroup = new GameObjectGroup();
+
 
     objectGroup->add(player);
     objectGroup->add(obstacle1);
     objectGroup->add(wall1);
     objectGroup->add(imported);
+    objectGroup->add(waterGroup);
     objectGroup->add(boarderGroup);
 
 
@@ -123,6 +166,7 @@ void setup_level()
     // engine->setRenderLayer_BOTTOM(background);
     engine->setRenderLayer_TOP(wall1);
     engine->setRenderLayer_BOTTOM(terainGroup);
+    engine->setRenderLayer_BOTTOM(waterGroup);
 
 
 
@@ -147,7 +191,7 @@ void userEventLoop(double tickInterval,unsigned long long tick)
     if(keyEvent_P->isSinking())
     {
         //qDebug() << "keyEvent_P Sinking";
-        engine->display_stats(!engine->display_stats());
+        engine->display_stats(!engine->display_stats(),Color(0,200,0),Point(1000,20));
     }
     if(keyEvent_O->isPressed())
     {
@@ -175,11 +219,36 @@ void userTickLoop(double tickInterval,unsigned long long tick)
 }
 void userDisplayLoop(double frameInterval,unsigned long long tick)
 {
-    if(timer.start(1)/* && !toggle*/)
+    if(timer2.start(1))
     {
+        toggle = !toggle;
+       /* if(toggle)
+            animatedTexture->select(1);
+        else
+            animatedTexture->select(0);*/
+
+        animatedTexture->selectForward();
 
         obstacle1->setPos(200,100);
-        toggle = !toggle;
+    }
+    if(timer.start(0.2)/* && !toggle*/)
+    {
+
+
+
+       /* unsigned int currentWaterFrame = waterTexture->getSelected();
+        if(currentWaterFrame == waterTexture->getTextureAmount()-1)
+            currentWaterFrame = 0;
+        else
+            currentWaterFrame++;
+
+        qDebug() << currentWaterFrame;
+        waterTexture->selectForward();*/
+        for(size_t i=0; i<waterTextureList.size(); i++)
+        {
+            waterTextureList[i]->selectForward();
+        }
+
     }
     if(fadeTimer.start(0.05))
     {
@@ -199,6 +268,12 @@ GameObject *getimportedObject()
     Collider   *collider    = new Collider();
     Painter    *painter     = new Painter();
     KeyController *controller = new KeyController();
+    animatedTexture         = new AnimatedTexture();
+    animatedTexture->addTexture("..\\textures\\minecraft\\textures\\block\\allium.png");
+    //animatedTexture->addTexture("..\\textures\\minecraft\\textures\\block\\grass_block_side.png");
+    animatedTexture->addTexture("..\\textures\\minecraft\\textures\\block\\allium_leaf.png");
+    animatedTexture->addTexture("..\\textures\\minecraft\\textures\\block\\grass4.png");
+
 
     controller->setKey_forMove_UP(KEYBOARD_KEY_I);
     controller->setKey_forMove_LEFT(KEYBOARD_KEY_J);
@@ -211,12 +286,13 @@ GameObject *getimportedObject()
     property.setBody_material(Property::Material::Grass);
     property.setType_description(Property::Description::dynamicObstacle);
     obj->setProperty(property);
-    obj->setPos(50,50);
+    obj->setPos(70,50);
 
     obj->setPainter(painter);
     obj->setCollider(collider);
     obj->addController(controller);
-    obj->setTexturePath("..\\textures\\minecraft\\textures\\block\\allium.png");
+    obj->setTexture(animatedTexture);
+    //obj->setTexturePath("..\\textures\\minecraft\\textures\\block\\allium.png");
     obj->loadTexture();
     obj->setHitboxFromTexture();
     obj->setTextureOnPainter();

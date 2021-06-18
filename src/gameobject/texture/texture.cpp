@@ -3,7 +3,8 @@
 Texture::Texture()
 {
     m_textureFileName = "";
-    setAlphaColor(Color(0,0,0,0));
+    m_changesAvailable = false;
+    m_alpha = Color(0,0,0,0);
 }
 Texture::Texture(const Texture &other)
 {
@@ -12,17 +13,28 @@ Texture::Texture(const Texture &other)
     this->m_alpha           = other.m_alpha;
     this->m_pixelList       = other.m_pixelList;
     this->m_pixelRectList   = other.m_pixelRectList;
+    this->m_changesAvailable= other.m_changesAvailable;
 }
 Texture::~Texture()
 {
 
+}
+Texture &Texture::operator=(const Texture &other)
+{
+    this->m_textureFileName = other.m_textureFileName;
+    this->m_image           = other.m_image;
+    this->m_alpha           = other.m_alpha;
+    this->m_pixelList       = other.m_pixelList;
+    this->m_pixelRectList   = other.m_pixelRectList;
+    this->m_changesAvailable= other.m_changesAvailable;
+    return *this;
 }
 
 void Texture::setFilePath(const string &filePath)
 {
     m_textureFileName = filePath;
 }
-const string &Texture::getFileName() const
+const string &Texture::getFilePath() const
 {
     return m_textureFileName;
 }
@@ -48,6 +60,7 @@ bool Texture::loadTexture()
 
     fillPixelList(m_image);
     calculateBoxes(m_pixelList);
+    m_changesAvailable = true;
 
     return true;
 }
@@ -63,6 +76,14 @@ const vector<Pixel> &Texture::getPixels() const
 const vector<Rect>  &Texture::getRects() const
 {
     return m_pixelRectList;
+}
+bool Texture::changesAvailable()
+{
+    return m_changesAvailable;
+}
+void Texture::changesApplied()
+{
+    m_changesAvailable = false;
 }
 
 
