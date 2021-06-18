@@ -5,6 +5,7 @@
 #include "point.h"
 #include "rect.h"
 #include "vector.h"
+#include "texture.h"
 
 using std::vector;
 
@@ -53,6 +54,8 @@ class Collider  :   public LayerItem
         virtual void rotate_180(const PointF &rotationPoint);
         virtual void rotate_270(const PointF &rotationPoint);
 
+        virtual void setHitboxFromTexture(const Texture *texture);
+
 
     protected:
 
@@ -61,10 +64,10 @@ class Collider  :   public LayerItem
         virtual void setBoundingBox(const int &x,const int &y,
                                     const int &width,const int &height);
 
-        virtual int getMinX();
-        virtual int getMaxX();
-        virtual int getMinY();
-        virtual int getMaxY();
+        virtual int getMinX() const;
+        virtual int getMaxX() const;
+        virtual int getMinY() const;
+        virtual int getMaxY() const;
 
         Rect  m_boundingBox;
         vector<Rect> m_hitboxList;

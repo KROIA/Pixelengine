@@ -7,6 +7,7 @@
 #include "pixel.h"
 #include "point.h"
 #include "vector.h"
+#include "texture.h"
 
 using std::vector;
 
@@ -22,9 +23,14 @@ class Painter   :   public  LayerItem
         virtual void reserve(const size_t amount);
 
         virtual void addPixel(const Pixel &pixel);
+        virtual void addPixel(const vector<Pixel> &pixelList);
         virtual const Pixel &getPixel(const size_t &index) const;
+        virtual const Pixel &getPixel(const Point &pixelPos) const;
+        virtual const Pixel &getPixel(int x, int y) const;
         virtual size_t getPixelAmount() const;
         virtual void setPixelColor(const size_t &index, const Color &color);
+        virtual void setPixelColor(const Point &pixelPos, const Color &color);
+        virtual void setPixelColor(int x, int y, const Color &color);
         virtual void setPixelColor(const Color &color);
 
         virtual void draw(PixelDisplay &display);
@@ -39,6 +45,8 @@ class Painter   :   public  LayerItem
         virtual const bool &isVisible() const;
 
         virtual void erasePixel(const size_t &index);
+        virtual void erasePixel(const Point &pixelPos);
+        virtual void erasePixel(int x, int y);
         virtual void clear(); // Deletes all pixels
 
         virtual double getRotation() const;
@@ -51,6 +59,8 @@ class Painter   :   public  LayerItem
         virtual void rotate_180(const PointF &rotationPoint);
         virtual void rotate_270(const PointF &rotationPoint);
 
+        virtual void setTexture(const Texture *texture);
+
     protected:
         vector<Pixel> m_pixelList;
         bool    m_isVisible;
@@ -60,5 +70,6 @@ class Painter   :   public  LayerItem
 
         virtual void rotate(const PointF &rotPoint,const double &rad);
 
+        Pixel m_const_dummy_pixel;
 };
 #endif

@@ -3,6 +3,8 @@
 Painter::Painter()
     :   LayerItem()
 {
+    m_const_dummy_pixel.setPos(0,0);
+    m_const_dummy_pixel.setColor(Color(0,0,0,0));
     setPos(0,0);
     setVisibility(true);
     m_rotationRad = 0;
@@ -33,9 +35,27 @@ void Painter::addPixel(const Pixel &pixel)
 {
     m_pixelList.push_back(pixel);
 }
+void Painter::addPixel(const vector<Pixel> &pixelList)
+{
+    for(const Pixel &p : pixelList)
+        addPixel(p);
+}
 const Pixel &Painter::getPixel(const size_t &index) const
 {
     return m_pixelList[index];
+}
+const Pixel &Painter::getPixel(const Point &pixelPos) const
+{
+    for(const Pixel &p : m_pixelList)
+    {
+        if(p.getPos() == pixelPos)
+            return p;
+    }
+    return m_const_dummy_pixel;
+}
+const Pixel &Painter::getPixel(int x, int y) const
+{
+    return getPixel(Point(x,y));
 }
 size_t Painter::getPixelAmount() const
 {
@@ -49,6 +69,18 @@ void Painter::setPixelColor(const Color &color)
 {
     for(size_t i=0; i<m_pixelList.size(); i++)
         m_pixelList[i].setColor(color);
+}
+void Painter::setPixelColor(const Point &pixelPos, const Color &color)
+{
+    for(Pixel &p : m_pixelList)
+    {
+        if(p.getPos() == pixelPos)
+            p.setColor(color);
+    }
+}
+void Painter::setPixelColor(int x, int y, const Color &color)
+{
+    setPixelColor(Point(x,y),color);
 }
 
 void Painter::draw(PixelDisplay &display)
@@ -110,6 +142,18 @@ void Painter::erasePixel(const size_t &index)
 {
     m_pixelList.erase(m_pixelList.begin()+index);
 }
+void Painter::erasePixel(const Point &pixelPos)
+{
+    for(size_t i=0; i<m_pixelList.size(); i++)
+    {
+        if(m_pixelList[i].getPos() == pixelPos)
+            erasePixel(i);
+    }
+}
+void Painter::erasePixel(int x, int y)
+{
+    erasePixel(Point(x,y));
+}
 void Painter::clear()
 {
     m_pixelList.clear();
@@ -162,4 +206,13 @@ void Painter::rotate_180(const PointF &rotationPoint)
 void Painter::rotate_270(const PointF &rotationPoint)
 {
     this->rotate(rotationPoint,-M_PI_2);
+}
+
+void Painter::setTexture(const Texture *texture)
+{
+    this->clear();
+    Point oldPos = this->getPos();
+    this->setPos(Point(0,0));
+    this->addPixel(texture->getPixels());
+    this->setPos(oldPos);
 }

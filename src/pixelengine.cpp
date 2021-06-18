@@ -675,7 +675,7 @@ double PixelEngine::random(double min, double max)
     int seed = now->tm_year + now->tm_mon + now->tm_mday + now->tm_hour + now->tm_min + now->tm_sec;
     return double((min*1000.0)+((seed*rand())%(int)((max-min)*1000.0)))/1000.0;
 }
-bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider, Painter *painter, const ImageOrigin &origin)
+/*bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider, Painter *painter, const ImageOrigin &origin)
 {
     Image image;
     if(!image.loadFromFile(picture))
@@ -797,7 +797,7 @@ bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider
     qDebug() << "Hitboxamount: "<<collider->getHitboxAmount();
 #endif
     return true;
-}
+}*/
 void PixelEngine::optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColliderList,const Point origin)
 {
     size_t width = 0;

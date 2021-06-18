@@ -49,10 +49,6 @@ class GeneralRect
         bool operator==(const GeneralRect<T> &other);
         bool operator!=(const GeneralRect<T> &other);
 
-        static void stats_reset();
-        static unsigned int stats_collisionCount;
-        static unsigned int stats_collisionCheckCount;
-
         static GeneralRect<T> rotate(GeneralRect<T> rect,const double &rad);
         static GeneralRect<T> rotate(GeneralRect<T> rect,const PointF &rotationPoint,const double &rad);
         static GeneralRect<T> rotate_90(GeneralRect<T> rect,const PointF &rotationPoint = PointF(0,0));
@@ -207,10 +203,8 @@ bool GeneralRect<T>::intersectsY(const GeneralRect<T> &other) const
 template<class T>
 bool GeneralRect<T>::intersects(const GeneralRect<T> &other) const
 {
-    stats_collisionCheckCount++;
     if(intersectsX(other) && intersectsY(other))
     {
-        stats_collisionCount++;
         return true;
     }
     return false;
@@ -242,16 +236,7 @@ bool GeneralRect<T>::operator!=(const GeneralRect<T> &other)
         return true;
     return false;
 }
-template<class T>
-unsigned int GeneralRect<T>::stats_collisionCount = 0;
-template<class T>
-unsigned int GeneralRect<T>::stats_collisionCheckCount = 0;
-template<class T>
-void GeneralRect<T>::stats_reset()
-{
-    stats_collisionCount      = 0;
-    stats_collisionCheckCount = 0;
-}
+
 template<class T>
 GeneralRect<T> GeneralRect<T>::rotate(GeneralRect<T> rect,const double &rad)
 {

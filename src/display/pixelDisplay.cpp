@@ -17,36 +17,6 @@ PixelDisplay::PixelDisplay(const PointU &windowSize, const PointU &pixelSize)
     m_sprite.setScale((double)windowSize.getX()/(double)pixelSize.getX(),
                       (double)windowSize.getY()/(double)pixelSize.getY());
 
-
-
-    // select the font
-   // sf::Font MyFont = new sf::Font();
-  /*  if (!m_font.loadFromFile("Fonts\\arial.ttf"))
-    {
-        qDebug()  << "can't load font";
-    }
-  //  sf::Text text;
-
-    // select the font
-    text.setFont(m_font); // font is a sf::Font
-
-    // set the string to display
-    text.setString("Hello world\n test");
-
-    // set the character size
-    text.setCharacterSize(24); // in pixels, not points!
-
-    // set the color
-    text.setFillColor(sf::Color::White);
-    text.setPosition(50,50);
-*/
-
-    // set the text style
-    //text.setStyle(sf::Text::Bold);
-
-
-
-    // inside the main loop, between window.clear() and window.display()
 }
 PixelDisplay::PixelDisplay(const PixelDisplay &other)
 {

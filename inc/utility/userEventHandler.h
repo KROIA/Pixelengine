@@ -20,7 +20,7 @@ class UserEventHandler
         virtual void checkEvent();
 
         virtual size_t addEvent(Event *e);            // Adds a Event and returns the index in the list.
-        virtual Event *getEvent(const size_t &index); // returns the Event at the index of the list.
+        virtual Event *getEvent(const size_t &index) const; // returns the Event at the index of the list.
         virtual void removeEvent(Event *e);
 
         // Receiver Signal
