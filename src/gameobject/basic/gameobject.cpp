@@ -10,6 +10,10 @@ GameObject::GameObject()
     m_texture       = new Texture();
    // m_texture->setAlphaColor(Color(255,255,255,255));
     m_objEventHandler = nullptr;
+    m_textureIsActiveForPainter         = false;
+    m_painterNeedsUpdateFromTexture     = false;
+    m_textureIsActiveForCollider        = false;
+    m_colliderNeedsUpdateFromTexture    = false;
     m_rotationDeg      = 90; // 90 deg
     setHitboxVisibility(false);
 }
@@ -32,7 +36,14 @@ GameObject::GameObject(Controller *controller,
     this->addController(controller);
     this->setCollider(collider);
     this->setPainter(painter);
-
+    m_texture         = new Texture();
+    m_objEventHandler = nullptr;
+    m_textureIsActiveForPainter         = false;
+    m_painterNeedsUpdateFromTexture     = false;
+    m_textureIsActiveForCollider        = false;
+    m_colliderNeedsUpdateFromTexture    = false;
+    m_rotationDeg      = 90; // 90 deg
+    setHitboxVisibility(false);
 }
 
 GameObject::~GameObject()
@@ -54,15 +65,26 @@ const GameObject &GameObject::operator=(const GameObject &other)
     this->m_property            = other.m_property;
     this->m_objEventHandler     = other.m_objEventHandler;
     this->m_rotationDeg         = other.m_rotationDeg;
+    this->m_textureIsActiveForPainter       = other.m_textureIsActiveForPainter;
+    this->m_painterNeedsUpdateFromTexture   = other.m_painterNeedsUpdateFromTexture;
+    this->m_textureIsActiveForCollider      = other.m_textureIsActiveForCollider;
+    this->m_colliderNeedsUpdateFromTexture  = other.m_colliderNeedsUpdateFromTexture;
+
     return *this;
 }
 void GameObject::checkEvent()
 {
+    this->checkTextureUpdateForCollider();
+    this->checkTextureUpdateForPainter();
+    m_texture->changesApplied();
+
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->checkEvent();
 }
 void GameObject::tick(const Point &direction)
 {
+    if(m_colliderNeedsUpdateFromTexture)
+        this->setHitboxFromTexture();
     m_layerItem.swapPosToLastPos();
     if(direction.getX() > 0)
     {
@@ -116,6 +138,8 @@ vector<GameObject*> GameObject::getCollidedObjects(GameObject *owner, Collider *
 
 void GameObject::draw(PixelDisplay &display)
 {
+    if(m_painterNeedsUpdateFromTexture)
+        this->setTextureOnPainter();
     m_painter->setPos(m_layerItem.getPos());
     m_hitboxPainter->setPos(m_layerItem.getPos());
     m_painter->draw(display);
@@ -340,11 +364,16 @@ void GameObject::updateBoundingBox()
 }
 void GameObject::setHitboxFromTexture()
 {
+    m_textureIsActiveForCollider = true;
     m_collider->setHitboxFromTexture(m_texture);
+    this->updateHitboxPainter();
+    m_colliderNeedsUpdateFromTexture = false;
 }
 void GameObject::setHitboxFromTexture(const Texture &texture)
 {
+    //m_textureIsActiveForCollider = true;
     m_collider->setHitboxFromTexture(&texture);
+    //m_colliderNeedsUpdateFromTexture = false;
 }
 void GameObject::setHitboxVisibility(const bool &isVisible)
 {
@@ -354,9 +383,25 @@ void GameObject::setHitboxVisibility(const bool &isVisible)
     }
     m_hitboxPainter->setVisibility(isVisible);
 }
+void GameObject::updateHitboxPainter()
+{
+    if(m_hitboxPainter->isVisible())
+    {
+        HitboxPainter::makeVisibleCollider(m_collider,m_hitboxPainter);
+    }
+}
 const bool &GameObject::isHitboxVisible() const
 {
     return m_hitboxPainter->isVisible();
+}
+bool GameObject::checkTextureUpdateForCollider()
+{
+    if(m_textureIsActiveForCollider && m_texture->changesAvailable())
+    {
+        m_colliderNeedsUpdateFromTexture = true;
+        return true;
+    }
+    return false;
 }
 
 void GameObject::reservePixelAmount(const size_t amount)
@@ -451,11 +496,23 @@ const Texture &GameObject::getTexture() const
 }
 void GameObject::setTextureOnPainter()
 {
+    m_textureIsActiveForPainter = true;
     m_painter->setTexture(m_texture);
+    m_painterNeedsUpdateFromTexture = false;
 }
 void GameObject::setTextureOnPainter(const Texture &texture)
 {
+    //m_textureIsActiveForPainter = true;
     m_painter->setTexture(&texture);
+}
+bool GameObject::checkTextureUpdateForPainter()
+{
+    if(m_textureIsActiveForPainter && m_texture->changesAvailable())
+    {
+        m_painterNeedsUpdateFromTexture = true;
+        return true;
+    }
+    return false;
 }
 
 

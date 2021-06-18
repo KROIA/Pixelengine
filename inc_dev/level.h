@@ -5,6 +5,7 @@
 #include "wall.h"
 #include "player.h"
 #include "texture.h"
+#include "animatedTexture.h"
 
 extern PixelEngine     *engine;
 
@@ -13,10 +14,15 @@ extern GameObject      *obstacle1;
 extern Wall            *wall1;
 extern GameObject      *imported;
 extern GameObjectGroup *objectGroup;
+extern AnimatedTexture *animatedTexture;
+extern GameObject      *waterBlock;
+extern AnimatedTexture *waterTexture;
+extern vector<AnimatedTexture *>waterTextureList;
 
 
 extern Timer statsTimer;
 extern Timer timer;
+extern Timer timer2;
 extern Timer fadeTimer;
 extern Timer dbgTimer;
 extern bool toggle;

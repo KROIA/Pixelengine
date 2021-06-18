@@ -76,7 +76,9 @@ class GameObject
         virtual void setHitboxFromTexture();
         virtual void setHitboxFromTexture(const Texture &texture);
         virtual void setHitboxVisibility(const bool &isVisible);
+        virtual void updateHitboxPainter();
         virtual const bool &isHitboxVisible() const;
+        virtual bool checkTextureUpdateForCollider();
 
         // Painter settings
         virtual void reservePixelAmount(const size_t amount);
@@ -102,6 +104,7 @@ class GameObject
         const virtual Texture &getTexture() const;
         virtual void setTextureOnPainter();
         virtual void setTextureOnPainter(const Texture &texture);
+        virtual bool checkTextureUpdateForPainter();
 
         // Properties
         virtual void setProperty(const Property::Property &property);
@@ -120,7 +123,12 @@ class GameObject
         Collider   *m_collider;
         Painter    *m_painter;
         Painter    *m_hitboxPainter;
+
         Texture    *m_texture;
+        bool        m_textureIsActiveForPainter;
+        bool        m_painterNeedsUpdateFromTexture;
+        bool        m_textureIsActiveForCollider;
+        bool        m_colliderNeedsUpdateFromTexture;
 
 
         unsigned int m_rotationDeg;
