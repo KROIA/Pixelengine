@@ -8,6 +8,7 @@
 #include "hitboxPainter.h"
 #include "dynamicCoordinator.h"
 #include "texture.h"
+#include "displayText.h"
 
 class GameObjectEventHandler;
 class GameObject;
@@ -24,14 +25,23 @@ class GameObject
         virtual ~GameObject();
         virtual const GameObject &operator=(const GameObject &other);
 
+        // Events
         virtual void checkEvent();
+        virtual void killMe();             // Not defined jet in the engine class
+        virtual void removeMeFromEngine(); // Removes this obj from the engine, but the obj won't get destroyed
+        virtual void deleteMeFromEngine(); // Removes this obj from the engine and destroyes it (delete call)
+
+
+        // called by the Engine
         virtual void tick(const Point &direction);
         virtual unsigned int checkCollision(const vector<GameObject*> &other);
+        virtual unsigned int checkCollision(const vector<vector<GameObject*> >&other);
         static vector<GameObject*> getCollidedObjects(GameObject *owner, Collider *collider,const vector<GameObject*> &other);
         virtual void draw(PixelDisplay &display);
 
-
+        // For user call
         virtual void addController(Controller *controller);
+        virtual void clearController();
         virtual void setCollider(Collider *collider);
         virtual const Collider &getCollider() const;
         virtual void setPainter(Painter *painter);
@@ -110,8 +120,17 @@ class GameObject
         virtual void setProperty(const Property::Property &property);
         virtual const Property::Property &getProperty() const;
 
+        // Text visualisation
+        virtual void addText(DisplayText *text);
+        virtual void removeText(DisplayText *text);
+        virtual void removeText();
+        virtual void deleteText(DisplayText *text);
+        virtual void deleteText();
+
+        virtual const vector<DisplayText*> &getTextList();
+
     protected:
-        virtual void event_hasCollision(GameObject *other);
+        virtual void event_hasCollision(vector<GameObject *> other);
 
         LayerItem m_layerItem;
 
@@ -130,6 +149,7 @@ class GameObject
         bool        m_textureIsActiveForCollider;
         bool        m_colliderNeedsUpdateFromTexture;
 
+        vector<DisplayText* > m_displayTextList;
 
         unsigned int m_rotationDeg;
 

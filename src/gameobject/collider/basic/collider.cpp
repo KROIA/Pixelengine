@@ -84,6 +84,7 @@ const Rect &Collider::getBoundingBox() const
     return m_boundingBox;
 }
 
+
 void Collider::reserve(const size_t &amount)
 {
     m_hitboxList.reserve(amount);
@@ -170,12 +171,7 @@ void Collider::updateBoundingBox()
 }
 void Collider::setBoundingBox()
 {
-    int minX = this->getMinX();
-    int minY = this->getMinY();
-    int maxX = this->getMaxX();
-    int maxY = this->getMaxY();
-    setBoundingBox(minX,minY,maxX-minX+1,maxY-minY+1);
-    m_boundingBoxUpdated = true;
+    setBoundingBox(Rect::getFrame(m_hitboxList));
 }
 void Collider::setBoundingBox(const Rect &box)
 {
@@ -191,54 +187,7 @@ void Collider::setBoundingBox(const int &x,const int &y,
     m_boundingBoxUpdated = true;
 }
 
-int Collider::getMinX() const
-{
-    if(m_hitboxList.size() == 0)
-        return 0;
-    int minX = m_hitboxList[0].getCornerPoint_TL().getX();
-    for(size_t i=1; i<m_hitboxList.size(); i++)
-    {
-        if(m_hitboxList[i].getCornerPoint_TL().getX() < minX)
-            minX = m_hitboxList[i].getCornerPoint_TL().getX();
-    }
-    return minX;
-}
-int Collider::getMaxX() const
-{
-    if(m_hitboxList.size() == 0)
-        return 0;
-    int maxX = m_hitboxList[0].getCornerPoint_BR().getX();
-    for(size_t i=1; i<m_hitboxList.size(); i++)
-    {
-        if(m_hitboxList[i].getCornerPoint_BR().getX() > maxX)
-            maxX = m_hitboxList[i].getCornerPoint_BR().getX();
-    }
-    return maxX;
-}
-int Collider::getMinY() const
-{
-    if(m_hitboxList.size() == 0)
-        return 0;
-    int minY = m_hitboxList[0].getCornerPoint_TL().getY();
-    for(size_t i=0; i<m_hitboxList.size(); i++)
-    {
-        if(m_hitboxList[i].getCornerPoint_TL().getY() < minY)
-            minY = m_hitboxList[i].getCornerPoint_TL().getY();
-    }
-    return minY;
-}
-int Collider::getMaxY() const
-{
-    if(m_hitboxList.size() == 0)
-        return 0;
-    int maxY = m_hitboxList[0].getCornerPoint_BL().getY();
-    for(size_t i=0; i<m_hitboxList.size(); i++)
-    {
-        if(m_hitboxList[i].getCornerPoint_BL().getY() > maxY)
-            maxY = m_hitboxList[i].getCornerPoint_BL().getY();
-    }
-    return maxY;
-}
+
 size_t Collider::getHitboxAmount() const
 {
     return m_hitboxList.size();

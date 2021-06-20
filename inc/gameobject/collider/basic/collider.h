@@ -25,6 +25,7 @@ class Collider  :   public LayerItem
 
         virtual const Rect &getBoundingBox() const;
 
+
         virtual void reserve(const size_t &amount);
 
         virtual void addHitbox(const Rect &box);
@@ -64,10 +65,7 @@ class Collider  :   public LayerItem
         virtual void setBoundingBox(const int &x,const int &y,
                                     const int &width,const int &height);
 
-        virtual int getMinX() const;
-        virtual int getMaxX() const;
-        virtual int getMinY() const;
-        virtual int getMaxY() const;
+
 
         Rect  m_boundingBox;
         vector<Rect> m_hitboxList;

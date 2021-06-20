@@ -96,6 +96,9 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/display
 
 SOURCES += \
+        $$PWD/src/display/displayText.cpp \
+        $$PWD/src/utility/group/InteractiveGameObject.cpp \
+        $$PWD/src/utility/group/InteractiveGameObjectGroup.cpp \
         $$PixelEngine_srcPath/gameobject/controller/basic/dynamicCoordinator.cpp \
         $$PixelEngine_srcPath/pixelengine.cpp \
         $$PixelEngine_srcPath/display/pixelDisplay.cpp \
@@ -112,12 +115,17 @@ SOURCES += \
         $$PixelEngine_srcPath/gameobject/texture/texture.cpp \
         $$PixelEngine_srcPath/gameobject/texture/animatedTexture.cpp \
         $$PixelEngine_srcPath/utility/group/gameObjectGroup.cpp \
+        $$PixelEngine_srcPath/utility/group/managedGameObjectGroup.cpp \
         $$PixelEngine_srcPath/utility/event.cpp \
         $$PixelEngine_srcPath/utility/userEventHandler.cpp \
         $$PixelEngine_srcPath/utility/timer.cpp \
         $$PixelEngine_srcPath/utility/layeritem.cpp
 
 HEADERS += \
+        $$PWD/inc/display/displayText.h \
+        $$PWD/inc/utility/group/InteractiveGameObject.h \
+        $$PWD/inc/utility/group/InteractiveGameObjectGroup.h \
+        $$PWD/inc/utility/group/groupManagerInterface.h \
         $$PixelEngine_incPath/gameobject/controller/basic/dynamicCoordinator.h \
         $$PixelEngine_incPath/gameobject/property/body.h \
         $$PixelEngine_incPath/gameobject/property/food.h \
@@ -141,6 +149,7 @@ HEADERS += \
         $$PixelEngine_incPath/utility/event.h \
         $$PixelEngine_incPath/utility/userEventHandler.h \
         $$PixelEngine_incPath/utility/group/gameObjectGroup.h \
+        $$PixelEngine_incPath/utility/group/managedGameObjectGroup.h \
         $$PixelEngine_incPath/utility/point.h \
         $$PixelEngine_incPath/utility/vector.h \
         $$PixelEngine_incPath/utility/timer.h \

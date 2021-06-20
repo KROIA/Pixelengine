@@ -5,6 +5,7 @@
 #include "vector"
 #include "point.h"
 #include "pixel.h"
+#include "displayText.h"
 
 using sf::Color;
 using sf::RenderWindow;
@@ -27,11 +28,11 @@ struct KeyEvent
 class PixelDisplay
 {
     public:
-        struct Text
+       /* struct Text
         {
                 sf::Text text;
                 bool     isVisible;
-        };
+        };*/
 
 
         PixelDisplay(const PointU &windowSize, const PointU &pixelSize);
@@ -47,21 +48,24 @@ class PixelDisplay
 
         virtual bool isOpen() const;
 
-       // virtual bool
+
         virtual sf::Event handleEvents();
         virtual sf::Event handleEvents(const KeyEvent &eventHandler);
         virtual sf::Event handleEvents(const vector<KeyEvent> &eventHandlerList);
 
-        virtual bool loadFontFromFile(const std::string& filename);
-        virtual bool addText(Text *text);       // This function will not own the Text Object!
-        virtual bool removeText(Text *text);
+        //virtual bool loadFontFromFile(const std::string& filename);
+        virtual bool addText(DisplayText *text);       // This function will not own the Text Object!
+        virtual bool removeText(DisplayText *text);
         virtual void clearText();
+
+        virtual PointU getWindowSize() const;
+        virtual PointU getMapSize() const;
 
     protected:
 
 
         PointU m_windowSize;
-        PointU m_pixelSize;
+        PointU m_pixelMapSize;
 
         RenderWindow *m_renderWindow;
         View m_windowView;
@@ -71,8 +75,8 @@ class PixelDisplay
 
         Color m_clearColor;
         //sf::Text text;
-        vector<Text*> m_textList;
-        sf::Font m_font;
+        vector<DisplayText*> m_textList;
+        //sf::Font m_font;
     private:
 
 

@@ -3,7 +3,7 @@
 PixelDisplay::PixelDisplay(const PointU &windowSize, const PointU &pixelSize)
 {
     m_windowSize = windowSize;
-    m_pixelSize  = pixelSize;
+    m_pixelMapSize  = pixelSize;
     m_renderWindow = new sf::RenderWindow(sf::VideoMode(m_windowSize.getX(),m_windowSize.getY()),
                                           "PixelDisplay");
 
@@ -11,7 +11,7 @@ PixelDisplay::PixelDisplay(const PointU &windowSize, const PointU &pixelSize)
     m_clearColor = Color(50,50,50);
 
 
-    m_image.create(m_pixelSize.getX(),m_pixelSize.getY(),m_clearColor);
+    m_image.create(m_pixelMapSize.getX(),m_pixelMapSize.getY(),m_clearColor);
     m_texture.loadFromImage(m_image);
     m_sprite.setTexture(m_texture);
     m_sprite.setScale((double)windowSize.getX()/(double)pixelSize.getX(),
@@ -21,7 +21,7 @@ PixelDisplay::PixelDisplay(const PointU &windowSize, const PointU &pixelSize)
 PixelDisplay::PixelDisplay(const PixelDisplay &other)
 {
      this->m_windowSize   = other.m_windowSize;
-     this->m_pixelSize    = other.m_pixelSize;
+     this->m_pixelMapSize    = other.m_pixelMapSize;
      this->m_renderWindow = other.m_renderWindow;
      this->m_windowView   = other.m_windowView;
      this->m_texture      = other.m_texture;
@@ -41,12 +41,14 @@ void PixelDisplay::display()
     m_renderWindow->clear();
     m_texture.loadFromImage(m_image);
     m_renderWindow->draw(m_sprite);
-    for(Text* &text : m_textList)
+    for(DisplayText* &text : m_textList)
     {
         if(text == nullptr)
             continue;
-        if(text->isVisible)
-            m_renderWindow->draw(text->text);
+        if(text->isVisible())
+        {
+            m_renderWindow->draw(text->getText());
+        }
     }
 
     m_renderWindow->display();
@@ -60,13 +62,13 @@ void PixelDisplay::clear()
 
 void PixelDisplay::setPixel(const PointU &pos, const Color &color)
 {
-    if(pos.getX() >= m_pixelSize.getX() || pos.getY() >= m_pixelSize.getY())
+    if(pos.getX() >= m_pixelMapSize.getX() || pos.getY() >= m_pixelMapSize.getY())
         return;
     m_image.setPixel(pos.getX(),pos.getY(),color);
 }
 void PixelDisplay::setPixel(const Pixel &pixel)
 {
-    if(unsigned(pixel.getX()) >= m_pixelSize.getX() || unsigned(pixel.getY()) >= m_pixelSize.getY())
+    if(unsigned(pixel.getX()) >= m_pixelMapSize.getX() || unsigned(pixel.getY()) >= m_pixelMapSize.getY())
         return;
     m_image.setPixel(pixel.getX(),pixel.getY(),pixel);
 }
@@ -161,7 +163,7 @@ sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
     return event;
 }
 
-bool PixelDisplay::loadFontFromFile(const std::string& filename)
+/*bool PixelDisplay::loadFontFromFile(const std::string& filename)
 {
     bool ret = m_font.loadFromFile(filename);
     if (!ret)
@@ -176,21 +178,23 @@ bool PixelDisplay::loadFontFromFile(const std::string& filename)
         }
     }
     return ret;
-}
-bool PixelDisplay::addText(Text *text)       // This function will not own the Text Object!
+}*/
+bool PixelDisplay::addText(DisplayText *text)       // This function will not own the Text Object!
 {
-    for(Text* &listedText : m_textList)
+    for(DisplayText* &listedText : m_textList)
     {
         if(listedText == text)
             return true;
         if(text == nullptr)
             return false;
     }
-    text->text.setFont(m_font);
+    //text->setFont(m_font);
+    if(m_pixelMapSize.getX() != 0)
+        text->setPixelRatio(double(m_windowSize.getX()) / double(m_pixelMapSize.getX()));
     m_textList.push_back(text);
     return true;
 }
-bool PixelDisplay::removeText(Text *text)
+bool PixelDisplay::removeText(DisplayText *text)
 {
     for(size_t i=0; i<m_textList.size(); i++)
     {
@@ -205,4 +209,12 @@ bool PixelDisplay::removeText(Text *text)
 void PixelDisplay::clearText()
 {
     m_textList.clear();
+}
+PointU PixelDisplay::getWindowSize() const
+{
+    return m_windowSize;
+}
+PointU PixelDisplay::getMapSize() const
+{
+    return m_pixelMapSize;
 }

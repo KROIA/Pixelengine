@@ -166,12 +166,34 @@ bool AnimatedTexture::loadTexture(unsigned int textureIndex, const string &fileP
 bool AnimatedTexture::addTexture(const string &filePath)
 {
     Texture *texture = new Texture();
+    texture->setOrigin(this->m_origin);
     bool success = texture->loadTexture(filePath);
     m_textureList.push_back(texture);
 
     if(m_textureList.size()-1 == m_selectedTexture)
         Texture::operator=(*m_textureList[m_textureList.size()-1]);
     return success;
+}
+
+void AnimatedTexture::setOriginType(Origin origin)
+{
+    Texture::setOriginType(origin);
+    for(size_t i=0; i<m_textureList.size(); i++)
+        m_textureList[i]->setOriginType(origin);
+}
+Texture::Origin AnimatedTexture::getOriginType() const
+{
+    Texture::getOriginType();
+}
+void AnimatedTexture::setOrigin(const Point &origin)
+{
+    Texture::setOrigin(origin);
+    for(size_t i=0; i<m_textureList.size(); i++)
+        m_textureList[i]->setOrigin(origin);
+}
+const Point &AnimatedTexture::getOrigin() const
+{
+    Texture::getOrigin();
 }
 
 vector< vector<Pixel>  > AnimatedTexture::getPixelsList() const

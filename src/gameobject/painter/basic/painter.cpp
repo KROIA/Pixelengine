@@ -7,6 +7,7 @@ Painter::Painter()
     m_const_dummy_pixel.setColor(Color(0,0,0,0));
     setPos(0,0);
     setVisibility(true);
+    setFrameVisibility(false);
     m_rotationRad = 0;
 }
 Painter::Painter(const Painter &other)
@@ -24,6 +25,7 @@ const Painter &Painter::operator=(const Painter &other)
     LayerItem::operator=(other);
     this->m_pixelList  = other.m_pixelList;
     this->m_isVisible  = other.m_isVisible;
+    this->m_frameVisible = other.m_frameVisible;
     this->m_rotationRad= other.m_rotationRad;
     return *this;
 }
@@ -33,12 +35,14 @@ void Painter::reserve(const size_t amount)
 }
 void Painter::addPixel(const Pixel &pixel)
 {
-    m_pixelList.push_back(pixel);
+    internalAddPixel(pixel);
+    updateFrame();
 }
 void Painter::addPixel(const vector<Pixel> &pixelList)
 {
     for(const Pixel &p : pixelList)
-        addPixel(p);
+        internalAddPixel(p);
+    updateFrame();
 }
 const Pixel &Painter::getPixel(const size_t &index) const
 {
@@ -70,6 +74,18 @@ void Painter::setPixelColor(const Color &color)
     for(size_t i=0; i<m_pixelList.size(); i++)
         m_pixelList[i].setColor(color);
 }
+Rect Painter::getFrame() const
+{
+    return m_frame;
+}
+void Painter::setFrameVisibility(bool isVisible)
+{
+    m_frameVisible = isVisible;
+}
+bool Painter::isFrameVisible()
+{
+    return m_frameVisible;
+}
 void Painter::setPixelColor(const Point &pixelPos, const Color &color)
 {
     for(Pixel &p : m_pixelList)
@@ -86,7 +102,21 @@ void Painter::setPixelColor(int x, int y, const Color &color)
 void Painter::draw(PixelDisplay &display)
 {
     if(m_isVisible)
+    {
         display.setPixel(m_pixelList);
+        if(m_frameVisible)
+        {
+            Color frameColor(255,0,0,255);
+            Pixel p1(m_frame.getCornerPoint_TL(),frameColor);
+            Pixel p2(m_frame.getCornerPoint_TR(),frameColor);
+            Pixel p3(m_frame.getCornerPoint_BL(),frameColor);
+            Pixel p4(m_frame.getCornerPoint_BR(),frameColor);
+            display.setPixel(p1);
+            display.setPixel(p2);
+            display.setPixel(p3);
+            display.setPixel(p4);
+        }
+    }
 }
 
 void Painter::setPos(const Point &pos)
@@ -97,9 +127,11 @@ void Painter::setPos(const Point &pos)
                    pos.getY() - LayerItem::getY());
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
-        m_pixelList[i].setX(m_pixelList[i].getX() + deltaPos.getX());
-        m_pixelList[i].setY(m_pixelList[i].getY() + deltaPos.getY());
+        m_pixelList[i].setPos(Vector(m_pixelList[i].getPos()) + Vector(deltaPos));
+   //     m_pixelList[i].setX(m_pixelList[i].getX() + deltaPos.getX());
+   //     m_pixelList[i].setY(m_pixelList[i].getY() + deltaPos.getY());
     }
+    m_frame.setPos(Vector(m_frame.getPos()) + Vector(deltaPos));
     LayerItem::setPos(pos);
 }
 void Painter::setPos(int x, int y)
@@ -117,6 +149,7 @@ void Painter::setX(int x)
     {
         m_pixelList[i].setX(m_pixelList[i].getX() + deltaX);
     }
+    m_frame.setX(m_frame.getPos().getX() + deltaX);
     LayerItem::setX(x);
 }
 void Painter::setY(int y)
@@ -128,6 +161,7 @@ void Painter::setY(int y)
     {
         m_pixelList[i].setY(m_pixelList[i].getY() + deltaY);
     }
+    m_frame.setY(m_frame.getPos().getY() + deltaY);
     LayerItem::setY(y);
 }
 void Painter::setVisibility(const bool &isVisible)
@@ -141,6 +175,7 @@ const bool &Painter::isVisible() const
 void Painter::erasePixel(const size_t &index)
 {
     m_pixelList.erase(m_pixelList.begin()+index);
+    updateFrame();
 }
 void Painter::erasePixel(const Point &pixelPos)
 {
@@ -157,6 +192,8 @@ void Painter::erasePixel(int x, int y)
 void Painter::clear()
 {
     m_pixelList.clear();
+    m_frame.setPos(0,0);
+    m_frame.setSize(0,0);
 }
 void Painter::rotate(const PointF &rotPoint,const double &rad)
 {
@@ -168,7 +205,7 @@ void Painter::rotate(const PointF &rotPoint,const double &rad)
     }
     m_rotationRad += rad;
     m_rotationRad = double(int(m_rotationRad*1000) % int(2*M_PI *1000))/1000.f;
-
+    updateFrame();
 }
 
 double Painter::getRotation() const
@@ -213,6 +250,25 @@ void Painter::setTexture(const Texture *texture)
     this->clear();
     Point oldPos = this->getPos();
     this->setPos(Point(0,0));
-    this->addPixel(texture->getPixels());
+    this->internalAddPixel(texture->getPixels());
+    this->m_frame = texture->getFrame();
     this->setPos(oldPos);
+}
+void Painter::internalAddPixel(const Pixel &pixel)
+{
+    m_pixelList.push_back(pixel);
+}
+void Painter::internalAddPixel(const vector<Pixel> &pixelList)
+{
+    for(const Pixel &p : pixelList)
+        internalAddPixel(p);
+}
+void Painter::updateFrame()
+{
+    vector<Rect> pixelRects(m_pixelList.size(),Rect(Point(0,0),Point(1,1)));
+    for(size_t i=0; i<m_pixelList.size(); i++)
+    {
+        pixelRects[i].setPos(m_pixelList[i].getPos());
+    }
+    m_frame = Rect::getFrame(pixelRects);
 }

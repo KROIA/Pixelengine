@@ -48,12 +48,12 @@ GameObject::GameObject(Controller *controller,
 
 GameObject::~GameObject()
 {
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        delete m_controllerList[i];
-    m_controllerList.clear();
+    removeText();
+    clearController();
     delete m_collider;
     delete m_painter;
     delete m_hitboxPainter;
+    delete m_texture;
 }
 const GameObject &GameObject::operator=(const GameObject &other)
 {
@@ -81,6 +81,22 @@ void GameObject::checkEvent()
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->checkEvent();
 }
+void GameObject::killMe()
+{
+    if(m_objEventHandler != nullptr)
+        m_objEventHandler->kill(this);
+}
+void GameObject::removeMeFromEngine()
+{
+    if(m_objEventHandler != nullptr)
+        m_objEventHandler->removeFromEngine(this);
+}
+void GameObject::deleteMeFromEngine()
+{
+    if(m_objEventHandler != nullptr)
+        m_objEventHandler->deleteObject(this);
+}
+
 void GameObject::tick(const Point &direction)
 {
     if(m_colliderNeedsUpdateFromTexture)
@@ -113,7 +129,26 @@ unsigned int GameObject::checkCollision(const vector<GameObject*> &other)
     vector<GameObject*> collided = GameObject::getCollidedObjects(this, m_collider, other);
     if(collided.size() > 0)
     {
-        event_hasCollision(collided[0]);
+        event_hasCollision(collided);
+    }
+    return collided.size();
+}
+unsigned int GameObject::checkCollision(const vector<vector<GameObject*> >&other)
+{
+    vector<GameObject*> collided;
+    for(size_t i=0; i<other.size(); i++)
+    {
+        vector<GameObject*> coll = GameObject::getCollidedObjects(this, m_collider, other[i]);
+        collided.reserve(collided.size() + coll.size());
+        for(size_t j=0; j<coll.size(); j++)
+        {
+            collided.push_back(coll[i]);
+        }
+
+    }
+    if(collided.size() > 0)
+    {
+        event_hasCollision(collided);
     }
     return collided.size();
 }
@@ -142,6 +177,21 @@ void GameObject::draw(PixelDisplay &display)
         this->setTextureOnPainter();
     m_painter->setPos(m_layerItem.getPos());
     m_hitboxPainter->setPos(m_layerItem.getPos());
+    int outOfFrameBoundry = 16;
+    if(m_layerItem.getX() > signed(display.getMapSize().getX()) + outOfFrameBoundry)
+        return;
+    if(m_layerItem.getY() > signed(display.getMapSize().getY()) + outOfFrameBoundry)
+        return;
+    if(m_layerItem.getX() < -outOfFrameBoundry)
+        return;
+    if(m_layerItem.getY() < -outOfFrameBoundry)
+        return;
+
+
+    /*if(!this->m_painter->getFrame().intersects(Rect(10,10,display.getMapSize().getX()-20,display.getMapSize().getY()-20)))
+    {
+        return;
+    }*/
     m_painter->draw(display);
     m_hitboxPainter->draw(display);
 }
@@ -156,6 +206,12 @@ void GameObject::addController(Controller *controller)
             return;
 
     m_controllerList.push_back(controller);
+}
+void GameObject::clearController()
+{
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        delete m_controllerList[i];
+    m_controllerList.clear();
 }
 
 void GameObject::setCollider(Collider *collider)
@@ -183,6 +239,13 @@ const Painter &GameObject::getPainter() const
 void GameObject::setEventHandler(GameObjectEventHandler *handler)
 {
     m_objEventHandler = handler;
+
+    if(m_objEventHandler == nullptr)
+        return;
+    if(m_displayTextList.size() != 0)
+        for(DisplayText* &text : m_displayTextList)
+            m_objEventHandler->addDisplayText(text);
+
 }
 
 void GameObject::setPos(const int &x,const int &y)
@@ -524,7 +587,74 @@ const Property::Property &GameObject::getProperty() const
 {
     return m_property;
 }
-void GameObject::event_hasCollision(GameObject *other)
+
+
+// Text visualisation
+void GameObject::addText(DisplayText *text)
+{
+    if(text == nullptr)
+        return;
+    for(DisplayText* &t : m_displayTextList)
+    {
+        if(t == text)
+            return;
+    }
+    m_displayTextList.push_back(text);
+    if(m_objEventHandler != nullptr)
+        m_objEventHandler->addDisplayText(text);
+}
+void GameObject::removeText(DisplayText *text)
+{
+    if(text == nullptr)
+        return;
+    for(size_t i=0; i<m_displayTextList.size(); i++)
+    {
+        if(m_displayTextList[i] == text)
+        {
+            if(m_objEventHandler != nullptr)
+                m_objEventHandler->removeDisplayText(text);
+            m_displayTextList.erase(m_displayTextList.begin() + i);
+        }
+    }
+}
+void GameObject::removeText()
+{
+    m_displayTextList.clear();
+}
+void GameObject::deleteText(DisplayText *text)
+{
+    if(text == nullptr)
+        return;
+    for(size_t i=0; i<m_displayTextList.size(); i++)
+    {
+        if(m_displayTextList[i] == text)
+        {
+            if(m_objEventHandler != nullptr)
+                m_objEventHandler->removeDisplayText(text);
+            delete m_displayTextList[i];
+            m_displayTextList.erase(m_displayTextList.begin() + i);
+        }
+    }
+}
+void GameObject::deleteText()
+{
+    for(size_t i=0; i<m_displayTextList.size(); i++)
+    {
+        if(m_objEventHandler != nullptr)
+            m_objEventHandler->removeDisplayText(m_displayTextList[i]);
+        delete m_displayTextList[i];
+    }
+    m_displayTextList.clear();
+}
+
+const vector<DisplayText*> &GameObject::getTextList()
+{
+    return m_displayTextList;
+}
+
+
+
+void GameObject::event_hasCollision(vector<GameObject *> other)
 {
     if(m_objEventHandler != nullptr)
         m_objEventHandler->collisionOccured(this,other);

@@ -38,10 +38,13 @@ class GameObjectGroup
         virtual void setX(const int &x);
         virtual void setY(const int &y);
 
-        virtual void moveToPos(const Point &destination);
-        virtual void moveToPos(const int &x,const int &y);
-        virtual void move(const Point &directionVector);
-        virtual void move(int x,int y);
+        virtual void moveToPos(const Point &destination,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveToPos(const int &x,const int &y,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void move(const Vector &vec,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void move(const VectorF &vec,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void move(const double &deltaX, const double &deltaY,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveX(const double &delta,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveY(const double &delta,Controller::MovingMode mode = Controller::MovingMode::add);
 
         virtual void setRotation(const double &deg);
         virtual void rotate_90();
@@ -57,14 +60,19 @@ class GameObjectGroup
         virtual void setHitboxVisibility(const bool &isVisible);
         virtual const bool &isHitboxVisible() const;
 
+        virtual long long indexOf(const GameObject* obj);
+        static  long long indexOf(const vector<GameObject *> list,const GameObject* obj);
 
+        static void removeDuplicates(vector<GameObject *> *list);
+        static void removeDuplicates(GameObjectGroup *list);
 
     protected:
         bool m_isVisible;
         bool m_hitboxIsVisible;
 
-        vector<GameObject *> m_list;
+        vector<GameObject *> m_isInList;
     private:
+
 
 };
 #endif // GAMEOBJECTGROUP_H

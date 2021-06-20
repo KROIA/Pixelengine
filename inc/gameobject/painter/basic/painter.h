@@ -32,6 +32,9 @@ class Painter   :   public  LayerItem
         virtual void setPixelColor(const Point &pixelPos, const Color &color);
         virtual void setPixelColor(int x, int y, const Color &color);
         virtual void setPixelColor(const Color &color);
+        virtual Rect getFrame() const;
+        virtual void setFrameVisibility(bool isVisible);
+        virtual bool isFrameVisible();
 
         virtual void draw(PixelDisplay &display);
 
@@ -62,10 +65,16 @@ class Painter   :   public  LayerItem
         virtual void setTexture(const Texture *texture);
 
     protected:
+        virtual void internalAddPixel(const Pixel &pixel);
+        virtual void internalAddPixel(const vector<Pixel> &pixelList);
+        virtual void updateFrame();
+
         vector<Pixel> m_pixelList;
         bool    m_isVisible;
 
         double  m_rotationRad;
+        Rect    m_frame;
+        bool    m_frameVisible;
     private:
 
         virtual void rotate(const PointF &rotPoint,const double &rad);

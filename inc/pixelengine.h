@@ -1,6 +1,5 @@
 #ifndef PIXELENGINE_H
 #define PIXELENGINE_H
-//test1
 
 #include "iostream"
 #include "stdio.h"
@@ -15,6 +14,10 @@
 
 #include "gameobject.h"
 #include "gameObjectGroup.h"
+#include "managedGameObjectGroup.h"
+#include "InteractiveGameObject.h"
+#include "InteractiveGameObjectGroup.h"
+#include "groupManagerInterface.h"
 #include "gameObjectEventHandler.h"
 
 #include "collider.h"
@@ -63,7 +66,7 @@ enum ImageOrigin
 };
 
 
-class PixelEngine   :   public GameObjectEventHandler
+class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerInterface
 {
 
 
@@ -113,11 +116,11 @@ class PixelEngine   :   public GameObjectEventHandler
 
 
         virtual void addGameObject(GameObject *obj);
-        virtual void addGameObject(GameObjectGroup *group);
+        virtual void addGameObject(ManagedGameObjectGroup *group);
         virtual void removeGameObject(GameObject *obj);
-        virtual void removeGameObject(GameObjectGroup *group);
+        virtual void removeGameObject(ManagedGameObjectGroup *group);
         virtual void deleteGameObject(GameObject *obj);
-        virtual void deleteGameObject(GameObjectGroup *group);
+        virtual void deleteGameObject(ManagedGameObjectGroup *group);
 
         // obj1 only interacts with obj2 not obj2 with obj1
         virtual void setCollisionSingleInteraction(GameObject                *obj1      ,GameObject                *obj2    , const bool &doesCollide = true);
@@ -138,9 +141,9 @@ class PixelEngine   :   public GameObjectEventHandler
         virtual void setCollisionMultiInteraction(const vector<GameObject*>  &obj1List  ,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
 
         // Groups
-        virtual void addGroup(GameObjectGroup *group);
-        virtual void removeGroup(GameObjectGroup *group); // Removes the Group from the engine.
-        virtual void deleteGroup(GameObjectGroup *group); // Removes the Group from the engine and deletes the pointer to the Group.
+        virtual void addGroup(ManagedGameObjectGroup *group);
+        virtual void removeGroup(ManagedGameObjectGroup *group); // Removes the Group from the engine.
+        virtual void deleteGroup(ManagedGameObjectGroup *group); // Removes the Group from the engine and deletes the pointer to the Group.
 
         // Rendering
         virtual void moveRenderLayer_UP(GameObject *obj);
@@ -157,7 +160,9 @@ class PixelEngine   :   public GameObjectEventHandler
         virtual void kill(GameObject *obj);
         virtual void removeFromEngine(GameObject *obj);
         virtual void deleteObject(GameObject *obj);
-        virtual void collisionOccured(GameObject *obj1,GameObject *obj2);
+        virtual void collisionOccured(GameObject *obj1,vector<GameObject *> obj2);
+        virtual void addDisplayText(DisplayText *text);
+        virtual void removeDisplayText(DisplayText *text);
 
         // General functions
         static double random(double min, double max);
@@ -178,17 +183,25 @@ class PixelEngine   :   public GameObjectEventHandler
         virtual void tickY();
         virtual void tickXY(const Point &dirLock);
         virtual void updateText();
+        virtual void checkForUserGroupChanges(); // Check if any Object of a added List was removed or added
 
     private:
+        virtual void addGameObject(GameObjectGroup *group); // won't add the list to de m_userGroups
+        virtual void addGameObject(const vector<GameObject *> &list);
+        virtual void removeGameObject(const vector<GameObject *> &list);
+        virtual void deleteGameObject(const vector<GameObject *> &list);
+
         static void optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outputColliderList);
 
 
         static void removeObjectFromList(GameObjectGroup &group,GameObject* obj);
         static void removeObjectFromList(vector<GameObjectGroup> &list,GameObject* obj);
         static void removeObjectFromList(vector<GameObjectGroup> &list,GameObjectGroup *obj);
-        static void removeObjectFromList(GameObjectGroup* &Group,GameObject* obj);
+        static void removeObjectFromList(GameObjectGroup* &group,GameObject* obj);
         static void removeObjectFromList(vector<GameObjectGroup*> &list,GameObject* obj);
         static void removeObjectFromList(vector<GameObjectGroup*> &list,GameObjectGroup *obj);
+
+        static void removeObjectFromList_unmanaged(vector<ManagedGameObjectGroup*> &list,GameObject* obj);
 
         virtual void resetStatistics();
         virtual void updateStatsText();
@@ -205,12 +218,13 @@ class PixelEngine   :   public GameObjectEventHandler
         Timer *m_displayTimer;
         double m_displayInterval; // sec.
 
-        GameObjectGroup         m_mastergameObjectGroup;
-        vector<GameObjectGroup> m_mastergameObjectGroup_collisionInteractiveList;
+        //GameObjectGroup         m_masterGameObjectGroup;
+        //vector<GameObjectGroup> m_masterGameObjectGroup_collisionInteractiveList;
+        InteractiveGameObjectGroup  m_masterGameObjectGroup;
 
         vector<GameObjectGroup> m_renderLayer;
 
-        vector<GameObjectGroup*> m_userGroups;
+        vector<ManagedGameObjectGroup*> m_userGroups;
 
         p_func m_p_func_userCheckEventLoop;
         p_func m_p_func_userDisplayLoop;
@@ -230,7 +244,7 @@ class PixelEngine   :   public GameObjectEventHandler
         std::chrono::high_resolution_clock::time_point m_stats_tps_timer_start;
         std::chrono::high_resolution_clock::time_point m_stats_tps_timer_end;
 
-        PixelDisplay::Text *m_stats_text;
+        DisplayText *m_stats_text;
 #endif
 };
 #endif // PIXELENGINE_H
