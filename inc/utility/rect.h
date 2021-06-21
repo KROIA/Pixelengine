@@ -4,6 +4,8 @@
 #include "point.h"
 #include "vector.h"
 
+#include "profiler.h"
+
 template<class T>
 class GeneralRect;
 

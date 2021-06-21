@@ -58,6 +58,7 @@ void DynamicCoordinator::addMovement(const Vector &vec)
 
 void DynamicCoordinator::calculateMovement()
 {
+    EASY_FUNCTION(profiler::colors::Pink600);
     VectorF sum = VectorF::sum(m_vecList);
     this->clearMovement();
 
@@ -100,6 +101,7 @@ const double       &DynamicCoordinator::getMovingVector_Y() const
 }
 Vector        DynamicCoordinator::getRoundedVector() const
 {
+    EASY_FUNCTION(profiler::colors::Pink500);
     Vector ret(0,0);
     if(m_xStepInterval > 0 && m_neededSteps != 0)
     if(m_xStepCounter % m_xStepInterval == 0)

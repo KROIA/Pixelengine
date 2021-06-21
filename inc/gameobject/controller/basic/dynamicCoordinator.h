@@ -4,6 +4,8 @@
 #include "vector.h"
 #include "vector"
 
+#include "profiler.h"
+
 using std::vector;
 
 class DynamicCoordinator

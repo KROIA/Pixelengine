@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <math.h>
 
+#include "profiler.h"
+
 template<class T>
 class GeneralPoint;
 

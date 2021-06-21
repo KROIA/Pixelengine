@@ -10,6 +10,8 @@
 #include "userEventHandler.h"
 #include "event.h"
 
+#include "profiler.h"
+
 using std::vector;
 
 class Controller    :   public UserEventHandler//, public LayerItem

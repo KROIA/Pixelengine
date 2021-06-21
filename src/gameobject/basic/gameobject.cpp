@@ -74,6 +74,7 @@ const GameObject &GameObject::operator=(const GameObject &other)
 }
 void GameObject::checkEvent()
 {
+    EASY_FUNCTION(profiler::colors::Green);
     this->checkTextureUpdateForCollider();
     this->checkTextureUpdateForPainter();
     m_texture->changesApplied();
@@ -83,27 +84,32 @@ void GameObject::checkEvent()
 }
 void GameObject::killMe()
 {
+    EASY_FUNCTION(profiler::colors::Green50);
     if(m_objEventHandler != nullptr)
         m_objEventHandler->kill(this);
 }
 void GameObject::removeMeFromEngine()
 {
+    EASY_FUNCTION(profiler::colors::Green100);
     if(m_objEventHandler != nullptr)
         m_objEventHandler->removeFromEngine(this);
 }
 void GameObject::deleteMeFromEngine()
 {
+    EASY_FUNCTION(profiler::colors::Green200);
     if(m_objEventHandler != nullptr)
         m_objEventHandler->deleteObject(this);
 }
 
 void GameObject::tick(const Point &direction)
 {
+    EASY_FUNCTION(profiler::colors::Green300);
     if(m_colliderNeedsUpdateFromTexture)
         this->setHitboxFromTexture();
     m_layerItem.swapPosToLastPos();
     if(direction.getX() > 0)
     {
+        EASY_BLOCK("for(size_t i=0; i<m_controllerList.size(); i++)",profiler::colors::Green300);
         for(size_t i=0; i<m_controllerList.size(); i++)
         {
             if(m_controllerList[i]->getMovingMode() == Controller::MovingMode::override)
@@ -113,6 +119,7 @@ void GameObject::tick(const Point &direction)
         }
         m_movementCoordinator.calculateMovement();
         m_layerItem.moveX_F(m_movementCoordinator.getMovingVector_X());
+        EASY_END_BLOCK;
     }
     else
     {
@@ -126,6 +133,7 @@ void GameObject::tick(const Point &direction)
 
 unsigned int GameObject::checkCollision(const vector<GameObject*> &other)
 {
+    EASY_FUNCTION(profiler::colors::Green400);
     vector<GameObject*> collided = GameObject::getCollidedObjects(this, m_collider, other);
     if(collided.size() > 0)
     {
@@ -135,6 +143,7 @@ unsigned int GameObject::checkCollision(const vector<GameObject*> &other)
 }
 unsigned int GameObject::checkCollision(const vector<vector<GameObject*> >&other)
 {
+    EASY_FUNCTION(profiler::colors::Green500);
     vector<GameObject*> collided;
     for(size_t i=0; i<other.size(); i++)
     {
@@ -154,6 +163,7 @@ unsigned int GameObject::checkCollision(const vector<vector<GameObject*> >&other
 }
 vector<GameObject*> GameObject::getCollidedObjects(GameObject *owner, Collider *collider,const vector<GameObject*> &other)
 {
+    EASY_FUNCTION(profiler::colors::Green600);
     vector<GameObject*> collided;
     collided.reserve(10);
     for(size_t i=0; i<other.size(); i++)
@@ -173,6 +183,7 @@ vector<GameObject*> GameObject::getCollidedObjects(GameObject *owner, Collider *
 
 void GameObject::draw(PixelDisplay &display)
 {
+    EASY_FUNCTION(profiler::colors::Green700);
     if(m_painterNeedsUpdateFromTexture)
         this->setTextureOnPainter();
     m_painter->setPos(m_layerItem.getPos());
@@ -198,6 +209,7 @@ void GameObject::draw(PixelDisplay &display)
 
 void GameObject::addController(Controller *controller)
 {
+    EASY_FUNCTION(profiler::colors::Green800);
     if(controller == nullptr)
         return;
 
@@ -209,6 +221,7 @@ void GameObject::addController(Controller *controller)
 }
 void GameObject::clearController()
 {
+    EASY_FUNCTION(profiler::colors::Green900);
     for(size_t i=0; i<m_controllerList.size(); i++)
         delete m_controllerList[i];
     m_controllerList.clear();
@@ -216,6 +229,7 @@ void GameObject::clearController()
 
 void GameObject::setCollider(Collider *collider)
 {
+    EASY_FUNCTION(profiler::colors::GreenA100);
     if(m_collider == collider || collider == nullptr)
         return;
     delete m_collider;
@@ -227,6 +241,7 @@ const Collider &GameObject::getCollider() const
 }
 void GameObject::setPainter(Painter *painter)
 {
+    EASY_FUNCTION(profiler::colors::GreenA200);
     if(m_painter == painter || painter == nullptr)
         return;
     delete m_painter;
@@ -238,6 +253,7 @@ const Painter &GameObject::getPainter() const
 }
 void GameObject::setEventHandler(GameObjectEventHandler *handler)
 {
+    EASY_FUNCTION(profiler::colors::GreenA400);
     m_objEventHandler = handler;
 
     if(m_objEventHandler == nullptr)
@@ -250,50 +266,61 @@ void GameObject::setEventHandler(GameObjectEventHandler *handler)
 
 void GameObject::setPos(const int &x,const int &y)
 {
+    EASY_FUNCTION(profiler::colors::GreenA700);
     m_layerItem.setPosInitial(x,y);
     //m_collider->setPos(x,y);
    // m_painter->setPos(x,y);
 }
 void GameObject::setPos(const Point &pos)
 {
+    EASY_FUNCTION(profiler::colors::GreenA700);
     m_layerItem.setPosInitial(pos);
 }
 
 void GameObject::setX(const int &x)
 {
+    EASY_FUNCTION(profiler::colors::GreenA700);
     m_layerItem.setPosInitial(x,m_layerItem.getY());
 }
 void GameObject::setY(const int &y)
 {
+    EASY_FUNCTION(profiler::colors::GreenA700);
     m_layerItem.setPosInitial(m_layerItem.getX(),y);
 }
 
 void GameObject::moveToPos(const Point &destination,Controller::MovingMode mode)
 {
+    EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->moveToPos(m_layerItem.getPos(),destination,mode);
 }
 void GameObject::moveToPos(const int &x,const int &y,Controller::MovingMode mode)
 {
+    EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->moveToPos(m_layerItem.getPos().getX(),m_layerItem.getPos().getY(),x,y,mode);
 }
 void GameObject::move(const Vector &vec,Controller::MovingMode mode)
 {
+    EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->move(vec,mode);
 }
 void GameObject::move(const VectorF &vec,Controller::MovingMode mode)
 {
+    EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->move(vec,mode);
 }
 void GameObject::move(const double &deltaX, const double &deltaY,Controller::MovingMode mode)
 {
+    EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->move(deltaX,deltaY,mode);
 }
 void GameObject::moveX(const double &delta,Controller::MovingMode mode)
 {
+    EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->moveX(delta,mode);
 }
 void GameObject::moveY(const double &delta,Controller::MovingMode mode)
 {
+    EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->moveY(delta,mode);
 }
 
@@ -308,6 +335,7 @@ const VectorF &GameObject::getMovingVector() const
 
 void GameObject::rotate(const double &rad)
 {
+    EASY_FUNCTION(profiler::colors::Green);
     if(m_hitboxPainter->isVisible())
     {
         this->setHitboxVisibility(false);
@@ -328,6 +356,7 @@ double GameObject::getRotation() const
 //this->rotate(PointF(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
 void GameObject::setRotation(const double &deg)
 {
+    EASY_FUNCTION(profiler::colors::Green);
     double rot = m_rotationDeg - deg;
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->setRotation(deg);
@@ -337,6 +366,7 @@ void GameObject::setRotation(const double &deg)
 }
 void GameObject::rotate_90()
 {
+    EASY_FUNCTION(profiler::colors::Green);
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate_90();
     m_collider->rotate_90();
@@ -346,6 +376,7 @@ void GameObject::rotate_90()
 }
 void GameObject::rotate_180()
 {
+    EASY_FUNCTION(profiler::colors::Green);
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate_180();
     m_collider->rotate_180();
@@ -354,6 +385,7 @@ void GameObject::rotate_180()
 }
 void GameObject::rotate_270()
 {
+    EASY_FUNCTION(profiler::colors::Green);
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate_270();
     m_collider->rotate_270();
@@ -362,6 +394,7 @@ void GameObject::rotate_270()
 }
 void GameObject::setRotation(const PointF &rotationPoint,const double &deg)
 {
+    EASY_FUNCTION(profiler::colors::Green);
     PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,deg*M_PI/180).toPoint();
     this->setPos(round(newPos.getX()),round(newPos.getY()));
     double rot = m_rotationDeg - deg;
@@ -373,6 +406,7 @@ void GameObject::setRotation(const PointF &rotationPoint,const double &deg)
 }
 void GameObject::rotate_90(const PointF &rotationPoint)
 {
+    EASY_FUNCTION(profiler::colors::Green);
     PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI_2).toPoint();
     this->setPos(round(newPos.getX()),round(newPos.getY()));
     for(size_t i=0; i<m_controllerList.size(); i++)
@@ -383,6 +417,7 @@ void GameObject::rotate_90(const PointF &rotationPoint)
 }
 void GameObject::rotate_180(const PointF &rotationPoint)
 {
+    EASY_FUNCTION(profiler::colors::Green);
     PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI).toPoint();
     this->setPos(round(newPos.getX()),round(newPos.getY()));
     for(size_t i=0; i<m_controllerList.size(); i++)
@@ -393,6 +428,7 @@ void GameObject::rotate_180(const PointF &rotationPoint)
 }
 void GameObject::rotate_270(const PointF &rotationPoint)
 {
+    EASY_FUNCTION(profiler::colors::Green);
     PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI_2*3).toPoint();
     this->setPos(round(newPos.getX()),round(newPos.getY()));
     for(size_t i=0; i<m_controllerList.size(); i++)
@@ -403,30 +439,37 @@ void GameObject::rotate_270(const PointF &rotationPoint)
 }
 void GameObject::addHitbox(const Rect &box)
 {
+    EASY_FUNCTION(profiler::colors::Green100);
     m_collider->addHitbox(box);
 }
 void GameObject::addHitbox(const vector<Rect> &boxList)
 {
+    EASY_FUNCTION(profiler::colors::Green100);
     m_collider->addHitbox(boxList);
 }
 void GameObject::eraseHitbox(const size_t &index)
 {
+    EASY_FUNCTION(profiler::colors::Green200);
     m_collider->erase(index);
 }
 void GameObject::clearCollider()
 {
+    EASY_FUNCTION(profiler::colors::Green300);
     m_collider->clear();
 }
 const bool &GameObject::isBoundingBoxUpdated() const
 {
+    EASY_FUNCTION(profiler::colors::Green400);
     return m_collider->isBoundingBoxUpdated();
 }
 void GameObject::updateBoundingBox()
 {
+    EASY_FUNCTION(profiler::colors::Green500);
     m_collider->updateBoundingBox();
 }
 void GameObject::setHitboxFromTexture()
 {
+    EASY_FUNCTION(profiler::colors::Green600);
     m_textureIsActiveForCollider = true;
     m_collider->setHitboxFromTexture(m_texture);
     this->updateHitboxPainter();
@@ -434,12 +477,14 @@ void GameObject::setHitboxFromTexture()
 }
 void GameObject::setHitboxFromTexture(const Texture &texture)
 {
+    EASY_FUNCTION(profiler::colors::Green600);
     //m_textureIsActiveForCollider = true;
     m_collider->setHitboxFromTexture(&texture);
     //m_colliderNeedsUpdateFromTexture = false;
 }
 void GameObject::setHitboxVisibility(const bool &isVisible)
 {
+    EASY_FUNCTION(profiler::colors::Green700);
     if(isVisible)
     {
         HitboxPainter::makeVisibleCollider(m_collider,m_hitboxPainter);
@@ -448,6 +493,7 @@ void GameObject::setHitboxVisibility(const bool &isVisible)
 }
 void GameObject::updateHitboxPainter()
 {
+    EASY_FUNCTION(profiler::colors::Green800);
     if(m_hitboxPainter->isVisible())
     {
         HitboxPainter::makeVisibleCollider(m_collider,m_hitboxPainter);
@@ -547,10 +593,12 @@ void GameObject::setTexture(Texture *texture)
 }
 void GameObject::setTexturePath(const string &path)
 {
+    EASY_FUNCTION(profiler::colors::Green900);
     m_texture->setFilePath(path);
 }
 void GameObject::loadTexture()
 {
+    EASY_FUNCTION(profiler::colors::GreenA100);
     m_texture->loadTexture();
 }
 const Texture &GameObject::getTexture() const
@@ -559,13 +607,14 @@ const Texture &GameObject::getTexture() const
 }
 void GameObject::setTextureOnPainter()
 {
+    EASY_FUNCTION(profiler::colors::GreenA200);
     m_textureIsActiveForPainter = true;
     m_painter->setTexture(m_texture);
     m_painterNeedsUpdateFromTexture = false;
 }
 void GameObject::setTextureOnPainter(const Texture &texture)
 {
-    //m_textureIsActiveForPainter = true;
+    EASY_FUNCTION(profiler::colors::GreenA200);
     m_painter->setTexture(&texture);
 }
 bool GameObject::checkTextureUpdateForPainter()
@@ -592,6 +641,7 @@ const Property::Property &GameObject::getProperty() const
 // Text visualisation
 void GameObject::addText(DisplayText *text)
 {
+    EASY_FUNCTION(profiler::colors::GreenA400);
     if(text == nullptr)
         return;
     for(DisplayText* &t : m_displayTextList)
@@ -605,6 +655,7 @@ void GameObject::addText(DisplayText *text)
 }
 void GameObject::removeText(DisplayText *text)
 {
+    EASY_FUNCTION(profiler::colors::GreenA700);
     if(text == nullptr)
         return;
     for(size_t i=0; i<m_displayTextList.size(); i++)
@@ -623,6 +674,7 @@ void GameObject::removeText()
 }
 void GameObject::deleteText(DisplayText *text)
 {
+    EASY_FUNCTION(profiler::colors::Green);
     if(text == nullptr)
         return;
     for(size_t i=0; i<m_displayTextList.size(); i++)
@@ -638,6 +690,7 @@ void GameObject::deleteText(DisplayText *text)
 }
 void GameObject::deleteText()
 {
+    EASY_FUNCTION(profiler::colors::Green);
     for(size_t i=0; i<m_displayTextList.size(); i++)
     {
         if(m_objEventHandler != nullptr)
@@ -656,6 +709,7 @@ const vector<DisplayText*> &GameObject::getTextList()
 
 void GameObject::event_hasCollision(vector<GameObject *> other)
 {
+    EASY_FUNCTION(profiler::colors::Green100);
     if(m_objEventHandler != nullptr)
         m_objEventHandler->collisionOccured(this,other);
     m_layerItem.setToLastPos();

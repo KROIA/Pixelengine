@@ -4,6 +4,8 @@
 #include "SFML/Graphics/Text.hpp"
 #include "point.h"
 
+#include "profiler.h"
+
 using sf::Text;
 using sf::Font;
 using sf::Color;

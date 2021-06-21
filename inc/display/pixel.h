@@ -4,6 +4,8 @@
 #include <SFML/Graphics/Color.hpp>
 #include "layeritem.h"
 
+#include "profiler.h"
+
 using sf::Color;
 using sf::Uint8;
 

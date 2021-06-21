@@ -7,6 +7,8 @@
 
 #include <QDebug>
 
+#include "profiler.h"
+
 using std::vector;
 
 class UserEventHandler

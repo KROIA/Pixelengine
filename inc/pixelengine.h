@@ -1,9 +1,5 @@
 #ifndef PIXELENGINE_H
 #define PIXELENGINE_H
-#include "easy/profiler.h"
-#include "easy/arbitrary_value.h"
-#include "easy/reader.h"
-
 
 #include "iostream"
 #include "stdio.h"
@@ -43,6 +39,8 @@
 #include "timer.h"
 #include "userEventHandler.h"
 
+#include "profiler.h"
+
 // When this is defined, all completely white pixels in an imported image
 // are treated the same as alpha channel pixels
 // Object-body is only there, where alpha-chanal-pixelValue > 0
@@ -52,7 +50,7 @@
 const Color __color_minimalAlphaColor(255,255,255);
 #endif
 
-#define IMAGE_IMPORT_DEBUG
+//#define NO_TIMED_LOOPS
 #define STATISTICS
 
 #include "QDebug"
@@ -60,15 +58,6 @@ const Color __color_minimalAlphaColor(255,255,255);
 
 typedef  void (*p_func)(double,unsigned long long);
 
-/*enum ImageOrigin
-{
-    topLeftCorner,
-    topRightCorner,
-    bottomLeftCorner,
-    bottomRightCorner,
-    center
-};
-*/
 
 class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerInterface
 {
@@ -112,13 +101,13 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual void tick();
         virtual void display();
 
+
         virtual void set_setting_checkEventInterval(const double &seconds);
         virtual const double &get_setting_eventHandleInterval() const;
         virtual void set_setting_gameTickInterval(const double &seconds);
         virtual const double &get_setting_gameTickInterval() const;
         virtual void set_setting_displayInterval(const double &seconds);
         virtual const double &get_setting_displayInterval() const;
-
 
         virtual void addGameObject(GameObject *obj);
         virtual void addGameObject(ManagedGameObjectGroup *group);

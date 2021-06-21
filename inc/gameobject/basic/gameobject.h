@@ -10,6 +10,8 @@
 #include "texture.h"
 #include "displayText.h"
 
+#include "profiler.h"
+
 class GameObjectEventHandler;
 class GameObject;
 

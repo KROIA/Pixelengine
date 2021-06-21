@@ -5,6 +5,8 @@
 #include "gameobject.h"
 #include "painter.h"
 
+#include "profiler.h"
+
 using std::vector;
 
 class GameObjectGroup

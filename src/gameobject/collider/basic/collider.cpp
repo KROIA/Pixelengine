@@ -34,12 +34,14 @@ const Collider &Collider::operator=(const Collider &other)
 
 void Collider::setPos(const int &x,const int &y)
 {
+    EASY_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == x && LayerItem::getY() == y)
         return;
     this->setPos(Point(x,y));
 }
 void Collider::setPos(const Point &pos)
 {
+    EASY_FUNCTION(profiler::colors::Red);
     if(LayerItem::getPos() == pos)
         return;
     Point deltaPos(pos.getX() - LayerItem::getX(),
@@ -55,6 +57,7 @@ void Collider::setPos(const Point &pos)
 }
 void Collider::setX(const int &x)
 {
+    EASY_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == x)
         return;
     int deltaX = x - LayerItem::getX();
@@ -67,6 +70,7 @@ void Collider::setX(const int &x)
 }
 void Collider::setY(const int &y)
 {
+    EASY_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == y)
         return;
     int deltaY = y - LayerItem::getY();
@@ -92,6 +96,7 @@ void Collider::reserve(const size_t &amount)
 
 void Collider::addHitbox(const Rect &box)
 {
+    EASY_FUNCTION(profiler::colors::Red100);
     m_boundingBoxUpdated = false;
     m_hitboxList.push_back(box);
     m_hitboxList[m_hitboxList.size()-1].setPos(box.getPos().getX()+LayerItem::getX(),
@@ -101,6 +106,7 @@ void Collider::addHitbox(const Rect &box)
 
 void Collider::addHitbox(const vector<Rect> &boxList)
 {
+    EASY_FUNCTION(profiler::colors::Red100);
     m_boundingBoxUpdated = false;
     m_hitboxList.reserve(m_hitboxList.size()+boxList.size());
     for(size_t i=0; i<boxList.size(); i++)
@@ -126,6 +132,7 @@ const vector<Rect> &Collider::getHitbox() const
 
 bool Collider::intersectsBoundingBox(const Collider &other) const
 {
+    EASY_FUNCTION(profiler::colors::Red200);
     if(LayerItem::getLastPos() == LayerItem::getPos() && other.LayerItem::getLastPos() == other.LayerItem::getPos())
         return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben
 
@@ -134,29 +141,38 @@ bool Collider::intersectsBoundingBox(const Collider &other) const
 
 bool Collider::collides(const Collider &other) const
 {
+    EASY_FUNCTION(profiler::colors::Red300);
     if(LayerItem::getLastPos() == LayerItem::getPos() && other.LayerItem::getLastPos() == other.LayerItem::getPos())
         return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben
 
+    EASY_BLOCK("for(size_t x=0; x<this->m_hitboxList.size(); x++)",profiler::colors::Red400);
     for(size_t x=0; x<this->m_hitboxList.size(); x++)
     {
+        EASY_BLOCK("for(size_t y=0; y<other.m_hitboxList.size(); y++)",profiler::colors::Red500);
         for(size_t y=0; y<other.m_hitboxList.size(); y++)
         {
+            EASY_BLOCK("this->m_hitboxList[x].intersects(other.m_hitboxList[y])",profiler::colors::Red600);
             if(this->m_hitboxList[x].intersects(other.m_hitboxList[y]))
             {
                 //qDebug() << "this->Hitbox: "<<x<<"\tother.Hitbox: "<<y;
                 return true;
             }
+            EASY_END_BLOCK;
         }
+        EASY_END_BLOCK;
     }
+    EASY_END_BLOCK;
     return false;
 }
 void Collider::erase(const size_t &index)
 {
+    EASY_FUNCTION(profiler::colors::Red700);
     m_hitboxList.erase(m_hitboxList.begin()+index);
     this->setBoundingBox();
 }
 void Collider::clear()
 {
+    EASY_FUNCTION(profiler::colors::Red800);
     m_boundingBoxUpdated = false;
     m_hitboxList.clear();
     this->setBoundingBox();
@@ -167,14 +183,17 @@ const bool &Collider::isBoundingBoxUpdated() const
 }
 void Collider::updateBoundingBox()
 {
+    EASY_FUNCTION(profiler::colors::Red900);
     this->setBoundingBox();
 }
 void Collider::setBoundingBox()
 {
+    EASY_FUNCTION(profiler::colors::Red900);
     setBoundingBox(Rect::getFrame(m_hitboxList));
 }
 void Collider::setBoundingBox(const Rect &box)
 {
+    EASY_FUNCTION(profiler::colors::RedA100);
     m_boundingBox = box;
     m_boundingBoxUpdated = true;
 }
@@ -182,6 +201,7 @@ void Collider::setBoundingBox(const Rect &box)
 void Collider::setBoundingBox(const int &x,const int &y,
                               const int &width,const int &height)
 {
+    EASY_FUNCTION(profiler::colors::RedA100);
     m_boundingBox.setPos(x,y);
     m_boundingBox.setSize(width,height);
     m_boundingBoxUpdated = true;
@@ -198,39 +218,48 @@ double Collider::getRotation() const
 }
 void Collider::setRotation(const double &deg)
 {
+    EASY_FUNCTION(profiler::colors::RedA200);
     this->rotate(PointF(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
 }
 void Collider::rotate_90()
 {
+    EASY_FUNCTION(profiler::colors::RedA200);
     this->rotate(PointF(this->getX(),this->getY()),M_PI_2);
 }
 void Collider::rotate_180()
 {
+    EASY_FUNCTION(profiler::colors::RedA200);
     this->rotate(PointF(this->getX(),this->getY()),M_PI);
 }
 void Collider::rotate_270()
 {
+    EASY_FUNCTION(profiler::colors::RedA200);
     this->rotate(PointF(this->getX(),this->getY()),-M_PI_2);
 }
 void Collider::setRotation(const PointF &rotationPoint,const double &deg)
 {
+    EASY_FUNCTION(profiler::colors::RedA200);
     this->rotate(rotationPoint,(deg*M_PI/180.f) - m_rotationRad);
 }
 void Collider::rotate_90(const PointF &rotationPoint)
 {
+    EASY_FUNCTION(profiler::colors::RedA200);
     this->rotate(rotationPoint,M_PI_2);
 }
 void Collider::rotate_180(const PointF &rotationPoint)
 {
+    EASY_FUNCTION(profiler::colors::RedA200);
     this->rotate(rotationPoint,M_PI);
 }
 void Collider::rotate_270(const PointF &rotationPoint)
 {
+    EASY_FUNCTION(profiler::colors::RedA200);
     this->rotate(rotationPoint,-M_PI_2);
 }
 
 void Collider::setHitboxFromTexture(const Texture *texture)
 {
+    EASY_FUNCTION(profiler::colors::RedA400);
     this->clear();
     Point lastPos = this->getPos();
     this->setPos(0,0);
@@ -241,6 +270,7 @@ void Collider::setHitboxFromTexture(const Texture *texture)
 
 void Collider::rotate(const PointF &rotPoint,const double &rad)
 {
+    EASY_FUNCTION(profiler::colors::RedA200);
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
         GeneralVector<double> vec(m_hitboxList[i].getPos().getX(),m_hitboxList[i].getPos().getY());

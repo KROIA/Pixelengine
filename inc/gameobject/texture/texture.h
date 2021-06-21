@@ -7,8 +7,8 @@
 #include "rect.h"
 #include "point.h"
 #include "QDebug"
-//#include "painter.h"
-//#include "collider.h"
+
+#include "profiler.h"
 
 using std::string;
 using sf::Image;

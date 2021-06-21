@@ -7,6 +7,8 @@
 #include "vector.h"
 #include "texture.h"
 
+#include "profiler.h"
+
 using std::vector;
 
 class Collider  :   public LayerItem

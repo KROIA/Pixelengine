@@ -7,6 +7,8 @@
 #include "pixel.h"
 #include "displayText.h"
 
+#include "profiler.h"
+
 using sf::Color;
 using sf::RenderWindow;
 using sf::View;

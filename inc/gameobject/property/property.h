@@ -7,6 +7,8 @@
 #include "mood.h"
 #include <string>
 
+#include "profiler.h"
+
 using std::string;
 using std::to_string;
 

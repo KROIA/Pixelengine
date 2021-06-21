@@ -6,6 +6,8 @@
 #include "rect.h"
 #include "hitboxPainter.h"
 
+#include "profiler.h"
+
 class Sensor
 {
     public:

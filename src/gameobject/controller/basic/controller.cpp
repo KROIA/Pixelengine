@@ -32,11 +32,13 @@ const Controller &Controller::operator=(const Controller &other)
 }
 void Controller::checkEvent()
 {
+    EASY_FUNCTION(profiler::colors::Pink);
     UserEventHandler::checkEvent();
 }
 //void Controller::tick(const Point &direction)
 void Controller::tick()
 {
+    EASY_FUNCTION(profiler::colors::Pink100);
     m_currentDeltaMove.set(0,0);
    /* if(m_neededStepsForMove == 0)
     {
@@ -82,6 +84,7 @@ Controller::MovingMode Controller::getMovingMode() const
 }
 void Controller::moveToPos(const Point &currentPos,const Point &destination,MovingMode mode)
 {
+    EASY_FUNCTION(profiler::colors::Pink200);
     this->move(destination.getX() - currentPos.getX(),
                destination.getY() - currentPos.getY());
     setMovingMode(mode);
@@ -89,21 +92,25 @@ void Controller::moveToPos(const Point &currentPos,const Point &destination,Movi
 void Controller::moveToPos(const int &currentX,const int &currentY,
                            const int &destinationX,const int &destinationY,MovingMode mode)
 {
+    EASY_FUNCTION(profiler::colors::Pink200);
     this->move(destinationX - currentX, destinationY - currentY);
     setMovingMode(mode);
 }
 void Controller::move(const Point &directionVector,MovingMode mode)
 {
+    EASY_FUNCTION(profiler::colors::Pink200);
     this->move(directionVector.getX(),directionVector.getY());
     setMovingMode(mode);
 }
 void Controller::move(const PointF &directionVector,MovingMode mode)
 {
+    EASY_FUNCTION(profiler::colors::Pink200);
     this->move(directionVector.getX(),directionVector.getY());
     setMovingMode(mode);
 }
 void Controller::move(double x,double y,MovingMode mode)
 {
+    EASY_FUNCTION(profiler::colors::Pink200);
     m_currentDeltaMove += VectorF(x,y);
     setMovingMode(mode);
     /*if(x == 0 && y == 0)
@@ -132,11 +139,13 @@ void Controller::move(double x,double y,MovingMode mode)
 }
 void Controller::moveX(double x,MovingMode mode)
 {
+    EASY_FUNCTION(profiler::colors::Pink200);
     m_currentDeltaMove += VectorF(x,0);
     setMovingMode(mode);
 }
 void Controller::moveY(double y,MovingMode mode)
 {
+    EASY_FUNCTION(profiler::colors::Pink200);
     m_currentDeltaMove += VectorF(0,y);
     setMovingMode(mode);
 }
@@ -151,6 +160,7 @@ const VectorF &Controller::getMovingVector() const
 
 void Controller::setRotation(const double &deg)
 {
+    EASY_FUNCTION(profiler::colors::Pink300);
     m_rotationDeg = int(deg) % 360;
 }
 double Controller::getRotation() const
@@ -159,33 +169,40 @@ double Controller::getRotation() const
 }
 void Controller::rotate_90()
 {
+    EASY_FUNCTION(profiler::colors::Pink300);
     m_rotationDeg += 90;
     m_rotationDeg = m_rotationDeg % 360;
 }
 void Controller::rotate_180()
 {
+    EASY_FUNCTION(profiler::colors::Pink300);
     m_rotationDeg += 180;
     m_rotationDeg = m_rotationDeg % 360;
 }
 void Controller::rotate_270()
 {
+    EASY_FUNCTION(profiler::colors::Pink300);
     m_rotationDeg += 270;
     m_rotationDeg = m_rotationDeg % 360;
 }
 // Eventhandler
 void Controller::receive_key_isPressed(const int &key)
 {
+    EASY_FUNCTION(profiler::colors::Pink400);
     qDebug() << "Key: "<<key<<"\tController::receive_key_isPressed";
 }
 void Controller::receive_key_toggle(const int &key)
 {
+    EASY_FUNCTION(profiler::colors::Pink400);
     qDebug() << "Key: "<<key<<"\tController::receive_key_toggle";
 }
 void Controller::reveive_key_goesDown(const int &key)
 {
+    EASY_FUNCTION(profiler::colors::Pink400);
     qDebug() << "Key: "<<key<<"\tController::reveive_key_goesDown";
 }
 void Controller::reveive_key_goesUp(const int &key)
 {
+    EASY_FUNCTION(profiler::colors::Pink400);
     qDebug() << "Key: "<<key<<"\tController::reveive_key_goesUp";
 }

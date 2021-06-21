@@ -134,10 +134,11 @@ void PixelEngine::setUserTickLoop(p_func func)
 }
 void PixelEngine::checkEvent()
 {
-
+#ifndef NO_TIMED_LOOPS
     if(!m_eventTimer->start(m_eventInterval))
        return;// Time not finished
-    EASY_FUNCTION(profiler::colors::Blue);
+#endif
+    EASY_FUNCTION(profiler::colors::Orange);
 #ifdef STATISTICS
     auto stats_checkUserEvent_timer_start = std::chrono::system_clock::now();
 #endif
@@ -179,11 +180,11 @@ void PixelEngine::checkEvent()
 }
 void PixelEngine::tick()
 {
-
+#ifndef NO_TIMED_LOOPS
     if(!m_mainTickTimer->start(m_mainTickInterval))
         return; // Time not finished
-    EASY_FUNCTION(profiler::colors::Blue);
-    m_tick++;
+    EASY_FUNCTION(profiler::colors::Orange100);
+#endif
 
 #ifdef STATISTICS
     m_statistics.objectsInEngine = m_masterGameObjectGroup.size();
@@ -192,6 +193,7 @@ void PixelEngine::tick()
     if(m_p_func_userTickLoop != nullptr)
         (*m_p_func_userTickLoop)(m_mainTickInterval,m_tick);
 #ifdef STATISTICS
+    m_tick++;
     m_statistics.collisionsPerTick      = 0;
     m_statistics.collisionChecksPerTick = 0;
     m_statistics.gameObjectTickTime     *= m_statsFilterFactor;
@@ -335,10 +337,11 @@ void PixelEngine::removeObjectFromList_unmanaged(vector<ManagedGameObjectGroup*>
 
 void PixelEngine::display()
 {
-
+#ifndef NO_TIMED_LOOPS
     if(!m_displayTimer->start(m_displayInterval))
         return;
-    EASY_FUNCTION(profiler::colors::Blue);
+#endif
+    EASY_FUNCTION(profiler::colors::Orange200);
 
 #ifdef STATISTICS
     auto stats_timePoint_1 = std::chrono::system_clock::now();

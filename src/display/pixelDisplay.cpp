@@ -37,6 +37,7 @@ PixelDisplay::~PixelDisplay()
 
 void PixelDisplay::display()
 {
+    EASY_FUNCTION(profiler::colors::Blue);
     auto stats_timePoint_1 = std::chrono::system_clock::now();
 
     m_renderWindow->clear();
@@ -55,30 +56,34 @@ void PixelDisplay::display()
 
     m_renderWindow->display();
     clear();
-    auto stats_timePoint_2 = std::chrono::system_clock::now();
+    /*auto stats_timePoint_2 = std::chrono::system_clock::now();
     std::chrono::duration<double> m_time_span_draw_time = stats_timePoint_2 - stats_timePoint_1;
-    qDebug() << "display(): "<<m_time_span_draw_time.count()*1000;
+    qDebug() << "display(): "<<m_time_span_draw_time.count()*1000;*/
 }
 void PixelDisplay::clear()
 {
+    EASY_FUNCTION(profiler::colors::Blue100);
     auto px1 = reinterpret_cast<sf::Color*>(const_cast<sf::Uint8*>(m_image.getPixelsPtr()));
     std::fill(px1, px1 + m_image.getSize().x * m_image.getSize().y, m_clearColor);
 }
 
 void PixelDisplay::setPixel(const PointU &pos, const Color &color)
 {
+    EASY_FUNCTION(profiler::colors::Blue200);
     if(pos.getX() >= m_pixelMapSize.getX() || pos.getY() >= m_pixelMapSize.getY())
         return;
     m_image.setPixel(pos.getX(),pos.getY(),color);
 }
 void PixelDisplay::setPixel(const Pixel &pixel)
 {
+    EASY_FUNCTION(profiler::colors::Blue300);
     if(unsigned(pixel.getX()) >= m_pixelMapSize.getX() || unsigned(pixel.getY()) >= m_pixelMapSize.getY())
         return;
     m_image.setPixel(pixel.getX(),pixel.getY(),pixel);
 }
 void PixelDisplay::setPixel(const vector<Pixel> &pixelList)
 {
+    EASY_FUNCTION(profiler::colors::Blue400);
     for(size_t i=0; i<pixelList.size(); i++)
     {
         this->setPixel(pixelList[i]);
@@ -91,17 +96,20 @@ bool PixelDisplay::isOpen() const
 
 sf::Event PixelDisplay::handleEvents()
 {
+    EASY_FUNCTION(profiler::colors::Blue500);
     KeyEvent e;
     e.callbackFunction = nullptr;
    return this->handleEvents(e);
 }
 sf::Event PixelDisplay::handleEvents(const KeyEvent &eventHandler)
 {
+    EASY_FUNCTION(profiler::colors::Blue600);
     vector<KeyEvent> eh{eventHandler};
     return this->handleEvents(eh);
 }
 sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
 {
+    EASY_FUNCTION(profiler::colors::Blue700);
     sf::Event event;
     event.type = sf::Event::EventType::Count;
     if(!m_renderWindow->isOpen())
@@ -156,6 +164,7 @@ sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
         }
 
     }
+    EASY_BLOCK("for(size_t i=0; i<eventHandlerList.size(); i++)",profiler::colors::Blue700);
     for(size_t i=0; i<eventHandlerList.size(); i++)
     {
         if(eventHandlerList[i].callbackFunction == nullptr)
@@ -165,6 +174,7 @@ sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
             (eventHandlerList[i].callbackFunction)();
         }
     }
+    EASY_END_BLOCK;
     return event;
 }
 
@@ -186,6 +196,7 @@ sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
 }*/
 bool PixelDisplay::addText(DisplayText *text)       // This function will not own the Text Object!
 {
+    EASY_FUNCTION(profiler::colors::Blue800);
     for(DisplayText* &listedText : m_textList)
     {
         if(listedText == text)
@@ -201,6 +212,7 @@ bool PixelDisplay::addText(DisplayText *text)       // This function will not ow
 }
 bool PixelDisplay::removeText(DisplayText *text)
 {
+    EASY_FUNCTION(profiler::colors::Blue900);
     for(size_t i=0; i<m_textList.size(); i++)
     {
         if(m_textList[i] == text)
@@ -213,6 +225,7 @@ bool PixelDisplay::removeText(DisplayText *text)
 }
 void PixelDisplay::clearText()
 {
+    EASY_FUNCTION(profiler::colors::BlueA100);
     m_textList.clear();
 }
 PointU PixelDisplay::getWindowSize() const

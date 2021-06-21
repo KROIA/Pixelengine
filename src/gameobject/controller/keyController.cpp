@@ -150,6 +150,7 @@ const unsigned int &KeyController::getStepSize() const
 
 void KeyController::setRotation()
 {
+    EASY_FUNCTION(profiler::colors::Pink600);
     double rotRad = double(m_rotationDeg)*M_PI/180;
     m_stepUp.set(0,-m_stepSize);
     m_stepDown.set(0,m_stepSize);

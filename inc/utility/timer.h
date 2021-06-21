@@ -5,6 +5,8 @@
 #include <ratio>
 #include <chrono>
 
+#include "profiler.h"
+
 class Timer
 {
 public:

@@ -5,7 +5,7 @@
 #include <QDebug>
 #include "keyboard.h"
 
-
+#include "profiler.h"
 
 class Event
 {

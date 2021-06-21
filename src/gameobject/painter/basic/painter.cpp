@@ -35,11 +35,13 @@ void Painter::reserve(const size_t amount)
 }
 void Painter::addPixel(const Pixel &pixel)
 {
+    EASY_FUNCTION(profiler::colors::Cyan);
     internalAddPixel(pixel);
     updateFrame();
 }
 void Painter::addPixel(const vector<Pixel> &pixelList)
 {
+    EASY_FUNCTION(profiler::colors::Cyan);
     for(const Pixel &p : pixelList)
         internalAddPixel(p);
     updateFrame();
@@ -67,12 +69,29 @@ size_t Painter::getPixelAmount() const
 }
 void Painter::setPixelColor(const size_t &index, const Color &color)
 {
+    EASY_FUNCTION(profiler::colors::Cyan100);
     m_pixelList[index].setColor(color);
 }
 void Painter::setPixelColor(const Color &color)
 {
+    EASY_FUNCTION(profiler::colors::Cyan100);
     for(size_t i=0; i<m_pixelList.size(); i++)
         m_pixelList[i].setColor(color);
+}
+
+void Painter::setPixelColor(const Point &pixelPos, const Color &color)
+{
+    EASY_FUNCTION(profiler::colors::Cyan100);
+    for(Pixel &p : m_pixelList)
+    {
+        if(p.getPos() == pixelPos)
+            p.setColor(color);
+    }
+}
+void Painter::setPixelColor(int x, int y, const Color &color)
+{
+    EASY_FUNCTION(profiler::colors::Cyan100);
+    setPixelColor(Point(x,y),color);
 }
 Rect Painter::getFrame() const
 {
@@ -86,21 +105,10 @@ bool Painter::isFrameVisible()
 {
     return m_frameVisible;
 }
-void Painter::setPixelColor(const Point &pixelPos, const Color &color)
-{
-    for(Pixel &p : m_pixelList)
-    {
-        if(p.getPos() == pixelPos)
-            p.setColor(color);
-    }
-}
-void Painter::setPixelColor(int x, int y, const Color &color)
-{
-    setPixelColor(Point(x,y),color);
-}
 
 void Painter::draw(PixelDisplay &display)
 {
+    EASY_FUNCTION(profiler::colors::Cyan200);
     if(m_isVisible)
     {
         display.setPixel(m_pixelList);
@@ -121,6 +129,7 @@ void Painter::draw(PixelDisplay &display)
 
 void Painter::setPos(const Point &pos)
 {
+    EASY_FUNCTION(profiler::colors::Cyan300);
     if(LayerItem::getPos() == pos)
         return;
     Point deltaPos(pos.getX() - LayerItem::getX(),
@@ -136,12 +145,14 @@ void Painter::setPos(const Point &pos)
 }
 void Painter::setPos(int x, int y)
 {
+    EASY_FUNCTION(profiler::colors::Cyan300);
     if(LayerItem::getX() == x && LayerItem::getY() == y)
         return;
     this->setPos(Point(x,y));
 }
 void Painter::setX(int x)
 {
+    EASY_FUNCTION(profiler::colors::Cyan300);
     if(LayerItem::getX() == x)
         return;
     int deltaX = x - LayerItem::getX();
@@ -154,6 +165,7 @@ void Painter::setX(int x)
 }
 void Painter::setY(int y)
 {
+    EASY_FUNCTION(profiler::colors::Cyan300);
     if(LayerItem::getX() == y)
         return;
     int deltaY = y - LayerItem::getY();
@@ -174,11 +186,13 @@ const bool &Painter::isVisible() const
 }
 void Painter::erasePixel(const size_t &index)
 {
+    EASY_FUNCTION(profiler::colors::Cyan400);
     m_pixelList.erase(m_pixelList.begin()+index);
     updateFrame();
 }
 void Painter::erasePixel(const Point &pixelPos)
 {
+    EASY_FUNCTION(profiler::colors::Cyan400);
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
         if(m_pixelList[i].getPos() == pixelPos)
@@ -187,16 +201,19 @@ void Painter::erasePixel(const Point &pixelPos)
 }
 void Painter::erasePixel(int x, int y)
 {
+    EASY_FUNCTION(profiler::colors::Cyan400);
     erasePixel(Point(x,y));
 }
 void Painter::clear()
 {
+    EASY_FUNCTION(profiler::colors::Cyan500);
     m_pixelList.clear();
     m_frame.setPos(0,0);
     m_frame.setSize(0,0);
 }
 void Painter::rotate(const PointF &rotPoint,const double &rad)
 {
+    EASY_FUNCTION(profiler::colors::Cyan600);
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
         GeneralVector<double> vec(m_pixelList[i].getPos().getX(),m_pixelList[i].getPos().getY());
@@ -214,39 +231,48 @@ double Painter::getRotation() const
 }
 void Painter::setRotation(const double &deg)
 {
+    EASY_FUNCTION(profiler::colors::Cyan600);
     this->rotate(PointF(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
 }
 void Painter::rotate_90()
 {
+    EASY_FUNCTION(profiler::colors::Cyan600);
     this->rotate(PointF(this->getX(),this->getY()),M_PI_2);
 }
 void Painter::rotate_180()
 {
+    EASY_FUNCTION(profiler::colors::Cyan600);
     this->rotate(PointF(this->getX(),this->getY()),M_PI);
 }
 void Painter::rotate_270()
 {
+    EASY_FUNCTION(profiler::colors::Cyan600);
     this->rotate(PointF(this->getX(),this->getY()),-M_PI_2);
 }
 void Painter::setRotation(const PointF &rotationPoint,const double &deg)
 {
+    EASY_FUNCTION(profiler::colors::Cyan600);
     this->rotate(rotationPoint,(deg*M_PI/180.f) - m_rotationRad);
 }
 void Painter::rotate_90(const PointF &rotationPoint)
 {
+    EASY_FUNCTION(profiler::colors::Cyan600);
     this->rotate(rotationPoint,M_PI_2);
 }
 void Painter::rotate_180(const PointF &rotationPoint)
 {
+    EASY_FUNCTION(profiler::colors::Cyan600);
     this->rotate(rotationPoint,M_PI);
 }
 void Painter::rotate_270(const PointF &rotationPoint)
 {
+    EASY_FUNCTION(profiler::colors::Cyan600);
     this->rotate(rotationPoint,-M_PI_2);
 }
 
 void Painter::setTexture(const Texture *texture)
 {
+    EASY_FUNCTION(profiler::colors::Cyan700);
     this->clear();
     Point oldPos = this->getPos();
     this->setPos(Point(0,0));
@@ -256,15 +282,18 @@ void Painter::setTexture(const Texture *texture)
 }
 void Painter::internalAddPixel(const Pixel &pixel)
 {
+    EASY_FUNCTION(profiler::colors::Cyan800);
     m_pixelList.push_back(pixel);
 }
 void Painter::internalAddPixel(const vector<Pixel> &pixelList)
 {
+    EASY_FUNCTION(profiler::colors::Cyan800);
     for(const Pixel &p : pixelList)
         internalAddPixel(p);
 }
 void Painter::updateFrame()
 {
+    EASY_FUNCTION(profiler::colors::Cyan900);
     vector<Rect> pixelRects(m_pixelList.size(),Rect(Point(0,0),Point(1,1)));
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
