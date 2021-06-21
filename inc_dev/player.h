@@ -40,7 +40,7 @@ class Player    :   public GameObject
         virtual void rotate_180(const PointF &rotationPoint);
         virtual void rotate_270(const PointF &rotationPoint);
 
-        virtual void event_hasCollision(GameObject *other);
+        virtual void event_hasCollision(vector<GameObject*> other);
 
 
     protected:

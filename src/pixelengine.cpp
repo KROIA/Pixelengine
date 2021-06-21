@@ -37,7 +37,7 @@ PixelEngine::PixelEngine(const PointU &mapsize,const PointU &displaySize)
     m_statistics.checkUserEventTime     = 0;
     m_statistics.userTickTime           = 0;
     m_statistics.userDisplayTime        = 0;
-    m_statsFilterFactor                 = 0.98;
+    m_statsFilterFactor                 = 0.5;
 
     //m_display->loadFontFromFile("C:\\Windows\\Fonts\\consolab.ttf");
     m_stats_text = new DisplayText();
@@ -134,8 +134,10 @@ void PixelEngine::setUserTickLoop(p_func func)
 }
 void PixelEngine::checkEvent()
 {
+
     if(!m_eventTimer->start(m_eventInterval))
-        return;// Time not finished
+       return;// Time not finished
+    EASY_FUNCTION(profiler::colors::Blue);
 #ifdef STATISTICS
     auto stats_checkUserEvent_timer_start = std::chrono::system_clock::now();
 #endif
@@ -177,8 +179,10 @@ void PixelEngine::checkEvent()
 }
 void PixelEngine::tick()
 {
+
     if(!m_mainTickTimer->start(m_mainTickInterval))
         return; // Time not finished
+    EASY_FUNCTION(profiler::colors::Blue);
     m_tick++;
 
 #ifdef STATISTICS
@@ -331,17 +335,19 @@ void PixelEngine::removeObjectFromList_unmanaged(vector<ManagedGameObjectGroup*>
 
 void PixelEngine::display()
 {
+
     if(!m_displayTimer->start(m_displayInterval))
         return;
+    EASY_FUNCTION(profiler::colors::Blue);
 
 #ifdef STATISTICS
-    auto stats_userDisplay_timer_start = std::chrono::system_clock::now();
+    auto stats_timePoint_1 = std::chrono::system_clock::now();
 #endif
     if(m_p_func_userDisplayLoop != nullptr)
         (*m_p_func_userDisplayLoop)(m_displayInterval,m_tick);
 #ifdef STATISTICS
-    auto stats_display_timer_start = std::chrono::system_clock::now();
-    std::chrono::duration<double> time_span_userDisplay_time = stats_display_timer_start - stats_userDisplay_timer_start;
+    auto stats_timePoint_2 = std::chrono::system_clock::now();
+    std::chrono::duration<double> time_span_userDisplay_time = stats_timePoint_2 - stats_timePoint_1;
     filter(m_statistics.userDisplayTime,time_span_userDisplay_time.count()*1000.f,m_statsFilterFactor);
 #endif
 
@@ -350,13 +356,18 @@ void PixelEngine::display()
         m_renderLayer[i].draw(*m_display);
     }
 
+#ifdef STATISTICS
+    stats_timePoint_1 = std::chrono::system_clock::now();
+    std::chrono::duration<double> m_time_span_draw_time = stats_timePoint_1 - stats_timePoint_2;
+    filter(m_statistics.drawTime, m_time_span_draw_time.count()*1000.f,m_statsFilterFactor);
     updateText();
-
     m_display->display();
+
+#endif
 
 #ifdef STATISTICS
     m_stats_fps_timer_end = std::chrono::system_clock::now();
-    std::chrono::duration<double> m_time_span_display_time = m_stats_fps_timer_end - stats_display_timer_start;
+    std::chrono::duration<double> m_time_span_display_time = m_stats_fps_timer_end - stats_timePoint_1;
     filter(m_statistics.displayTime, m_time_span_display_time.count()*1000.f,m_statsFilterFactor);
 
     std::chrono::duration<double> time_span = m_stats_fps_timer_end - m_stats_fps_timer_start;
@@ -1040,6 +1051,7 @@ void PixelEngine::updateStatsText()
      "gameObjectTickTime:    \t" + to_string(m_statistics.gameObjectTickTime) +     " ms\n"+
      "checkEventTime:        \t" + to_string(m_statistics.checkEventTime) +         " ms\n"+
      "tickTime:              \t" + to_string(m_statistics.tickTime) +               " ms\n"+
+     "drawTime:              \t" + to_string(m_statistics.drawTime) +               " ms\n"+
      "displayTime:           \t" + to_string(m_statistics.displayTime) +            " ms\n"+
      "checkUserEventTime:    \t" + to_string(m_statistics.checkUserEventTime) +     " ms\n"+
      "userTickTime:          \t" + to_string(m_statistics.userTickTime) +           " ms\n"+

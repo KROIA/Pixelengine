@@ -37,6 +37,7 @@ PixelDisplay::~PixelDisplay()
 
 void PixelDisplay::display()
 {
+    auto stats_timePoint_1 = std::chrono::system_clock::now();
 
     m_renderWindow->clear();
     m_texture.loadFromImage(m_image);
@@ -51,8 +52,12 @@ void PixelDisplay::display()
         }
     }
 
+
     m_renderWindow->display();
     clear();
+    auto stats_timePoint_2 = std::chrono::system_clock::now();
+    std::chrono::duration<double> m_time_span_draw_time = stats_timePoint_2 - stats_timePoint_1;
+    qDebug() << "display(): "<<m_time_span_draw_time.count()*1000;
 }
 void PixelDisplay::clear()
 {

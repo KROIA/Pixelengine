@@ -7,7 +7,7 @@ Player          *player;
 GameObject      *obstacle1;
 Wall            *wall1;
 GameObject      *imported;
-GameObjectGroup *objectGroup;
+ManagedGameObjectGroup *objectGroup;
 AnimatedTexture *animatedTexture;
 GameObject      *waterBlock;
 AnimatedTexture *waterTexture;
@@ -29,7 +29,7 @@ Event *keyEvent_O;
 
 // toggle Hitbox
 Event *keyEvent_H;
-GameObjectGroup hitboxObjectList;
+ManagedGameObjectGroup hitboxObjectList;
 bool hitboxIsVisible;
 
 
@@ -41,7 +41,7 @@ void setup_level()
     //RECT dispaySize;
     //GetWindowRect(GetDesktopWindow(), &dispaySize);
     //PointU windowSize(dispaySize.right,dispaySize.bottom-60);
-    double displayScale = 1.8;
+    double displayScale = 0.9;
     PointU windowSize(1900*displayScale,1000*displayScale);
     engine = new PixelEngine (PointU(mapWidth,double(mapWidth)*double(windowSize.getY())/double(windowSize.getX())),windowSize);
     engine->set_setting_checkEventInterval(1.0f/30.0f);
@@ -85,12 +85,11 @@ void setup_level()
 
 
     // Generate Ground
-    GameObjectGroup *terainGroup = factory_terain(engine->getMapSize().getX()/16,5,Point(0,engine->getMapSize().getY()));
+    ManagedGameObjectGroup *terainGroup = factory_terain(engine->getMapSize().getX()/16,5,Point(0,engine->getMapSize().getY()));
 
 
     // Make Boarder
-    GameObjectGroup *boarderGroup = new GameObjectGroup();
-    *boarderGroup = makeBoarder(engine);
+    ManagedGameObjectGroup *boarderGroup = makeBoarder(engine);
 
     // Make water Block
     waterBlock = new GameObject();
@@ -106,7 +105,7 @@ void setup_level()
     waterBlock->loadTexture();
     waterBlock->setHitboxFromTexture();
     waterBlock->setTextureOnPainter();*/
-    GameObjectGroup *waterGroup = new GameObjectGroup();
+    ManagedGameObjectGroup *waterGroup = new ManagedGameObjectGroup();
 
     Point offsetPos(30,30);
     for(int x=0; x<3; x++)
@@ -128,7 +127,7 @@ void setup_level()
 
 
     // Make Group of Objects for toggle Hitbox in loop below
-    objectGroup = new GameObjectGroup();
+    objectGroup = new ManagedGameObjectGroup();
 
 
     objectGroup->add(player);
@@ -313,7 +312,7 @@ Color getRainbow(double phase)
       return color;
 }
 
-GameObjectGroup makeBoarder(PixelEngine *engine)
+ManagedGameObjectGroup *makeBoarder(PixelEngine *engine)
 {
     PointU mapSize = engine->getMapSize();
     unsigned int boarderSize = 3;
@@ -339,15 +338,14 @@ GameObjectGroup makeBoarder(PixelEngine *engine)
     wall_4->setPos(Point(0,mapSize.getY()));
     wall_4->setColor(color);
 
-    GameObjectGroup group;
-    group.add(wall_1);
-    group.add(wall_2);
-    group.add(wall_3);
-    group.add(wall_4);
-    engine->addGameObject(&group);
+    ManagedGameObjectGroup *group = new ManagedGameObjectGroup();;
+    group->add(wall_1);
+    group->add(wall_2);
+    group->add(wall_3);
+    group->add(wall_4);
     return group;
 }
-GameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &blocksY,const Point &bottomLeftOrigin)
+ManagedGameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &blocksY,const Point &bottomLeftOrigin)
 {
     GameObject *grassBlock = new GameObject();
     Collider *collider = new Collider();
@@ -379,7 +377,7 @@ GameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &
 
 
     Point blockSize(16,16);
-    GameObjectGroup *group = new GameObjectGroup();
+    ManagedGameObjectGroup *group = new ManagedGameObjectGroup();
     for(size_t x=0; x<blocksX; x++)
     {
         for(size_t y=0; y<blocksY; y++)

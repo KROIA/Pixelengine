@@ -218,12 +218,12 @@ void Player::rotate_270(const PointF &rotationPoint)
     GameObject::rotate_270(rotationPoint);
     m_sensor.rotate_270();
 }
-void Player::event_hasCollision(GameObject *other)
+void Player::event_hasCollision(vector<GameObject*> other)
 {
     GameObject::event_hasCollision(other);
     if(this->m_objEventHandler != nullptr)
         m_objEventHandler->collisionOccured(this,other);
-    Property::Property otherProperty = other->getProperty();
+   /* Property::Property otherProperty = other->getProperty();
 
     if(otherProperty.getBody().material    == Property::Material::Grass &&
        otherProperty.getType().description != Property::Description::dynamicObstacle)
@@ -231,7 +231,7 @@ void Player::event_hasCollision(GameObject *other)
         //if(m_objEventHandler != nullptr)
         //   m_objEventHandler->removeFromEngine(other);
         //this->rotate_270();
-    }
+    }*/
 
     //m_layerItem.setToLastPos();
 }

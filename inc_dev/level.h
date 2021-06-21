@@ -13,7 +13,7 @@ extern Player          *player;
 extern GameObject      *obstacle1;
 extern Wall            *wall1;
 extern GameObject      *imported;
-extern GameObjectGroup *objectGroup;
+extern ManagedGameObjectGroup *objectGroup;
 extern AnimatedTexture *animatedTexture;
 extern GameObject      *waterBlock;
 extern AnimatedTexture *waterTexture;
@@ -34,7 +34,7 @@ extern Event *keyEvent_O;
 
 // toggle Hitbox
 extern Event *keyEvent_H;
-extern GameObjectGroup hitboxObjectList;
+extern ManagedGameObjectGroup hitboxObjectList;
 extern bool hitboxIsVisible;
 
 void userEventLoop(double tickInterval,unsigned long long tick);
@@ -44,8 +44,8 @@ void userDisplayLoop(double frameInterval,unsigned long long tick);
 GameObject *getimportedObject();
 
 Color getRainbow(double phase);
-GameObjectGroup makeBoarder(PixelEngine *engine);
-GameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &blocksY,const Point &bottomLeftOrigin);
+ManagedGameObjectGroup *makeBoarder(PixelEngine *engine);
+ManagedGameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &blocksY,const Point &bottomLeftOrigin);
 
 
 void setup_level();

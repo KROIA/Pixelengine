@@ -1,5 +1,9 @@
 #ifndef PIXELENGINE_H
 #define PIXELENGINE_H
+#include "easy/profiler.h"
+#include "easy/arbitrary_value.h"
+#include "easy/reader.h"
+
 
 #include "iostream"
 #include "stdio.h"
@@ -56,7 +60,7 @@ const Color __color_minimalAlphaColor(255,255,255);
 
 typedef  void (*p_func)(double,unsigned long long);
 
-enum ImageOrigin
+/*enum ImageOrigin
 {
     topLeftCorner,
     topRightCorner,
@@ -64,7 +68,7 @@ enum ImageOrigin
     bottomRightCorner,
     center
 };
-
+*/
 
 class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerInterface
 {
@@ -83,6 +87,7 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
             double  gameObjectTickTime;
             double  checkEventTime;
             double  tickTime;
+            double  drawTime;
             double  displayTime;
 
             double  checkUserEventTime;
