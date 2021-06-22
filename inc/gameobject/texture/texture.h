@@ -20,7 +20,7 @@ using std::vector;
 class Texture
 {
     public:
-        enum Origin
+       /* enum Origin
         {
             topLeft,
             topRight,
@@ -28,7 +28,7 @@ class Texture
             bottomRight,
             middle,
             costumPos
-        };
+        };*/
         Texture();
         Texture(const Texture &other);
         virtual ~Texture();
@@ -43,44 +43,47 @@ class Texture
         virtual bool loadTexture(); // returns true if succeded
         virtual bool loadTexture(const string &filePath); // returns true if succeded
 
-    //    virtual bool applayToPainter(Painter *painter); // returns true if succeded
-    //    virtual bool
-        virtual void setOriginType(Origin origin);
-        virtual Origin getOriginType() const;
-        virtual void setOrigin(const Point &origin);
-        virtual const Point &getOrigin() const;
+       // virtual void setOriginType(Origin origin);
+       // virtual Origin getOriginType() const;
+       // virtual void setOrigin(const Point &origin);
+       // virtual const Point &getOrigin() const;
 
         virtual PointU getSize() const;
         virtual Color getColor(const Point &pos) const;
 
-        virtual const vector<Pixel> &getPixels() const; // Returns all Pixel's of the Texture
+       // virtual const vector<Pixel> &getPixels() const; // Returns all Pixel's of the Texture
         virtual const vector<Rect>  &getRects() const;  // Returns all Rects which cover the Texture (for collider)
-        virtual const Rect          &getFrame() const;
+       // virtual const Rect          &getFrame() const;
 
         virtual bool changesAvailable();
         virtual void changesApplied();
 
         virtual const sf::Texture &getTexture() const;
 
+        virtual void rotate(double deg);
+        virtual const double &getRotation() const;
+
     protected:
-        virtual void internalSetOrigin(const Point &origin);
-        virtual void fillPixelList(const Image &image);
-        virtual void calculateBoxes(const vector<Pixel> &pixelList);
+       // virtual void internalSetOrigin(const Point &origin);
+        //virtual void fillPixelList(const Image &image);
+      //  virtual void calculateBoxes(const vector<Pixel> &pixelList);
+        virtual void calculateBoxes();
         virtual void optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outputColliderList);
 
         string m_textureFileName;
         Image  m_image;
         //Color  m_alpha;
         uint8_t m_alphaThreshold;
-        vector<Pixel> m_pixelList;
+        //vector<Pixel> m_pixelList;
         vector<Rect>  m_pixelRectList;
 
         bool    m_changesAvailable;
         Point   m_origin;
-        Origin  m_originType;
-        Rect    m_frame;
+        //Origin  m_originType;
+        //Rect    m_frame;
 
         sf::Texture m_texture;
+        double m_rotation;
 
     private:
 

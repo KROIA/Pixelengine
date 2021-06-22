@@ -68,7 +68,7 @@ void PixelDisplay::clear()
     EASY_FUNCTION(profiler::colors::Blue100);
     auto px1 = reinterpret_cast<sf::Color*>(const_cast<sf::Uint8*>(m_image.getPixelsPtr()));
     std::fill(px1, px1 + m_image.getSize().x * m_image.getSize().y, m_clearColor);
-    m_spriteList.clear();
+    clearSprite();
 }
 
 void PixelDisplay::setPixel(const PointU &pos, const Color &color)
@@ -107,7 +107,6 @@ void PixelDisplay::addSprite(Sprite &sprite)
 {
     m_spriteList.push_back(sprite);
     m_spriteList[m_spriteList.size()-1].setScale(m_spriteScale.getX(),m_spriteScale.getY());
-  //  qDebug() << "scale: "<<m_spriteScale.getX() << " "<<m_spriteScale.getY();
     PointF point(sprite.getPosition().x,sprite.getPosition().y);
     m_spriteList[m_spriteList.size()-1].setPosition(point.getX() * m_spriteScale.getX(), point.getY() * m_spriteScale.getY());
 }
@@ -201,22 +200,6 @@ sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
     return event;
 }
 
-/*bool PixelDisplay::loadFontFromFile(const std::string& filename)
-{
-    bool ret = m_font.loadFromFile(filename);
-    if (!ret)
-    {
-        qDebug()  << "can't load font";
-    }
-    else
-    {
-        for(Text* &listedText : m_textList)
-        {
-            listedText->text.setFont(m_font);
-        }
-    }
-    return ret;
-}*/
 bool PixelDisplay::addText(DisplayText *text)       // This function will not own the Text Object!
 {
     EASY_FUNCTION(profiler::colors::Blue800);

@@ -7,8 +7,10 @@ Painter::Painter()
     m_const_dummy_pixel.setColor(Color(0,0,0,0));
     setPos(0,0);
     setVisibility(true);
-    setFrameVisibility(false);
+    //setFrameVisibility(false);
     m_rotationRad = 0;
+
+    //m_sprite.setTexture(m_texture);
 }
 Painter::Painter(const Painter &other)
     :   LayerItem()
@@ -23,13 +25,15 @@ Painter::~Painter()
 const Painter &Painter::operator=(const Painter &other)
 {
     LayerItem::operator=(other);
-    this->m_pixelList  = other.m_pixelList;
-    this->m_isVisible  = other.m_isVisible;
-    this->m_frameVisible = other.m_frameVisible;
-    this->m_rotationRad= other.m_rotationRad;
+    //this->m_pixelList  = other.m_pixelList;
+    this->m_isVisible       = other.m_isVisible;
+   // this->m_frameVisible    = other.m_frameVisible;
+    this->m_rotationRad     = other.m_rotationRad;
+    this->m_sprite          = other.m_sprite;
+    //this->m_texture         = other.m_texture;
     return *this;
 }
-void Painter::reserve(const size_t amount)
+/*void Painter::reserve(const size_t amount)
 {
     m_pixelList.reserve(amount);
 }
@@ -102,15 +106,15 @@ void Painter::setPixelColor(int x, int y, const Color &color)
 Rect Painter::getFrame() const
 {
     return m_frame;
-}
-void Painter::setFrameVisibility(bool isVisible)
+}*/
+/*void Painter::setFrameVisibility(bool isVisible)
 {
     m_frameVisible = isVisible;
 }
 bool Painter::isFrameVisible()
 {
     return m_frameVisible;
-}
+}*/
 
 void Painter::draw(PixelDisplay &display)
 {
@@ -119,7 +123,7 @@ void Painter::draw(PixelDisplay &display)
     {
         display.addSprite(m_sprite);
         //display.setPixel(m_pixelList);
-        if(m_frameVisible)
+        /*if(m_frameVisible)
         {
             Color frameColor(255,0,0,255);
             Pixel p1(m_frame.getCornerPoint_TL(),frameColor);
@@ -130,7 +134,7 @@ void Painter::draw(PixelDisplay &display)
             display.setPixel(p2);
             display.setPixel(p3);
             display.setPixel(p4);
-        }
+        }*/
     }
 }
 
@@ -156,7 +160,9 @@ void Painter::setPos(int x, int y)
     EASY_FUNCTION(profiler::colors::Cyan300);
     if(LayerItem::getX() == x && LayerItem::getY() == y)
         return;
-    this->setPos(Point(x,y));
+    m_sprite.setPosition(x,y);
+    LayerItem::setPos(x,y);
+    //this->setPos(Point(x,y));
 }
 void Painter::setX(int x)
 {
@@ -194,7 +200,7 @@ const bool &Painter::isVisible() const
 {
     return m_isVisible;
 }
-void Painter::erasePixel(const size_t &index)
+/*void Painter::erasePixel(const size_t &index)
 {
     EASY_FUNCTION(profiler::colors::Cyan400);
     m_pixelList.erase(m_pixelList.begin()+index);
@@ -213,25 +219,27 @@ void Painter::erasePixel(int x, int y)
 {
     EASY_FUNCTION(profiler::colors::Cyan400);
     erasePixel(Point(x,y));
-}
-void Painter::clear()
+}*/
+/*void Painter::clear()
 {
     EASY_FUNCTION(profiler::colors::Cyan500);
     m_pixelList.clear();
     m_frame.set(0,0,0,0);
-}
+}*/
 void Painter::rotate(const PointF &rotPoint,const double &rad)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    for(size_t i=0; i<m_pixelList.size(); i++)
+   /* for(size_t i=0; i<m_pixelList.size(); i++)
     {
         GeneralVector<double> vec(m_pixelList[i].getPos().getX(),m_pixelList[i].getPos().getY());
         PointF newPos = (GeneralVector<double>::rotate(vec,rotPoint,rad)).toPoint();
         m_pixelList[i].setPos(round(newPos.getX()),round(newPos.getY()));
-    }
+    }*/
     m_rotationRad += rad;
     m_rotationRad = double(int(m_rotationRad*1000) % int(2*M_PI *1000))/1000.f;
-    updateFrame();
+    //updateFrame();
+
+    m_sprite.rotate(180.f*rad/M_PI);
 }
 
 double Painter::getRotation() const
@@ -282,15 +290,16 @@ void Painter::rotate_270(const PointF &rotationPoint)
 void Painter::setTexture(const Texture *texture)
 {
     EASY_FUNCTION(profiler::colors::Cyan700);
-    this->clear();
+    /*this->clear();
     Point oldPos = this->getPos();
     this->setPos(Point(0,0));
     EASY_BLOCK("<<internalSetPixel>>",profiler::colors::Cyan800);
     m_pixelList = texture->getPixels();
     EASY_END_BLOCK;
     m_frame = texture->getFrame();
-    this->setPos(oldPos);
-
+    this->setPos(oldPos);*/
+    setRotation(texture->getRotation());
+    setTexture(texture->getTexture());
 
 }
 void Painter::setTexture(const sf::Texture &texture)
@@ -299,7 +308,7 @@ void Painter::setTexture(const sf::Texture &texture)
     m_sprite.setTexture(texture);
     m_sprite.setPosition(this->getX(),this->getY());
 }
-void Painter::internalSetPixel(const vector<Pixel> &pixelList)
+/*void Painter::internalSetPixel(const vector<Pixel> &pixelList)
 {
     EASY_FUNCTION(profiler::colors::Cyan800);
     m_pixelList = pixelList;
@@ -314,8 +323,8 @@ void Painter::internalAddPixel(const vector<Pixel> &pixelList)
     EASY_FUNCTION(profiler::colors::Cyan800);
     for(const Pixel &p : pixelList)
         internalAddPixel(p);
-}
-void Painter::updateFrame()
+}*/
+/*void Painter::updateFrame()
 {
     EASY_FUNCTION(profiler::colors::Cyan900);
     vector<Rect> pixelRects(m_pixelList.size(),Rect(Point(0,0),Point(1,1)));
@@ -324,4 +333,4 @@ void Painter::updateFrame()
         pixelRects[i].setPos(m_pixelList[i].getPos());
     }
     m_frame = Rect::getFrame(pixelRects);
-}
+}*/

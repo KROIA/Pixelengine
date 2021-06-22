@@ -1,5 +1,5 @@
 #include "hitboxPainter.h"
-
+/*
 void HitboxPainter::makeVisibleCollider(Collider *collider,
                                         Painter  *painter)
 {
@@ -18,3 +18,4 @@ void HitboxPainter::makeVisibleCollider(Collider *collider,
     painter->addPixel(Pixel(collider->getBoundingBox().getCornerPoint_BL(),color));
     painter->addPixel(Pixel(collider->getBoundingBox().getCornerPoint_BR(),color));
 }
+*/

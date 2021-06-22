@@ -4,7 +4,7 @@
 Sensor::Sensor()
 {
     m_sensorCollider = new Collider();
-    m_sensorPainter  = new Painter();
+    //m_sensorPainter  = new Painter();
     m_owner = nullptr;
 }
 
@@ -17,13 +17,13 @@ Sensor::Sensor(const Sensor &other)
 Sensor::~Sensor()
 {
     delete m_sensorCollider;
-    delete m_sensorPainter;
+    //delete m_sensorPainter;
 }
 
 const Sensor &Sensor::operator=(const Sensor &other)
 {
     *this->m_sensorCollider = *other.m_sensorCollider;
-    *this->m_sensorPainter  = *other.m_sensorPainter;
+   // *this->m_sensorPainter  = *other.m_sensorPainter;
     this->m_detected        = other.m_detected;
     this->m_owner           = other.m_owner;
     return *this;
@@ -40,7 +40,7 @@ void Sensor::setSensorCollider(Collider *collider)
         return;
     delete m_sensorCollider;
     m_sensorCollider = collider;
-    HitboxPainter::makeVisibleCollider(m_sensorCollider,m_sensorPainter);
+   // HitboxPainter::makeVisibleCollider(m_sensorCollider,m_sensorPainter);
 }
 void Sensor::checkCollision(const vector<GameObject*> &other)
 {
@@ -63,8 +63,8 @@ void Sensor::checkCollision(const vector<GameObject*> &other)
 void Sensor::draw(PixelDisplay &display)
 {
     EASY_FUNCTION(profiler::colors::Yellow200);
-    m_sensorPainter->setPos(m_owner->getPos());
-    m_sensorPainter->draw(display);
+   // m_sensorPainter->setPos(m_owner->getPos());
+   // m_sensorPainter->draw(display);
 }
 const vector<GameObject*> &Sensor::getDetectedObjects() const
 {
@@ -78,24 +78,24 @@ double Sensor::getRotation() const
 void Sensor::setRotation(const double &deg)
 {
     EASY_FUNCTION(profiler::colors::Yellow300);
-    m_sensorPainter->setRotation(deg);
+    //m_sensorPainter->setRotation(deg);
     m_sensorCollider->setRotation(deg);
 }
 void Sensor::rotate_90()
 {
     EASY_FUNCTION(profiler::colors::Yellow300);
-    m_sensorPainter->rotate_90();
+//    m_sensorPainter->rotate_90();
     m_sensorCollider->rotate_90();
 }
 void Sensor::rotate_180()
 {
     EASY_FUNCTION(profiler::colors::Yellow300);
-    m_sensorPainter->rotate_180();
+   // m_sensorPainter->rotate_180();
     m_sensorCollider->rotate_180();
 }
 void Sensor::rotate_270()
 {
     EASY_FUNCTION(profiler::colors::Yellow300);
-    m_sensorPainter->rotate_270();
+   // m_sensorPainter->rotate_270();
     m_sensorCollider->rotate_270();
 }

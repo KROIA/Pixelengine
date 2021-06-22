@@ -26,14 +26,14 @@ class AnimatedTexture   :   public Texture
 
         virtual bool addTexture(const string &filePath);
 
-        virtual void setOriginType(Origin origin);
-        virtual Origin getOriginType() const;
-        virtual void setOrigin(const Point &origin);
-        virtual const Point &getOrigin() const;
+       // virtual void setOriginType(Origin origin);
+       // virtual Origin getOriginType() const;
+       // virtual void setOrigin(const Point &origin);
+       // virtual const Point &getOrigin() const;
 
 
-        virtual vector< vector<Pixel>  > getPixelsList() const;
-        virtual const vector<Pixel> &getPixels(unsigned int textureIndex) const; // Returns all Pixel's of the Texture
+        //virtual vector< vector<Pixel>  > getPixelsList() const;
+        //virtual const vector<Pixel> &getPixels(unsigned int textureIndex) const; // Returns all Pixel's of the Texture
         virtual vector< vector<Rect>  > getRectsList() const;
         virtual const vector<Rect>  &getRects(unsigned int textureIndex) const;  // Returns all Rects which cover the Texture (for collider)
 

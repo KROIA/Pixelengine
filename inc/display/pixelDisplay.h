@@ -58,7 +58,6 @@ class PixelDisplay
         virtual sf::Event handleEvents(const KeyEvent &eventHandler);
         virtual sf::Event handleEvents(const vector<KeyEvent> &eventHandlerList);
 
-        //virtual bool loadFontFromFile(const std::string& filename);
         virtual bool addText(DisplayText *text);       // This function will not own the Text Object!
         virtual bool removeText(DisplayText *text);
         virtual void clearText();
@@ -79,7 +78,7 @@ class PixelDisplay
         Image m_image;
         Sprite m_sprite;
 
-        //Color m_clearColor;
+        Color m_clearColor;
         //sf::Text text;
         vector<DisplayText*> m_textList;
         //sf::Font m_font;

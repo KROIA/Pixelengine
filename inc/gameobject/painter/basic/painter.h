@@ -22,22 +22,22 @@ class Painter   :   public  LayerItem
         virtual ~Painter();
         virtual const Painter &operator=(const Painter &other);
 
-        virtual void reserve(const size_t amount);
+        //virtual void reserve(const size_t amount);
 
-        virtual void setPixel(const vector<Pixel> &pixelList);
-        virtual void addPixel(const Pixel &pixel);
-        virtual void addPixel(const vector<Pixel> &pixelList);
-        virtual const Pixel &getPixel(const size_t &index) const;
-        virtual const Pixel &getPixel(const Point &pixelPos) const;
-        virtual const Pixel &getPixel(int x, int y) const;
-        virtual size_t getPixelAmount() const;
-        virtual void setPixelColor(const size_t &index, const Color &color);
-        virtual void setPixelColor(const Point &pixelPos, const Color &color);
-        virtual void setPixelColor(int x, int y, const Color &color);
-        virtual void setPixelColor(const Color &color);
-        virtual Rect getFrame() const;
-        virtual void setFrameVisibility(bool isVisible);
-        virtual bool isFrameVisible();
+       // virtual void setPixel(const vector<Pixel> &pixelList);
+       // virtual void addPixel(const Pixel &pixel);
+       // virtual void addPixel(const vector<Pixel> &pixelList);
+       // virtual const Pixel &getPixel(const size_t &index) const;
+       // virtual const Pixel &getPixel(const Point &pixelPos) const;
+       // virtual const Pixel &getPixel(int x, int y) const;
+       // virtual size_t getPixelAmount() const;
+       // virtual void setPixelColor(const size_t &index, const Color &color);
+       // virtual void setPixelColor(const Point &pixelPos, const Color &color);
+       // virtual void setPixelColor(int x, int y, const Color &color);
+       // virtual void setPixelColor(const Color &color);
+       // virtual Rect getFrame() const;
+       // virtual void setFrameVisibility(bool isVisible);
+       // virtual bool isFrameVisible();
 
         virtual void draw(PixelDisplay &display);
 
@@ -50,10 +50,10 @@ class Painter   :   public  LayerItem
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;
 
-        virtual void erasePixel(const size_t &index);
-        virtual void erasePixel(const Point &pixelPos);
-        virtual void erasePixel(int x, int y);
-        virtual void clear(); // Deletes all pixels
+       // virtual void erasePixel(const size_t &index);
+       // virtual void erasePixel(const Point &pixelPos);
+       // virtual void erasePixel(int x, int y);
+       // virtual void clear(); // Deletes all pixels
 
         virtual double getRotation() const;
         virtual void setRotation(const double &deg);
@@ -69,17 +69,17 @@ class Painter   :   public  LayerItem
         virtual void setTexture(const sf::Texture &texture);
 
     protected:
-        virtual void internalSetPixel(const vector<Pixel> &pixelList);
-        virtual void internalAddPixel(const Pixel &pixel);
-        virtual void internalAddPixel(const vector<Pixel> &pixelList);
-        virtual void updateFrame();
+       // virtual void internalSetPixel(const vector<Pixel> &pixelList);
+       // virtual void internalAddPixel(const Pixel &pixel);
+       // virtual void internalAddPixel(const vector<Pixel> &pixelList);
+       // virtual void updateFrame();
 
-        vector<Pixel> m_pixelList;
+        //vector<Pixel> m_pixelList;
         bool    m_isVisible;
 
         double  m_rotationRad;
-        Rect    m_frame;
-        bool    m_frameVisible;
+        //Rect    m_frame;
+        //bool    m_frameVisible;
 
         //sf::Texture m_texture;
         sf::Sprite  m_sprite;

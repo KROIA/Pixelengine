@@ -87,27 +87,27 @@ class GameObject
         virtual void updateBoundingBox();
         virtual void setHitboxFromTexture();
         virtual void setHitboxFromTexture(const Texture &texture);
-        virtual void setHitboxVisibility(const bool &isVisible);
-        virtual void updateHitboxPainter();
-        virtual const bool &isHitboxVisible() const;
+     //   virtual void setHitboxVisibility(const bool &isVisible);
+     //   virtual void updateHitboxPainter();
+     //   virtual const bool &isHitboxVisible() const;
         virtual bool checkTextureUpdateForCollider();
 
         // Painter settings
-        virtual void reservePixelAmount(const size_t amount);
-        virtual void addPixel(const Pixel &pixel);
-        virtual void addPixel(const vector<Pixel> &pixelList);
-        virtual const Pixel &getPixel(const size_t &index) const;
-        virtual const Pixel &getPixel(const Point &pixelPos) const;
-        virtual const Pixel &getPixel(int x, int y) const;
-        virtual size_t getPixelAmount() const;
-        virtual void setPixelColor(const size_t &index, const Color &color);
-        virtual void setPixelColor(const Point &pixelPos, const Color &color);
-        virtual void setPixelColor(int x, int y, const Color &color);
-        virtual void setPixelColor(const Color &color);
-        virtual void erasePixel(const size_t &index);
-        virtual void erasePixel(const Point &pixelPos);
-        virtual void erasePixel(int x, int y);
-        virtual void clearPainter(); // Deletes all pixels
+     //   virtual void reservePixelAmount(const size_t amount);
+     //   virtual void addPixel(const Pixel &pixel);
+     //   virtual void addPixel(const vector<Pixel> &pixelList);
+     //   virtual const Pixel &getPixel(const size_t &index) const;
+     //   virtual const Pixel &getPixel(const Point &pixelPos) const;
+     //   virtual const Pixel &getPixel(int x, int y) const;
+     //   virtual size_t getPixelAmount() const;
+     //   virtual void setPixelColor(const size_t &index, const Color &color);
+     //   virtual void setPixelColor(const Point &pixelPos, const Color &color);
+     //   virtual void setPixelColor(int x, int y, const Color &color);
+     //   virtual void setPixelColor(const Color &color);
+     //   virtual void erasePixel(const size_t &index);
+     //   virtual void erasePixel(const Point &pixelPos);
+     //   virtual void erasePixel(int x, int y);
+     //   virtual void clearPainter(); // Deletes all pixels
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;
         virtual void setTexture(Texture *texture);
@@ -143,7 +143,7 @@ class GameObject
         DynamicCoordinator m_movementCoordinator;
         Collider   *m_collider;
         Painter    *m_painter;
-        Painter    *m_hitboxPainter;
+       // Painter    *m_hitboxPainter;
 
         Texture    *m_texture;
         bool        m_textureIsActiveForPainter;

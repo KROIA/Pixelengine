@@ -53,7 +53,7 @@ const unsigned int &Wall::getHeight() const
 void Wall::setColor(const Color &color)
 {
     m_color = color;
-    m_painter->setPixelColor(m_color);
+    //m_painter->setPixelColor(m_color);
 }
 const Color &Wall::getColor() const
 {
@@ -66,14 +66,14 @@ Controller *Wall::getController()
 void Wall::generateObject()
 {
     m_collider->clear();
-    m_painter->clear();
+    //m_painter->clear();
     m_collider->addHitbox(Rect(m_dimension.getX(),
                                m_dimension.getY()));
-    for(unsigned int x=0; x<m_dimension.getX(); x++)
+   /* for(unsigned int x=0; x<m_dimension.getX(); x++)
     {
         for(unsigned int y=0; y<m_dimension.getY(); y++)
         {
             m_painter->addPixel(Pixel(Point(x,y),m_color));
         }
-    }
+    }*/
 }

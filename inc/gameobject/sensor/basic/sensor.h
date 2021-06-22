@@ -4,7 +4,7 @@
 #include "gameobject.h"
 #include "point.h"
 #include "rect.h"
-#include "hitboxPainter.h"
+//#include "hitboxPainter.h"
 
 #include "profiler.h"
 
@@ -34,7 +34,7 @@ class Sensor
 
     protected:
         Collider *m_sensorCollider;
-        Painter  *m_sensorPainter;
+        //Painter  *m_sensorPainter;
         vector<GameObject*> m_detected;
         GameObject *m_owner;
     private:

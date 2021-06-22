@@ -5,21 +5,22 @@ Texture::Texture()
     m_textureFileName = "";
     m_changesAvailable = false;
     m_alphaThreshold = 150;
-    m_frame.setPos(0,0);
-    m_frame.setSize(0,0);
-    setOriginType(Origin::middle);
+   // m_frame.setPos(0,0);
+   // m_frame.setSize(0,0);
+   // setOriginType(Origin::middle);
 }
 Texture::Texture(const Texture &other)
 {
     this->m_textureFileName = other.m_textureFileName;
     this->m_image           = other.m_image;
     this->m_alphaThreshold  = other.m_alphaThreshold;
-    this->m_pixelList       = other.m_pixelList;
+   // this->m_pixelList       = other.m_pixelList;
     this->m_pixelRectList   = other.m_pixelRectList;
     this->m_changesAvailable= other.m_changesAvailable;
     this->m_origin          = other.m_origin;
-    this->m_originType      = other.m_originType;
-    this->m_frame           = other.m_frame;
+   // this->m_originType      = other.m_originType;
+   // this->m_frame           = other.m_frame;
+    this->m_texture         = other.m_texture;
 }
 Texture::~Texture()
 {
@@ -30,12 +31,13 @@ Texture &Texture::operator=(const Texture &other)
     this->m_textureFileName = other.m_textureFileName;
     this->m_image           = other.m_image;
     this->m_alphaThreshold  = other.m_alphaThreshold;
-    this->m_pixelList       = other.m_pixelList;
+   // this->m_pixelList       = other.m_pixelList;
     this->m_pixelRectList   = other.m_pixelRectList;
     this->m_changesAvailable= other.m_changesAvailable;
     this->m_origin          = other.m_origin;
-    this->m_originType      = other.m_originType;
-    this->m_frame           = other.m_frame;
+   // this->m_originType      = other.m_originType;
+   // this->m_frame           = other.m_frame;
+    this->m_texture         = other.m_texture;
     return *this;
 }
 
@@ -62,16 +64,18 @@ bool Texture::loadTexture()
     EASY_FUNCTION(profiler::colors::Brown);
     if(m_textureFileName == "")
         return false;
-    if(!m_image.loadFromFile(m_textureFileName))
+    if(!m_image.loadFromFile(m_textureFileName) || !m_texture.loadFromImage(m_image))
     {
+
         qDebug() << "ERROR: Texture::loadTexture(): Can't load file "<<m_textureFileName.c_str();
         return false;
     }
-    m_texture.loadFromFile(m_textureFileName);
 
 
-    fillPixelList(m_image);
-    calculateBoxes(m_pixelList);
+
+    //fillPixelList(m_image);
+    //calculateBoxes(m_pixelList);
+    calculateBoxes();
     m_changesAvailable = true;
 
     return true;
@@ -82,7 +86,7 @@ bool Texture::loadTexture(const string &filePath)
     setFilePath(filePath);
     return loadTexture();
 }
-void Texture::setOriginType(Origin origin)
+/*void Texture::setOriginType(Origin origin)
 {
     EASY_FUNCTION(profiler::colors::Brown100);
     if(origin == Origin::costumPos)
@@ -116,7 +120,7 @@ void Texture::internalSetOrigin(const Point &origin)
 const Point &Texture::getOrigin() const
 {
     return m_origin;
-}
+}*/
 PointU Texture::getSize() const
 {
     return PointU(m_image.getSize().x, m_image.getSize().y);
@@ -126,28 +130,29 @@ Color Texture::getColor(const Point &pos) const
     if(pos.getX() >= signed(m_image.getSize().x) ||
        pos.getY() >= signed(m_image.getSize().y))
         return Color();
-    for(size_t i=0; i<m_pixelList.size(); i++)
+    /*for(size_t i=0; i<m_pixelList.size(); i++)
     {
         if(m_pixelList[i].getPos() == pos)
         {
             return m_pixelList[i];
         }
-    }
-    return Color();
+    }*/
+    return m_image.getPixel(pos.getX(),pos.getY());
+    //return Color();
 }
 
-const vector<Pixel> &Texture::getPixels() const
+/*const vector<Pixel> &Texture::getPixels() const
 {
     return m_pixelList;
-}
+}*/
 const vector<Rect>  &Texture::getRects() const
 {
     return m_pixelRectList;
 }
-const Rect          &Texture::getFrame() const
+/*const Rect          &Texture::getFrame() const
 {
     return m_frame;
-}
+}*/
 bool Texture::changesAvailable()
 {
     return m_changesAvailable;
@@ -160,8 +165,18 @@ const sf::Texture &Texture::getTexture() const
 {
     return m_texture;
 }
+void Texture::rotate(double deg)
+{
+    m_rotation += deg;
+    m_rotation = double(((long long)m_rotation * 10000) % 3600000) / 10000;
+    m_changesAvailable = true;
+}
+const double &Texture::getRotation() const
+{
+    return m_rotation;
+}
 
-void Texture::fillPixelList(const Image &image)
+/*void Texture::fillPixelList(const Image &image)
 {
     EASY_FUNCTION(profiler::colors::Brown300);
     m_pixelList.clear();
@@ -204,17 +219,39 @@ void Texture::fillPixelList(const Image &image)
         EASY_END_BLOCK;
     }
     EASY_END_BLOCK;
-}
-void Texture::calculateBoxes(const vector<Pixel> &pixelList)
+}*/
+//void Texture::calculateBoxes(const vector<Pixel> &pixelList)
+void Texture::calculateBoxes()
 {
     EASY_FUNCTION(profiler::colors::Brown50);
+    vector<Point> pixelPosList;
+    PointU texture_size(m_image.getSize().x,m_image.getSize().y);
+
+    pixelPosList.reserve(texture_size.getX() * texture_size.getY());
+
+    EASY_BLOCK("fillPixelPos x loop",profiler::colors::Brown400);
+    for(unsigned int x=0; x<texture_size.getX(); x++)
+    {
+        EASY_BLOCK("fillPixelPos y loop",profiler::colors::Brown500);
+        for(unsigned int y=0; y<texture_size.getY(); y++)
+        {
+            uint8_t pixelAlpha = m_image.getPixel(x,y).a;
+            if(pixelAlpha > m_alphaThreshold)
+            {
+                pixelPosList.push_back(Point(x,y));
+            }
+        }
+        EASY_END_BLOCK;
+    }
+    EASY_END_BLOCK;
+    //------------------------------
     vector<Rect> rawRectList;
-    rawRectList.reserve(pixelList.size());
+    rawRectList.reserve(pixelPosList.size());
 
     EASY_BLOCK("Fill rawRectList",profiler::colors::Brown100);
-    for(const Pixel &pixel : pixelList)
+    for(const Point &pixel : pixelPosList)
     {
-        rawRectList.push_back(Rect(Vector(pixel.getPos())+Vector(m_origin),Point(1,1)));
+        rawRectList.push_back(Rect(pixel,Point(1,1)));
     }
     EASY_END_BLOCK;
     //----------- OPTIMIZE ---------------------
@@ -276,12 +313,12 @@ void Texture::calculateBoxes(const vector<Pixel> &pixelList)
     optimize_HitboxMap(map,m_pixelRectList);
 
     EASY_BLOCK("Move m_pixelRectList",profiler::colors::Brown500);
-    // Verschiebe alle Rects, abhängig vom m_origin Punkt
+  /*  // Verschiebe alle Rects, abhängig vom m_origin Punkt
     for(size_t i=0; i<m_pixelRectList.size(); i++)
     {
         m_pixelRectList[i].setPos(m_pixelRectList[i].getX()-m_origin.getX(),
                                   m_pixelRectList[i].getY()-m_origin.getY());
-    }
+    }*/
     EASY_END_BLOCK;
 
     EASY_BLOCK("Delete map",profiler::colors::Brown600);
@@ -293,7 +330,7 @@ void Texture::calculateBoxes(const vector<Pixel> &pixelList)
         }
     }
     EASY_END_BLOCK;
-    m_frame = Rect::getFrame(m_pixelRectList);
+    //m_frame = Rect::getFrame(m_pixelRectList);
 }
 void Texture::optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outputColliderList)
 {
