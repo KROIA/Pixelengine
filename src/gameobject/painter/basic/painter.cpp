@@ -117,7 +117,8 @@ void Painter::draw(PixelDisplay &display)
     EASY_FUNCTION(profiler::colors::Cyan200);
     if(m_isVisible)
     {
-        display.setPixel(m_pixelList);
+        display.addSprite(m_sprite);
+        //display.setPixel(m_pixelList);
         if(m_frameVisible)
         {
             Color frameColor(255,0,0,255);
@@ -138,7 +139,8 @@ void Painter::setPos(const Point &pos)
     EASY_FUNCTION(profiler::colors::Cyan300);
     if(LayerItem::getPos() == pos)
         return;
-    Point deltaPos(pos.getX() - LayerItem::getX(),
+    m_sprite.setPosition(pos.getX(),pos.getY());
+    /*Point deltaPos(pos.getX() - LayerItem::getX(),
                    pos.getY() - LayerItem::getY());
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
@@ -146,7 +148,7 @@ void Painter::setPos(const Point &pos)
         m_pixelList[i].setPos(Vector(m_pixelList[i].getPos()) + Vector(deltaPos));
     }
     //m_frame.setPos(m_frame.getX() + deltaPos.getX(), m_frame.getY() + deltaPos.getY());
-    m_frame.setPos(Vector(m_frame.getPos()) + Vector(deltaPos));
+    m_frame.setPos(Vector(m_frame.getPos()) + Vector(deltaPos));*/
     LayerItem::setPos(pos);
 }
 void Painter::setPos(int x, int y)
@@ -161,12 +163,13 @@ void Painter::setX(int x)
     EASY_FUNCTION(profiler::colors::Cyan300);
     if(LayerItem::getX() == x)
         return;
-    int deltaX = x - LayerItem::getX();
+    m_sprite.setPosition(x,m_sprite.getPosition().x);
+    /*int deltaX = x - LayerItem::getX();
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
         m_pixelList[i].setX(m_pixelList[i].getX() + deltaX);
     }
-    m_frame.setX(m_frame.getPos().getX() + deltaX);
+    m_frame.setX(m_frame.getPos().getX() + deltaX);*/
     LayerItem::setX(x);
 }
 void Painter::setY(int y)
@@ -174,12 +177,13 @@ void Painter::setY(int y)
     EASY_FUNCTION(profiler::colors::Cyan300);
     if(LayerItem::getX() == y)
         return;
-    int deltaY = y - LayerItem::getY();
+    m_sprite.setPosition(m_sprite.getPosition().x,y);
+    /*int deltaY = y - LayerItem::getY();
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
         m_pixelList[i].setY(m_pixelList[i].getY() + deltaY);
     }
-    m_frame.setY(m_frame.getPos().getY() + deltaY);
+    m_frame.setY(m_frame.getPos().getY() + deltaY);*/
     LayerItem::setY(y);
 }
 void Painter::setVisibility(const bool &isVisible)
@@ -280,14 +284,20 @@ void Painter::setTexture(const Texture *texture)
     EASY_FUNCTION(profiler::colors::Cyan700);
     this->clear();
     Point oldPos = this->getPos();
-    //PointF oldPos = m_floatingPos;
     this->setPos(Point(0,0));
     EASY_BLOCK("<<internalSetPixel>>",profiler::colors::Cyan800);
     m_pixelList = texture->getPixels();
     EASY_END_BLOCK;
     m_frame = texture->getFrame();
-    //m_floatingPos = oldPos;
     this->setPos(oldPos);
+
+
+}
+void Painter::setTexture(const sf::Texture &texture)
+{
+    EASY_FUNCTION(profiler::colors::Cyan700);
+    m_sprite.setTexture(texture);
+    m_sprite.setPosition(this->getX(),this->getY());
 }
 void Painter::internalSetPixel(const vector<Pixel> &pixelList)
 {

@@ -16,7 +16,8 @@ PixelDisplay::PixelDisplay(const PointU &windowSize, const PointU &pixelSize)
     m_sprite.setTexture(m_texture);
     m_sprite.setScale((double)windowSize.getX()/(double)pixelSize.getX(),
                       (double)windowSize.getY()/(double)pixelSize.getY());
-
+    m_spriteScale.set((double)windowSize.getX()/(double)pixelSize.getX(),
+                      (double)windowSize.getY()/(double)pixelSize.getY());
 }
 PixelDisplay::PixelDisplay(const PixelDisplay &other)
 {
@@ -41,8 +42,13 @@ void PixelDisplay::display()
     //auto stats_timePoint_1 = std::chrono::system_clock::now();
 
     m_renderWindow->clear();
-    m_texture.loadFromImage(m_image);
-    m_renderWindow->draw(m_sprite);
+    //m_texture.loadFromImage(m_image);
+    //m_renderWindow->draw(m_sprite);
+
+    for(Sprite &object : m_spriteList)
+    {
+        m_renderWindow->draw(object);
+    }
     for(DisplayText* &text : m_textList)
     {
         if(text == nullptr)
@@ -56,15 +62,13 @@ void PixelDisplay::display()
 
     m_renderWindow->display();
     clear();
-    /*auto stats_timePoint_2 = std::chrono::system_clock::now();
-    std::chrono::duration<double> m_time_span_draw_time = stats_timePoint_2 - stats_timePoint_1;
-    qDebug() << "display(): "<<m_time_span_draw_time.count()*1000;*/
 }
 void PixelDisplay::clear()
 {
     EASY_FUNCTION(profiler::colors::Blue100);
     auto px1 = reinterpret_cast<sf::Color*>(const_cast<sf::Uint8*>(m_image.getPixelsPtr()));
     std::fill(px1, px1 + m_image.getSize().x * m_image.getSize().y, m_clearColor);
+    m_spriteList.clear();
 }
 
 void PixelDisplay::setPixel(const PointU &pos, const Color &color)
@@ -93,6 +97,21 @@ void PixelDisplay::setPixel(const vector<Pixel> &pixelList)
         this->setPixel(pixelList[i]);
     }
 }
+
+void PixelDisplay::clearSprite()
+{
+    m_spriteList.clear();
+    m_spriteList.reserve(500);
+}
+void PixelDisplay::addSprite(Sprite &sprite)
+{
+    m_spriteList.push_back(sprite);
+    m_spriteList[m_spriteList.size()-1].setScale(m_spriteScale.getX(),m_spriteScale.getY());
+  //  qDebug() << "scale: "<<m_spriteScale.getX() << " "<<m_spriteScale.getY();
+    PointF point(sprite.getPosition().x,sprite.getPosition().y);
+    m_spriteList[m_spriteList.size()-1].setPosition(point.getX() * m_spriteScale.getX(), point.getY() * m_spriteScale.getY());
+}
+
 bool PixelDisplay::isOpen() const
 {
     return m_renderWindow->isOpen();

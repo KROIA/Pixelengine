@@ -609,7 +609,8 @@ void GameObject::setTextureOnPainter()
 {
     EASY_FUNCTION(profiler::colors::GreenA200);
     m_textureIsActiveForPainter = true;
-    m_painter->setTexture(m_texture);
+    //m_painter->setTexture(m_texture);
+    m_painter->setTexture(m_texture->getTexture());
     m_painterNeedsUpdateFromTexture = false;
 }
 void GameObject::setTextureOnPainter(const Texture &texture)

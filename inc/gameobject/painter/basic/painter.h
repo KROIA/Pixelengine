@@ -66,6 +66,7 @@ class Painter   :   public  LayerItem
         virtual void rotate_270(const PointF &rotationPoint);
 
         virtual void setTexture(const Texture *texture);
+        virtual void setTexture(const sf::Texture &texture);
 
     protected:
         virtual void internalSetPixel(const vector<Pixel> &pixelList);
@@ -79,6 +80,9 @@ class Painter   :   public  LayerItem
         double  m_rotationRad;
         Rect    m_frame;
         bool    m_frameVisible;
+
+        //sf::Texture m_texture;
+        sf::Sprite  m_sprite;
     private:
 
         virtual void rotate(const PointF &rotPoint,const double &rad);

@@ -48,6 +48,9 @@ class PixelDisplay
         virtual void setPixel(const Pixel &pixel);
         virtual void setPixel(const vector<Pixel> &pixelList);
 
+        virtual void clearSprite();
+        virtual void addSprite(Sprite &sprite);
+
         virtual bool isOpen() const;
 
 
@@ -71,14 +74,18 @@ class PixelDisplay
 
         RenderWindow *m_renderWindow;
         View m_windowView;
+
         sf::Texture m_texture;
         Image m_image;
         Sprite m_sprite;
 
-        Color m_clearColor;
+        //Color m_clearColor;
         //sf::Text text;
         vector<DisplayText*> m_textList;
         //sf::Font m_font;
+
+        vector<Sprite>       m_spriteList;
+        PointF               m_spriteScale;
     private:
 
 

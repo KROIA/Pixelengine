@@ -67,6 +67,7 @@ bool Texture::loadTexture()
         qDebug() << "ERROR: Texture::loadTexture(): Can't load file "<<m_textureFileName.c_str();
         return false;
     }
+    m_texture.loadFromFile(m_textureFileName);
 
 
     fillPixelList(m_image);
@@ -155,7 +156,10 @@ void Texture::changesApplied()
 {
     m_changesAvailable = false;
 }
-
+const sf::Texture &Texture::getTexture() const
+{
+    return m_texture;
+}
 
 void Texture::fillPixelList(const Image &image)
 {

@@ -2,6 +2,7 @@
 #define Texture_H
 #include "string.h"
 #include "SFML/Graphics/Image.hpp"
+#include "SFML/Graphics/Texture.hpp"
 #include "pixel.h"
 #include "vector.h"
 #include "rect.h"
@@ -59,6 +60,8 @@ class Texture
         virtual bool changesAvailable();
         virtual void changesApplied();
 
+        virtual const sf::Texture &getTexture() const;
+
     protected:
         virtual void internalSetOrigin(const Point &origin);
         virtual void fillPixelList(const Image &image);
@@ -76,6 +79,8 @@ class Texture
         Point   m_origin;
         Origin  m_originType;
         Rect    m_frame;
+
+        sf::Texture m_texture;
 
     private:
 
