@@ -190,7 +190,7 @@ void userEventLoop(double tickInterval,unsigned long long tick)
     if(keyEvent_P->isSinking())
     {
         //qDebug() << "keyEvent_P Sinking";
-        engine->display_stats(!engine->display_stats(),Color(0,200,0),Point(1000,20));
+        engine->display_stats(!engine->display_stats(),Color(0,200,0),Point(10,20));
     }
     if(keyEvent_O->isPressed())
     {

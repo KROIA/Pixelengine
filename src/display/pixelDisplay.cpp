@@ -72,13 +72,22 @@ void PixelDisplay::setPixel(const PointU &pos, const Color &color)
     EASY_FUNCTION(profiler::colors::Blue200);
     if(pos.getX() >= m_pixelMapSize.getX() || pos.getY() >= m_pixelMapSize.getY())
         return;
+    EASY_BLOCK("m_image.setPixel",profiler::colors::Blue300);
     m_image.setPixel(pos.getX(),pos.getY(),color);
 }
 void PixelDisplay::setPixel(const Pixel &pixel)
 {
+    /*EASY_FUNCTION(profiler::colors::Blue300);
+    unsigned int x = pixel.getX();
+    unsigned int y = pixel.getY();
+    if(x >= m_pixelMapSize.getX() || y >= m_pixelMapSize.getY())
+        return;
+    EASY_BLOCK("m_image.setPixel",profiler::colors::Blue300);
+    m_image.setPixel(x,y,pixel);*/
     EASY_FUNCTION(profiler::colors::Blue300);
     if(unsigned(pixel.getX()) >= m_pixelMapSize.getX() || unsigned(pixel.getY()) >= m_pixelMapSize.getY())
-        return;
+            return;
+    EASY_BLOCK("m_image.setPixel",profiler::colors::Blue300);
     m_image.setPixel(pixel.getX(),pixel.getY(),pixel);
 }
 void PixelDisplay::setPixel(const vector<Pixel> &pixelList)

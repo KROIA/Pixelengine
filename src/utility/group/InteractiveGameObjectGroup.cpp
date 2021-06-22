@@ -23,6 +23,7 @@ InteractiveGameObject* InteractiveGameObjectGroup::operator[](size_t index)
 
 void InteractiveGameObjectGroup::add(InteractiveGameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Purple50);
     m_interactiveObjectsList.push_back(obj);
 }
 void InteractiveGameObjectGroup::add(GameObject *obj)
@@ -34,6 +35,7 @@ void InteractiveGameObjectGroup::add(GameObject *obj)
 
 void InteractiveGameObjectGroup::remove(InteractiveGameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Purple100);
     for(size_t i=0; i<m_interactiveObjectsList.size(); i++)
     {
         if(m_interactiveObjectsList[i] == obj)
@@ -45,6 +47,7 @@ void InteractiveGameObjectGroup::remove(InteractiveGameObject *obj)
 }
 void InteractiveGameObjectGroup::remove(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Purple100);
     for(size_t i=0; i<m_interactiveObjectsList.size(); i++)
     {
         if(m_interactiveObjectsList[i]->getGameObject() == obj)
@@ -56,6 +59,7 @@ void InteractiveGameObjectGroup::remove(GameObject *obj)
 }
 void InteractiveGameObjectGroup::deleteObj(InteractiveGameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Purple200);
     for(size_t i=0; i<m_interactiveObjectsList.size(); i++)
     {
         if(m_interactiveObjectsList[i] == obj)
@@ -68,6 +72,7 @@ void InteractiveGameObjectGroup::deleteObj(InteractiveGameObject *obj)
 }
 void InteractiveGameObjectGroup::deleteObj(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Purple200);
     for(size_t i=0; i<m_interactiveObjectsList.size(); i++)
     {
         if(m_interactiveObjectsList[i]->getGameObject() == obj)
@@ -80,11 +85,13 @@ void InteractiveGameObjectGroup::deleteObj(GameObject *obj)
 }
 void InteractiveGameObjectGroup::clear()
 {
+    EASY_FUNCTION(profiler::colors::Purple300);
     m_interactiveObjectsList.clear();
 }
 
 InteractiveGameObject *InteractiveGameObjectGroup::getInteractiveObject(const GameObject *obj) const
 {
+    EASY_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_interactiveObjectsList.size(); i++)
     {
         if(m_interactiveObjectsList[i]->getGameObject() == obj)
@@ -95,6 +102,7 @@ InteractiveGameObject *InteractiveGameObjectGroup::getInteractiveObject(const Ga
 
 InteractiveGameObject *InteractiveGameObjectGroup::getInteractiveObject(unsigned int index) const
 {
+    EASY_FUNCTION(profiler::colors::Purple400);
     if(m_interactiveObjectsList.size() >= index)
         return nullptr;
     return m_interactiveObjectsList[index];
@@ -108,20 +116,23 @@ const vector<InteractiveGameObject*> &InteractiveGameObjectGroup::getInteractive
 
 const vector<GameObjectGroup*> &InteractiveGameObjectGroup::getInteractiveObjectsList(const GameObject *obj) const
 {
+    EASY_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_interactiveObjectsList.size(); i++)
     {
         if(m_interactiveObjectsList[i]->getGameObject() == obj)
             return getInteractiveObjectsList(1);
     }
-    return vector<GameObjectGroup*>();
+    return m_const_dummy_list;
 }
 const vector<GameObjectGroup*> &InteractiveGameObjectGroup::getInteractiveObjectsList(size_t index) const
 {
+    EASY_FUNCTION(profiler::colors::Purple400);
      return m_interactiveObjectsList[index]->getInteractiveObjectsList();
 }
 
 const GameObjectGroup InteractiveGameObjectGroup::getInteractiveObjects(const GameObject *obj) const
 {
+    EASY_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_interactiveObjectsList.size(); i++)
     {
         if(m_interactiveObjectsList[i]->getGameObject() == obj)
@@ -131,11 +142,13 @@ const GameObjectGroup InteractiveGameObjectGroup::getInteractiveObjects(const Ga
 }
 const GameObjectGroup InteractiveGameObjectGroup::getInteractiveObjects(size_t index) const
 {
+    EASY_FUNCTION(profiler::colors::Purple400);
     return m_interactiveObjectsList[index]->getInteractiveObjects();
 }
 
 void InteractiveGameObjectGroup::removeAllInteractionsWithObj(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Purple500);
     for(size_t i=0; i<m_interactiveObjectsList.size(); i++)
     {
         m_interactiveObjectsList[i]->removeInteractionWith(obj);
@@ -143,6 +156,7 @@ void InteractiveGameObjectGroup::removeAllInteractionsWithObj(GameObject *obj)
 }
 void InteractiveGameObjectGroup::removeAllInteractionsWithObj(InteractiveGameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Purple500);
     removeAllInteractionsWithObj(obj->getGameObject());
 }
 

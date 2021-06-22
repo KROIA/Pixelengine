@@ -45,6 +45,7 @@ class InteractiveGameObjectGroup
     protected:
 
         vector<InteractiveGameObject*> m_interactiveObjectsList;
+        vector<GameObjectGroup*>       m_const_dummy_list;
 
     private:
 };

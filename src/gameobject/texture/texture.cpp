@@ -48,9 +48,9 @@ const string &Texture::getFilePath() const
     return m_textureFileName;
 }
 
-void Texture::setAlphaThreshold(uint8_t m_alphaThreshold)
+void Texture::setAlphaThreshold(uint8_t alphaThreshold)
 {
-    m_alphaThreshold = m_alphaThreshold;
+    m_alphaThreshold = alphaThreshold;
 }
 uint8_t Texture::getAlphaThreshold() const
 {
@@ -59,6 +59,7 @@ uint8_t Texture::getAlphaThreshold() const
 
 bool Texture::loadTexture()
 {
+    EASY_FUNCTION(profiler::colors::Brown);
     if(m_textureFileName == "")
         return false;
     if(!m_image.loadFromFile(m_textureFileName))
@@ -76,11 +77,13 @@ bool Texture::loadTexture()
 }
 bool Texture::loadTexture(const string &filePath)
 {
+    EASY_FUNCTION(profiler::colors::Brown);
     setFilePath(filePath);
     return loadTexture();
 }
 void Texture::setOriginType(Origin origin)
 {
+    EASY_FUNCTION(profiler::colors::Brown100);
     if(origin == Origin::costumPos)
         return;
     m_originType = origin;
@@ -91,11 +94,13 @@ Texture::Origin Texture::getOriginType() const
 }
 void Texture::setOrigin(const Point &origin)
 {
+    EASY_FUNCTION(profiler::colors::Brown200);
     setOriginType(Origin::costumPos);
     internalSetOrigin(origin);
 }
 void Texture::internalSetOrigin(const Point &origin)
 {
+    EASY_FUNCTION(profiler::colors::Brown200);
     if(m_origin == origin)
         return;
     Point lastOrigin = m_origin;
@@ -117,8 +122,8 @@ PointU Texture::getSize() const
 }
 Color Texture::getColor(const Point &pos) const
 {
-    if(pos.getX() >= m_image.getSize().x ||
-       pos.getY() >= m_image.getSize().y)
+    if(pos.getX() >= signed(m_image.getSize().x) ||
+       pos.getY() >= signed(m_image.getSize().y))
         return Color();
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
@@ -154,6 +159,7 @@ void Texture::changesApplied()
 
 void Texture::fillPixelList(const Image &image)
 {
+    EASY_FUNCTION(profiler::colors::Brown300);
     m_pixelList.clear();
     PointU texture_size(m_image.getSize().x,m_image.getSize().y);
     switch(m_originType)
@@ -177,8 +183,10 @@ void Texture::fillPixelList(const Image &image)
 
         break;
     }
+    EASY_BLOCK("fillPixel x loop",profiler::colors::Brown400);
     for(unsigned int x=0; x<texture_size.getX(); x++)
     {
+        EASY_BLOCK("fillPixel y loop",profiler::colors::Brown500);
         for(unsigned int y=0; y<texture_size.getY(); y++)
         {
             uint8_t pixelAlpha = m_image.getPixel(x,y).a;
@@ -189,17 +197,22 @@ void Texture::fillPixelList(const Image &image)
                 m_pixelList.push_back(p);
             }
         }
+        EASY_END_BLOCK;
     }
+    EASY_END_BLOCK;
 }
 void Texture::calculateBoxes(const vector<Pixel> &pixelList)
 {
+    EASY_FUNCTION(profiler::colors::Brown50);
     vector<Rect> rawRectList;
     rawRectList.reserve(pixelList.size());
 
+    EASY_BLOCK("Fill rawRectList",profiler::colors::Brown100);
     for(const Pixel &pixel : pixelList)
     {
         rawRectList.push_back(Rect(Vector(pixel.getPos())+Vector(m_origin),Point(1,1)));
     }
+    EASY_END_BLOCK;
     //----------- OPTIMIZE ---------------------
     size_t width = 0;
     size_t height = 0;
@@ -207,6 +220,7 @@ void Texture::calculateBoxes(const vector<Pixel> &pixelList)
     vector<vector<Rect*>    > map;
 
     // Lese Maximale Grösse der Textur
+    EASY_BLOCK("Read max texture size",profiler::colors::Brown200);
     for(Rect &rect : rawRectList)
     {
         if(width < static_cast<size_t>(rect.getX()))
@@ -216,7 +230,10 @@ void Texture::calculateBoxes(const vector<Pixel> &pixelList)
     }
     width++;
     height++;
+    EASY_END_BLOCK;
 
+
+    EASY_BLOCK("Fill map with nullptr type: Rect*",profiler::colors::Brown300);
     // Fülle die ganze Fläche mit nullptr vom type Rect
     map.reserve(width);
     for(size_t x=0; x<width; x++)
@@ -229,7 +246,9 @@ void Texture::calculateBoxes(const vector<Pixel> &pixelList)
             map[x].push_back(nullptr);
         }
     }
+    EASY_END_BLOCK;
 
+    EASY_BLOCK("Fill map with new Rect*",profiler::colors::Brown400);
     // Fülle die Fläche mit Rects
     for(Rect &rect : rawRectList)
     {
@@ -247,16 +266,21 @@ void Texture::calculateBoxes(const vector<Pixel> &pixelList)
          map[rect.getX()][rect.getY()] = new Rect();
         *map[rect.getX()][rect.getY()] = rect;
     }
+    EASY_END_BLOCK;
 
     // Verkleinere die Rects und lösche die unnötigen Rects
     optimize_HitboxMap(map,m_pixelRectList);
 
+    EASY_BLOCK("Move m_pixelRectList",profiler::colors::Brown500);
     // Verschiebe alle Rects, abhängig vom m_origin Punkt
     for(size_t i=0; i<m_pixelRectList.size(); i++)
     {
         m_pixelRectList[i].setPos(m_pixelRectList[i].getX()-m_origin.getX(),
                                   m_pixelRectList[i].getY()-m_origin.getY());
     }
+    EASY_END_BLOCK;
+
+    EASY_BLOCK("Delete map",profiler::colors::Brown600);
     for(size_t x=0; x<width; x++)
     {
         for(size_t y=0; y<height; y++)
@@ -264,10 +288,12 @@ void Texture::calculateBoxes(const vector<Pixel> &pixelList)
             delete map[x][y];
         }
     }
+    EASY_END_BLOCK;
     m_frame = Rect::getFrame(m_pixelRectList);
 }
 void Texture::optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outputColliderList)
 {
+    EASY_FUNCTION(profiler::colors::Brown50);
     if(map.size() == 0)
         return;
     if(map[0].size() == 0)
@@ -276,8 +302,10 @@ void Texture::optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outp
     size_t width    = map.size();
     size_t height   = map[0].size();
 
+    EASY_BLOCK("Optimizer y loop",profiler::colors::Brown100);
     for(size_t y=0; y<height; y++)
     {
+        EASY_BLOCK("Optimizer x loop",profiler::colors::Brown200);
         for(size_t x=0; x<width; x++)
         {
             if(map[x][y] == nullptr)
@@ -286,6 +314,8 @@ void Texture::optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outp
             size_t xIterator = 1;
             unsigned int colliderWidth = map[x][y]->getSize().getX();
             vector<Rect**> toDeleteList;
+
+            EASY_BLOCK("while(!endXloop)",profiler::colors::Brown300);
             while(!endXloop)
             {
                 if(x+xIterator >= width)
@@ -302,14 +332,19 @@ void Texture::optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outp
                 toDeleteList.push_back(&map[x+xIterator][y]);
                 xIterator++;
             }
+            EASY_END_BLOCK;
+            EASY_BLOCK("Delete unused Rects",profiler::colors::Brown300);
             for(size_t i=0; i<toDeleteList.size(); i++)
             {
                 delete *toDeleteList[i];
                 *toDeleteList[i] = nullptr;
             }
+            EASY_END_BLOCK;
             map[x][y]->setSize(colliderWidth,map[x][y]->getSize().getY());
             outputColliderList.push_back(Rect(*map[x][y]));
             x+=xIterator-1;
         }
+        EASY_END_BLOCK;
     }
+    EASY_END_BLOCK;
 }

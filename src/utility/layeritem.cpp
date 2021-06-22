@@ -109,10 +109,12 @@ void LayerItem::setY_F(const double &y)
 
 int LayerItem::getX() const
 {
+    EASY_FUNCTION(profiler::colors::Blue500);
     return int(round(m_floatingPos.getX()));
 }
 int LayerItem::getY() const
 {
+    EASY_FUNCTION(profiler::colors::Blue500);
     return int(round(m_floatingPos.getY()));
 }
 

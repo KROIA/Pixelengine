@@ -108,6 +108,7 @@ void GeneralPoint<T>::moveX(const T &deltaX)
 template<class T>
 const T &GeneralPoint<T>::getX() const
 {
+    EASY_FUNCTION(profiler::colors::Blue600);
     return m_x;
 }
 template<class T>
@@ -123,6 +124,7 @@ void GeneralPoint<T>::moveY(const T &deltaY)
 template<class T>
 const T &GeneralPoint<T>::getY() const
 {
+    EASY_FUNCTION(profiler::colors::Blue600);
     return m_y;
 }
 

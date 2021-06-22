@@ -18,6 +18,7 @@ InteractiveGameObject::~InteractiveGameObject()
 
 void InteractiveGameObject::setGameObject(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Purple50);
     m_gameObject = obj;
 }
 GameObject *InteractiveGameObject::getGameObject() const
@@ -27,6 +28,7 @@ GameObject *InteractiveGameObject::getGameObject() const
 
 void InteractiveGameObject::addInteractionWith(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Purple100);
     if(obj == nullptr)
         return;
 #ifdef CHECK_FOR_DOUBLE_OBJ
@@ -41,6 +43,7 @@ void InteractiveGameObject::addInteractionWith(GameObject *obj)
 }
 void InteractiveGameObject::addInteractionWith(GameObjectGroup *group)
 {
+    EASY_FUNCTION(profiler::colors::Purple100);
     if(group == nullptr)
         return;
 #ifdef CHECK_FOR_DOUBLE_OBJ
@@ -54,6 +57,7 @@ void InteractiveGameObject::addInteractionWith(GameObjectGroup *group)
 }
 void InteractiveGameObject::addInteractionWith(vector<GameObjectGroup*> *groupList)
 {
+    EASY_FUNCTION(profiler::colors::Purple100);
     for(size_t i=0; i<groupList->size(); i++)
     {
         addInteractionWith((*groupList)[i]);
@@ -62,6 +66,7 @@ void InteractiveGameObject::addInteractionWith(vector<GameObjectGroup*> *groupLi
 
 void InteractiveGameObject::removeInteractionWith(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Purple200);
     if(obj == nullptr)
         return;
 
@@ -75,6 +80,7 @@ void InteractiveGameObject::removeInteractionWith(GameObject *obj)
 }
 void InteractiveGameObject::removeInteractionWith(GameObjectGroup *group)
 {
+    EASY_FUNCTION(profiler::colors::Purple200);
     for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
     {
         if(m_interactsWithObjectsList[i] == group)
@@ -83,6 +89,7 @@ void InteractiveGameObject::removeInteractionWith(GameObjectGroup *group)
 }
 void InteractiveGameObject::removeInteractionWith(vector<GameObjectGroup*> *groupList)
 {
+    EASY_FUNCTION(profiler::colors::Purple200);
     for(size_t i=0; i<groupList->size(); i++)
     {
         removeInteractionWith((*groupList)[i]);
@@ -91,6 +98,7 @@ void InteractiveGameObject::removeInteractionWith(vector<GameObjectGroup*> *grou
 
 void InteractiveGameObject::setInteractionWith(GameObject *obj, bool doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::Purple300);
     if(doesCollide)
         addInteractionWith(obj);
     else
@@ -98,6 +106,7 @@ void InteractiveGameObject::setInteractionWith(GameObject *obj, bool doesCollide
 }
 void InteractiveGameObject::setInteractionWith(GameObjectGroup *group, bool doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::Purple300);
     if(doesCollide)
         addInteractionWith(group);
     else
@@ -105,6 +114,7 @@ void InteractiveGameObject::setInteractionWith(GameObjectGroup *group, bool does
 }
 void InteractiveGameObject::setInteractionWith(vector<GameObjectGroup*> *groupList, bool doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::Purple300);
     if(doesCollide)
         addInteractionWith(groupList);
     else
@@ -117,6 +127,7 @@ const vector<GameObjectGroup*> &InteractiveGameObject::getInteractiveObjectsList
 }
 const GameObjectGroup InteractiveGameObject::getInteractiveObjects() const
 {
+    EASY_FUNCTION(profiler::colors::Purple400);
     GameObjectGroup list;
     for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
     {

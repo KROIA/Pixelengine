@@ -36,7 +36,7 @@ class Texture
         virtual void setFilePath(const string &filePath);
         virtual const string &getFilePath() const;
 
-        virtual void setAlphaThreshold(uint8_t m_alphaThreshold);
+        virtual void setAlphaThreshold(uint8_t alphaThreshold);
         virtual uint8_t getAlphaThreshold() const;
 
         virtual bool loadTexture(); // returns true if succeded

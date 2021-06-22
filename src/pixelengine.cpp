@@ -142,8 +142,10 @@ void PixelEngine::checkEvent()
 #ifdef STATISTICS
     auto stats_checkUserEvent_timer_start = std::chrono::system_clock::now();
 #endif
+    EASY_BLOCK("userCheckEventLoop",profiler::colors::Orange50);
     if(m_p_func_userCheckEventLoop != nullptr)
         (*m_p_func_userCheckEventLoop)(m_eventInterval,m_tick);
+    EASY_END_BLOCK;
 #ifdef STATISTICS
     auto stats_checkEvent_timer_start = std::chrono::system_clock::now();
     std::chrono::duration<double> time_span_checkUserEvent_time = stats_checkEvent_timer_start - stats_checkUserEvent_timer_start;
@@ -166,11 +168,12 @@ void PixelEngine::checkEvent()
 
         }
     }
-
+    EASY_BLOCK("getGameObject->checkEvent",profiler::colors::Orange50);
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
     {
         m_masterGameObjectGroup[i]->getGameObject()->checkEvent();
     }
+    EASY_END_BLOCK;
 #ifdef STATISTICS
     auto stats_checkEvent_timer_end = std::chrono::system_clock::now();
     std::chrono::duration<double> time_span_checkEvent_time = stats_checkEvent_timer_end - stats_checkEvent_timer_start;
@@ -183,15 +186,17 @@ void PixelEngine::tick()
 #ifndef NO_TIMED_LOOPS
     if(!m_mainTickTimer->start(m_mainTickInterval))
         return; // Time not finished
-    EASY_FUNCTION(profiler::colors::Orange100);
 #endif
+     EASY_FUNCTION(profiler::colors::Orange100);
 
 #ifdef STATISTICS
     m_statistics.objectsInEngine = m_masterGameObjectGroup.size();
     auto stats_userTick_timer_start = std::chrono::system_clock::now();
 #endif
+    EASY_BLOCK("userTickLoop",profiler::colors::Orange200);
     if(m_p_func_userTickLoop != nullptr)
         (*m_p_func_userTickLoop)(m_mainTickInterval,m_tick);
+    EASY_END_BLOCK;
 #ifdef STATISTICS
     m_tick++;
     m_statistics.collisionsPerTick      = 0;
@@ -203,8 +208,10 @@ void PixelEngine::tick()
     filter(m_statistics.userTickTime, time_span_userEventEvent_time.count()*1000.f,m_statsFilterFactor);
 #endif
 
+    EASY_BLOCK("tick X-Y",profiler::colors::Orange200);
     tickX();
     tickY();
+    EASY_END_BLOCK;
 
 #ifdef STATISTICS
     m_statistics.collisionChecksPerTick = Rect::stats_getIntersectionCounter();
@@ -221,17 +228,20 @@ void PixelEngine::tick()
 }
 void PixelEngine::tickX()
 {
+    EASY_FUNCTION(profiler::colors::Orange300);
     tickXY(Point(1,0));
 }
 void PixelEngine::tickY()
 {
+    EASY_FUNCTION(profiler::colors::Orange300);
     tickXY(Point(0,1));
 }
 void PixelEngine::tickXY(const Point &dirLock)
 {
-
+    EASY_FUNCTION(profiler::colors::Orange400);
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
     {
+        EASY_BLOCK("For each m_masterGameObjectGroup index",profiler::colors::Orange500);
 #ifdef STATISTICS
         auto stats_timer_start = std::chrono::system_clock::now();
 
@@ -256,11 +266,13 @@ void PixelEngine::tickXY(const Point &dirLock)
 }
 void PixelEngine::updateText()
 {
+    EASY_FUNCTION(profiler::colors::Orange600);
     if(m_stats_text->isVisible())
         updateStatsText();
 }
 void PixelEngine::checkForUserGroupChanges()
 {
+    EASY_FUNCTION(profiler::colors::Orange700);
     int changes = 0;
     int additions = 0;
     int removals = 0;
@@ -293,10 +305,12 @@ void PixelEngine::checkForUserGroupChanges()
 
 void PixelEngine::removeObjectFromList(GameObjectGroup &group,GameObject* obj)
 {
+    EASY_FUNCTION(profiler::colors::Orange800);
     group.remove(obj);
 }
 void PixelEngine::removeObjectFromList(vector<GameObjectGroup> &list,GameObject* obj)
 {
+    EASY_FUNCTION(profiler::colors::Orange800);
     for(size_t i=0; i<list.size(); i++)
     {
         list[i].remove(obj);
@@ -304,6 +318,7 @@ void PixelEngine::removeObjectFromList(vector<GameObjectGroup> &list,GameObject*
 }
 void PixelEngine::removeObjectFromList(vector<GameObjectGroup> &list,GameObjectGroup *obj)
 {
+    EASY_FUNCTION(profiler::colors::Orange800);
     for(size_t i=0; i<(*obj).size(); i++)
     {
         PixelEngine::removeObjectFromList(list,(*obj)[i]);
@@ -311,10 +326,12 @@ void PixelEngine::removeObjectFromList(vector<GameObjectGroup> &list,GameObjectG
 }
 void PixelEngine::removeObjectFromList(GameObjectGroup* &group,GameObject* obj)
 {
+    EASY_FUNCTION(profiler::colors::Orange800);
     group->remove(obj);
 }
 void PixelEngine::removeObjectFromList(vector<GameObjectGroup*> &list,GameObject* obj)
 {
+    EASY_FUNCTION(profiler::colors::Orange800);
     for(size_t i=0; i<list.size(); i++)
     {
         list[i]->remove(obj);
@@ -322,6 +339,7 @@ void PixelEngine::removeObjectFromList(vector<GameObjectGroup*> &list,GameObject
 }
 void PixelEngine::removeObjectFromList(vector<GameObjectGroup*> &list,GameObjectGroup *obj)
 {
+    EASY_FUNCTION(profiler::colors::Orange800);
     for(size_t i=0; i<(*obj).size(); i++)
     {
         PixelEngine::removeObjectFromList(list,(*obj)[i]);
@@ -329,6 +347,7 @@ void PixelEngine::removeObjectFromList(vector<GameObjectGroup*> &list,GameObject
 }
 void PixelEngine::removeObjectFromList_unmanaged(vector<ManagedGameObjectGroup*> &list,GameObject* obj)
 {
+    EASY_FUNCTION(profiler::colors::Orange800);
     for(size_t i=0; i<list.size(); i++)
     {
         list[i]->removeObject_unmanaged(obj);
@@ -337,28 +356,32 @@ void PixelEngine::removeObjectFromList_unmanaged(vector<ManagedGameObjectGroup*>
 
 void PixelEngine::display()
 {
+
 #ifndef NO_TIMED_LOOPS
     if(!m_displayTimer->start(m_displayInterval))
         return;
 #endif
-    EASY_FUNCTION(profiler::colors::Orange200);
+    EASY_FUNCTION(profiler::colors::Orange900);
 
 #ifdef STATISTICS
     auto stats_timePoint_1 = std::chrono::system_clock::now();
 #endif
+    EASY_BLOCK("userDisplayLoop",profiler::colors::OrangeA100)
     if(m_p_func_userDisplayLoop != nullptr)
         (*m_p_func_userDisplayLoop)(m_displayInterval,m_tick);
+    EASY_END_BLOCK;
 #ifdef STATISTICS
     auto stats_timePoint_2 = std::chrono::system_clock::now();
     std::chrono::duration<double> time_span_userDisplay_time = stats_timePoint_2 - stats_timePoint_1;
     filter(m_statistics.userDisplayTime,time_span_userDisplay_time.count()*1000.f,m_statsFilterFactor);
 #endif
 
+    EASY_BLOCK("m_renderLayer->display",profiler::colors::OrangeA100)
     for(size_t i=0; i<m_renderLayer.size(); i++)
     {        
         m_renderLayer[i].draw(*m_display);
     }
-
+    EASY_END_BLOCK;
 #ifdef STATISTICS
     stats_timePoint_1 = std::chrono::system_clock::now();
     std::chrono::duration<double> m_time_span_draw_time = stats_timePoint_1 - stats_timePoint_2;
@@ -406,6 +429,7 @@ const double  &PixelEngine::get_setting_displayInterval() const
 }
 void PixelEngine::addGameObject(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA200);
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
         if(m_masterGameObjectGroup[i]->getGameObject() == obj)
             return; // Object already added to list
@@ -419,21 +443,25 @@ void PixelEngine::addGameObject(GameObject *obj)
 }
 void PixelEngine::addGameObject(ManagedGameObjectGroup *group)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA200);
     addGroup(group);
 }
 void PixelEngine::addGameObject(GameObjectGroup *group)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA200);
     GameObjectGroup::removeDuplicates(group);
     addGameObject(group->getVector());
 }
 void PixelEngine::addGameObject(const vector<GameObject *> &list)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA200);
     //m_masterGameObjectGroup_collisionInteractiveList.reserve(m_masterGameObjectGroup_collisionInteractiveList.size()+list.size());
     for(size_t i=0; i<list.size(); i++)
         this->addGameObject(list[i]);
 }
 void PixelEngine::removeGameObject(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA400);
     // Remove the obj out of the masterList
     /*for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
     {
@@ -459,10 +487,12 @@ void PixelEngine::removeGameObject(GameObject *obj)
 }
 void PixelEngine::removeGameObject(ManagedGameObjectGroup *group)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA400);
     removeGameObject(group->getVector());
 }
 void PixelEngine::removeGameObject(const vector<GameObject *> &list)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA400);
     for(size_t i=0; i<list.size(); i++)
     {
         this->removeGameObject(list[i]);
@@ -471,16 +501,19 @@ void PixelEngine::removeGameObject(const vector<GameObject *> &list)
 
 void PixelEngine::deleteGameObject(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA400);
     this->removeGameObject(obj);
     //delete obj;
     //obj = nullptr;
 }
 void PixelEngine::deleteGameObject(ManagedGameObjectGroup *group)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA400);
     deleteGameObject(group->getVector());
 }
 void PixelEngine::deleteGameObject(const vector<GameObject *> &list)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA400);
     for(size_t i=0; i<list.size(); i++)
     {
         this->deleteGameObject(list[i]);
@@ -488,6 +521,7 @@ void PixelEngine::deleteGameObject(const vector<GameObject *> &list)
 }
 void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObject *obj2, const bool &doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     if(obj1 == obj2)
         return; // Cann't collide with it self
 
@@ -535,6 +569,7 @@ void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObject *obj
 }
 void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObjectGroup *obj2List, const bool &doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     InteractiveGameObject *interactive_1 = m_masterGameObjectGroup.getInteractiveObject(obj1);
     interactive_1->setInteractionWith(obj2List,doesCollide);
    //for(size_t i=0; i<obj2List->size(); i++)
@@ -542,36 +577,43 @@ void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObjectGroup
 }
 void PixelEngine::setCollisionSingleInteraction(GameObjectGroup *obj1List,GameObjectGroup *obj2List, const bool &doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<obj1List->size(); i++)
         this->setCollisionSingleInteraction((*obj1List)[i],obj2List,doesCollide);
 }
 void PixelEngine::setCollisionSingleInteraction(GameObject *obj1, const vector<GameObject*> &obj2List, const bool &doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
    for(size_t i=0; i<obj2List.size(); i++)
        this->setCollisionSingleInteraction(obj1,obj2List[i],doesCollide); // Not very efficient code ;)
 }
 void PixelEngine::setCollisionSingleInteraction(GameObjectGroup *obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<obj1List->size(); i++)
         this->setCollisionSingleInteraction((*obj1List)[i],obj2List,doesCollide);
 }
 void PixelEngine::setCollisionSingleInteraction(const vector<GameObject*> &obj1List,GameObjectGroup *obj2List, const bool &doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<obj1List.size(); i++)
         this->setCollisionSingleInteraction(obj1List[i],obj2List,doesCollide);
 }
 void PixelEngine::setCollisionSingleInteraction(const vector<GameObject*> &obj1List, const vector<GameObject*> &obj2List, const bool &doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<obj1List.size(); i++)
         this->setCollisionSingleInteraction(obj1List[i],obj2List,doesCollide);
 }
 void PixelEngine::setCollisionMultiInteraction(GameObject *obj1,GameObject *obj2, const bool &doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     this->setCollisionSingleInteraction(obj1,obj2, doesCollide);
     this->setCollisionSingleInteraction(obj2,obj1, doesCollide);
 }
 void PixelEngine::setCollisionMultiInteraction(GameObject *obj1,GameObjectGroup *obj2List, const bool &doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     //for(size_t i=0; i<obj2List->size(); i++)
     //    this->setCollisionMultiInteraction(obj1,(*obj2List)[i],doesCollide); // Not very efficient code ;)
     InteractiveGameObject *interactive_1 = m_masterGameObjectGroup.getInteractiveObject(obj1);
@@ -581,18 +623,21 @@ void PixelEngine::setCollisionMultiInteraction(GameObject *obj1,GameObjectGroup 
 }
 void PixelEngine::setCollisionMultiInteraction(GameObjectGroup *obj1List,GameObjectGroup *obj2List, const bool &doesCollide)
 {
-    setCollisionSingleInteraction(obj1List,obj2List);
-    setCollisionSingleInteraction(obj2List,obj1List);
+    EASY_FUNCTION(profiler::colors::OrangeA700);
+    setCollisionSingleInteraction(obj1List,obj2List,doesCollide);
+    setCollisionSingleInteraction(obj2List,obj1List,doesCollide);
     //for(size_t i=0; i<obj1List->size(); i++)
     //    this->setCollisionMultiInteraction((*obj1List)[i],obj2List,doesCollide);
 }
 void PixelEngine::setCollisionMultiInteraction(GameObject *obj1, const vector<GameObject*> &obj2List, const bool &doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<obj2List.size(); i++)
         this->setCollisionMultiInteraction(obj1,obj2List[i],doesCollide); // Not very efficient code ;)
 }
 void PixelEngine::setCollisionMultiInteraction(GameObjectGroup *obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     this->setCollisionSingleInteraction(obj2List,obj1List,doesCollide);
     this->setCollisionSingleInteraction(obj1List,obj2List,doesCollide);
     //for(size_t i=0; i<obj1List->size(); i++)
@@ -600,6 +645,7 @@ void PixelEngine::setCollisionMultiInteraction(GameObjectGroup *obj1List,const v
 }
 void PixelEngine::setCollisionMultiInteraction(const vector<GameObject*> &obj1List,GameObjectGroup *obj2List, const bool &doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     this->setCollisionSingleInteraction(obj1List,obj2List,doesCollide);
     this->setCollisionSingleInteraction(obj2List,obj1List,doesCollide);
     //for(size_t i=0; i<obj1List.size(); i++)
@@ -607,6 +653,7 @@ void PixelEngine::setCollisionMultiInteraction(const vector<GameObject*> &obj1Li
 }
 void PixelEngine::setCollisionMultiInteraction(const vector<GameObject*> &obj1List, const vector<GameObject*> &obj2List, const bool &doesCollide)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<obj1List.size(); i++)
         this->setCollisionMultiInteraction(obj1List[i],obj2List,doesCollide);
 }
@@ -614,6 +661,7 @@ void PixelEngine::setCollisionMultiInteraction(const vector<GameObject*> &obj1Li
 // Groups
 void PixelEngine::addGroup(ManagedGameObjectGroup *group)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA200);
     for(size_t i=0; i<m_userGroups.size(); i++)
         if(m_userGroups[i] == group)
             return; // Group already added to list
@@ -624,12 +672,14 @@ void PixelEngine::addGroup(ManagedGameObjectGroup *group)
 }
 void PixelEngine::removeGroup(ManagedGameObjectGroup *group)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA400);
     for(size_t i=0; i<m_userGroups.size(); i++)
         if(m_userGroups[i] == group)
             m_userGroups.erase(m_userGroups.begin() + i);
 }
 void PixelEngine::deleteGroup(ManagedGameObjectGroup *group)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA400);
     for(size_t i=0; i<m_userGroups.size(); i++)
         if(m_userGroups[i] == group)
         {
@@ -641,6 +691,7 @@ void PixelEngine::deleteGroup(ManagedGameObjectGroup *group)
 // Rendering
 void PixelEngine::moveRenderLayer_UP(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     size_t currentLayer = 0;
     for(size_t i=0; i<m_renderLayer.size(); i++)
     {
@@ -660,11 +711,13 @@ void PixelEngine::moveRenderLayer_UP(GameObject *obj)
 }
 void PixelEngine::moveRenderLayer_UP(GameObjectGroup *objGroup)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<objGroup->size(); i++)
         this->moveRenderLayer_UP((*objGroup)[i]);
 }
 void PixelEngine::moveRenderLayer_DOWN(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     size_t currentLayer = 0;
     for(size_t i=0; i<m_renderLayer.size(); i++)
     {
@@ -685,11 +738,13 @@ void PixelEngine::moveRenderLayer_DOWN(GameObject *obj)
 }
 void PixelEngine::moveRenderLayer_DOWN(GameObjectGroup *objGroup)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<objGroup->size(); i++)
         this->moveRenderLayer_DOWN((*objGroup)[i]);
 }
 void PixelEngine::setRenderLayer_BOTTOM(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     size_t currentLayer = 0;
     for(size_t i=0; i<m_renderLayer.size(); i++)
     {
@@ -710,11 +765,13 @@ void PixelEngine::setRenderLayer_BOTTOM(GameObject *obj)
 }
 void PixelEngine::setRenderLayer_BOTTOM(GameObjectGroup *objGroup)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<objGroup->size(); i++)
         this->setRenderLayer_BOTTOM((*objGroup)[i]);
 }
 void PixelEngine::setRenderLayer_TOP(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     size_t currentLayer = 0;
     for(size_t i=0; i<m_renderLayer.size(); i++)
     {
@@ -735,6 +792,7 @@ void PixelEngine::setRenderLayer_TOP(GameObject *obj)
 }
 void PixelEngine::setRenderLayer_TOP(GameObjectGroup *objGroup)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<objGroup->size(); i++)
         this->setRenderLayer_TOP((*objGroup)[i]);
 }
@@ -742,26 +800,31 @@ void PixelEngine::setRenderLayer_TOP(GameObjectGroup *objGroup)
 // GameObject Events from GameObjectEventHandler
 void PixelEngine::kill(GameObject *obj)
 {
-
+    EASY_FUNCTION(profiler::colors::Orange50);
 }
 void PixelEngine::removeFromEngine(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA400);
     this->removeGameObject(obj);
 }
 void PixelEngine::deleteObject(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::OrangeA400);
     this->deleteGameObject(obj);
 }
 void PixelEngine::collisionOccured(GameObject *obj1,vector<GameObject *> obj2)
 {
+    EASY_FUNCTION(profiler::colors::Orange100);
    // qDebug() << "collision"<<obj1<<"\t"<<obj2;
 }
 void PixelEngine::addDisplayText(DisplayText*text)
 {
+    EASY_FUNCTION(profiler::colors::Orange200);
     m_display->addText(text);
 };
 void PixelEngine::removeDisplayText(DisplayText*text)
 {
+    EASY_FUNCTION(profiler::colors::Orange300);
     m_display->removeText(text);
 };
 
@@ -769,6 +832,7 @@ void PixelEngine::removeDisplayText(DisplayText*text)
 // General functions
 double PixelEngine::random(double min, double max)
 {
+    EASY_FUNCTION(profiler::colors::Orange400);
     if(min == max || abs(min - max) < 0.000001)
     {
         return min;
@@ -907,7 +971,7 @@ bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider
     qDebug() << "Hitboxamount: "<<collider->getHitboxAmount();
 #endif
     return true;
-}*/
+}
 void PixelEngine::optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColliderList,const Point origin)
 {
     size_t width = 0;
@@ -1000,7 +1064,7 @@ void PixelEngine::optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &
         }
     }
 }
-
+*/
 const unsigned long long &PixelEngine::getTick() const
 {
     return m_tick;
@@ -1016,15 +1080,18 @@ const PixelEngine::Statistics &PixelEngine::get_statistics() const
 }
 void PixelEngine::display_stats(bool enable)
 {
+    EASY_FUNCTION(profiler::colors::Orange500);
      m_stats_text->setVisibility(enable);
 }
 void PixelEngine::display_stats(bool enable, const Color &color)
 {
+    EASY_FUNCTION(profiler::colors::Orange600);
     m_stats_text->setColor(color);
     display_stats(enable);
 }
 void PixelEngine::display_stats(bool enable,const Color &color, const Point &pos, const unsigned int size)
 {
+    EASY_FUNCTION(profiler::colors::Orange600);
     m_stats_text->setPos(pos);
     if(size > 0)
         m_stats_text->setCharacterSize(size);
@@ -1044,6 +1111,7 @@ void PixelEngine::resetStatistics()
 }
 void PixelEngine::updateStatsText()
 {
+    EASY_FUNCTION(profiler::colors::Orange700);
     std::string text =
      "framesPerSecond:       \t" + to_string(m_statistics.framesPerSecond) +        "\n"+
      "ticksPerSecond:        \t" + to_string(m_statistics.ticksPerSecond) +         "\n"+

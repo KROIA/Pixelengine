@@ -50,7 +50,7 @@
 const Color __color_minimalAlphaColor(255,255,255);
 #endif
 
-//#define NO_TIMED_LOOPS
+#define NO_TIMED_LOOPS
 #define STATISTICS
 
 #include "QDebug"
@@ -162,7 +162,7 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         static double random(double min, double max);
       //  static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const ImageOrigin &origin = ImageOrigin::topLeftCorner);
       //  static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const Point &origin);
-        static void   optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColliderList,const Point origin);
+        //static void   optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColliderList,const Point origin);
         virtual const unsigned long long &getTick() const;
         virtual void resetTick();
 
@@ -185,7 +185,7 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual void removeGameObject(const vector<GameObject *> &list);
         virtual void deleteGameObject(const vector<GameObject *> &list);
 
-        static void optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outputColliderList);
+       // static void optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outputColliderList);
 
 
         static void removeObjectFromList(GameObjectGroup &group,GameObject* obj);

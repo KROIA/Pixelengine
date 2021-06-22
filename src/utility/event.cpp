@@ -42,6 +42,7 @@ Event &Event::operator=(const Event &other)
 
 void Event::checkEvent()
 {
+    EASY_FUNCTION(profiler::colors::Indigo50);
     if(m_key < 0)
         return;
     m_isToggled = false;
