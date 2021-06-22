@@ -33,6 +33,12 @@ void Painter::reserve(const size_t amount)
 {
     m_pixelList.reserve(amount);
 }
+void Painter::setPixel(const vector<Pixel> &pixelList)
+{
+    EASY_FUNCTION(profiler::colors::Cyan);
+    m_pixelList = pixelList;
+    updateFrame();
+}
 void Painter::addPixel(const Pixel &pixel)
 {
     EASY_FUNCTION(profiler::colors::Cyan);
@@ -136,10 +142,10 @@ void Painter::setPos(const Point &pos)
                    pos.getY() - LayerItem::getY());
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
+        //m_pixelList[i].setPos(m_pixelList[i].getX() + deltaPos.getX(), m_pixelList[i].getY() + deltaPos.getY());
         m_pixelList[i].setPos(Vector(m_pixelList[i].getPos()) + Vector(deltaPos));
-   //     m_pixelList[i].setX(m_pixelList[i].getX() + deltaPos.getX());
-   //     m_pixelList[i].setY(m_pixelList[i].getY() + deltaPos.getY());
     }
+    //m_frame.setPos(m_frame.getX() + deltaPos.getX(), m_frame.getY() + deltaPos.getY());
     m_frame.setPos(Vector(m_frame.getPos()) + Vector(deltaPos));
     LayerItem::setPos(pos);
 }
@@ -208,8 +214,7 @@ void Painter::clear()
 {
     EASY_FUNCTION(profiler::colors::Cyan500);
     m_pixelList.clear();
-    m_frame.setPos(0,0);
-    m_frame.setSize(0,0);
+    m_frame.set(0,0,0,0);
 }
 void Painter::rotate(const PointF &rotPoint,const double &rad)
 {
@@ -275,10 +280,19 @@ void Painter::setTexture(const Texture *texture)
     EASY_FUNCTION(profiler::colors::Cyan700);
     this->clear();
     Point oldPos = this->getPos();
+    //PointF oldPos = m_floatingPos;
     this->setPos(Point(0,0));
-    this->internalAddPixel(texture->getPixels());
-    this->m_frame = texture->getFrame();
+    EASY_BLOCK("<<internalSetPixel>>",profiler::colors::Cyan800);
+    m_pixelList = texture->getPixels();
+    EASY_END_BLOCK;
+    m_frame = texture->getFrame();
+    //m_floatingPos = oldPos;
     this->setPos(oldPos);
+}
+void Painter::internalSetPixel(const vector<Pixel> &pixelList)
+{
+    EASY_FUNCTION(profiler::colors::Cyan800);
+    m_pixelList = pixelList;
 }
 void Painter::internalAddPixel(const Pixel &pixel)
 {

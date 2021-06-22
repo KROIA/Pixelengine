@@ -29,12 +29,14 @@ class GeneralRect
         virtual ~GeneralRect();
         virtual GeneralRect<T> &operator=(const GeneralRect<T> &other);
 
-        virtual void setPos(GeneralPoint<T> pos);
+        virtual void set(const GeneralPoint<T> &pos, const GeneralPoint<T> &size);
+        virtual void set(const T &posX, const T &posY, const T &sizeX, const T &sizeY);
+        virtual void setPos(const GeneralPoint<T> &pos);
         virtual void setPos(const T &xPos, const T &yPos);
         virtual void setX(const T &x);
         virtual void setY(const T &y);
-        virtual const T &getX();
-        virtual const T &getY();
+        virtual const T &getX() const;
+        virtual const T &getY() const;
 
         virtual const GeneralPoint<T> &getPos() const;
 
@@ -142,15 +144,26 @@ GeneralRect<T> &GeneralRect<T>::operator=(const GeneralRect<T> &other)
     return *this;
 }
 template<class T>
-void GeneralRect<T>::setPos(GeneralPoint<T> pos)
+void GeneralRect<T>::set(const GeneralPoint<T> &pos, const GeneralPoint<T> &size)
+{
+    m_pos  = pos;
+    m_size = size;
+}
+template<class T>
+void GeneralRect<T>::set(const T &posX, const T &posY, const T &sizeX, const T &sizeY)
+{
+    m_pos.set(posX,posY);
+    m_size.set(sizeX,sizeY);
+}
+template<class T>
+void GeneralRect<T>::setPos(const GeneralPoint<T> &pos)
 {
     m_pos = pos;
 }
 template<class T>
 void GeneralRect<T>::setPos(const T &xPos, const T &yPos)
 {
-    m_pos.setX(xPos);
-    m_pos.setY(yPos);
+    m_pos.set(xPos,yPos);
 }
 template<class T>
 void GeneralRect<T>::setX(const T &x)
@@ -163,12 +176,12 @@ void GeneralRect<T>::setY(const T &y)
     m_pos.setY(y);
 }
 template<class T>
-const T &GeneralRect<T>::getX()
+const T &GeneralRect<T>::getX() const
 {
     return m_pos.getX();
 }
 template<class T>
-const T &GeneralRect<T>::getY()
+const T &GeneralRect<T>::getY() const
 {
     return m_pos.getY();
 }
@@ -186,8 +199,7 @@ void GeneralRect<T>::setSize(GeneralPoint<T> size)
 template<class T>
 void GeneralRect<T>::setSize(const T &width, const T &height)
 {
-    m_size.setX(width);
-    m_size.setY(height);
+    m_size.set(width,height);
 }
 template<class T>
 const GeneralPoint<T> &GeneralRect<T>::getSize() const

@@ -24,6 +24,7 @@ class Painter   :   public  LayerItem
 
         virtual void reserve(const size_t amount);
 
+        virtual void setPixel(const vector<Pixel> &pixelList);
         virtual void addPixel(const Pixel &pixel);
         virtual void addPixel(const vector<Pixel> &pixelList);
         virtual const Pixel &getPixel(const size_t &index) const;
@@ -67,6 +68,7 @@ class Painter   :   public  LayerItem
         virtual void setTexture(const Texture *texture);
 
     protected:
+        virtual void internalSetPixel(const vector<Pixel> &pixelList);
         virtual void internalAddPixel(const Pixel &pixel);
         virtual void internalAddPixel(const vector<Pixel> &pixelList);
         virtual void updateFrame();
