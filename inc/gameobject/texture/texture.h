@@ -20,7 +20,7 @@ using std::vector;
 class Texture
 {
     public:
-       /* enum Origin
+        enum Origin
         {
             topLeft,
             topRight,
@@ -28,7 +28,7 @@ class Texture
             bottomRight,
             middle,
             costumPos
-        };*/
+        };
         Texture();
         Texture(const Texture &other);
         virtual ~Texture();
@@ -43,10 +43,10 @@ class Texture
         virtual bool loadTexture(); // returns true if succeded
         virtual bool loadTexture(const string &filePath); // returns true if succeded
 
-       // virtual void setOriginType(Origin origin);
-       // virtual Origin getOriginType() const;
-       // virtual void setOrigin(const Point &origin);
-       // virtual const Point &getOrigin() const;
+        virtual void setOriginType(Origin origin);
+        virtual Origin getOriginType() const;
+        virtual void setOrigin(const PointF &origin);
+        virtual const PointF &getOrigin() const;
 
         virtual PointU getSize() const;
         virtual Color getColor(const Point &pos) const;
@@ -64,7 +64,7 @@ class Texture
         virtual const double &getRotation() const;
 
     protected:
-       // virtual void internalSetOrigin(const Point &origin);
+        virtual void internalSetOrigin(const PointF &origin);
         //virtual void fillPixelList(const Image &image);
       //  virtual void calculateBoxes(const vector<Pixel> &pixelList);
         virtual void calculateBoxes();
@@ -78,13 +78,12 @@ class Texture
         vector<Rect>  m_pixelRectList;
 
         bool    m_changesAvailable;
-        Point   m_origin;
-        //Origin  m_originType;
+        PointF   m_origin;
+        Origin  m_originType;
         //Rect    m_frame;
 
         sf::Texture m_texture;
         double m_rotation;
-
     private:
 
 

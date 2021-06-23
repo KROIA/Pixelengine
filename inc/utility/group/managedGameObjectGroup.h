@@ -76,7 +76,7 @@ class ManagedGameObjectGroup    :   public GameObjectGroup,  GroupManagerInterfa
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;
         virtual void setHitboxVisibility(const bool &isVisible);
-        virtual const bool &isHitboxVisible() const;*/
+        virtual const bool &isHitboxVisible() const;
 
 
         /*virtual bool __engineUseOnly_newObjAvailable() const;
@@ -89,8 +89,8 @@ class ManagedGameObjectGroup    :   public GameObjectGroup,  GroupManagerInterfa
         /*static void removeDuplicates(vector<GameObject *> *list);
         static void removeDuplicates(ManagedGameObjectGroup *list);*/
     protected:
-        bool m_isVisible;
-        bool m_hitboxIsVisible;
+        //bool m_isVisible;
+        //bool m_hitboxIsVisible;
 
         vector<GameObject *> m_toBeAdded; // To be added to the engine
         vector<GameObject *> m_toBeRemoved; // To be removed from the engine

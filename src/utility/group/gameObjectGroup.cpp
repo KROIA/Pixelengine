@@ -218,7 +218,7 @@ void GameObjectGroup::setVisibility(const bool &isVisible)
         m_isInList[i]->setVisibility(m_isVisible);
     }
 }
-/*const bool &GameObjectGroup::isVisible() const
+const bool &GameObjectGroup::isVisible() const
 {
     return m_isVisible;
 }
@@ -239,7 +239,7 @@ void GameObjectGroup::setHitboxVisibility(const bool &isVisible)
 const bool &GameObjectGroup::isHitboxVisible() const
 {
     return m_hitboxIsVisible;
-}*/
+}
 long long GameObjectGroup::indexOf(const GameObject* obj)
 {
     return GameObjectGroup::indexOf(m_isInList,obj);

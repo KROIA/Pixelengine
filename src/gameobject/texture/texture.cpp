@@ -86,41 +86,59 @@ bool Texture::loadTexture(const string &filePath)
     setFilePath(filePath);
     return loadTexture();
 }
-/*void Texture::setOriginType(Origin origin)
+void Texture::setOriginType(Origin origin)
 {
     EASY_FUNCTION(profiler::colors::Brown100);
     if(origin == Origin::costumPos)
         return;
     m_originType = origin;
+    switch(m_originType)
+    {
+        case Origin::topLeft:
+            internalSetOrigin(PointF(0,0));
+        break;
+        case Origin::topRight:
+            internalSetOrigin(PointF(m_image.getSize().x,0));
+        break;
+        case Origin::bottomLeft:
+            internalSetOrigin(PointF(0,m_image.getSize().y));
+        break;
+        case Origin::bottomRight:
+            internalSetOrigin(PointF(m_image.getSize().x,m_image.getSize().y));
+        break;
+        case Origin::middle:
+            internalSetOrigin(PointF(m_image.getSize().x/2,m_image.getSize().y/2));
+        break;
+        default:
+
+        break;
+    }
 }
 Texture::Origin Texture::getOriginType() const
 {
     return m_originType;
 }
-void Texture::setOrigin(const Point &origin)
+void Texture::setOrigin(const PointF &origin)
 {
     EASY_FUNCTION(profiler::colors::Brown200);
     setOriginType(Origin::costumPos);
     internalSetOrigin(origin);
 }
-void Texture::internalSetOrigin(const Point &origin)
+void Texture::internalSetOrigin(const PointF &origin)
 {
     EASY_FUNCTION(profiler::colors::Brown200);
     if(m_origin == origin)
         return;
-    Point lastOrigin = m_origin;
+    PointF lastOrigin = m_origin;
     m_origin = origin;
 
-    Point deltaOrigin = Vector(lastOrigin) - Vector(m_origin);
-    for(size_t i=0; i<m_pixelList.size(); i++)
-    {
-        m_pixelList[i].setPos(Vector(m_pixelList[i].getPos()) + Vector(deltaOrigin));
-    }
+
+
 }
-const Point &Texture::getOrigin() const
+const PointF &Texture::getOrigin() const
 {
     return m_origin;
-}*/
+}
 PointU Texture::getSize() const
 {
     return PointU(m_image.getSize().x, m_image.getSize().y);
@@ -176,7 +194,7 @@ const double &Texture::getRotation() const
     return m_rotation;
 }
 
-/*void Texture::fillPixelList(const Image &image)
+/*oid Texture::fillPixelList(const Image &image)
 {
     EASY_FUNCTION(profiler::colors::Brown300);
     m_pixelList.clear();

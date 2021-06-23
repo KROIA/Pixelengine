@@ -6,7 +6,7 @@ GameObject::GameObject()
     this->addController(new Controller());
     m_collider      = new Collider();
     m_painter       = new Painter();
-  //  m_hitboxPainter = new Painter();
+    m_hitboxPainter = new PixelPainter();
     m_texture       = new Texture();
    // m_texture->setAlphaColor(Color(255,255,255,255));
     m_objEventHandler = nullptr;
@@ -15,19 +15,19 @@ GameObject::GameObject()
     m_textureIsActiveForCollider        = false;
     m_colliderNeedsUpdateFromTexture    = false;
     m_rotationDeg      = 90; // 90 deg
-   // setHitboxVisibility(false);
+    setHitboxVisibility(false);
 }
 GameObject::GameObject(const GameObject &other)
 {
     this->addController(new Controller());
     m_collider      = new Collider();
     m_painter       = new Painter();
-  //  m_hitboxPainter = new Painter();
+    m_hitboxPainter = new PixelPainter();
     m_texture       = new Texture();
     m_objEventHandler = nullptr;
 
     *this = other;
-   // setHitboxVisibility(false);
+    setHitboxVisibility(false);
 }
 GameObject::GameObject(Controller *controller,
                        Collider   *collider,
@@ -43,7 +43,7 @@ GameObject::GameObject(Controller *controller,
     m_textureIsActiveForCollider        = false;
     m_colliderNeedsUpdateFromTexture    = false;
     m_rotationDeg      = 90; // 90 deg
-   // setHitboxVisibility(false);
+    setHitboxVisibility(false);
 }
 
 GameObject::~GameObject()
@@ -52,7 +52,7 @@ GameObject::~GameObject()
     clearController();
     delete m_collider;
     delete m_painter;
-   // delete m_hitboxPainter;
+    delete m_hitboxPainter;
     delete m_texture;
 }
 const GameObject &GameObject::operator=(const GameObject &other)
@@ -60,7 +60,7 @@ const GameObject &GameObject::operator=(const GameObject &other)
     this->m_controllerList      = other.m_controllerList;
     *this->m_collider           = *other.m_collider;
     *this->m_painter            = *other.m_painter;
-   // *this->m_hitboxPainter      = *other.m_hitboxPainter;
+    *this->m_hitboxPainter      = *other.m_hitboxPainter;
     *this->m_texture            = *other.m_texture;
     this->m_property            = other.m_property;
     this->m_objEventHandler     = other.m_objEventHandler;
@@ -187,7 +187,7 @@ void GameObject::draw(PixelDisplay &display)
     if(m_painterNeedsUpdateFromTexture)
         this->setTextureOnPainter();
     m_painter->setPos(m_layerItem.getPos());
-  //  m_hitboxPainter->setPos(m_layerItem.getPos());
+    m_hitboxPainter->setPos(m_layerItem.getPos());
     int outOfFrameBoundry = 16;
     if(m_layerItem.getX() > signed(display.getMapSize().getX()) + outOfFrameBoundry)
         return;
@@ -204,7 +204,8 @@ void GameObject::draw(PixelDisplay &display)
         return;
     }*/
     m_painter->draw(display);
-  //  m_hitboxPainter->draw(display);
+    if(m_hitboxPainter->isVisible())
+        m_hitboxPainter->draw(display);
 }
 
 void GameObject::addController(Controller *controller)
@@ -336,11 +337,11 @@ const VectorF &GameObject::getMovingVector() const
 void GameObject::rotate(const double &rad)
 {
     EASY_FUNCTION(profiler::colors::Green);
-   /* if(m_hitboxPainter->isVisible())
+    if(m_hitboxPainter->isVisible())
     {
         this->setHitboxVisibility(false);
         this->setHitboxVisibility(true);
-    }*/
+    }
     m_rotationDeg+=rad*180/M_PI;
     if(m_rotationDeg >= 360)
         m_rotationDeg = m_rotationDeg%360;
@@ -482,12 +483,16 @@ void GameObject::setHitboxFromTexture(const Texture &texture)
     m_collider->setHitboxFromTexture(&texture);
     //m_colliderNeedsUpdateFromTexture = false;
 }
-/*void GameObject::setHitboxVisibility(const bool &isVisible)
+void GameObject::setHitboxVisibility(const bool &isVisible)
 {
     EASY_FUNCTION(profiler::colors::Green700);
     if(isVisible)
     {
+        //EASY_BLOCK("makeVisibleCollider");
         HitboxPainter::makeVisibleCollider(m_collider,m_hitboxPainter);
+        //EASY_END_BLOCK;
+        //getchar();
+        //getchar();
     }
     m_hitboxPainter->setVisibility(isVisible);
 }
@@ -501,8 +506,8 @@ void GameObject::updateHitboxPainter()
 }
 const bool &GameObject::isHitboxVisible() const
 {
-    return false; //m_hitboxPainter->isVisible();
-}*/
+    return m_hitboxPainter->isVisible();
+}
 bool GameObject::checkTextureUpdateForCollider()
 {
     if(m_textureIsActiveForCollider && m_texture->changesAvailable())
@@ -613,7 +618,7 @@ void GameObject::setTextureOnPainter()
     m_painter->setTexture(m_texture);
     m_painterNeedsUpdateFromTexture = false;
 }
-void GameObject::setTextureOnPainter(const Texture &texture)
+void GameObject::setTextureOnPainter(Texture &texture)
 {
     EASY_FUNCTION(profiler::colors::GreenA200);
     m_painter->setTexture(&texture);

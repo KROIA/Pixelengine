@@ -58,9 +58,9 @@ class GameObjectGroup
         virtual void rotate_270(const PointF &rotationPoint);
 
         virtual void setVisibility(const bool &isVisible);
-       // virtual const bool &isVisible() const;
-       // virtual void setHitboxVisibility(const bool &isVisible);
-       // virtual const bool &isHitboxVisible() const;
+        virtual const bool &isVisible() const;
+        virtual void setHitboxVisibility(const bool &isVisible);
+        virtual const bool &isHitboxVisible() const;
 
         virtual long long indexOf(const GameObject* obj);
         static  long long indexOf(const vector<GameObject *> list,const GameObject* obj);
@@ -70,7 +70,7 @@ class GameObjectGroup
 
     protected:
         bool m_isVisible;
-       // bool m_hitboxIsVisible;
+        bool m_hitboxIsVisible;
 
         vector<GameObject *> m_isInList;
     private:

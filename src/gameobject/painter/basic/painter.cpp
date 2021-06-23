@@ -226,21 +226,27 @@ void Painter::erasePixel(int x, int y)
     m_pixelList.clear();
     m_frame.set(0,0,0,0);
 }*/
-void Painter::rotate(const PointF &rotPoint,const double &rad)
+void Painter::internal_rotate(const PointF &rotPoint,const double &deg)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
    /* for(size_t i=0; i<m_pixelList.size(); i++)
     {
         GeneralVector<double> vec(m_pixelList[i].getPos().getX(),m_pixelList[i].getPos().getY());
-        PointF newPos = (GeneralVector<double>::rotate(vec,rotPoint,rad)).toPoint();
+        PointF newPos = (GeneralVector<double>::internal_rotate(vec,rotPoint,rad)).toPoint();
         m_pixelList[i].setPos(round(newPos.getX()),round(newPos.getY()));
     }*/
-    m_rotationRad += rad;
-    m_rotationRad = double(int(m_rotationRad*1000) % int(2*M_PI *1000))/1000.f;
+    //m_rotationRad += rad;
+    //m_rotationRad = double(int(m_rotationRad*1000) % int(2*M_PI *1000))/1000.f;
     //updateFrame();
-
-    m_sprite.rotate(180.f*rad/M_PI);
+    this->setOrigin(rotPoint);
+    internal_rotate(deg);
 }
+void Painter::internal_rotate(const double &deg)
+{
+    EASY_FUNCTION(profiler::colors::Cyan600);
+    m_sprite.rotate(deg);
+}
+
 
 double Painter::getRotation() const
 {
@@ -249,45 +255,49 @@ double Painter::getRotation() const
 void Painter::setRotation(const double &deg)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    this->rotate(PointF(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
+    this->internal_rotate(PointF(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
+}
+void Painter::rotate(const double &deg)
+{
+    internal_rotate(deg);
 }
 void Painter::rotate_90()
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    this->rotate(PointF(this->getX(),this->getY()),M_PI_2);
+    this->internal_rotate(PointF(this->getX(),this->getY()),M_PI_2);
 }
 void Painter::rotate_180()
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    this->rotate(PointF(this->getX(),this->getY()),M_PI);
+    this->internal_rotate(PointF(this->getX(),this->getY()),M_PI);
 }
 void Painter::rotate_270()
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    this->rotate(PointF(this->getX(),this->getY()),-M_PI_2);
+    this->internal_rotate(PointF(this->getX(),this->getY()),-M_PI_2);
 }
 void Painter::setRotation(const PointF &rotationPoint,const double &deg)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    this->rotate(rotationPoint,(deg*M_PI/180.f) - m_rotationRad);
+    this->internal_rotate(rotationPoint,(deg*M_PI/180.f) - m_rotationRad);
 }
 void Painter::rotate_90(const PointF &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    this->rotate(rotationPoint,M_PI_2);
+    this->internal_rotate(rotationPoint,M_PI_2);
 }
 void Painter::rotate_180(const PointF &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    this->rotate(rotationPoint,M_PI);
+    this->internal_rotate(rotationPoint,M_PI);
 }
 void Painter::rotate_270(const PointF &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    this->rotate(rotationPoint,-M_PI_2);
+    this->internal_rotate(rotationPoint,-M_PI_2);
 }
 
-void Painter::setTexture(const Texture *texture)
+void Painter::setTexture(Texture *texture)
 {
     EASY_FUNCTION(profiler::colors::Cyan700);
     /*this->clear();
@@ -298,16 +308,41 @@ void Painter::setTexture(const Texture *texture)
     EASY_END_BLOCK;
     m_frame = texture->getFrame();
     this->setPos(oldPos);*/
-    setRotation(texture->getRotation());
-    setTexture(texture->getTexture());
+
+    m_texture = texture;
+    m_sprite.setTexture(m_texture->getTexture());
+    m_sprite.setPosition(this->getX(),this->getY());
+
+    m_sprite.setOrigin(Vector2f(m_texture->getOrigin().getX(),m_texture->getOrigin().getY()));
+    //setRotation(texture->getRotation());
+    //setTexture(texture->getTexture());
 
 }
-void Painter::setTexture(const sf::Texture &texture)
+void Painter::setOrigin(const PointF &origin)
+{
+    m_sprite.setOrigin(Vector2f(origin.getX(),origin.getY()));
+    m_texture->setOrigin(origin);
+}
+void Painter::setOriginType(Texture::Origin origin)
+{
+    m_texture->setOriginType(origin);
+    m_sprite.setOrigin(Vector2f(m_texture->getOrigin().getX(),m_texture->getOrigin().getY()));
+}
+Texture::Origin Painter::getOriginType() const
+{
+    return m_texture->getOriginType();
+}
+const PointF &Painter::getOrigin() const
+{
+    return m_texture->getOrigin();
+}
+
+/*void Painter::setTexture(const sf::Texture &texture)
 {
     EASY_FUNCTION(profiler::colors::Cyan700);
     m_sprite.setTexture(texture);
     m_sprite.setPosition(this->getX(),this->getY());
-}
+}*/
 /*void Painter::internalSetPixel(const vector<Pixel> &pixelList)
 {
     EASY_FUNCTION(profiler::colors::Cyan800);

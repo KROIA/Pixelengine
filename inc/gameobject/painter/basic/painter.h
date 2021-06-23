@@ -3,6 +3,7 @@
 
 #include "layeritem.h"
 #include "SFML/Graphics.hpp"
+#include "SFML/System/Vector2.hpp"
 #include "pixelDisplay.h"
 #include "pixel.h"
 #include "point.h"
@@ -12,6 +13,7 @@
 #include "profiler.h"
 
 using std::vector;
+using sf::Vector2f;
 
 class Painter   :   public  LayerItem
 {
@@ -57,6 +59,7 @@ class Painter   :   public  LayerItem
 
         virtual double getRotation() const;
         virtual void setRotation(const double &deg);
+        virtual void rotate(const double &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
@@ -65,8 +68,12 @@ class Painter   :   public  LayerItem
         virtual void rotate_180(const PointF &rotationPoint);
         virtual void rotate_270(const PointF &rotationPoint);
 
-        virtual void setTexture(const Texture *texture);
-        virtual void setTexture(const sf::Texture &texture);
+        virtual void setTexture(Texture *texture);
+
+        virtual void setOrigin(const PointF &origin);
+        virtual void setOriginType(Texture::Origin origin);
+        virtual Texture::Origin getOriginType() const;
+        virtual const PointF &getOrigin() const;
 
     protected:
        // virtual void internalSetPixel(const vector<Pixel> &pixelList);
@@ -83,9 +90,11 @@ class Painter   :   public  LayerItem
 
         //sf::Texture m_texture;
         sf::Sprite  m_sprite;
+        Texture   *m_texture;
     private:
 
-        virtual void rotate(const PointF &rotPoint,const double &rad);
+        virtual void internal_rotate(const PointF &rotPoint,const double &deg);
+        virtual void internal_rotate(const double &deg);
 
         Pixel m_const_dummy_pixel;
 };

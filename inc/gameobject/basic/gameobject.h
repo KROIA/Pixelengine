@@ -87,9 +87,9 @@ class GameObject
         virtual void updateBoundingBox();
         virtual void setHitboxFromTexture();
         virtual void setHitboxFromTexture(const Texture &texture);
-     //   virtual void setHitboxVisibility(const bool &isVisible);
-     //   virtual void updateHitboxPainter();
-     //   virtual const bool &isHitboxVisible() const;
+        virtual void setHitboxVisibility(const bool &isVisible);
+        virtual void updateHitboxPainter();
+        virtual const bool &isHitboxVisible() const;
         virtual bool checkTextureUpdateForCollider();
 
         // Painter settings
@@ -115,7 +115,7 @@ class GameObject
         virtual void loadTexture();
         const virtual Texture &getTexture() const;
         virtual void setTextureOnPainter();
-        virtual void setTextureOnPainter(const Texture &texture);
+        virtual void setTextureOnPainter(Texture &texture);
         virtual bool checkTextureUpdateForPainter();
 
         // Properties
@@ -143,7 +143,7 @@ class GameObject
         DynamicCoordinator m_movementCoordinator;
         Collider   *m_collider;
         Painter    *m_painter;
-       // Painter    *m_hitboxPainter;
+        PixelPainter  *m_hitboxPainter;
 
         Texture    *m_texture;
         bool        m_textureIsActiveForPainter;
