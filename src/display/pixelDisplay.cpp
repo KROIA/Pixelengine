@@ -1,26 +1,25 @@
 #include "pixelDisplay.h"
 
-PixelDisplay::PixelDisplay(const PointU &windowSize, const PointU &pixelSize)
+PixelDisplay::PixelDisplay(const Vector2u &windowSize, const Vector2u &pixelSize)
 {
-    m_windowSize = windowSize;
+    m_windowSize    = windowSize;
     m_pixelMapSize  = pixelSize;
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
-    m_renderWindow = new sf::RenderWindow(sf::VideoMode(m_windowSize.getX(),m_windowSize.getY()),
+    m_renderWindow = new sf::RenderWindow(sf::VideoMode(m_windowSize.x,m_windowSize.y),
                                           "PixelDisplay",sf::Style::Default, settings);
 
     m_windowView = m_renderWindow->getView();
     m_clearColor = Color(50,50,50);
 
+    m_spriteScale.x = (float)m_windowSize.x/(float)m_pixelMapSize.x;
+    m_spriteScale.y = (float)m_windowSize.y/(float)m_pixelMapSize.y;
 
-    m_image.create(m_pixelMapSize.getX(),m_pixelMapSize.getY(),m_clearColor);
+    m_image.create(m_pixelMapSize.x,m_pixelMapSize.y,m_clearColor);
     m_texture.loadFromImage(m_image);
     m_sprite.setTexture(m_texture);
-    m_sprite.setScale((double)windowSize.getX()/(double)pixelSize.getX(),
-                      (double)windowSize.getY()/(double)pixelSize.getY());
-    m_spriteScale.set((double)windowSize.getX()/(double)pixelSize.getX(),
-                      (double)windowSize.getY()/(double)pixelSize.getY());
+    m_sprite.setScale(m_spriteScale);
 }
 PixelDisplay::PixelDisplay(const PixelDisplay &other)
 {
@@ -77,20 +76,24 @@ void PixelDisplay::clear()
     clearVertexLine();
 }
 
-void PixelDisplay::setPixel(const PointU &pos, const Color &color)
+void PixelDisplay::setPixel(const Vector2i &pos, const Color &color)
 {
     EASY_FUNCTION(profiler::colors::Blue200);
-    if(pos.getX() >= m_pixelMapSize.getX() || pos.getY() >= m_pixelMapSize.getY())
+    if(pos.x < 0 || pos.y < 0)
+        return;
+    if(unsigned(pos.x) >= m_pixelMapSize.x || unsigned(pos.y) >= m_pixelMapSize.y)
         return;
     EASY_BLOCK("m_image.setPixel",profiler::colors::Blue300);
-    m_image.setPixel(pos.getX(),pos.getY(),color);
+    m_image.setPixel(pos.x,pos.y,color);
 }
 void PixelDisplay::setPixel(const Pixel &pixel)
 {
     EASY_FUNCTION(profiler::colors::Blue300);
-    unsigned int x = pixel.getX();
-    unsigned int y = pixel.getY();
-    if(x >= m_pixelMapSize.getX() || y >= m_pixelMapSize.getY())
+    int x = pixel.getX();
+    int y = pixel.getY();
+    if(x < 0 || y < 0)
+        return;
+    if(unsigned(x) >= m_pixelMapSize.x || unsigned(y) >= m_pixelMapSize.y)
         return;
     EASY_BLOCK("m_image.setPixel",profiler::colors::Blue300);
     m_image.setPixel(x,y,pixel);
@@ -112,9 +115,9 @@ void PixelDisplay::clearSprite()
 void PixelDisplay::addSprite(Sprite &sprite)
 {
     m_spriteList.push_back(sprite);
-    m_spriteList[m_spriteList.size()-1].setScale(m_spriteScale.getX(),m_spriteScale.getY());
-    PointF point(sprite.getPosition().x,sprite.getPosition().y);
-    m_spriteList[m_spriteList.size()-1].setPosition(point.getX() * m_spriteScale.getX(), point.getY() * m_spriteScale.getY());
+    m_spriteList[m_spriteList.size()-1].setScale(m_spriteScale.x,m_spriteScale.y);
+    Vector2f point(sprite.getPosition().x,sprite.getPosition().y);
+    m_spriteList[m_spriteList.size()-1].setPosition(point.x * m_spriteScale.x, point.y * m_spriteScale.y);
 }
 void PixelDisplay::clearVertexLine()
 {
@@ -130,8 +133,8 @@ void PixelDisplay::addVertexLine(VertexPath path)
 
     for(size_t i=0; i<m_vertexPathList[m_vertexPathList.size()-1].length; i++)
     {
-        m_vertexPathList[m_vertexPathList.size()-1].line[i].position.x *= m_spriteScale.getX();
-        m_vertexPathList[m_vertexPathList.size()-1].line[i].position.y *= m_spriteScale.getY();
+        m_vertexPathList[m_vertexPathList.size()-1].line[i].position.x *= m_spriteScale.x;
+        m_vertexPathList[m_vertexPathList.size()-1].line[i].position.y *= m_spriteScale.y;
     }
 }
 
@@ -175,10 +178,10 @@ sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
             }
             case sf::Event::Resized:
             {
-                m_windowView.setSize(m_windowSize.getX(),m_windowSize.getY());
+                m_windowView.setSize(m_windowSize.x,m_windowSize.y);
 
                 m_renderWindow->setView(m_windowView);
-                sf::Vector2u size(m_windowSize.getX(),m_windowSize.getY());
+                sf::Vector2u size(m_windowSize.x,m_windowSize.y);
                 m_renderWindow->setSize(size);
                 break;
             }
@@ -235,8 +238,8 @@ bool PixelDisplay::addText(DisplayText *text)       // This function will not ow
             return false;
     }
     //text->setFont(m_font);
-    if(m_pixelMapSize.getX() != 0)
-        text->setPixelRatio(double(m_windowSize.getX()) / double(m_pixelMapSize.getX()));
+    if(m_pixelMapSize.x != 0)
+        text->setPixelRatio(float(m_windowSize.x) / float(m_pixelMapSize.x));
     m_textList.push_back(text);
     return true;
 }
@@ -258,11 +261,11 @@ void PixelDisplay::clearText()
     EASY_FUNCTION(profiler::colors::BlueA100);
     m_textList.clear();
 }
-PointU PixelDisplay::getWindowSize() const
+Vector2u PixelDisplay::getWindowSize() const
 {
     return m_windowSize;
 }
-PointU PixelDisplay::getMapSize() const
+Vector2u PixelDisplay::getMapSize() const
 {
     return m_pixelMapSize;
 }
@@ -270,7 +273,7 @@ RenderWindow *PixelDisplay::getRenderWindow()
 {
     return m_renderWindow;
 }
-PointF PixelDisplay::getRenderScale()
+Vector2f PixelDisplay::getRenderScale()
 {
     return m_spriteScale;
 }

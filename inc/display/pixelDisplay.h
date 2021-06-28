@@ -2,8 +2,8 @@
 #define PIXELDISPLAY_H
 
 #include "SFML/Graphics.hpp"
-#include "vector"
-#include "point.h"
+//#include "vector"
+//#include "point.h"
 #include "pixel.h"
 #include "displayText.h"
 #include "drawUtilities.h"
@@ -13,7 +13,7 @@
 using sf::Color;
 using sf::RenderWindow;
 using sf::View;
-//using sf::Texture;
+using sf::Vector2u;
 using sf::Image;
 using sf::Sprite;
 using std::vector;
@@ -39,14 +39,14 @@ class PixelDisplay
         };*/
 
 
-        PixelDisplay(const PointU &windowSize, const PointU &pixelSize);
+        PixelDisplay(const Vector2u &windowSize, const Vector2u &pixelSize);
         PixelDisplay(const PixelDisplay &other);
         virtual ~PixelDisplay();
 
         virtual void display();
         virtual void clear();
 
-        virtual void setPixel(const PointU &pos, const Color &color);
+        virtual void setPixel(const Vector2i &pos, const Color &color);
         virtual void setPixel(const Pixel &pixel);
         virtual void setPixel(const vector<Pixel> &pixelList);
 
@@ -67,17 +67,17 @@ class PixelDisplay
         virtual bool removeText(DisplayText *text);
         virtual void clearText();
 
-        virtual PointU getWindowSize() const;
-        virtual PointU getMapSize() const;
+        virtual Vector2u getWindowSize() const;
+        virtual Vector2u getMapSize() const;
 
         virtual RenderWindow *getRenderWindow();
-        virtual PointF getRenderScale();
+        virtual Vector2f getRenderScale();
 
     protected:
 
 
-        PointU m_windowSize;
-        PointU m_pixelMapSize;
+        Vector2u m_windowSize;
+        Vector2u m_pixelMapSize;
 
         RenderWindow *m_renderWindow;
         View m_windowView;
@@ -93,7 +93,7 @@ class PixelDisplay
 
         vector<Sprite>       m_spriteList;
         vector<VertexPath>   m_vertexPathList;
-        PointF               m_spriteScale;
+        Vector2f             m_spriteScale;
     private:
 
 

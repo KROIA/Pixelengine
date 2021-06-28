@@ -26,7 +26,7 @@ Wall::~Wall()
 
 }
 
-void Wall::setDimension(const PointU &dimension)
+void Wall::setDimension(const Vector2u  &dimension)
 {
     m_dimension = dimension;
     this->generateObject();
@@ -34,20 +34,20 @@ void Wall::setDimension(const PointU &dimension)
 void Wall::setDimension(const unsigned int &width,
                         const unsigned int &height)
 {
-    m_dimension.set(width,height);
+    m_dimension = Vector2u(width,height);
     this->generateObject();
 }
-const PointU &Wall::getDimension() const
+const Vector2u  &Wall::getDimension() const
 {
     return m_dimension;
 }
 const unsigned int &Wall::getWidth() const
 {
-    return m_dimension.getX();
+    return m_dimension.x;
 }
 const unsigned int &Wall::getHeight() const
 {
-    return m_dimension.getY();
+    return m_dimension.y;
 }
 
 void Wall::setColor(const Color &color)
@@ -67,8 +67,7 @@ void Wall::generateObject()
 {
     m_collider->clear();
     //m_painter->clear();
-    m_collider->addHitbox(Rect(m_dimension.getX(),
-                               m_dimension.getY()));
+    m_collider->addHitbox(RectI(Vector2i(m_dimension)));
    /* for(unsigned int x=0; x<m_dimension.getX(); x++)
     {
         for(unsigned int y=0; y<m_dimension.getY(); y++)

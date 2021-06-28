@@ -149,7 +149,7 @@ void ManagedGameObjectGroup::setPos(const int &x,const int &y)
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setPos(x,y);
 }
-void ManagedGameObjectGroup::setPos(const Point &pos)
+void ManagedGameObjectGroup::setPos(const Vector2i&pos)
 {
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setPos(pos);
@@ -164,7 +164,7 @@ void ManagedGameObjectGroup::setY(const int &y)
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setY(y);
 }
-void ManagedGameObjectGroup::moveToPos(const Point &destination)
+void ManagedGameObjectGroup::moveToPos(const Vector2i&destination)
 {
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->moveToPos(destination);
@@ -174,7 +174,7 @@ void ManagedGameObjectGroup::moveToPos(const int &x,const int &y)
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->moveToPos(x,y);
 }
-void ManagedGameObjectGroup::move(const Point &directionVector)
+void ManagedGameObjectGroup::move(const Vector2i&directionVector)
 {
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->move(directionVector);
@@ -184,7 +184,7 @@ void ManagedGameObjectGroup::move(int x,int y)
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->move(x,y);
 }
-void ManagedGameObjectGroup::setRotation(const double &deg)
+void ManagedGameObjectGroup::setRotation(const float &deg)
 {
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setRotation(deg);
@@ -204,22 +204,22 @@ void ManagedGameObjectGroup::rotate_270()
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->rotate_270();
 }
-void ManagedGameObjectGroup::setRotation(const PointF &rotationPoint,const double &deg)
+void ManagedGameObjectGroup::setRotation(const Vector2f &rotationPoint,const float &deg)
 {
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setRotation(rotationPoint,deg);
 }
-void ManagedGameObjectGroup::rotate_90(const PointF &rotationPoint)
+void ManagedGameObjectGroup::rotate_90(const Vector2f &rotationPoint)
 {
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->rotate_90(rotationPoint);
 }
-void ManagedGameObjectGroup::rotate_180(const PointF &rotationPoint)
+void ManagedGameObjectGroup::rotate_180(const Vector2f &rotationPoint)
 {
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->rotate_180(rotationPoint);
 }
-void ManagedGameObjectGroup::rotate_270(const PointF &rotationPoint)
+void ManagedGameObjectGroup::rotate_270(const Vector2f &rotationPoint)
 {
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->rotate_270(rotationPoint);

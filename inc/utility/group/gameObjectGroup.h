@@ -31,31 +31,31 @@ class GameObjectGroup
         virtual const vector<GameObject*> &getVector() const;
 
         // GameObject stuff
-       // virtual void setPosInitial(const Point &pos);
+       // virtual void setPosInitial(const Vector2i&pos);
        // virtual void setPosInitial(const int &x, const int &y);
 
         virtual void setPos(const int &x,const int &y);
-        virtual void setPos(const Point &pos);
+        virtual void setPos(const Vector2i&pos);
 
         virtual void setX(const int &x);
         virtual void setY(const int &y);
 
-        virtual void moveToPos(const Point &destination,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveToPos(const Vector2i&destination,Controller::MovingMode mode = Controller::MovingMode::add);
         virtual void moveToPos(const int &x,const int &y,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void move(const Vector &vec,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void move(const VectorF &vec,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void move(const double &deltaX, const double &deltaY,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void moveX(const double &delta,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void moveY(const double &delta,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void move(const Vector2i&vec,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void move(const Vector2f &vec,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void move(const float &deltaX, const float &deltaY,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveX(const float &delta,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveY(const float &delta,Controller::MovingMode mode = Controller::MovingMode::add);
 
-        virtual void setRotation(const double &deg);
+        virtual void setRotation(const float &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
-        virtual void setRotation(const PointF &rotationPoint,const double &deg);
-        virtual void rotate_90(const PointF &rotationPoint);
-        virtual void rotate_180(const PointF &rotationPoint);
-        virtual void rotate_270(const PointF &rotationPoint);
+        virtual void setRotation(const Vector2f &rotationPoint,const float &deg);
+        virtual void rotate_90(const Vector2f &rotationPoint);
+        virtual void rotate_180(const Vector2f &rotationPoint);
+        virtual void rotate_270(const Vector2f &rotationPoint);
 
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;

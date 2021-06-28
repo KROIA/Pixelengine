@@ -3,9 +3,9 @@
 Painter::Painter()
     :   LayerItem()
 {
-    m_const_dummy_pixel.setPos(0,0);
+    m_const_dummy_pixel.setPos(Vector2i(0,0));
     m_const_dummy_pixel.setColor(Color(0,0,0,0));
-    setPos(0,0);
+    setPos(Vector2f(0,0));
     setVisibility(true);
 
     m_sprite    = nullptr;
@@ -45,28 +45,20 @@ void Painter::draw(PixelDisplay &display)
     }
 }
 
-void Painter::setPos(const Point &pos)
+void Painter::setPos(const Vector2f & pos)
 {
     EASY_FUNCTION(profiler::colors::Cyan300);
     if(LayerItem::getPos() == pos)
         return;
     //m_sprite->setPosition(pos.getX()-m_sprite->getOrigin().x,pos.getY()-m_sprite->getOrigin().y);
-    m_sprite->setPosition(pos.getX(),pos.getY());
+    m_sprite->setPosition(pos.x,pos.y);
     LayerItem::setPos(pos);
 }
-void Painter::setPos(int x, int y)
-{
-    EASY_FUNCTION(profiler::colors::Cyan300);
-    if(LayerItem::getX() == x && LayerItem::getY() == y)
-        return;
-    //m_sprite->setPosition(x-m_sprite->getOrigin().x,y-m_sprite->getOrigin().y);
-    m_sprite->setPosition(x,y);
-    LayerItem::setPos(x,y);
-}
+
 void Painter::setX(int x)
 {
     EASY_FUNCTION(profiler::colors::Cyan300);
-    if(LayerItem::getX() == x)
+    if(LayerItem::getXI() == x)
         return;
     //m_sprite->setPosition(x-m_sprite->getOrigin().x,m_sprite->getPosition().y-m_sprite->getOrigin().y);
     m_sprite->setPosition(x,m_sprite->getPosition().y);
@@ -75,7 +67,7 @@ void Painter::setX(int x)
 void Painter::setY(int y)
 {
     EASY_FUNCTION(profiler::colors::Cyan300);
-    if(LayerItem::getX() == y)
+    if(LayerItem::getXI() == y)
         return;
    //m_sprite->setPosition(m_sprite->getPosition().x-m_sprite->getOrigin().x,y-m_sprite->getOrigin().y);
     m_sprite->setPosition(m_sprite->getPosition().x,y);
@@ -89,11 +81,11 @@ const bool &Painter::isVisible() const
 {
     return m_isVisible;
 }
-void Painter::internal_rotate(const PointF &rotPoint,const float &deg)
+void Painter::internal_rotate(const Vector2f &rotPoint,const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
     Vector2f lastOrigin = m_sprite->getOrigin();
-    m_sprite->setPosition(rotPoint.getX()-m_sprite->getOrigin().x,rotPoint.getY()-m_sprite->getOrigin().y);
+    m_sprite->setPosition(rotPoint.x-m_sprite->getOrigin().x,rotPoint.y - m_sprite->getOrigin().y);
     internal_rotate(deg);
     m_sprite->setOrigin(lastOrigin);
 }
@@ -111,7 +103,7 @@ void Painter::setRotation(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
     m_sprite->setRotation(deg);
-    //this->internal_rotate(PointF(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
+    //this->internal_rotate(Vector2f(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
 }
 void Painter::rotate(const float &deg)
 {
@@ -132,25 +124,25 @@ void Painter::rotate_270()
     EASY_FUNCTION(profiler::colors::Cyan600);
     this->internal_rotate(270);
 }
-void Painter::setRotation(const PointF &rotPoint,const float &deg)
+void Painter::setRotation(const Vector2f &rotPoint,const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
     Vector2f lastOrigin = m_sprite->getOrigin();
-    m_sprite->setPosition(rotPoint.getX(),rotPoint.getY());
+    m_sprite->setPosition(rotPoint.x,rotPoint.y);
     setRotation(deg);
     m_sprite->setOrigin(lastOrigin);
 }
-void Painter::rotate_90(const PointF &rotPoint)
+void Painter::rotate_90(const Vector2f &rotPoint)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
     this->internal_rotate(rotPoint,90);
 }
-void Painter::rotate_180(const PointF &rotPoint)
+void Painter::rotate_180(const Vector2f &rotPoint)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
     this->internal_rotate(rotPoint,180);
 }
-void Painter::rotate_270(const PointF &rotPoint)
+void Painter::rotate_270(const Vector2f &rotPoint)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
     this->internal_rotate(rotPoint,270);
@@ -174,7 +166,7 @@ void Painter::updateOrigin()
 {
     internalUpdateOrigin();
 }
-void Painter::setOrigin(const PointF &origin)
+void Painter::setOrigin(const Vector2f &origin)
 {
     internalSetOrigin(origin);
     m_originType = Origin::costumPos;
@@ -189,9 +181,9 @@ Origin Painter::getOriginType() const
 {
     return m_originType;
 }
-const PointF Painter::getOrigin() const
+const Vector2f Painter::getOrigin() const
 {
-    return PointF(m_sprite->getOrigin().x,m_sprite->getOrigin().y);
+    return m_sprite->getOrigin();
 }
 void Painter::internalUpdateOrigin()
 {
@@ -199,29 +191,29 @@ void Painter::internalUpdateOrigin()
     switch(m_originType)
     {
         case Origin::topLeft:
-            internalSetOrigin(PointF(0,0));
+            internalSetOrigin(Vector2f(0,0));
         break;
         case Origin::topRight:
-            internalSetOrigin(PointF(m_texture->getSize().x,0));
+            internalSetOrigin(Vector2f(m_texture->getSize().x,0));
         break;
         case Origin::bottomLeft:
-            internalSetOrigin(PointF(0,m_texture->getSize().y));
+            internalSetOrigin(Vector2f(0,m_texture->getSize().y));
         break;
         case Origin::bottomRight:
-            internalSetOrigin(PointF(m_texture->getSize().x,m_texture->getSize().y));
+            internalSetOrigin(Vector2f(m_texture->getSize().x,m_texture->getSize().y));
         break;
         case Origin::middle:
-            internalSetOrigin(PointF(m_texture->getSize().x/2,m_texture->getSize().y/2));
+            internalSetOrigin(Vector2f(m_texture->getSize().x/2,m_texture->getSize().y/2));
         break;
         default:
 
         break;
     }
 }
-void Painter::internalSetOrigin(const PointF &origin)
+void Painter::internalSetOrigin(const Vector2f &origin)
 {
     EASY_FUNCTION(profiler::colors::Cyan700);
-    m_sprite->setOrigin(origin.getX(),origin.getY());
+    m_sprite->setOrigin(origin.x,origin.x);
    // m_sprite->setPosition(m_floatingPos.getX()-origin.getX(),m_floatingPos.getY()-origin.getY());
 }
 
@@ -250,10 +242,10 @@ void Painter::internalAddPixel(const vector<Pixel> &pixelList)
 /*void Painter::updateFrame()
 {
     EASY_FUNCTION(profiler::colors::Cyan900);
-    vector<Rect> pixelRects(m_pixelList.size(),Rect(Point(0,0),Point(1,1)));
+    vector<RectI> pixelRects(m_pixelList.size(),RectI(Point(0,0),Point(1,1)));
     for(size_t i=0; i<m_pixelList.size(); i++)
     {
         pixelRects[i].setPos(m_pixelList[i].getPos());
     }
-    m_frame = Rect::getFrame(pixelRects);
+    m_frame = RectI::getFrame(pixelRects);
 }*/

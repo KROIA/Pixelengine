@@ -1,8 +1,9 @@
 #ifndef Texture_H
 #define Texture_H
 #include "string.h"
-#include "SFML/Graphics/Image.hpp"
-#include "SFML/Graphics/Texture.hpp"
+#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/System/Vector2.hpp>
 #include "pixel.h"
 #include "vector.h"
 #include "rect.h"
@@ -45,15 +46,15 @@ class Texture
 
         virtual void setOriginType(Origin origin);
         virtual Origin getOriginType() const;
-        virtual void setOrigin(const PointF &origin);
-        virtual const PointF &getOrigin() const;
+        virtual void setOrigin(const Vector2f &origin);
+        virtual const Vector2f &getOrigin() const;
 
-        virtual PointU getSize() const;
-        virtual Color getColor(const Point &pos) const;
+        virtual Vector2u  getSize() const;
+        virtual Color getColor(const Vector2i&pos) const;
 
        // virtual const vector<Pixel> &getPixels() const; // Returns all Pixel's of the Texture
-        virtual const vector<Rect>  &getRects() const;  // Returns all Rects which cover the Texture (for collider)
-       // virtual const Rect          &getFrame() const;
+        virtual const vector<RectI>  &getRects() const;  // Returns all Rects which cover the Texture (for collider)
+       // virtual const RectI          &getFrame() const;
 
         virtual bool changesAvailable();
         virtual void changesApplied();
@@ -61,31 +62,31 @@ class Texture
         virtual sf::Texture &getTexture();
         virtual sf::Image   &getImage();
 
-        virtual void rotate(double deg);
-        virtual const double &getRotation() const;
+        virtual void rotate(float deg);
+        virtual const float &getRotation() const;
 
     protected:
         virtual void internalUpdateOrigin();
-        virtual void internalSetOrigin(const PointF &origin);
+        virtual void internalSetOrigin(const Vector2f &origin);
         //virtual void fillPixelList(const Image &image);
       //  virtual void calculateBoxes(const vector<Pixel> &pixelList);
         virtual void calculateBoxes();
-        virtual void optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outputColliderList);
+        virtual void optimize_HitboxMap(vector<vector<RectI*>  > &map,vector<RectI> &outputColliderList);
 
         string m_textureFileName;
         Image  m_image;
         //Color  m_alpha;
         uint8_t m_alphaThreshold;
         //vector<Pixel> m_pixelList;
-        vector<Rect>  m_pixelRectList;
+        vector<RectI>  m_pixelRectList;
 
         bool    m_changesAvailable;
-        PointF  m_origin;
+        Vector2f  m_origin;
         Origin  m_originType;
-        //Rect    m_frame;
+        //RectI    m_frame;
 
         sf::Texture m_texture;
-        double m_rotation;
+        float m_rotation;
     private:
 
 

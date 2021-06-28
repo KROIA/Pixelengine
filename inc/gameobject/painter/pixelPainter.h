@@ -24,15 +24,15 @@ class PixelPainter  : public Painter
         virtual void addPixel(const Pixel &pixel);
         virtual void addPixel(const vector<Pixel> &pixelList);
         //virtual const Pixel &getPixel(const size_t &index) const;
-        virtual const Pixel getPixel(const Point &pixelPos) const;
+        virtual const Pixel getPixel(const Vector2i&pixelPos) const;
         virtual const Pixel getPixel(unsigned int x,unsigned int y) const;
         //virtual size_t getPixelAmount() const;
         //virtual void setPixelColor(const size_t &index, const Color &color);
-        virtual void setPixelColor(const Point &pixelPos, const Color &color);
+        virtual void setPixelColor(const Vector2i&pixelPos, const Color &color);
         virtual void setPixelColor(unsigned int x,unsigned int y, const Color &color);
         //virtual void setPixelColor(const Color &color);
 
-        virtual void resize(PointU size);
+        virtual void resize(Vector2u size);
         virtual void clear();
 
         // dummy

@@ -56,7 +56,7 @@ const Color __color_minimalAlphaColor(255,255,255);
 #include "QDebug"
 
 
-typedef  void (*p_func)(double,unsigned long long);
+typedef  void (*p_func)(float,unsigned long long);
 
 
 class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerInterface
@@ -66,31 +66,31 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
     public:
         struct Statistics
         {
-            double  framesPerSecond;
-            double  ticksPerSecond;
+            float  framesPerSecond;
+            float  ticksPerSecond;
             unsigned long collisionsPerTick;
             unsigned long collisionChecksPerTick;
             unsigned long objectsInEngine;
 
-            double  collisionCheckTime;
-            double  gameObjectTickTime;
-            double  checkEventTime;
-            double  tickTime;
-            double  drawTime;
-            double  displayTime;
+            float  collisionCheckTime;
+            float  gameObjectTickTime;
+            float  checkEventTime;
+            float  tickTime;
+            float  drawTime;
+            float  displayTime;
 
-            double  checkUserEventTime;
-            double  userTickTime;
-            double  userDisplayTime;
+            float  checkUserEventTime;
+            float  userTickTime;
+            float  userDisplayTime;
         };
-        PixelEngine(const PointU &mapsize,const PointU &displaySize);
+        PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize);
         PixelEngine(const PixelEngine &other);
         virtual ~PixelEngine();
 
         virtual bool running(); // this returns false, if the window is closed.
 
-        virtual const PointU &getWindwoSize() const;
-        virtual const PointU &getMapSize() const;
+        virtual const Vector2u  &getWindwoSize() const;
+        virtual const Vector2u  &getMapSize() const;
 
         // Userloops
         virtual void setUserCheckEventLoop(p_func func);
@@ -102,12 +102,12 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual void display();
 
 
-        virtual void set_setting_checkEventInterval(const double &seconds);
-        virtual const double &get_setting_eventHandleInterval() const;
-        virtual void set_setting_gameTickInterval(const double &seconds);
-        virtual const double &get_setting_gameTickInterval() const;
-        virtual void set_setting_displayInterval(const double &seconds);
-        virtual const double &get_setting_displayInterval() const;
+        virtual void set_setting_checkEventInterval(const float &seconds);
+        virtual const float &get_setting_eventHandleInterval() const;
+        virtual void set_setting_gameTickInterval(const float &seconds);
+        virtual const float &get_setting_gameTickInterval() const;
+        virtual void set_setting_displayInterval(const float &seconds);
+        virtual const float &get_setting_displayInterval() const;
 
         virtual void addGameObject(GameObject *obj);
         virtual void addGameObject(ManagedGameObjectGroup *group);
@@ -159,10 +159,10 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual void removeDisplayText(DisplayText *text);
 
         // General functions
-        static double random(double min, double max);
+        static float random(float min, float max);
       //  static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const ImageOrigin &origin = ImageOrigin::topLeftCorner);
-      //  static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const Point &origin);
-        //static void   optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColliderList,const Point origin);
+      //  static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const Vector2i &origin);
+        //static void   optimize_Hitboxes(vector<RectI> &input,vector<RectI> &outputColliderList,const Point origin);
         virtual const unsigned long long &getTick() const;
         virtual void resetTick();
 
@@ -170,12 +170,12 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual const Statistics &get_statistics() const;
         virtual void display_stats(bool enable);
         virtual void display_stats(bool enable,const Color &color);
-        virtual void display_stats(bool enable,const Color &color, const Point &pos, const unsigned int size = 0);
+        virtual void display_stats(bool enable,const Color &color, const Vector2i &pos, const unsigned int size = 0);
         virtual bool display_stats();
     protected:
         virtual void tickX();
         virtual void tickY();
-        virtual void tickXY(const Point &dirLock);
+        virtual void tickXY(const Vector2i &dirLock);
         virtual void updateText();
         virtual void checkForUserGroupChanges(); // Check if any Object of a added List was removed or added
 
@@ -185,7 +185,7 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual void removeGameObject(const vector<GameObject *> &list);
         virtual void deleteGameObject(const vector<GameObject *> &list);
 
-       // static void optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outputColliderList);
+       // static void optimize_HitboxMap(vector<vector<RectI*>  > &map,vector<RectI> &outputColliderList);
 
 
         static void removeObjectFromList(GameObjectGroup &group,GameObject* obj);
@@ -202,15 +202,15 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
 
         PixelDisplay *m_display;
         bool   m_engineIsRunning;
-        PointU m_windowSize;
-        PointU m_mapSize;
+        Vector2u m_windowSize;
+        Vector2u  m_mapSize;
 
         Timer *m_eventTimer;
-        double m_eventInterval; // sec.
+        float m_eventInterval; // sec.
         Timer *m_mainTickTimer;
-        double m_mainTickInterval; // sec.
+        float m_mainTickInterval; // sec.
         Timer *m_displayTimer;
-        double m_displayInterval; // sec.
+        float m_displayInterval; // sec.
 
         //GameObjectGroup         m_masterGameObjectGroup;
         //vector<GameObjectGroup> m_masterGameObjectGroup_collisionInteractiveList;
@@ -228,8 +228,8 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
 
         // Statistics
         Statistics m_statistics;
-        double m_statsFilterFactor;
-        void filter(double &oldValue, double newValue, double filterFactor = 0.5);
+        float m_statsFilterFactor;
+        void filter(float &oldValue, float newValue, float filterFactor = 0.5);
         // -> Timing Stats
 #ifdef STATISTICS
         std::chrono::high_resolution_clock::time_point m_stats_fps_timer_start;

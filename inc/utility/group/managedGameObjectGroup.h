@@ -50,28 +50,28 @@ class ManagedGameObjectGroup    :   public GameObjectGroup,  GroupManagerInterfa
         virtual const vector<GameObject*> &getVector() const;
 
         // GameObject stuff
-       // virtual void setPosInitial(const Point &pos);
+       // virtual void setPosInitial(const Vector2i&pos);
        // virtual void setPosInitial(const int &x, const int &y);
 
         virtual void setPos(const int &x,const int &y);
-        virtual void setPos(const Point &pos);
+        virtual void setPos(const Vector2i&pos);
 
         virtual void setX(const int &x);
         virtual void setY(const int &y);
 
-        virtual void moveToPos(const Point &destination);
+        virtual void moveToPos(const Vector2i&destination);
         virtual void moveToPos(const int &x,const int &y);
-        virtual void move(const Point &directionVector);
+        virtual void move(const Vector2i&directionVector);
         virtual void move(int x,int y);
 
-        virtual void setRotation(const double &deg);
+        virtual void setRotation(const float &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
-        virtual void setRotation(const PointF &rotationPoint,const double &deg);
-        virtual void rotate_90(const PointF &rotationPoint);
-        virtual void rotate_180(const PointF &rotationPoint);
-        virtual void rotate_270(const PointF &rotationPoint);
+        virtual void setRotation(const Vector2f &rotationPoint,const float &deg);
+        virtual void rotate_90(const Vector2f &rotationPoint);
+        virtual void rotate_180(const Vector2f &rotationPoint);
+        virtual void rotate_270(const Vector2f &rotationPoint);
 
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;

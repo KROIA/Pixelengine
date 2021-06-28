@@ -33,13 +33,13 @@ class Property
 
         // Body
         virtual void setBody(const Body &body);
-        virtual void setBody_fat(const double &fat);
-        virtual void setBody_nutritionalValue(const double &value);
-        virtual void setBody_stamina(const double &stamina);
-        virtual void setBody_health(const double &health);
-        virtual void setBody_strength(const double &strength);
-        virtual void setBody_weight(const double &weight);
-        virtual void setBody_density(const double &density);
+        virtual void setBody_fat(const float &fat);
+        virtual void setBody_nutritionalValue(const float &value);
+        virtual void setBody_stamina(const float &stamina);
+        virtual void setBody_health(const float &health);
+        virtual void setBody_strength(const float &strength);
+        virtual void setBody_weight(const float &weight);
+        virtual void setBody_density(const float &density);
         virtual void setBody_material(const Material &material);
         virtual const Body &getBody() const;
         virtual string getBody_toString(const string &newLine = "\n") const;
@@ -47,20 +47,20 @@ class Property
         // Food
         virtual void setFood(const Food &food);
         virtual void setFood_isEatable(const bool &isEatable);
-        virtual void setFood_foodAmout(const double &amount);
+        virtual void setFood_foodAmout(const float &amount);
         virtual void setFood_taste(const std::vector<Food::Taste> &list);
         virtual void addFood_taste(const Food::Taste &taste);
         virtual void removeFood_taste(const Food::Taste &taste);
-        virtual void setFood_healthyLevel(const double &level);
+        virtual void setFood_healthyLevel(const float &level);
         virtual const Food &getFood() const;
         virtual string getFood_toString(const string &newLine = "\n") const;
 
         // Mood
         virtual void setMood(const Mood &mood);
-        virtual void setMood_stresslevel(const double &level);
-        virtual void setMood_angrylevel(const double &level);
-        virtual void setMood_inLove(const double &inLove);
-        virtual void setMood_druglevel(const double &druglevel);
+        virtual void setMood_stresslevel(const float &level);
+        virtual void setMood_angrylevel(const float &level);
+        virtual void setMood_inLove(const float &inLove);
+        virtual void setMood_druglevel(const float &druglevel);
         virtual const Mood &getMood() const;
         virtual string getMood_toString(const string &newLine = "\n") const;
 

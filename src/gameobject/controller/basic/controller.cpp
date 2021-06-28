@@ -3,11 +3,9 @@
 Controller::Controller()
     :   UserEventHandler()//, LayerItem()
 {
-    m_currentDeltaMove.setX(0.0);
-    m_currentDeltaMove.setY(0.0);
-    //m_neededStepsForMove = 0;
-    //m_movingStepCounter = 0;
-    m_rotationDeg       = 0;
+    m_currentDeltaMove.x    = 0;
+    m_currentDeltaMove.y    = 0;
+    m_rotationDeg           = 0;
 }
 Controller::Controller(const Controller &other)
     :   UserEventHandler()//, LayerItem()
@@ -35,45 +33,14 @@ void Controller::checkEvent()
     EASY_FUNCTION(profiler::colors::Pink);
     UserEventHandler::checkEvent();
 }
-//void Controller::tick(const Point &direction)
 void Controller::tick()
 {
     EASY_FUNCTION(profiler::colors::Pink100);
-    m_currentDeltaMove.set(0,0);
-   /* if(m_neededStepsForMove == 0)
-    {
-       //w m_lastPos   = m_pos;
-        return;
-    }
-
-    // direction: Zwei ticks pro Achsenrichtung 1. Tick = x Bewegung 2. Tick = y Bewegung
-
-    m_movingStepCounter++;
-    if(m_movingStepCounter > m_neededStepsForMove)
-    {
-        m_currentDeltaMove.set(0,0);
-        m_neededStepsForMove = 0;
-    }*/
+    m_currentDeltaMove.x    = 0;
+    m_currentDeltaMove.y    = 0;
 }
 
-/*void Controller::setPos(const int &x,const int &y)
-{
-    LayerItem::setPos(x,y);
-}
-void Controller::setPos(const Point &pos)
-{
-    LayerItem::setPos(pos);
-}
 
-void Controller::setX(const int &x)
-{
-    LayerItem::setX(x);
-}
-void Controller::setY(const int &y)
-{
-    LayerItem::setY(y);
-}
-*/
 void Controller::setMovingMode(MovingMode mode)
 {
     m_movingMode = mode;
@@ -82,11 +49,10 @@ Controller::MovingMode Controller::getMovingMode() const
 {
     return m_movingMode;
 }
-void Controller::moveToPos(const Point &currentPos,const Point &destination,MovingMode mode)
+void Controller::moveToPos(const Vector2i&currentPos,const Vector2i&destination,MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::Pink200);
-    this->move(destination.getX() - currentPos.getX(),
-               destination.getY() - currentPos.getY());
+    this->move(destination - currentPos);
     setMovingMode(mode);
 }
 void Controller::moveToPos(const int &currentX,const int &currentY,
@@ -96,74 +62,47 @@ void Controller::moveToPos(const int &currentX,const int &currentY,
     this->move(destinationX - currentX, destinationY - currentY);
     setMovingMode(mode);
 }
-void Controller::move(const Point &directionVector,MovingMode mode)
+void Controller::move(const Vector2i & directionVector,MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::Pink200);
-    this->move(directionVector.getX(),directionVector.getY());
+    m_currentDeltaMove += Vector2f(directionVector);
     setMovingMode(mode);
 }
-void Controller::move(const PointF &directionVector,MovingMode mode)
+void Controller::move(const Vector2f &directionVector,MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::Pink200);
-    this->move(directionVector.getX(),directionVector.getY());
+    m_currentDeltaMove += directionVector;
     setMovingMode(mode);
 }
-void Controller::move(double x,double y,MovingMode mode)
+void Controller::move(float x,float y,MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::Pink200);
-    m_currentDeltaMove += VectorF(x,y);
+    m_currentDeltaMove += Vector2f(x,y);
     setMovingMode(mode);
-    /*if(x == 0 && y == 0)
-        return;
-    if(m_neededStepsForMove > 0)
-    {
-        x = x + m_currentDeltaMove.getX()*m_neededStepsForMove;
-        y = y + m_currentDeltaMove.getY()*m_neededStepsForMove;
-    }
-
-    if(abs(x)>abs(y))
-        m_neededStepsForMove = abs(x);
-    else
-        m_neededStepsForMove = abs(y);
-    m_movingStepCounter = 0;
-
-    if(m_neededStepsForMove == 0)
-    {
-        //qDebug() << "div 0";
-        return;
-    }
-
-    m_currentDeltaMove.set(double(x)/double(m_neededStepsForMove),double(y)/double(m_neededStepsForMove));
-    */
-    //m_neededStepsForMove*=2; // Zwei ticks pro Achsenrichtung 1. Tick = x Bewegung 2. Tick = y Bewegung
 }
-void Controller::moveX(double x,MovingMode mode)
+void Controller::moveX(float x,MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::Pink200);
-    m_currentDeltaMove += VectorF(x,0);
+    m_currentDeltaMove += Vector2f(x,0);
     setMovingMode(mode);
 }
-void Controller::moveY(double y,MovingMode mode)
+void Controller::moveY(float y,MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::Pink200);
-    m_currentDeltaMove += VectorF(0,y);
+    m_currentDeltaMove += Vector2f(0,y);
     setMovingMode(mode);
 }
-const VectorF &Controller::getMovingVector() const
+const Vector2f &Controller::getMovingVector() const
 {
     return m_currentDeltaMove;
 }
-/*const unsigned int &Controller::getNeededMovingSteps() const
-{
-    return m_neededStepsForMove;
-}*/
 
-void Controller::setRotation(const double &deg)
+void Controller::setRotation(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Pink300);
     m_rotationDeg = int(deg) % 360;
 }
-double Controller::getRotation() const
+float Controller::getRotation() const
 {
     return m_rotationDeg;
 }

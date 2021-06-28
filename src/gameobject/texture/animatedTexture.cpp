@@ -185,13 +185,13 @@ Texture::Origin AnimatedTexture::getOriginType() const
 {
     Texture::getOriginType();
 }
-void AnimatedTexture::setOrigin(const Point &origin)
+void AnimatedTexture::setOrigin(const Vector2i&origin)
 {
     Texture::setOrigin(origin);
     for(size_t i=0; i<m_textureList.size(); i++)
         m_textureList[i]->setOrigin(origin);
 }
-const Point &AnimatedTexture::getOrigin() const
+const Vector2i&AnimatedTexture::getOrigin() const
 {
     Texture::getOrigin();
 }
@@ -220,9 +220,9 @@ const vector<Pixel> &AnimatedTexture::getPixels(unsigned int textureIndex) const
     }
     return m_textureList[textureIndex]->getPixels();
 }*/
-vector< vector<Rect>  > AnimatedTexture::getRectsList() const
+vector< vector<RectI>  > AnimatedTexture::getRectsList() const
 {
-    vector<vector<Rect>   > list;
+    vector<vector<RectI>   > list;
     list.reserve(m_textureList.size());
     for(size_t i=0; i<m_textureList.size(); i++)
     {
@@ -230,7 +230,7 @@ vector< vector<Rect>  > AnimatedTexture::getRectsList() const
     }
     return list;
 }
-const vector<Rect>  &AnimatedTexture::getRects(unsigned int textureIndex) const
+const vector<RectI>  &AnimatedTexture::getRects(unsigned int textureIndex) const
 {
     if(m_textureList.size() == 0)
     {
@@ -239,7 +239,7 @@ const vector<Rect>  &AnimatedTexture::getRects(unsigned int textureIndex) const
     }
     if(m_textureList.size() < textureIndex)
     {
-        qDebug() << "ERROR: vector<Rect>  &AnimatedTexture::getRects(unsigned int ["<<textureIndex<<"]): Param 1 is out of Range. Max is: "<<m_textureList.size()-1;
+        qDebug() << "ERROR: vector<RectI>  &AnimatedTexture::getRects(unsigned int ["<<textureIndex<<"]): Param 1 is out of Range. Max is: "<<m_textureList.size()-1;
         return m_const_dummy_rectList;
     }
     return m_textureList[textureIndex]->getRects();

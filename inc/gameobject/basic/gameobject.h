@@ -35,7 +35,7 @@ class GameObject
 
 
         // called by the Engine
-        virtual void tick(const Point &direction);
+        virtual void tick(const Vector2i&direction);
         virtual unsigned int checkCollision(const vector<GameObject*> &other);
         virtual unsigned int checkCollision(const vector<vector<GameObject*> >&other);
         static vector<GameObject*> getCollidedObjects(GameObject *owner, Collider *collider,const vector<GameObject*> &other);
@@ -50,37 +50,41 @@ class GameObject
         virtual const Painter &getPainter() const;
         virtual void setEventHandler(GameObjectEventHandler *handler);
 
-        virtual void setPos(const int &x,const int &y);
-        virtual void setPos(const Point &pos);
+        virtual void setPos(int x, int y);
+        virtual void setPos(const Vector2i &pos);
+        virtual void setPos(float x, float y);
+        virtual void setPos(const Vector2f &pos);
 
-        virtual void setX(const int &x);
-        virtual void setY(const int &y);
+        virtual void setX(int x);
+        virtual void setY(int y);
+        virtual void setX(float x);
+        virtual void setY(float y);
 
-        virtual void moveToPos(const Point &destination,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveToPos(const Vector2i&destination,Controller::MovingMode mode = Controller::MovingMode::add);
         virtual void moveToPos(const int &x,const int &y,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void move(const Vector &vec,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void move(const VectorF &vec,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void move(const double &deltaX, const double &deltaY,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void moveX(const double &delta,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void moveY(const double &delta,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual const Point getPos() const;
-        virtual const VectorF      &getMovingVector() const;
+        virtual void move(const Vector2i&vec,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void move(const Vector2f &vec,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void move(const float &deltaX, const float &deltaY,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveX(const float &delta,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveY(const float &delta,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual const Vector2f &getPos() const;
+        virtual const Vector2f &getMovingVector() const;
 
-        virtual double getRotation() const;
-        virtual void setRotation(const double &deg);
+        virtual float getRotation() const;
+        virtual void setRotation(const float &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
-        virtual void setRotation(const PointF &rotationPoint,const double &deg);
-        virtual void rotate_90(const PointF &rotationPoint);
-        virtual void rotate_180(const PointF &rotationPoint);
-        virtual void rotate_270(const PointF &rotationPoint);
+        virtual void setRotation(const Vector2f &rotationPoint,const float &deg);
+        virtual void rotate_90(const Vector2f &rotationPoint);
+        virtual void rotate_180(const Vector2f &rotationPoint);
+        virtual void rotate_270(const Vector2f &rotationPoint);
 
 
 
         // Collider settings
-        virtual void addHitbox(const Rect &box);
-        virtual void addHitbox(const vector<Rect> &boxList);
+        virtual void addHitbox(const RectI &box);
+        virtual void addHitbox(const vector<RectI> &boxList);
         virtual void eraseHitbox(const size_t &index);
         virtual void clearCollider();
         virtual const bool &isBoundingBoxUpdated() const;
@@ -97,15 +101,15 @@ class GameObject
      //   virtual void addPixel(const Pixel &pixel);
      //   virtual void addPixel(const vector<Pixel> &pixelList);
      //   virtual const Pixel &getPixel(const size_t &index) const;
-     //   virtual const Pixel &getPixel(const Point &pixelPos) const;
+     //   virtual const Pixel &getPixel(const Vector2i&pixelPos) const;
      //   virtual const Pixel &getPixel(int x, int y) const;
      //   virtual size_t getPixelAmount() const;
      //   virtual void setPixelColor(const size_t &index, const Color &color);
-     //   virtual void setPixelColor(const Point &pixelPos, const Color &color);
+     //   virtual void setPixelColor(const Vector2i&pixelPos, const Color &color);
      //   virtual void setPixelColor(int x, int y, const Color &color);
      //   virtual void setPixelColor(const Color &color);
      //   virtual void erasePixel(const size_t &index);
-     //   virtual void erasePixel(const Point &pixelPos);
+     //   virtual void erasePixel(const Vector2i&pixelPos);
      //   virtual void erasePixel(int x, int y);
      //   virtual void clearPainter(); // Deletes all pixels
         virtual void setVisibility(const bool &isVisible);
@@ -157,7 +161,7 @@ class GameObject
 
     private:
 
-        void rotate(const double &rad);
+        void rotate(const float &deg);
 
 
 };

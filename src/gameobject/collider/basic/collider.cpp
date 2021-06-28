@@ -4,11 +4,11 @@
 Collider::Collider()
     :   LayerItem()
 {
-    this->setPos(0,0);
+    this->setPosInitial(0,0);
     m_dummy.setPos(0,0);
     m_dummy.setSize(0,0);
     m_boundingBoxUpdated = false;
-    m_rotationRad = 0;
+    m_rotationDeg = 0;
 }
 
 Collider::Collider(const Collider &other)
@@ -28,62 +28,100 @@ const Collider &Collider::operator=(const Collider &other)
     this->m_boundingBox     = other.m_boundingBox;
 
     this->m_boundingBoxUpdated = other.m_boundingBoxUpdated;
-    this->m_rotationRad     = other.m_rotationRad;
+    this->m_rotationDeg     = other.m_rotationDeg;
     return *this;
 }
-
-void Collider::setPos(const int &x,const int &y)
+void Collider::setPosInitial(const Vector2f &pos)
+{
+    EASY_FUNCTION(profiler::colors::Red);
+    if(LayerItem::getX() == pos.x && LayerItem::getY() == pos.y)
+        return;
+    LayerItem::setPosInitial(pos);
+}
+void Collider::setPosInitial(const Vector2i &pos)
+{
+    EASY_FUNCTION(profiler::colors::Red);
+    if(LayerItem::getX() == pos.x && LayerItem::getY() == pos.y)
+        return;
+    LayerItem::setPosInitial(pos);
+}
+void Collider::setPosInitial(int x, int y)
 {
     EASY_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == x && LayerItem::getY() == y)
         return;
-    this->setPos(Point(x,y));
+    LayerItem::setPosInitial(x,y);
 }
-void Collider::setPos(const Point &pos)
+void Collider::setPosInitial(float x, float y)
+{
+    EASY_FUNCTION(profiler::colors::Red);
+    if(LayerItem::getX() == x && LayerItem::getY() == y)
+        return;
+    LayerItem::setPosInitial(x,y);
+}
+void Collider::setPos(const Vector2f &pos)
 {
     EASY_FUNCTION(profiler::colors::Red);
     if(LayerItem::getPos() == pos)
         return;
-    Point deltaPos(pos.getX() - LayerItem::getX(),
-                   pos.getY() - LayerItem::getY());
-    m_boundingBox.setPos(m_boundingBox.getX() + deltaPos.getX(),
-                         m_boundingBox.getY() + deltaPos.getY());
+    Vector2f deltaPos = pos - LayerItem::getPos();
+    m_boundingBox.setPos(m_boundingBox.getPos() + Vector2i(deltaPos));
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
-        m_hitboxList[i].setPos(m_hitboxList[i].getX() + deltaPos.getX(),
-                               m_hitboxList[i].getY() + deltaPos.getY());
+        m_hitboxList[i].setPos(m_hitboxList[i].getPos() + Vector2i(deltaPos));
     }
     LayerItem::setPos(pos);
 }
-void Collider::setX(const int &x)
+void Collider::setPos(const Vector2i &pos)
+{
+    EASY_FUNCTION(profiler::colors::Red);
+    if(LayerItem::getPosI() == pos)
+        return;
+    Vector2i deltaPos = pos - LayerItem::getPosI();
+    m_boundingBox.setPos(m_boundingBox.getPos() + Vector2i(deltaPos));
+    for(size_t i=0; i<m_hitboxList.size(); i++)
+    {
+        m_hitboxList[i].setPos(m_hitboxList[i].getPos() + Vector2i(deltaPos));
+    }
+    LayerItem::setPos(pos);
+}
+void Collider::setX(int x)
+{
+    this->setX(float(x));
+}
+void Collider::setY(int y)
+{
+    this->setY(float(y));
+}
+void Collider::setX(float x)
 {
     EASY_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == x)
         return;
     int deltaX = x - LayerItem::getX();
-    m_boundingBox.setX(m_boundingBox.getPos().getX() + deltaX);
+    m_boundingBox.setX(m_boundingBox.getPos().x + deltaX);
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
-        m_hitboxList[i].setX(m_hitboxList[i].getX() + deltaX);
+        m_hitboxList[i].setX(m_hitboxList[i].getPos().x + deltaX);
     }
     LayerItem::setX(x);
 }
-void Collider::setY(const int &y)
+void Collider::setY(float y)
 {
     EASY_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == y)
         return;
     int deltaY = y - LayerItem::getY();
-    m_boundingBox.setY(m_boundingBox.getPos().getY() + deltaY);
+    m_boundingBox.setY(m_boundingBox.getPos().y + deltaY);
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
-        m_hitboxList[i].setY(m_hitboxList[i].getY() + deltaY);
+        m_hitboxList[i].setY(m_hitboxList[i].getPos().y + deltaY);
     }
     LayerItem::setY(y);
 }
 
 
-const Rect &Collider::getBoundingBox() const
+const RectI &Collider::getBoundingBox() const
 {
     return m_boundingBox;
 }
@@ -94,17 +132,16 @@ void Collider::reserve(const size_t &amount)
     m_hitboxList.reserve(amount);
 }
 
-void Collider::addHitbox(const Rect &box)
+void Collider::addHitbox(const RectI &box)
 {
     EASY_FUNCTION(profiler::colors::Red100);
     m_boundingBoxUpdated = false;
     m_hitboxList.push_back(box);
-    m_hitboxList[m_hitboxList.size()-1].setPos(box.getPos().getX()+LayerItem::getX(),
-                                               box.getPos().getY()+LayerItem::getY());
+    m_hitboxList[m_hitboxList.size()-1].setPos(box.getPos() + Vector2i(LayerItem::getPos()));
     updateBoundingBox();
 }
 
-void Collider::addHitbox(const vector<Rect> &boxList)
+void Collider::addHitbox(const vector<RectI> &boxList)
 {
     EASY_FUNCTION(profiler::colors::Red100);
     m_boundingBoxUpdated = false;
@@ -117,14 +154,14 @@ void Collider::addHitbox(const vector<Rect> &boxList)
 }
 
 
-const Rect &Collider::getHitbox(const unsigned int &index) const
+const RectI &Collider::getHitbox(const unsigned int &index) const
 {
     if(index < m_hitboxList.size())
         return m_hitboxList[index];
     return m_dummy;
 }
 
-const vector<Rect> &Collider::getHitbox() const
+const vector<RectI> &Collider::getHitbox() const
 {
     return m_hitboxList;
 }
@@ -189,9 +226,9 @@ void Collider::updateBoundingBox()
 void Collider::setBoundingBox()
 {
     EASY_FUNCTION(profiler::colors::Red900);
-    setBoundingBox(Rect::getFrame(m_hitboxList));
+    setBoundingBox(RectI::getFrame(m_hitboxList));
 }
-void Collider::setBoundingBox(const Rect &box)
+void Collider::setBoundingBox(const RectI &box)
 {
     EASY_FUNCTION(profiler::colors::RedA100);
     m_boundingBox = box;
@@ -212,81 +249,82 @@ size_t Collider::getHitboxAmount() const
 {
     return m_hitboxList.size();
 }
-double Collider::getRotation() const
+float Collider::getRotation() const
 {
-    return m_rotationRad*180.f/M_PI;
+    return m_rotationDeg*180.f/M_PI;
 }
-void Collider::setRotation(const double &deg)
+void Collider::setRotation(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::RedA200);
-    this->rotate(PointF(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
+    this->internalRotate(Vector2f(LayerItem::getPos()),deg - m_rotationDeg);
 }
 void Collider::rotate_90()
 {
     EASY_FUNCTION(profiler::colors::RedA200);
-    this->rotate(PointF(this->getX(),this->getY()),M_PI_2);
+    this->internalRotate(Vector2f(LayerItem::getPos()),90);
 }
 void Collider::rotate_180()
 {
     EASY_FUNCTION(profiler::colors::RedA200);
-    this->rotate(PointF(this->getX(),this->getY()),M_PI);
+    this->internalRotate(Vector2f(LayerItem::getPos()),180);
 }
 void Collider::rotate_270()
 {
     EASY_FUNCTION(profiler::colors::RedA200);
-    this->rotate(PointF(this->getX(),this->getY()),-M_PI_2);
+    this->internalRotate(Vector2f(LayerItem::getPos()),-90);
 }
-void Collider::setRotation(const PointF &rotationPoint,const double &deg)
+void Collider::setRotation(const Vector2f &rotationPoint,const float &deg)
 {
     EASY_FUNCTION(profiler::colors::RedA200);
-    this->rotate(rotationPoint,(deg*M_PI/180.f) - m_rotationRad);
+    this->internalRotate(rotationPoint,deg - m_rotationDeg);
 }
-void Collider::rotate_90(const PointF &rotationPoint)
+void Collider::rotate_90(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::RedA200);
-    this->rotate(rotationPoint,M_PI_2);
+    this->internalRotate(rotationPoint,90);
 }
-void Collider::rotate_180(const PointF &rotationPoint)
+void Collider::rotate_180(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::RedA200);
-    this->rotate(rotationPoint,M_PI);
+    this->internalRotate(rotationPoint,180);
 }
-void Collider::rotate_270(const PointF &rotationPoint)
+void Collider::rotate_270(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::RedA200);
-    this->rotate(rotationPoint,-M_PI_2);
+    this->internalRotate(rotationPoint,-90);
 }
 
 void Collider::setHitboxFromTexture(const Texture *texture)
 {
     EASY_FUNCTION(profiler::colors::RedA400);
     this->clear();
-   // Point lastPos = this->getPos();
-   // this->setPos(0,0);
     this->addHitbox(texture->getRects());
-   // this->setPos(lastPos);
 }
 
 
-void Collider::rotate(const PointF &rotPoint,const double &rad)
+void Collider::internalRotate(const Vector2f &rotPoint,const float &deg)
 {
     EASY_FUNCTION(profiler::colors::RedA200);
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
-        GeneralVector<double> vec(m_hitboxList[i].getPos().getX(),m_hitboxList[i].getPos().getY());
-        //GeneralVector<double> offset(this->getPos().getX(),this->getPos().getY());
+        Vector2f vec(m_hitboxList[i].getPos().x,m_hitboxList[i].getPos().y);
+        //GeneralVector<float> offset(this->getPos().x,this->getPos().y);
         //offset.moveX(-0.5);
         //offset.moveY(-0.5);
         //vec -= offset;
-        PointF newPos = GeneralVector<double>::rotate(vec,rotPoint,rad).toPoint();
-        m_hitboxList[i].setPos(round(newPos.getX()),round(newPos.getY()));
+        //Vector2f newPos = GeneralVector<float>::rotate(vec,rotPoint,rad).toPoint();
 
-        RectF newRect = RectF::rotate(RectF(m_hitboxList[i].getX(),m_hitboxList[i].getY(),m_hitboxList[i].getSize().getX(),m_hitboxList[i].getSize().getY()),rad);
+        Vector2f newPos = Vector::rotate(vec,rotPoint,deg);
+
+
+        m_hitboxList[i].setPos(round(newPos.x),round(newPos.y));
+
+        RectF newRect = RectF::rotate(RectF(m_hitboxList[i].getPos().x,m_hitboxList[i].getPos().y,m_hitboxList[i].getSize().x,m_hitboxList[i].getSize().y),deg);
 
         m_hitboxList[i].setPos(round(newRect.getX()),round(newRect.getY()));
-        m_hitboxList[i].setSize(round(newRect.getSize().getX()),round(newRect.getSize().getY()));
+        m_hitboxList[i].setSize(round(newRect.getSize().x),round(newRect.getSize().y));
     }
-    m_rotationRad += rad;
-    m_rotationRad = double(int(m_rotationRad*1000) % int(2*M_PI *1000))/1000.f;
+    m_rotationDeg += deg;
+    m_rotationDeg = float(int(m_rotationDeg*1000) % int(360 *1000))/1000.f;
     this->updateBoundingBox();
 }

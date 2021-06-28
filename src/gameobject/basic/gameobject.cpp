@@ -104,13 +104,13 @@ void GameObject::deleteMeFromEngine()
         m_objEventHandler->deleteObject(this);
 }
 
-void GameObject::tick(const Point &direction)
+void GameObject::tick(const Vector2i&direction)
 {
     EASY_FUNCTION(profiler::colors::Green300);
 //    if(m_colliderNeedsUpdateFromTexture)
   //      this->setHitboxFromTexture();
     m_layerItem.swapPosToLastPos();
-    if(direction.getX() > 0)
+    if(direction.x > 0)
     {
         EASY_BLOCK("for(size_t i=0; i<m_controllerList.size(); i++)",profiler::colors::Green300);
         for(size_t i=0; i<m_controllerList.size(); i++)
@@ -121,12 +121,17 @@ void GameObject::tick(const Point &direction)
             m_controllerList[i]->tick(); // Clears the movingVector
         }
         m_movementCoordinator.calculateMovement();
-        m_layerItem.moveX_F(m_movementCoordinator.getMovingVector_X());
+        m_layerItem.move(Vector2i(round(m_movementCoordinator.getMovingVector_X()),0));
+       // qDebug() << round(m_movementCoordinator.getMovingVector().x) << " "<<round(m_movementCoordinator.getMovingVector().y);
+        //m_layerItem.move(Vector2f(m_movementCoordinator.getMovingVector_X(),0));
+        //qDebug() << m_movementCoordinator.getMovingVector().x << " "<<m_movementCoordinator.getMovingVector().y << "\t"<<m_layerItem.getX()<<"\t"<<m_layerItem.getY();
+
         EASY_END_BLOCK;
     }
     else
     {
-        m_layerItem.moveY_F(m_movementCoordinator.getMovingVector_Y());
+        m_layerItem.move(Vector2i(0,round(m_movementCoordinator.getMovingVector_Y())));
+        //m_layerItem.move(Vector2f(0,m_movementCoordinator.getMovingVector_Y()));
         m_movementCoordinator.tick();
     }
     m_collider->setPos(m_layerItem.getPos());
@@ -192,9 +197,9 @@ void GameObject::draw(PixelDisplay &display)
     m_painter->setPos(m_layerItem.getPos());
     m_hitboxPainter->setPos(m_layerItem.getPos());
     int outOfFrameBoundry = 16;
-    if(m_layerItem.getX() > signed(display.getMapSize().getX()) + outOfFrameBoundry)
+    if(m_layerItem.getX() > signed(display.getMapSize().x) + outOfFrameBoundry)
         return;
-    if(m_layerItem.getY() > signed(display.getMapSize().getY()) + outOfFrameBoundry)
+    if(m_layerItem.getY() > signed(display.getMapSize().x) + outOfFrameBoundry)
         return;
     if(m_layerItem.getX() < -outOfFrameBoundry)
         return;
@@ -202,7 +207,7 @@ void GameObject::draw(PixelDisplay &display)
         return;
 
 
-    /*if(!this->m_painter->getFrame().intersects(Rect(10,10,display.getMapSize().getX()-20,display.getMapSize().getY()-20)))
+    /*if(!this->m_painter->getFrame().intersects(RectI(10,10,display.getMapSize().getX()-20,display.getMapSize().getY()-20)))
     {
         return;
     }*/
@@ -213,7 +218,7 @@ void GameObject::draw(PixelDisplay &display)
         m_hitboxPainter->draw(display);
 
         // ----------------- TEST ---------------
-       // PointF renderScale = display.getRenderScale();
+       // Vector2f renderScale = display.getRenderScale();
        // vector<sf::Vertex>  line {
       /*  sf::Vertex line[] ={
             sf::Vertex(sf::Vector2f(m_collider->getBoundingBox().getCornerPoint_TL().getX()*renderScale.getX(), m_collider->getBoundingBox().getCornerPoint_TL().getY()*renderScale.getY())),
@@ -221,8 +226,8 @@ void GameObject::draw(PixelDisplay &display)
         };*/
         VertexPath line_;
         line_.line = new sf::Vertex [2]{
-            sf::Vertex(sf::Vector2f(m_collider->getBoundingBox().getCornerPoint_TL().getX(), m_collider->getBoundingBox().getCornerPoint_TL().getY())),
-            sf::Vertex(sf::Vector2f(m_collider->getBoundingBox().getCornerPoint_BR().getX(), m_collider->getBoundingBox().getCornerPoint_BR().getY()))
+            sf::Vertex(sf::Vector2f(m_collider->getBoundingBox().getCornerPoint_TL().x, m_collider->getBoundingBox().getCornerPoint_TL().y)),
+            sf::Vertex(sf::Vector2f(m_collider->getBoundingBox().getCornerPoint_BR().x, m_collider->getBoundingBox().getCornerPoint_BR().y))
         };
         line_.length = 2;
         line_.type = sf::Lines;
@@ -293,76 +298,97 @@ void GameObject::setEventHandler(GameObjectEventHandler *handler)
 
 }
 
-void GameObject::setPos(const int &x,const int &y)
+void GameObject::setPos(int x,int y)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_layerItem.setPosInitial(x,y);
     //m_collider->setPos(x,y);
    // m_painter->setPos(x,y);
 }
-void GameObject::setPos(const Point &pos)
+void GameObject::setPos(const Vector2i &pos)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_layerItem.setPosInitial(pos);
 }
-
-void GameObject::setX(const int &x)
+void GameObject::setPos(float x, float y)
+{
+    EASY_FUNCTION(profiler::colors::GreenA700);
+    m_layerItem.setPosInitial(x,y);
+    //m_collider->setPos(x,y);
+   // m_painter->setPos(x,y);
+}
+void GameObject::setPos(const Vector2f &pos)
+{
+    EASY_FUNCTION(profiler::colors::GreenA700);
+    m_layerItem.setPosInitial(pos);
+}
+void GameObject::setX(int x)
+{
+    EASY_FUNCTION(profiler::colors::GreenA700);
+    m_layerItem.setPosInitial(float(x),m_layerItem.getY());
+}
+void GameObject::setY(int y)
+{
+    EASY_FUNCTION(profiler::colors::GreenA700);
+    m_layerItem.setPosInitial(m_layerItem.getX(),float(y));
+}
+void GameObject::setX(float x)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_layerItem.setPosInitial(x,m_layerItem.getY());
 }
-void GameObject::setY(const int &y)
+void GameObject::setY(float y)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_layerItem.setPosInitial(m_layerItem.getX(),y);
 }
 
-void GameObject::moveToPos(const Point &destination,Controller::MovingMode mode)
+void GameObject::moveToPos(const Vector2i&destination,Controller::MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
-    m_controllerList[0]->moveToPos(m_layerItem.getPos(),destination,mode);
+    m_controllerList[0]->moveToPos(m_layerItem.getPosI(),destination,mode);
 }
 void GameObject::moveToPos(const int &x,const int &y,Controller::MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
-    m_controllerList[0]->moveToPos(m_layerItem.getPos().getX(),m_layerItem.getPos().getY(),x,y,mode);
+    m_controllerList[0]->moveToPos(m_layerItem.getXI(),m_layerItem.getYI(),x,y,mode);
 }
-void GameObject::move(const Vector &vec,Controller::MovingMode mode)
+void GameObject::move(const Vector2i&vec,Controller::MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->move(vec,mode);
 }
-void GameObject::move(const VectorF &vec,Controller::MovingMode mode)
+void GameObject::move(const Vector2f &vec,Controller::MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->move(vec,mode);
 }
-void GameObject::move(const double &deltaX, const double &deltaY,Controller::MovingMode mode)
+void GameObject::move(const float &deltaX, const float &deltaY,Controller::MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->move(deltaX,deltaY,mode);
 }
-void GameObject::moveX(const double &delta,Controller::MovingMode mode)
+void GameObject::moveX(const float &delta,Controller::MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->moveX(delta,mode);
 }
-void GameObject::moveY(const double &delta,Controller::MovingMode mode)
+void GameObject::moveY(const float &delta,Controller::MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->moveY(delta,mode);
 }
 
-const Point GameObject::getPos() const
+const Vector2f &GameObject::getPos() const
 {
     return m_layerItem.getPos();
 }
-const VectorF &GameObject::getMovingVector() const
+const Vector2f &GameObject::getMovingVector() const
 {
     return m_movementCoordinator.getMovingVector();
 }
 
-void GameObject::rotate(const double &rad)
+void GameObject::rotate(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Green);
     if(m_hitboxPainter->isVisible())
@@ -370,7 +396,7 @@ void GameObject::rotate(const double &rad)
         this->setHitboxVisibility(false);
         this->setHitboxVisibility(true);
     }
-    m_rotationDeg+=rad*180/M_PI;
+    m_rotationDeg+=deg;
     if(m_rotationDeg >= 360)
         m_rotationDeg = m_rotationDeg%360;
 
@@ -378,15 +404,15 @@ void GameObject::rotate(const double &rad)
     m_collider->setPos(m_layerItem.getPos());
 }
 
-double GameObject::getRotation() const
+float GameObject::getRotation() const
 {
     return m_rotationDeg;
 }
-//this->rotate(PointF(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
-void GameObject::setRotation(const double &deg)
+//this->rotate(Vector2f(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
+void GameObject::setRotation(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    double rot = m_rotationDeg - deg;
+    float rot = m_rotationDeg - deg;
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->setRotation(deg);
     m_collider->setRotation(deg);
@@ -421,57 +447,57 @@ void GameObject::rotate_270()
     m_painter->rotate_270();
     rotate(M_PI_2*3);
 }
-void GameObject::setRotation(const PointF &rotationPoint,const double &deg)
+void GameObject::setRotation(const Vector2f &rotationPoint,const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,deg*M_PI/180).toPoint();
-    this->setPos(round(newPos.getX()),round(newPos.getY()));
-    double rot = m_rotationDeg - deg;
+    Vector2f newPos = Vector::rotate(Vector2f(this->getPos()),rotationPoint,deg);
+    this->setPos(round(newPos.x),round(newPos.y));
+    float rot = m_rotationDeg - deg;
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->setRotation(deg);
     m_collider->setRotation(deg);
     m_painter->setRotation(deg);
     rotate(rot/180.f*M_PI);
 }
-void GameObject::rotate_90(const PointF &rotationPoint)
+void GameObject::rotate_90(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI_2).toPoint();
-    this->setPos(round(newPos.getX()),round(newPos.getY()));
+    Vector2f newPos = Vector::rotate(Vector2f(this->getPos()),rotationPoint,90);
+    this->setPos(round(newPos.x),round(newPos.y));
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate_90();
     m_collider->rotate_90();
     m_painter->rotate_90();
     rotate(M_PI_2);
 }
-void GameObject::rotate_180(const PointF &rotationPoint)
+void GameObject::rotate_180(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI).toPoint();
-    this->setPos(round(newPos.getX()),round(newPos.getY()));
+    Vector2f newPos = Vector::rotate(Vector2f(this->getPos()),rotationPoint,180);
+    this->setPos(round(newPos.x),round(newPos.y));
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate_180();
     m_collider->rotate_180();
     m_painter->rotate_180();
     rotate(M_PI);
 }
-void GameObject::rotate_270(const PointF &rotationPoint)
+void GameObject::rotate_270(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI_2*3).toPoint();
-    this->setPos(round(newPos.getX()),round(newPos.getY()));
+    Vector2f newPos = Vector::rotate(Vector2f(this->getPos()),rotationPoint,270);
+    this->setPos(round(newPos.x),round(newPos.y));
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate_270();
     m_collider->rotate_270();
     m_painter->rotate_270();
     rotate(M_PI_2*3);
 }
-void GameObject::addHitbox(const Rect &box)
+void GameObject::addHitbox(const RectI &box)
 {
     EASY_FUNCTION(profiler::colors::Green100);
     m_collider->addHitbox(box);
 }
-void GameObject::addHitbox(const vector<Rect> &boxList)
+void GameObject::addHitbox(const vector<RectI> &boxList)
 {
     EASY_FUNCTION(profiler::colors::Green100);
     m_collider->addHitbox(boxList);
@@ -533,7 +559,7 @@ void GameObject::updateHitboxPainter()
     {
         HitboxPainter::makeVisibleCollider(m_collider,m_hitboxPainter);
        // Point offset = Vector(m_collider->getPos())-Vector(m_collider->getBoundingBox().getCornerPoint_TL());
-       // m_hitboxPainter->setOrigin(PointF(offset.getX(),offset.getY()));
+       // m_hitboxPainter->setOrigin(Vector2f(offset.getX(),offset.getY()));
     }
 }
 const bool &GameObject::isHitboxVisible() const
@@ -566,7 +592,7 @@ const Pixel &GameObject::getPixel(const size_t &index) const
 {
     return m_painter->getPixel(index);
 }
-const Pixel &GameObject::getPixel(const Point &pixelPos) const
+const Pixel &GameObject::getPixel(const Vector2i&pixelPos) const
 {
     return m_painter->getPixel(pixelPos);
 }
@@ -582,7 +608,7 @@ void GameObject::setPixelColor(const size_t &index, const Color &color)
 {
     m_painter->setPixelColor(index,color);
 }
-void GameObject::setPixelColor(const Point &pixelPos, const Color &color)
+void GameObject::setPixelColor(const Vector2i&pixelPos, const Color &color)
 {
     m_painter->setPixelColor(pixelPos,color);
 }
@@ -598,7 +624,7 @@ void GameObject::erasePixel(const size_t &index)
 {
     m_painter->erasePixel(index);
 }
-void GameObject::erasePixel(const Point &pixelPos)
+void GameObject::erasePixel(const Vector2i&pixelPos)
 {
     m_painter->erasePixel(pixelPos);
 }

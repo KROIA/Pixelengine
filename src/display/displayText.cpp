@@ -35,10 +35,10 @@ const Text &DisplayText::getText() const
 {
     return m_text;
 }
-void DisplayText::setPixelRatio(double ratio)
+void DisplayText::setPixelRatio(float ratio)
 {
     m_pixelRatio = ratio;
-    m_text.setPosition(m_position.getX() * m_pixelRatio,m_position.getY() * m_pixelRatio);
+    m_text.setPosition(m_position * m_pixelRatio);
 }
 
 void DisplayText::setFont(const string &fontPath)
@@ -86,12 +86,12 @@ const Color &DisplayText::getColor() const
     return m_text.getFillColor();
 }
 
-void DisplayText::setPos(const Point &position)
+void DisplayText::setPos(const Vector2f &position)
 {
     m_position = position;
-    m_text.setPosition(m_position.getX() * m_pixelRatio,m_position.getY() * m_pixelRatio);
+    m_text.setPosition(m_position * m_pixelRatio);
 }
-const Point &DisplayText::getPos() const
+const Vector2f &DisplayText::getPos() const
 {
     return m_position;
 }

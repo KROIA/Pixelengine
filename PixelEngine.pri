@@ -54,8 +54,8 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/display
 
 SOURCES += \
-        $$PWD/src/display/drawUtilities.cpp \
-        $$PWD/src/gameobject/painter/texturePainter.cpp \
+        $$PixelEngine_srcPath/display/drawUtilities.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/texturePainter.cpp \
         $$PixelEngine_srcPath/display/displayText.cpp \
         $$PixelEngine_srcPath/utility/group/InteractiveGameObject.cpp \
         $$PixelEngine_srcPath/utility/group/InteractiveGameObjectGroup.cpp \
@@ -83,8 +83,9 @@ SOURCES += \
         $$PixelEngine_srcPath/utility/layeritem.cpp
 
 HEADERS += \
-        $$PWD/inc/display/drawUtilities.h \
-        $$PWD/inc/gameobject/painter/texturePainter.h \
+        $$PixelEngine_incPath/display/drawUtilities.h \
+        $$PixelEngine_incPath/gameobject/painter/texturePainter.h \
+        $$PixelEngine_incPath/utility/mathFunctions.h \
         $$PixelEngine_incPath/display/displayText.h \
         $$PixelEngine_incPath/utility/group/InteractiveGameObject.h \
         $$PixelEngine_incPath/utility/group/InteractiveGameObjectGroup.h \

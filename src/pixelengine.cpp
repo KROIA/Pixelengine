@@ -1,6 +1,6 @@
 #include "pixelengine.h"
 
-PixelEngine::PixelEngine(const PointU &mapsize,const PointU &displaySize)
+PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
     :   GameObjectEventHandler()//, GroupManagerInterface()
 {
     m_mapSize = mapsize;
@@ -43,10 +43,10 @@ PixelEngine::PixelEngine(const PointU &mapsize,const PointU &displaySize)
     m_stats_text = new DisplayText();
     //m_stats_text->setVisibility(false);
     //m_stats_text->setString("");
-    m_stats_text->setCharacterSize(m_windowSize.getX()/80); // in pixels, not points!
+    m_stats_text->setCharacterSize(m_windowSize.x/80); // in pixels, not points!
     sf::Color col(255,255,255,100); // Transparent white
     display_stats(false,col);
-    m_stats_text->setPos(Point(5,5));
+    m_stats_text->setPos(Vector2f(5,5));
 
     m_display->addText(m_stats_text);
     resetTick();
@@ -110,11 +110,11 @@ bool PixelEngine::running()
 {
     return m_engineIsRunning;
 }
-const PointU &PixelEngine::getWindwoSize() const
+const Vector2u  &PixelEngine::getWindwoSize() const
 {
     return m_windowSize;
 }
-const PointU &PixelEngine::getMapSize() const
+const Vector2u  &PixelEngine::getMapSize() const
 {
     return m_mapSize;
 }
@@ -148,7 +148,7 @@ void PixelEngine::checkEvent()
     EASY_END_BLOCK;
 #ifdef STATISTICS
     auto stats_checkEvent_timer_start = std::chrono::system_clock::now();
-    std::chrono::duration<double> time_span_checkUserEvent_time = stats_checkEvent_timer_start - stats_checkUserEvent_timer_start;
+    std::chrono::duration<float> time_span_checkUserEvent_time = stats_checkEvent_timer_start - stats_checkUserEvent_timer_start;
     filter(m_statistics.checkUserEventTime,time_span_checkUserEvent_time.count()*1000.f,m_statsFilterFactor);
 #endif
     // Check if any Object of a added List was removed or added
@@ -176,7 +176,7 @@ void PixelEngine::checkEvent()
     EASY_END_BLOCK;
 #ifdef STATISTICS
     auto stats_checkEvent_timer_end = std::chrono::system_clock::now();
-    std::chrono::duration<double> time_span_checkEvent_time = stats_checkEvent_timer_end - stats_checkEvent_timer_start;
+    std::chrono::duration<float> time_span_checkEvent_time = stats_checkEvent_timer_end - stats_checkEvent_timer_start;
     filter(m_statistics.checkEventTime,time_span_checkEvent_time.count()*1000.f,m_statsFilterFactor);
 
 #endif
@@ -204,7 +204,7 @@ void PixelEngine::tick()
     m_statistics.gameObjectTickTime     *= m_statsFilterFactor;
     m_statistics.collisionCheckTime     *= m_statsFilterFactor;
     auto stats_tick_timer_start = std::chrono::system_clock::now();
-    std::chrono::duration<double> time_span_userEventEvent_time = stats_tick_timer_start - stats_userTick_timer_start;
+    std::chrono::duration<float> time_span_userEventEvent_time = stats_tick_timer_start - stats_userTick_timer_start;
     filter(m_statistics.userTickTime, time_span_userEventEvent_time.count()*1000.f,m_statsFilterFactor);
 #endif
 
@@ -214,13 +214,13 @@ void PixelEngine::tick()
     EASY_END_BLOCK;
 
 #ifdef STATISTICS
-    m_statistics.collisionChecksPerTick = Rect::stats_getIntersectionCounter();
-    Rect::stats_resetIntersectionCounter();
+    m_statistics.collisionChecksPerTick = RectI::stats_getIntersectionCounter();
+    RectI::stats_resetIntersectionCounter();
     m_stats_tps_timer_end = std::chrono::system_clock::now();
-    std::chrono::duration<double> time_span_tick_time = m_stats_tps_timer_end - stats_tick_timer_start;
+    std::chrono::duration<float> time_span_tick_time = m_stats_tps_timer_end - stats_tick_timer_start;
     filter(m_statistics.tickTime, time_span_tick_time.count()*1000.f,m_statsFilterFactor);
 
-    std::chrono::duration<double> time_span = m_stats_tps_timer_end - m_stats_tps_timer_start;
+    std::chrono::duration<float> time_span = m_stats_tps_timer_end - m_stats_tps_timer_start;
     m_stats_tps_timer_start = std::chrono::system_clock::now();
     if(time_span.count() != 0.f)
         filter(m_statistics.ticksPerSecond, 1.f/time_span.count(),m_statsFilterFactor);
@@ -229,14 +229,14 @@ void PixelEngine::tick()
 void PixelEngine::tickX()
 {
     EASY_FUNCTION(profiler::colors::Orange300);
-    tickXY(Point(1,0));
+    tickXY(Vector2i(1,0));
 }
 void PixelEngine::tickY()
 {
     EASY_FUNCTION(profiler::colors::Orange300);
-    tickXY(Point(0,1));
+    tickXY(Vector2i(0,1));
 }
-void PixelEngine::tickXY(const Point &dirLock)
+void PixelEngine::tickXY(const Vector2i &dirLock)
 {
     EASY_FUNCTION(profiler::colors::Orange400);
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
@@ -250,7 +250,7 @@ void PixelEngine::tickXY(const Point &dirLock)
 
 #ifdef STATISTICS
         auto stats_timer_end = std::chrono::system_clock::now();
-        std::chrono::duration<double> stats_time_span = stats_timer_end - stats_timer_start;
+        std::chrono::duration<float> stats_time_span = stats_timer_end - stats_timer_start;
         m_statistics.gameObjectTickTime += stats_time_span.count()*1000.f*(1.f-m_statsFilterFactor);
         stats_timer_start = std::chrono::system_clock::now();
 #endif
@@ -372,7 +372,7 @@ void PixelEngine::display()
     EASY_END_BLOCK;
 #ifdef STATISTICS
     auto stats_timePoint_2 = std::chrono::system_clock::now();
-    std::chrono::duration<double> time_span_userDisplay_time = stats_timePoint_2 - stats_timePoint_1;
+    std::chrono::duration<float> time_span_userDisplay_time = stats_timePoint_2 - stats_timePoint_1;
     filter(m_statistics.userDisplayTime,time_span_userDisplay_time.count()*1000.f,m_statsFilterFactor);
 #endif
 
@@ -384,7 +384,7 @@ void PixelEngine::display()
     EASY_END_BLOCK;
 #ifdef STATISTICS
     stats_timePoint_1 = std::chrono::system_clock::now();
-    std::chrono::duration<double> m_time_span_draw_time = stats_timePoint_1 - stats_timePoint_2;
+    std::chrono::duration<float> m_time_span_draw_time = stats_timePoint_1 - stats_timePoint_2;
     filter(m_statistics.drawTime, m_time_span_draw_time.count()*1000.f,m_statsFilterFactor);
     updateText();
     m_display->display();
@@ -393,37 +393,37 @@ void PixelEngine::display()
 
 #ifdef STATISTICS
     m_stats_fps_timer_end = std::chrono::system_clock::now();
-    std::chrono::duration<double> m_time_span_display_time = m_stats_fps_timer_end - stats_timePoint_1;
+    std::chrono::duration<float> m_time_span_display_time = m_stats_fps_timer_end - stats_timePoint_1;
     filter(m_statistics.displayTime, m_time_span_display_time.count()*1000.f,m_statsFilterFactor);
 
-    std::chrono::duration<double> time_span = m_stats_fps_timer_end - m_stats_fps_timer_start;
+    std::chrono::duration<float> time_span = m_stats_fps_timer_end - m_stats_fps_timer_start;
     m_stats_fps_timer_start = std::chrono::system_clock::now();
     if(time_span.count() != 0.f)
         filter(m_statistics.framesPerSecond, 1.f/time_span.count(),m_statsFilterFactor);
 
 #endif
 }
-void PixelEngine::set_setting_checkEventInterval(const double &seconds)
+void PixelEngine::set_setting_checkEventInterval(const float &seconds)
 {
     m_eventInterval = abs(seconds);
 }
-const double &PixelEngine::get_setting_eventHandleInterval() const
+const float &PixelEngine::get_setting_eventHandleInterval() const
 {
     return m_eventInterval;
 }
-void PixelEngine::set_setting_gameTickInterval(const double &seconds)
+void PixelEngine::set_setting_gameTickInterval(const float &seconds)
 {
     m_mainTickInterval = abs(seconds);
 }
-const double  &PixelEngine::get_setting_gameTickInterval() const
+const float  &PixelEngine::get_setting_gameTickInterval() const
 {
     return m_mainTickInterval;
 }
-void PixelEngine::set_setting_displayInterval(const double &seconds)
+void PixelEngine::set_setting_displayInterval(const float &seconds)
 {
     m_displayInterval = abs(seconds);
 }
-const double  &PixelEngine::get_setting_displayInterval() const
+const float  &PixelEngine::get_setting_displayInterval() const
 {
     return m_displayInterval;
 }
@@ -830,7 +830,7 @@ void PixelEngine::removeDisplayText(DisplayText*text)
 
 
 // General functions
-double PixelEngine::random(double min, double max)
+float PixelEngine::random(float min, float max)
 {
     EASY_FUNCTION(profiler::colors::Orange400);
     if(min == max || abs(min - max) < 0.000001)
@@ -838,7 +838,7 @@ double PixelEngine::random(double min, double max)
         return min;
     }
     if(min > max)
-    {   double buf=min;
+    {   float buf=min;
         min = max;
         max = buf;
     }
@@ -847,7 +847,7 @@ double PixelEngine::random(double min, double max)
     std::time_t t = std::time(0);   // get time now
     std::tm* now = std::localtime(&t);
     int seed = now->tm_year + now->tm_mon + now->tm_mday + now->tm_hour + now->tm_min + now->tm_sec;
-    return double((min*1000.0)+((seed*rand())%(int)((max-min)*1000.0)))/1000.0;
+    return float((min*1000.0)+((seed*rand())%(int)((max-min)*1000.0)))/1000.0;
 }
 /*bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider, Painter *painter, const ImageOrigin &origin)
 {
@@ -884,7 +884,7 @@ double PixelEngine::random(double min, double max)
     }
     return PixelEngine::loadFromImage(picture,collider,painter,originPoint);
 }
-bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider, Painter *painter, const Point &origin)
+bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider, Painter *painter, const Vector2i&origin)
 {
     Image image;
     if(!image.loadFromFile(picture))
@@ -902,23 +902,23 @@ bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider
     timer.start(1000);  // only for stats
     sf::Vector2u size = image.getSize();
 
-    double progress = 0;
-    double maxProgress = size.x * size.y;
+    float progress = 0;
+    float maxProgress = size.x * size.y;
 
     // Reserve the maximum amount of possible pixels
     painter->reserve(size.x * size.y);
 
     Color color;
-    Rect rect;
+    RectI rect;
     rect.setSize(1,1);
     Pixel pixel;
 #ifdef IMAGE_IMPORT_DEBUG
     qDebug() << "Imagesize x="<<size.x<<"\ty="<<size.y;
 #endif
 
-    // Each pixel in the image is set to Rect with the size of width=1 height=1
+    // Each pixel in the image is set to RectI with the size of width=1 height=1
     // The list is converted into fewer rects
-    vector<Rect> rawRectList;
+    vector<RectI> rawRectList;
 
     // Loop through all Pixels in x-direction
     for(unsigned int x=0; x<size.x; x++)
@@ -957,9 +957,9 @@ bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider
     }
     // This is the new Collider-RectList
     // This list will contain optimized colliders for this picture
-    vector<Rect> colliderRects;
+    vector<RectI> colliderRects;
 
-    // Converts many small Rect's to a few large ones
+    // Converts many small RectI's to a few large ones
     PixelEngine::optimize_Hitboxes(rawRectList,colliderRects,origin);
 
     collider->addHitbox(colliderRects);
@@ -972,12 +972,12 @@ bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider
 #endif
     return true;
 }
-void PixelEngine::optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColliderList,const Point origin)
+void PixelEngine::optimize_Hitboxes(vector<RectI> &input,vector<RectI> &outputColliderList,const Point origin)
 {
     size_t width = 0;
     size_t height = 0;
 
-    vector<vector<Rect*>    > map;
+    vector<vector<RectI*>    > map;
     for(size_t i=0; i<input.size(); i++)
     {
         if(width < static_cast<size_t>(input[i].getX()+origin.getX()))
@@ -990,7 +990,7 @@ void PixelEngine::optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColl
     map.reserve(width);
     for(size_t x=0; x<width; x++)
     {
-        map.push_back(vector<Rect*>());
+        map.push_back(vector<RectI*>());
         map[x].reserve(height);
 
         for(size_t y=0; y<height; y++)
@@ -1000,7 +1000,7 @@ void PixelEngine::optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColl
     }
     for(size_t i=0; i<input.size(); i++)
     {
-         map[input[i].getX()][input[i].getY()] = new Rect();
+         map[input[i].getX()][input[i].getY()] = new RectI();
         *map[input[i].getX()][input[i].getY()] = input[i];
     }
     PixelEngine::optimize_HitboxMap(map,outputColliderList);
@@ -1017,7 +1017,7 @@ void PixelEngine::optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColl
         }
     }
 }
-void PixelEngine::optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outputColliderList)
+void PixelEngine::optimize_HitboxMap(vector<vector<RectI*>  > &map,vector<RectI> &outputColliderList)
 {
     if(map.size() == 0)
         return;
@@ -1036,7 +1036,7 @@ void PixelEngine::optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &
             bool endXloop = false;
             size_t xIterator = 1;
             unsigned int colliderWidth = map[x][y]->getSize().getX();
-            vector<Rect**> toDeleteList;
+            vector<RectI**> toDeleteList;
             while(!endXloop)
             {
                 if(x+xIterator >= width)
@@ -1059,7 +1059,7 @@ void PixelEngine::optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &
                 *toDeleteList[i] = nullptr;
             }
             map[x][y]->setSize(colliderWidth,map[x][y]->getSize().getY());
-            outputColliderList.push_back(Rect(*map[x][y]));
+            outputColliderList.push_back(RectI(*map[x][y]));
             x+=xIterator-1;
         }
     }
@@ -1089,14 +1089,14 @@ void PixelEngine::display_stats(bool enable, const Color &color)
     m_stats_text->setColor(color);
     display_stats(enable);
 }
-void PixelEngine::display_stats(bool enable,const Color &color, const Point &pos, const unsigned int size)
+void PixelEngine::display_stats(bool enable,const Color &color, const Vector2i &pos, const unsigned int size)
 {
     EASY_FUNCTION(profiler::colors::Orange600);
-    m_stats_text->setPos(pos);
+    m_stats_text->setPos(Vector2f(pos));
     if(size > 0)
         m_stats_text->setCharacterSize(size);
     else
-        m_stats_text->setCharacterSize(m_windowSize.getX()/80);
+        m_stats_text->setCharacterSize(m_windowSize.x/80);
     display_stats(enable,color);
 }
 bool PixelEngine::display_stats()
@@ -1129,7 +1129,7 @@ void PixelEngine::updateStatsText()
      "userDisplayTime:       \t" + to_string(m_statistics.userDisplayTime) +        " ms";
     m_stats_text->setString(text);
 }
-void PixelEngine::filter(double &oldValue, double newValue, double filterFactor)
+void PixelEngine::filter(float &oldValue, float newValue, float filterFactor)
 {
     oldValue = oldValue * filterFactor + (1.f-filterFactor) * newValue;
 }

@@ -42,7 +42,7 @@ void Sensor::setSensorCollider(Collider *collider)
     m_sensorCollider = collider;
     HitboxPainter::makeVisibleCollider(m_sensorCollider,m_sensorPainter);
    // Point offset = m_sensorCollider->getBoundingBox().getCornerPoint_TL();
-   // m_sensorPainter->setOrigin(PointF(-offset.getX(),-offset.getY()));
+   // m_sensorPainter->setOrigin(Vector2f(-offset.getX(),-offset.getY()));
 }
 void Sensor::checkCollision(const vector<GameObject*> &other)
 {
@@ -73,11 +73,11 @@ const vector<GameObject*> &Sensor::getDetectedObjects() const
     return m_detected;
 }
 
-double Sensor::getRotation() const
+float Sensor::getRotation() const
 {
     return m_sensorCollider->getRotation();
 }
-void Sensor::setRotation(const double &deg)
+void Sensor::setRotation(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Yellow300);
     m_sensorPainter->setRotation(deg);

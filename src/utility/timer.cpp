@@ -14,7 +14,7 @@ Timer::~Timer()
 }
 
 
-bool Timer::start(double sec)
+bool Timer::start(float sec)
 {
     EASY_FUNCTION(profiler::colors::Teal);
     m_interval = sec;
@@ -61,7 +61,7 @@ void Timer::setAutorestart(bool enable)
     m_autorestart = enable;
 }
 
-double Timer::getTime()
+float Timer::getTime()
 {
     EASY_FUNCTION(profiler::colors::Teal200);
     if(!m_timerStarted)
