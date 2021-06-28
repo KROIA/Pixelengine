@@ -5,6 +5,7 @@ Texture::Texture()
     m_textureFileName = "";
     m_changesAvailable = false;
     m_alphaThreshold = 150;
+    m_origin = PointF(0,0);
    // m_frame.setPos(0,0);
    // m_frame.setSize(0,0);
    // setOriginType(Origin::middle);
@@ -75,6 +76,7 @@ bool Texture::loadTexture()
 
     //fillPixelList(m_image);
     //calculateBoxes(m_pixelList);
+    internalUpdateOrigin();
     calculateBoxes();
     m_changesAvailable = true;
 
@@ -92,6 +94,11 @@ void Texture::setOriginType(Origin origin)
     if(origin == Origin::costumPos)
         return;
     m_originType = origin;
+    internalUpdateOrigin();
+}
+void Texture::internalUpdateOrigin()
+{
+    EASY_FUNCTION(profiler::colors::Cyan700);
     switch(m_originType)
     {
         case Origin::topLeft:
@@ -114,14 +121,15 @@ void Texture::setOriginType(Origin origin)
         break;
     }
 }
-Texture::Origin Texture::getOriginType() const
+Origin Texture::getOriginType() const
 {
     return m_originType;
 }
 void Texture::setOrigin(const PointF &origin)
 {
     EASY_FUNCTION(profiler::colors::Brown200);
-    setOriginType(Origin::costumPos);
+    //setOriginType(Origin::costumPos);
+    m_originType = Origin::costumPos;
     internalSetOrigin(origin);
 }
 void Texture::internalSetOrigin(const PointF &origin)
@@ -131,9 +139,6 @@ void Texture::internalSetOrigin(const PointF &origin)
         return;
     PointF lastOrigin = m_origin;
     m_origin = origin;
-
-
-
 }
 const PointF &Texture::getOrigin() const
 {
@@ -179,9 +184,13 @@ void Texture::changesApplied()
 {
     m_changesAvailable = false;
 }
-const sf::Texture &Texture::getTexture() const
+sf::Texture &Texture::getTexture()
 {
     return m_texture;
+}
+sf::Image   &Texture::getImage()
+{
+    return m_image;
 }
 void Texture::rotate(double deg)
 {
@@ -331,12 +340,12 @@ void Texture::calculateBoxes()
     optimize_HitboxMap(map,m_pixelRectList);
 
     EASY_BLOCK("Move m_pixelRectList",profiler::colors::Brown500);
-  /*  // Verschiebe alle Rects, abhängig vom m_origin Punkt
+    // Verschiebe alle Rects, abhängig vom m_origin Punkt
     for(size_t i=0; i<m_pixelRectList.size(); i++)
     {
         m_pixelRectList[i].setPos(m_pixelRectList[i].getX()-m_origin.getX(),
                                   m_pixelRectList[i].getY()-m_origin.getY());
-    }*/
+    }
     EASY_END_BLOCK;
 
     EASY_BLOCK("Delete map",profiler::colors::Brown600);

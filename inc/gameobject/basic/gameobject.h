@@ -85,12 +85,12 @@ class GameObject
         virtual void clearCollider();
         virtual const bool &isBoundingBoxUpdated() const;
         virtual void updateBoundingBox();
-        virtual void setHitboxFromTexture();
+    //    virtual void setHitboxFromTexture();
         virtual void setHitboxFromTexture(const Texture &texture);
         virtual void setHitboxVisibility(const bool &isVisible);
         virtual void updateHitboxPainter();
         virtual const bool &isHitboxVisible() const;
-        virtual bool checkTextureUpdateForCollider();
+        //virtual bool checkTextureUpdateForCollider();
 
         // Painter settings
      //   virtual void reservePixelAmount(const size_t amount);
@@ -110,13 +110,13 @@ class GameObject
      //   virtual void clearPainter(); // Deletes all pixels
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;
-        virtual void setTexture(Texture *texture);
-        virtual void setTexturePath(const string &path);
-        virtual void loadTexture();
-        const virtual Texture &getTexture() const;
-        virtual void setTextureOnPainter();
-        virtual void setTextureOnPainter(Texture &texture);
-        virtual bool checkTextureUpdateForPainter();
+       // virtual void setTexture(Texture *texture);
+       // virtual void setTexturePath(const string &path);
+       // virtual void loadTexture();
+       // const virtual Texture &getTexture() const;
+       // virtual void setTextureOnPainter();
+       // virtual void setTextureOnPainter(Texture &texture);
+       // virtual bool checkTextureUpdateForPainter();
 
         // Properties
         virtual void setProperty(const Property::Property &property);
@@ -145,11 +145,11 @@ class GameObject
         Painter    *m_painter;
         PixelPainter  *m_hitboxPainter;
 
-        Texture    *m_texture;
-        bool        m_textureIsActiveForPainter;
-        bool        m_painterNeedsUpdateFromTexture;
+        //Texture    *m_texture;
+        //bool        m_textureIsActiveForPainter;
+        //bool        m_painterNeedsUpdateFromTexture;
         bool        m_textureIsActiveForCollider;
-        bool        m_colliderNeedsUpdateFromTexture;
+       // bool        m_colliderNeedsUpdateFromTexture;
 
         vector<DisplayText* > m_displayTextList;
 

@@ -261,10 +261,10 @@ void Collider::setHitboxFromTexture(const Texture *texture)
 {
     EASY_FUNCTION(profiler::colors::RedA400);
     this->clear();
-    Point lastPos = this->getPos();
-    this->setPos(0,0);
+   // Point lastPos = this->getPos();
+   // this->setPos(0,0);
     this->addHitbox(texture->getRects());
-    this->setPos(lastPos);
+   // this->setPos(lastPos);
 }
 
 

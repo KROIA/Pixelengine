@@ -18,6 +18,7 @@ using sf::Vector2f;
 class Painter   :   public  LayerItem
 {
     public:
+
         Painter();
         Painter(const Painter &other);
 
@@ -57,44 +58,39 @@ class Painter   :   public  LayerItem
        // virtual void erasePixel(int x, int y);
        // virtual void clear(); // Deletes all pixels
 
-        virtual double getRotation() const;
-        virtual void setRotation(const double &deg);
-        virtual void rotate(const double &deg);
+        virtual float getRotation() const;
+        virtual void setRotation(const float &deg);
+        virtual void rotate(const float &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
-        virtual void setRotation(const PointF &rotationPoint,const double &deg);
-        virtual void rotate_90(const PointF &rotationPoint);
-        virtual void rotate_180(const PointF &rotationPoint);
-        virtual void rotate_270(const PointF &rotationPoint);
+        virtual void setRotation(const PointF &rotPoint,const float &deg);
+        virtual void rotate_90(const PointF &rotPoint);
+        virtual void rotate_180(const PointF &rotPoint);
+        virtual void rotate_270(const PointF &rotPoint);
 
-        virtual void setTexture(Texture *texture);
+        //virtual void setTexture(Texture *texture);
 
+        virtual void updateOrigin();
         virtual void setOrigin(const PointF &origin);
-        virtual void setOriginType(Texture::Origin origin);
-        virtual Texture::Origin getOriginType() const;
-        virtual const PointF &getOrigin() const;
+        virtual void setOriginType(Origin origin);
+        virtual Origin getOriginType() const;
+        virtual const PointF getOrigin() const;
 
     protected:
-       // virtual void internalSetPixel(const vector<Pixel> &pixelList);
-       // virtual void internalAddPixel(const Pixel &pixel);
-       // virtual void internalAddPixel(const vector<Pixel> &pixelList);
-       // virtual void updateFrame();
+        virtual void internal_rotate(const PointF &rotPoint,const float &deg);
+        virtual void internal_rotate(const float &deg);
+        virtual void internalUpdateOrigin();
+        virtual void internalSetOrigin(const PointF &origin);
 
-        //vector<Pixel> m_pixelList;
         bool    m_isVisible;
 
-        double  m_rotationRad;
-        //Rect    m_frame;
-        //bool    m_frameVisible;
+        sf::Sprite  *m_sprite;
+        sf::Texture *m_texture;
+        sf::Image   *m_image;
+        Origin  m_originType;
 
-        //sf::Texture m_texture;
-        sf::Sprite  m_sprite;
-        Texture   *m_texture;
     private:
-
-        virtual void internal_rotate(const PointF &rotPoint,const double &deg);
-        virtual void internal_rotate(const double &deg);
 
         Pixel m_const_dummy_pixel;
 };

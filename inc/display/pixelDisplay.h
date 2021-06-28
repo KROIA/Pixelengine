@@ -6,6 +6,7 @@
 #include "point.h"
 #include "pixel.h"
 #include "displayText.h"
+#include "drawUtilities.h"
 
 #include "profiler.h"
 
@@ -30,6 +31,7 @@ struct KeyEvent
 class PixelDisplay
 {
     public:
+
        /* struct Text
         {
                 sf::Text text;
@@ -51,6 +53,9 @@ class PixelDisplay
         virtual void clearSprite();
         virtual void addSprite(Sprite &sprite);
 
+        virtual void clearVertexLine();
+        virtual void addVertexLine(VertexPath path);
+
         virtual bool isOpen() const;
 
 
@@ -64,6 +69,9 @@ class PixelDisplay
 
         virtual PointU getWindowSize() const;
         virtual PointU getMapSize() const;
+
+        virtual RenderWindow *getRenderWindow();
+        virtual PointF getRenderScale();
 
     protected:
 
@@ -84,6 +92,7 @@ class PixelDisplay
         //sf::Font m_font;
 
         vector<Sprite>       m_spriteList;
+        vector<VertexPath>   m_vertexPathList;
         PointF               m_spriteScale;
     private:
 

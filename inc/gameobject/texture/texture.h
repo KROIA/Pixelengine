@@ -16,19 +16,19 @@ using sf::Image;
 using sf::Color;
 using std::vector;
 
-
+enum Origin
+{
+    topLeft,
+    topRight,
+    bottomLeft,
+    bottomRight,
+    middle,
+    costumPos
+};
 class Texture
 {
     public:
-        enum Origin
-        {
-            topLeft,
-            topRight,
-            bottomLeft,
-            bottomRight,
-            middle,
-            costumPos
-        };
+
         Texture();
         Texture(const Texture &other);
         virtual ~Texture();
@@ -58,12 +58,14 @@ class Texture
         virtual bool changesAvailable();
         virtual void changesApplied();
 
-        virtual const sf::Texture &getTexture() const;
+        virtual sf::Texture &getTexture();
+        virtual sf::Image   &getImage();
 
         virtual void rotate(double deg);
         virtual const double &getRotation() const;
 
     protected:
+        virtual void internalUpdateOrigin();
         virtual void internalSetOrigin(const PointF &origin);
         //virtual void fillPixelList(const Image &image);
       //  virtual void calculateBoxes(const vector<Pixel> &pixelList);
@@ -78,7 +80,7 @@ class Texture
         vector<Rect>  m_pixelRectList;
 
         bool    m_changesAvailable;
-        PointF   m_origin;
+        PointF  m_origin;
         Origin  m_originType;
         //Rect    m_frame;
 

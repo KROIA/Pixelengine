@@ -4,8 +4,11 @@ PixelDisplay::PixelDisplay(const PointU &windowSize, const PointU &pixelSize)
 {
     m_windowSize = windowSize;
     m_pixelMapSize  = pixelSize;
+
+    sf::ContextSettings settings;
+    settings.antialiasingLevel = 8;
     m_renderWindow = new sf::RenderWindow(sf::VideoMode(m_windowSize.getX(),m_windowSize.getY()),
-                                          "PixelDisplay");
+                                          "PixelDisplay",sf::Style::Default, settings);
 
     m_windowView = m_renderWindow->getView();
     m_clearColor = Color(50,50,50);
@@ -59,6 +62,8 @@ void PixelDisplay::display()
         }
     }
 
+    for(size_t i=0; i<m_vertexPathList.size(); i++)
+        m_renderWindow->draw(m_vertexPathList[i].line, m_vertexPathList[i].length, m_vertexPathList[i].type);
 
     m_renderWindow->display();
     clear();
@@ -69,6 +74,7 @@ void PixelDisplay::clear()
     auto px1 = reinterpret_cast<sf::Color*>(const_cast<sf::Uint8*>(m_image.getPixelsPtr()));
     std::fill(px1, px1 + m_image.getSize().x * m_image.getSize().y, m_clearColor);
     clearSprite();
+    clearVertexLine();
 }
 
 void PixelDisplay::setPixel(const PointU &pos, const Color &color)
@@ -109,6 +115,24 @@ void PixelDisplay::addSprite(Sprite &sprite)
     m_spriteList[m_spriteList.size()-1].setScale(m_spriteScale.getX(),m_spriteScale.getY());
     PointF point(sprite.getPosition().x,sprite.getPosition().y);
     m_spriteList[m_spriteList.size()-1].setPosition(point.getX() * m_spriteScale.getX(), point.getY() * m_spriteScale.getY());
+}
+void PixelDisplay::clearVertexLine()
+{
+    for(size_t i=0; i<m_vertexPathList.size(); i++)
+        delete m_vertexPathList[i].line;
+    m_vertexPathList.clear();
+    m_vertexPathList.reserve(500);
+}
+void PixelDisplay::addVertexLine(VertexPath path)
+{
+    if(path.line != nullptr && path.length > 0)
+        m_vertexPathList.push_back(path);
+
+    for(size_t i=0; i<m_vertexPathList[m_vertexPathList.size()-1].length; i++)
+    {
+        m_vertexPathList[m_vertexPathList.size()-1].line[i].position.x *= m_spriteScale.getX();
+        m_vertexPathList[m_vertexPathList.size()-1].line[i].position.y *= m_spriteScale.getY();
+    }
 }
 
 bool PixelDisplay::isOpen() const
@@ -241,4 +265,12 @@ PointU PixelDisplay::getWindowSize() const
 PointU PixelDisplay::getMapSize() const
 {
     return m_pixelMapSize;
+}
+RenderWindow *PixelDisplay::getRenderWindow()
+{
+    return m_renderWindow;
+}
+PointF PixelDisplay::getRenderScale()
+{
+    return m_spriteScale;
 }

@@ -16,9 +16,12 @@ void HitboxPainter::makeVisibleCollider(Collider *collider,
         painter->addPixel(Pixel(Vector(collider->getHitbox(i).getCornerPoint_BR())-Vector(offset),color));
     }
     Color color(0,0,255);
-    painter->addPixel(Pixel(Vector(collider->getBoundingBox().getCornerPoint_TL())-Vector(offset),color));
-    painter->addPixel(Pixel(Vector(collider->getBoundingBox().getCornerPoint_TR())-Vector(offset),color));
-    painter->addPixel(Pixel(Vector(collider->getBoundingBox().getCornerPoint_BL())-Vector(offset),color));
-    painter->addPixel(Pixel(Vector(collider->getBoundingBox().getCornerPoint_BR())-Vector(offset),color));
+    painter->addPixel(Pixel(Vector(boundingBox.getCornerPoint_TL())-Vector(offset),color));
+    painter->addPixel(Pixel(Vector(boundingBox.getCornerPoint_TR())-Vector(offset),color));
+    painter->addPixel(Pixel(Vector(boundingBox.getCornerPoint_BL())-Vector(offset),color));
+    painter->addPixel(Pixel(Vector(boundingBox.getCornerPoint_BR())-Vector(offset),color));
+    //painter->setOrigin(PointF(offset.getX(),offset.getY()));
+    PointF origin = VectorF(collider->getPos().getX(),collider->getPos().getY())-VectorF(offset.getX(),offset.getY());
+    painter->setOrigin(PointF(origin.getX(),origin.getY()));
 }
 
