@@ -158,7 +158,7 @@ void KeyController::setStepSize(const int size)
 
     this->setRotation();
 }
-const unsigned int &KeyController::getStepSize() const
+const int &KeyController::getStepSize() const
 {
     return m_stepSize;
 }
@@ -167,14 +167,14 @@ const unsigned int &KeyController::getStepSize() const
 void KeyController::setRotation()
 {
     EASY_FUNCTION(profiler::colors::Pink600);
-    m_stepUp = Vector2f(0,-m_stepSize);
-    m_stepDown = Vector2f(0,m_stepSize);
-    m_stepLeft = Vector2f(-m_stepSize,0);
-    m_stepRight = Vector2f(m_stepSize,0);
-    Vector2f up    = Vector::rotate(m_stepUp,m_rotationDeg);
-    Vector2f left  = Vector::rotate(m_stepLeft,m_rotationDeg);
-    Vector2f down  = Vector::rotate(m_stepDown,m_rotationDeg);
-    Vector2f right = Vector::rotate(m_stepRight,m_rotationDeg);
+    m_stepUp        = Vector2f(0,-m_stepSize);
+    m_stepDown      = Vector2f(0,m_stepSize);
+    m_stepLeft      = Vector2f(-m_stepSize,0);
+    m_stepRight     = Vector2f(m_stepSize,0);
+    Vector2f up     = Vector::rotate(m_stepUp,m_rotationDeg);
+    Vector2f left   = Vector::rotate(m_stepLeft,m_rotationDeg);
+    Vector2f down   = Vector::rotate(m_stepDown,m_rotationDeg);
+    Vector2f right  = Vector::rotate(m_stepRight,m_rotationDeg);
 
     m_stepUp        = up;
     m_stepLeft      = left;

@@ -4,14 +4,12 @@ AnimatedTexture::AnimatedTexture()
     :   Texture()
 {
     m_selectedTexture = 0;
-   // m_textureList.push_back(this);
     m_const_dummy_str = "";
 }
 AnimatedTexture::AnimatedTexture(const AnimatedTexture &other)
     :   Texture(other)
 {
     m_selectedTexture = 0;
-   // m_textureList.push_back(this);
     m_const_dummy_str = "";
     this->operator=(other);
 }
@@ -74,9 +72,6 @@ const string &AnimatedTexture::getFilePath(unsigned int textureIndex) const
         qDebug() << "ERROR: string &AnimatedTexture::getFilePath(unsigned int ["<<textureIndex<<"]): Param 1 is out of Range. Max is: "<<m_textureList.size()-1;
         return m_const_dummy_str;
     }
-    /*if(textureIndex == m_selectedTexture)
-        return Texture::getFilePath();
-    else*/
     return m_textureList[textureIndex]->getFilePath();
 }
 vector<string> AnimatedTexture::getFilePathList() const
@@ -166,7 +161,6 @@ bool AnimatedTexture::loadTexture(unsigned int textureIndex, const string &fileP
 bool AnimatedTexture::addTexture(const string &filePath)
 {
     Texture *texture = new Texture();
-    //texture->setOrigin(this->m_origin);
     *texture = *this;
     bool success = texture->loadTexture(filePath);
     m_textureList.push_back(texture);
@@ -197,30 +191,7 @@ const Vector2f &AnimatedTexture::getOrigin() const
     return Texture::getOrigin();
 }
 
-/*vector< vector<Pixel>  > AnimatedTexture::getPixelsList() const
-{
-    vector< vector<Pixel>   > list;
-    list.reserve(m_textureList.size());
-    for(size_t i=0; i<m_textureList.size(); i++)
-    {
-        list.push_back(m_textureList[i]->getPixels());
-    }
-    return list;
-}
-const vector<Pixel> &AnimatedTexture::getPixels(unsigned int textureIndex) const
-{
-    if(m_textureList.size() == 0)
-    {
-        qDebug() << "No textures added, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
-        return m_const_dummy_pixelList;
-    }
-    if(m_textureList.size() < textureIndex)
-    {
-        qDebug() << "ERROR: vector<Pixel> &AnimatedTexture::getPixels(unsigned int ["<<textureIndex<<"]): Param 1 is out of Range. Max is: "<<m_textureList.size()-1;
-        return m_const_dummy_pixelList;
-    }
-    return m_textureList[textureIndex]->getPixels();
-}*/
+
 vector< vector<RectI>  > AnimatedTexture::getRectsList() const
 {
     vector<vector<RectI>   > list;

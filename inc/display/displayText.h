@@ -20,6 +20,8 @@ class DisplayText
         DisplayText();
         virtual ~DisplayText();
 
+        virtual DisplayText &operator=(const DisplayText &other);
+
         virtual void setVisibility(bool isVisible);
         virtual bool isVisible() const;
 
@@ -43,7 +45,10 @@ class DisplayText
         virtual void setPos(const Vector2f &position);
         virtual const Vector2f &getPos() const;
 
+        virtual void move(const Vector2f &vec);
 
+        virtual void setPositionFix(bool fix);
+        virtual bool getPositionFix() const;
 
     protected:
         bool            m_isVisible;
@@ -51,6 +56,7 @@ class DisplayText
         Text            m_text;
         Font            m_font;
         float           m_pixelRatio;
+        bool            m_positionFix;
     private:
 
 };

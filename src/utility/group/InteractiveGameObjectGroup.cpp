@@ -10,17 +10,18 @@ InteractiveGameObjectGroup::InteractiveGameObjectGroup(const InteractiveGameObje
 }
 InteractiveGameObjectGroup::~InteractiveGameObjectGroup()
 {
-    //delete m_interactiveObjectsList[0];
 }
 
 InteractiveGameObject* InteractiveGameObjectGroup::operator[](size_t index)
 {
     if(m_interactiveObjectsList.size() <= index)
         return nullptr;
-    //return m_interactiveObjectsList[index]->getGameObject();
     return m_interactiveObjectsList[index];
 }
-
+void InteractiveGameObjectGroup::reserve(size_t size)
+{
+    m_interactiveObjectsList.reserve(size);
+}
 void InteractiveGameObjectGroup::add(InteractiveGameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::Purple50);

@@ -8,12 +8,22 @@ DisplayText::DisplayText()
     setText("");
     setVisibility(false);
     setPixelRatio(1);
+    setPositionFix(false);
 }
 DisplayText::~DisplayText()
 {
 
 }
-
+DisplayText &DisplayText::operator=(const DisplayText &other)
+{
+    this->m_isVisible   = other.m_isVisible;
+    this->m_position    = other.m_position;
+    this->m_text        = other.m_text;
+    this->m_font        = other.m_font;
+    this->m_pixelRatio  = other.m_pixelRatio;
+    this->m_positionFix = other.m_positionFix;
+    return *this;
+}
 void DisplayText::setVisibility(bool isVisible)
 {
     m_isVisible = isVisible;
@@ -94,4 +104,17 @@ void DisplayText::setPos(const Vector2f &position)
 const Vector2f &DisplayText::getPos() const
 {
     return m_position;
+}
+void DisplayText::move(const Vector2f &vec)
+{
+    m_position += vec;
+    m_text.setPosition(m_position * m_pixelRatio);
+}
+void DisplayText::setPositionFix(bool fix)
+{
+    m_positionFix = fix;
+}
+bool DisplayText::getPositionFix() const
+{
+    return m_positionFix;
 }

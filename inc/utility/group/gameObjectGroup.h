@@ -1,7 +1,6 @@
 #ifndef GAMEOBJECTGROUP_H
 #define GAMEOBJECTGROUP_H
 
-#include <vector.h>
 #include "gameobject.h"
 #include "painter.h"
 
@@ -32,9 +31,6 @@ class GameObjectGroup
         virtual const vector<GameObject*> &getVector() const;
 
         // GameObject stuff
-       // virtual void setPosInitial(const Vector2i&pos);
-       // virtual void setPosInitial(const int &x, const int &y);
-
         virtual void setPos(const int &x,const int &y);
         virtual void setPos(const Vector2i&pos);
 

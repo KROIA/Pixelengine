@@ -1,10 +1,3 @@
-/*
-    Pixelpainter erbt von Painter und instanziert
-    Image, Texture und Sprite vom Painter
-
-    Image bearbeitbar mit einer fixen grösse
-
- */
 #ifndef PIXELPAINTER_H
 #define PIXELPAINTER_H
 
@@ -23,22 +16,15 @@ class PixelPainter  : public Painter
         virtual void addPixel(unsigned int x, unsigned int y, Color color);
         virtual void addPixel(const Pixel &pixel);
         virtual void addPixel(const vector<Pixel> &pixelList);
-        //virtual const Pixel &getPixel(const size_t &index) const;
         virtual const Pixel getPixel(const Vector2i&pixelPos) const;
         virtual const Pixel getPixel(unsigned int x,unsigned int y) const;
-        //virtual size_t getPixelAmount() const;
-        //virtual void setPixelColor(const size_t &index, const Color &color);
         virtual void setPixelColor(const Vector2i&pixelPos, const Color &color);
         virtual void setPixelColor(unsigned int x,unsigned int y, const Color &color);
-        //virtual void setPixelColor(const Color &color);
 
         virtual void update();
         virtual void resize(Vector2u size);
         virtual void clear();
 
-        // dummy
-        //void setTextureOnPainter(Texture &texture){return;}
-        //bool checkTextureUpdateForPainter(){return false;}
     protected:
         virtual void internalUpdateOrigin();
 
@@ -47,9 +33,6 @@ class PixelPainter  : public Painter
         virtual void internalAddPixel(const Pixel &pixel);
         virtual void internalAddPixel(const vector<Pixel> &pixelList);
 
-
-      //  sf::Texture m_sfTexture;
-      //  Image m_image;
     private:
 
 

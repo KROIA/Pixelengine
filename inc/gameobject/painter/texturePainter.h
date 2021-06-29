@@ -3,16 +3,7 @@
 
 #include "painter.h"
 #include "texture.h"
-/*
- TexturePainter erbt von Painter und implementiert
- die Klasse Texture.
 
- Texture hat hat ein sf::Image, sf::texture welche dem TexturePainter
- als ptr übergeben werden.
-
- TexturePainter instanziert m_sprite selbst und ist auf eine Textur angewiesen.
-
- */
 class TexturePainter    :   public  Painter
 {
     public:

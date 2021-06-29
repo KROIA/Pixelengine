@@ -29,13 +29,17 @@ const Painter &Painter::operator=(const Painter &other)
 {
     LayerItem::operator=(other);
     this->m_isVisible       = other.m_isVisible;
-    *this->m_sprite          = *other.m_sprite;
-    *this->m_texture         = *other.m_texture;
-    *this->m_image           = *other.m_image;
+    *this->m_sprite         = *other.m_sprite;
+    *this->m_texture        = *other.m_texture;
+    *this->m_image          = *other.m_image;
     this->m_originType      = other.m_originType;
     return *this;
 }
 
+RectF Painter::getFrame() const
+{
+    return RectF(m_sprite->getPosition() - m_sprite->getOrigin(),Vector2f(m_texture->getSize()));
+}
 void Painter::draw(PixelDisplay &display)
 {
     EASY_FUNCTION(profiler::colors::Cyan200);
@@ -50,7 +54,6 @@ void Painter::setPos(const Vector2f & pos)
     EASY_FUNCTION(profiler::colors::Cyan300);
     if(LayerItem::getPos() == pos)
         return;
-    //m_sprite->setPosition(pos.getX()-m_sprite->getOrigin().x,pos.getY()-m_sprite->getOrigin().y);
     m_sprite->setPosition(pos.x,pos.y);
     LayerItem::setPos(pos);
 }
@@ -60,7 +63,6 @@ void Painter::setX(int x)
     EASY_FUNCTION(profiler::colors::Cyan300);
     if(LayerItem::getXI() == x)
         return;
-    //m_sprite->setPosition(x-m_sprite->getOrigin().x,m_sprite->getPosition().y-m_sprite->getOrigin().y);
     m_sprite->setPosition(x,m_sprite->getPosition().y);
     LayerItem::setX(x);
 }
@@ -69,7 +71,6 @@ void Painter::setY(int y)
     EASY_FUNCTION(profiler::colors::Cyan300);
     if(LayerItem::getXI() == y)
         return;
-   //m_sprite->setPosition(m_sprite->getPosition().x-m_sprite->getOrigin().x,y-m_sprite->getOrigin().y);
     m_sprite->setPosition(m_sprite->getPosition().x,y);
     LayerItem::setY(y);
 }
@@ -103,7 +104,6 @@ void Painter::setRotation(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
     m_sprite->setRotation(deg);
-    //this->internal_rotate(Vector2f(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
 }
 void Painter::rotate(const float &deg)
 {
@@ -148,20 +148,6 @@ void Painter::rotate_270(const Vector2f &rotPoint)
     this->internal_rotate(rotPoint,270);
 }
 
-/*void Painter::setTexture(Texture *texture)
-{
-    EASY_FUNCTION(profiler::colors::Cyan700);
-
-    delete m_texture;
-    m_texture = texture;
-    m_sprite.setTexture(m_texture->getTexture());
-    m_sprite.setPosition(this->getX(),this->getY());
-    internalUpdateOrigin();
-    //m_sprite.setOrigin(Vector2f(m_texture->getOrigin().getX(),m_texture->getOrigin().getY()));
-    //setRotation(texture->getRotation());
-    //setTexture(texture->getTexture());
-
-}*/
 void Painter::updateOrigin()
 {
     internalUpdateOrigin();
@@ -170,7 +156,6 @@ void Painter::setOrigin(const Vector2f &origin)
 {
     internalSetOrigin(origin);
     m_originType = Origin::costumPos;
-    //m_sprite->setOrigin(origin.getX(),origin.getY());
 }
 void Painter::setOriginType(Origin origin)
 {
@@ -214,38 +199,5 @@ void Painter::internalSetOrigin(const Vector2f &origin)
 {
     EASY_FUNCTION(profiler::colors::Cyan700);
     m_sprite->setOrigin(origin.x,origin.y);
-   // m_sprite->setPosition(m_floatingPos.getX()-origin.getX(),m_floatingPos.getY()-origin.getY());
 }
 
-/*void Painter::setTexture(const sf::Texture &texture)
-{
-    EASY_FUNCTION(profiler::colors::Cyan700);
-    m_sprite.setTexture(texture);
-    m_sprite.setPosition(this->getX(),this->getY());
-}*/
-/*void Painter::internalSetPixel(const vector<Pixel> &pixelList)
-{
-    EASY_FUNCTION(profiler::colors::Cyan800);
-    m_pixelList = pixelList;
-}
-void Painter::internalAddPixel(const Pixel &pixel)
-{
-    EASY_FUNCTION(profiler::colors::Cyan800);
-    m_pixelList.push_back(pixel);
-}
-void Painter::internalAddPixel(const vector<Pixel> &pixelList)
-{
-    EASY_FUNCTION(profiler::colors::Cyan800);
-    for(const Pixel &p : pixelList)
-        internalAddPixel(p);
-}*/
-/*void Painter::updateFrame()
-{
-    EASY_FUNCTION(profiler::colors::Cyan900);
-    vector<RectI> pixelRects(m_pixelList.size(),RectI(Point(0,0),Point(1,1)));
-    for(size_t i=0; i<m_pixelList.size(); i++)
-    {
-        pixelRects[i].setPos(m_pixelList[i].getPos());
-    }
-    m_frame = RectI::getFrame(pixelRects);
-}*/

@@ -16,7 +16,7 @@ Timer::~Timer()
 
 bool Timer::start(float sec)
 {
-    EASY_FUNCTION(profiler::colors::Teal);
+    EASY_FUNCTION("Timer::start",profiler::colors::Teal);
     m_interval = sec;
     if(m_interval <= 0)
         return true;
@@ -35,13 +35,13 @@ bool Timer::start(float sec)
 
 void Timer::stop()
 {
-    EASY_FUNCTION(profiler::colors::Teal50);
+    EASY_FUNCTION("Timer::stop",profiler::colors::Teal50);
     m_timerStarted = false;
     m_runtime      = 0;
 }
 bool Timer::update()
 {
-    EASY_FUNCTION(profiler::colors::Teal100);
+    EASY_FUNCTION("Timer::update",profiler::colors::Teal100);
     m_timer_end = std::chrono::high_resolution_clock::now();
     m_time_span = std::chrono::duration_cast<std::chrono::microseconds>(m_timer_end - m_timer_start);
     m_runtime = m_time_span.count();
@@ -63,7 +63,7 @@ void Timer::setAutorestart(bool enable)
 
 float Timer::getTime()
 {
-    EASY_FUNCTION(profiler::colors::Teal200);
+    EASY_FUNCTION("Timer::getTime",profiler::colors::Teal200);
     if(!m_timerStarted)
         return 0;
     this->update();

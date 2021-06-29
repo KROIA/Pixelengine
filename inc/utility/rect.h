@@ -32,6 +32,7 @@ class GeneralRect
         virtual ~GeneralRect();
         virtual GeneralRect<T> &operator=(const GeneralRect<T> &other);
 
+        virtual void move(const Vector2<T> &vec);
         virtual void set(const Vector2<T> &pos, const Vector2<T> &size);
         virtual void set(const T &posX, const T &posY, const T &width, const T &height);
         virtual void setPos(const Vector2<T> &pos);
@@ -147,6 +148,11 @@ GeneralRect<T> &GeneralRect<T>::operator=(const GeneralRect<T> &other)
     this->m_pos  = other.m_pos;
     this->m_size = other.m_size;
     return *this;
+}
+template<class T>
+void GeneralRect<T>::move(const Vector2<T> &vec)
+{
+    m_pos += vec;
 }
 template<class T>
 void GeneralRect<T>::set(const Vector2<T> &pos, const Vector2<T> &size)
@@ -336,21 +342,8 @@ GeneralRect<T> GeneralRect<T>::rotate(GeneralRect<T> rect,const float &deg)
 template<class T>
 GeneralRect<T> GeneralRect<T>::rotate(GeneralRect<T> rect,const Vector2f &rotationPoint,const float &deg)
 {
-    //Rect::rotate(rect,rotationPoint,deg);
     Vector2<T> vec(rect.m_size);
 
-    /*if((vec-Vector2<T>(rotationPoint)).getLength() != 0)
-    {
-        //return vec;
-        float newAngle = asin(float(vec.getY()-rotationPoint.y)/(vec-Vector2<T>(rotationPoint)).getLength());
-        if((vec.x-rotationPoint.x) < 0)
-            newAngle = M_PI - newAngle;
-        newAngle += rad;
-        float l = (vec-Vector2<T>(rotationPoint)).getLength();
-        float xComp = cos(newAngle)*l;
-        float yComp = sin(newAngle)*l;
-        vec = xComp+rotationPoint.x,yComp+rotationPoint.y;
-    }*/
     vec = Vector::rotate(vec,rotationPoint,deg);
 
 
