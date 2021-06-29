@@ -9,10 +9,7 @@ Event::Event()
     m_keyLastState1 = false;
     m_keyLastState2 = false;
 }
-/*Event(Type)
-{
 
-}*/
 Event::Event(const int &key)
 {
     m_isPressed = false;

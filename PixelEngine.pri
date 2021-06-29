@@ -117,7 +117,6 @@ HEADERS += \
         $$PixelEngine_incPath/utility/group/gameObjectGroup.h \
         $$PixelEngine_incPath/utility/group/managedGameObjectGroup.h \
         $$PixelEngine_incPath/utility/point.h \
-        $$PixelEngine_incPath/utility/vector.h \
         $$PixelEngine_incPath/utility/timer.h \
         $$PixelEngine_incPath/utility/rect.h \
         $$PixelEngine_incPath/utility/keyboard.h \

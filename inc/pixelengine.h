@@ -8,6 +8,9 @@
 #include <ctime>
 #include <math.h>
 #include <chrono>
+#include <SFML/System/Thread.hpp>
+#include <SFML/System/Mutex.hpp>
+#include <SFML/System/Sleep.hpp>
 
 #include "pixelDisplay.h"
 #include "pixel.h"
@@ -35,7 +38,6 @@
 #include "layeritem.h"
 #include "rect.h"
 #include "point.h"
-#include "vector.h"
 #include "timer.h"
 #include "userEventHandler.h"
 
@@ -50,8 +52,9 @@
 const Color __color_minimalAlphaColor(255,255,255);
 #endif
 
-#define NO_TIMED_LOOPS
+//#define NO_TIMED_LOOPS
 #define STATISTICS
+//#define USE_THREADS
 
 #include "QDebug"
 
@@ -88,6 +91,7 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual ~PixelEngine();
 
         virtual bool running(); // this returns false, if the window is closed.
+        virtual void stop();
 
         virtual const Vector2u  &getWindwoSize() const;
         virtual const Vector2u  &getMapSize() const;
@@ -100,6 +104,12 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual void checkEvent();
         virtual void tick();
         virtual void display();
+
+        virtual void display_setRenderFramePosCenter(const Vector2f &pos);
+        virtual void display_moveRenderFrame(const Vector2f &vec);
+        virtual void display_setRenderFramePos(const Vector2f &pos);
+        virtual void display_setRenderFrame(const RectF &frame);
+        virtual const RectF &display_getRenderFrame() const;
 
 
         virtual void set_setting_checkEventInterval(const float &seconds);
@@ -160,9 +170,6 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
 
         // General functions
         static float random(float min, float max);
-      //  static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const ImageOrigin &origin = ImageOrigin::topLeftCorner);
-      //  static bool   loadFromImage(const std::string &picture,Collider *collider,Painter *painter,const Vector2i &origin);
-        //static void   optimize_Hitboxes(vector<RectI> &input,vector<RectI> &outputColliderList,const Point origin);
         virtual const unsigned long long &getTick() const;
         virtual void resetTick();
 
@@ -184,8 +191,6 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual void addGameObject(const vector<GameObject *> &list);
         virtual void removeGameObject(const vector<GameObject *> &list);
         virtual void deleteGameObject(const vector<GameObject *> &list);
-
-       // static void optimize_HitboxMap(vector<vector<RectI*>  > &map,vector<RectI> &outputColliderList);
 
 
         static void removeObjectFromList(GameObjectGroup &group,GameObject* obj);
@@ -212,8 +217,6 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         Timer *m_displayTimer;
         float m_displayInterval; // sec.
 
-        //GameObjectGroup         m_masterGameObjectGroup;
-        //vector<GameObjectGroup> m_masterGameObjectGroup_collisionInteractiveList;
         InteractiveGameObjectGroup  m_masterGameObjectGroup;
 
         vector<GameObjectGroup> m_renderLayer;
@@ -239,6 +242,29 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         std::chrono::high_resolution_clock::time_point m_stats_tps_timer_end;
 
         DisplayText *m_stats_text;
+#endif
+
+#ifdef USE_THREADS
+        struct ThreadParam{
+                Vector2i dirLock;
+                size_t obj_begin;
+                size_t obj_end;
+                InteractiveGameObjectGroup *group;
+                bool isRunning;
+                sf::Mutex mutex;
+                bool *globalStart;
+                sf::Mutex *globalMutex;
+                Statistics *stats;
+        };
+        vector<sf::Thread*> m_threadList;
+        vector<ThreadParam*> m_threadParamList;
+        size_t m_thread_lastObjAmount;
+
+        bool m_threadsCreated = false;
+        bool m_threadGlobalStart = false;
+        sf::Mutex m_threadGlobalMutex;
+
+        static void thread_tick(ThreadParam *param);
 #endif
 };
 #endif // PIXELENGINE_H

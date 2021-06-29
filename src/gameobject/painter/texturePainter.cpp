@@ -23,8 +23,6 @@ void TexturePainter::setTexture(Texture *texture)
     m_textureObj = texture;
     m_texture = &m_textureObj->getTexture();
     Painter::setOrigin(texture->getOrigin());
-    //Painter::internalUpdateOrigin();
-   // m_sprite->setTexture(*m_texture);
 }
 Texture *TexturePainter::getTexture()
 {

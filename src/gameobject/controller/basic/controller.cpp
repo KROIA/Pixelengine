@@ -19,11 +19,7 @@ Controller::Controller(const Controller &other)
 const Controller &Controller::operator=(const Controller &other)
 {
     UserEventHandler::operator=(other);
-    //LayerItem::operator=(other);
     this->m_currentDeltaMove   = other.m_currentDeltaMove;
-
-    //this->m_neededStepsForMove = other.m_neededStepsForMove;
-    //this->m_movingStepCounter  = other.m_movingStepCounter;
 
     this->m_rotationDeg        = other.m_rotationDeg;
     return *this;

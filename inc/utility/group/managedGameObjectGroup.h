@@ -13,7 +13,6 @@ class ManagedGameObjectGroup    :   public GameObjectGroup,  GroupManagerInterfa
         ManagedGameObjectGroup(const ManagedGameObjectGroup &other);
 
         virtual GameObject *operator[](const size_t &index) const;
-    //protected:
         virtual bool newObjectsAvailable();
         virtual bool deletableObjectsAvailable();
 
@@ -25,76 +24,18 @@ class ManagedGameObjectGroup    :   public GameObjectGroup,  GroupManagerInterfa
 
         virtual void removeObject_unmanaged(GameObject *obj);
 
+        virtual void reserve(size_t size);
         virtual void add(GameObject *object);
         virtual void add(GameObjectGroup *other);
-        //virtual void remove(GameObject *toRemove);
-        //virtual void remove(GameObjectGroup *other);
         virtual void remove(const size_t index);
 
         virtual const vector<GameObject*> &getVector() const;
 
-       /* virtual ManagedGameObjectGroup &operator=(const ManagedGameObjectGroup &other);
 
-        virtual ~ManagedGameObjectGroup();
-
-        virtual void draw(PixelDisplay &display);
-
-        virtual void add(GameObject *object);
-        virtual void add(ManagedGameObjectGroup *other);
-        virtual void remove(GameObject *toRemove);
-        virtual void remove(ManagedGameObjectGroup *other);
-        virtual void remove(const size_t index);
-        virtual void clear();
-        virtual size_t size() const;
-        virtual GameObject *operator[](const size_t &index) const;
-        virtual const vector<GameObject*> &getVector() const;
-
-        // GameObject stuff
-       // virtual void setPosInitial(const Vector2i&pos);
-       // virtual void setPosInitial(const int &x, const int &y);
-
-        virtual void setPos(const int &x,const int &y);
-        virtual void setPos(const Vector2i&pos);
-
-        virtual void setX(const int &x);
-        virtual void setY(const int &y);
-
-        virtual void moveToPos(const Vector2i&destination);
-        virtual void moveToPos(const int &x,const int &y);
-        virtual void move(const Vector2i&directionVector);
-        virtual void move(int x,int y);
-
-        virtual void setRotation(const float &deg);
-        virtual void rotate_90();
-        virtual void rotate_180();
-        virtual void rotate_270();
-        virtual void setRotation(const Vector2f &rotationPoint,const float &deg);
-        virtual void rotate_90(const Vector2f &rotationPoint);
-        virtual void rotate_180(const Vector2f &rotationPoint);
-        virtual void rotate_270(const Vector2f &rotationPoint);
-
-        virtual void setVisibility(const bool &isVisible);
-        virtual const bool &isVisible() const;
-        virtual void setHitboxVisibility(const bool &isVisible);
-        virtual const bool &isHitboxVisible() const;
-
-
-        /*virtual bool __engineUseOnly_newObjAvailable() const;
-        virtual bool __engineUseOnly_deletableObjAvailable() const;
-        virtual const vector<GameObject *> &__engineUseOnly_getAddList() const;
-        virtual const vector<GameObject *> &__engineUseOnly_getRemoveList() const;
-        virtual void __engineUseOnly_objsAddedToEngine();
-        virtual void __engineUseOnly_objsRemovedFromEngine();*/
-
-        /*static void removeDuplicates(vector<GameObject *> *list);
-        static void removeDuplicates(ManagedGameObjectGroup *list);*/
     protected:
-        //bool m_isVisible;
-        //bool m_hitboxIsVisible;
 
         vector<GameObject *> m_toBeAdded; // To be added to the engine
         vector<GameObject *> m_toBeRemoved; // To be removed from the engine
-        //vector<GameObject *> m_isInList;
     private:
 
 

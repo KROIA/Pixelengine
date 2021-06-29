@@ -3,13 +3,13 @@
 
 DynamicCoordinator::DynamicCoordinator()
 {
-    m_movingVector.x = 0;
-    m_movingVector.y = 0;
+    m_movingVector.x    = 0;
+    m_movingVector.y    = 0;
     m_vecList.reserve(10);
-    m_xStepInterval = 0;
-    m_xStepCounter = 1;
-    m_yStepInterval = 0;
-    m_yStepCounter = 1;
+    m_xStepInterval     = 0;
+    m_xStepCounter      = 1;
+    m_yStepInterval     = 0;
+    m_yStepCounter      = 1;
 }
 DynamicCoordinator::DynamicCoordinator(const DynamicCoordinator &other)
 {
@@ -92,51 +92,7 @@ const float       &DynamicCoordinator::getMovingVector_Y() const
 {
     return m_movingVector.y;
 }
-/*Vector2i        DynamicCoordinator::getRoundedVector() const
-{
-    EASY_FUNCTION(profiler::colors::Pink500);
-    Vector2i ret(0,0);
-    if(m_xStepInterval > 0 && m_neededSteps != 0)
-    if(m_xStepCounter % m_xStepInterval == 0)
-    {
-        if(m_movingVector.x > 0)
-        {
-            ret.x = 1;
-        }
-        else
-        {
-            ret.x = -1;
-        }
-    }
-    if(m_yStepInterval > 0 && m_neededSteps != 0)
-    if(m_yStepCounter % m_yStepInterval == 0)
-    {
-        if(m_movingVector.y > 0)
-        {
-            ret.y = 1;
-        }
-        else
-        {
-            ret.y = -1;
-        }
-    }
 
-    return ret;
-}
-int           DynamicCoordinator::getRoundedVector_X() const
-{
-   // if(m_xStepInterval > 0)
-   // if(m_xStepCounter % m_xStepInterval == 0)
-        return int(round(m_movingVector.x));
-   // return 0;
-}
-int           DynamicCoordinator::getRoundedVector_Y() const
-{
-   // if(m_yStepInterval > 0)
-   // if(m_yStepCounter % m_yStepInterval == 0)
-        return int(round(m_movingVector.getY()));
-   // return 0;
-}*/
 void DynamicCoordinator::clearMovement()
 {
     m_vecList.clear();

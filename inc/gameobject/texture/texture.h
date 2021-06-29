@@ -5,7 +5,6 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Vector2.hpp>
 #include "pixel.h"
-#include "vector.h"
 #include "rect.h"
 #include "point.h"
 #include "QDebug"
@@ -52,9 +51,7 @@ class Texture
         virtual Vector2u  getSize() const;
         virtual Color getColor(const Vector2i&pos) const;
 
-       // virtual const vector<Pixel> &getPixels() const; // Returns all Pixel's of the Texture
         virtual const vector<RectI>  &getRects() const;  // Returns all Rects which cover the Texture (for collider)
-       // virtual const RectI          &getFrame() const;
 
         virtual bool changesAvailable();
         virtual void changesApplied();
@@ -68,22 +65,17 @@ class Texture
     protected:
         virtual void internalUpdateOrigin();
         virtual void internalSetOrigin(const Vector2f &origin);
-        //virtual void fillPixelList(const Image &image);
-      //  virtual void calculateBoxes(const vector<Pixel> &pixelList);
         virtual void calculateBoxes();
         virtual void optimize_HitboxMap(vector<vector<RectI*>  > &map,vector<RectI> &outputColliderList);
 
         string m_textureFileName;
         Image  m_image;
-        //Color  m_alpha;
         uint8_t m_alphaThreshold;
-        //vector<Pixel> m_pixelList;
         vector<RectI>  m_pixelRectList;
 
         bool    m_changesAvailable;
         Vector2f  m_origin;
         Origin  m_originType;
-        //RectI    m_frame;
 
         sf::Texture m_texture;
         float m_rotation;

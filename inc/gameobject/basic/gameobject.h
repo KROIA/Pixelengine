@@ -152,11 +152,7 @@ class GameObject
         PixelPainter  *m_hitboxPainter;
         bool          m_boundingBoxIsVisible;
 
-        //Texture    *m_texture;
-        //bool        m_textureIsActiveForPainter;
-        //bool        m_painterNeedsUpdateFromTexture;
-        bool        m_textureIsActiveForCollider;
-       // bool        m_colliderNeedsUpdateFromTexture;
+        bool          m_textureIsActiveForCollider;
 
         vector<DisplayText* > m_displayTextList;
 

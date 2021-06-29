@@ -4,6 +4,7 @@
 #include "SFML/Graphics.hpp"
 //#include "vector"
 //#include "point.h"
+#include "rect.h"
 #include "pixel.h"
 #include "displayText.h"
 #include "drawUtilities.h"
@@ -73,6 +74,12 @@ class PixelDisplay
         virtual RenderWindow *getRenderWindow();
         virtual Vector2f getRenderScale();
 
+        virtual void setRenderFramePosCenter(const Vector2f &pos);
+        virtual void setRenderFramePos(const Vector2f &pos);
+        virtual void moveRenderFrame(const Vector2f &vec);
+        virtual void setRenderFrame(const RectF &frame);
+        virtual const RectF &getRenderFrame() const;
+
     protected:
 
 
@@ -87,15 +94,16 @@ class PixelDisplay
         Sprite m_sprite;
 
         Color m_clearColor;
-        //sf::Text text;
         vector<DisplayText*> m_textList;
-        //sf::Font m_font;
 
         vector<Sprite>       m_spriteList;
         vector<VertexPath>   m_vertexPathList;
         Vector2f             m_spriteScale;
-    private:
+        RectF                m_globalDisplayFrame;
 
+    private:
+        bool                 m_dragMap;
+        Vector2f             m_lastMousePos;
 
 
 };

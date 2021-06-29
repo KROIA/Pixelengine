@@ -35,16 +35,18 @@ class Collider  :   public LayerItem
         virtual void setX(float x);
         virtual void setY(float y);
 
-        virtual const RectI &getBoundingBox() const;
+        virtual const RectF &getBoundingBox() const;
 
 
         virtual void reserve(const size_t &amount);
 
+        virtual void addHitbox(const RectF &box);
+        virtual void addHitbox(const vector<RectF> &boxList);
         virtual void addHitbox(const RectI &box);
         virtual void addHitbox(const vector<RectI> &boxList);
 
-        virtual const RectI &getHitbox(const unsigned int &index) const;
-        virtual const vector<RectI> &getHitbox() const;
+        virtual const RectF &getHitbox(const unsigned int &index) const;
+        virtual const vector<RectF> &getHitbox() const;
 
         virtual bool intersectsBoundingBox(const Collider &other);
         virtual bool collides(const Collider &other) const;
@@ -76,18 +78,18 @@ class Collider  :   public LayerItem
     protected:
 
         virtual void setBoundingBox();
-        virtual void setBoundingBox(const RectI &box);
+        virtual void setBoundingBox(const RectF &box);
         virtual void setBoundingBox(const int &x,const int &y,
                                     const int &width,const int &height);
 
 
 
-        RectI  m_boundingBox;
-        vector<RectI> m_hitboxList;
+        RectF  m_boundingBox;
+        vector<RectF> m_hitboxList;
 
         bool m_boundingBoxUpdated;
 
-        RectI m_dummy;
+        RectF m_dummy;
 
         float m_rotationDeg;
 

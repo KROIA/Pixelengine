@@ -4,6 +4,7 @@ PixelDisplay::PixelDisplay(const Vector2u &windowSize, const Vector2u &pixelSize
 {
     m_windowSize    = windowSize;
     m_pixelMapSize  = pixelSize;
+    m_dragMap = false;
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
@@ -13,13 +14,12 @@ PixelDisplay::PixelDisplay(const Vector2u &windowSize, const Vector2u &pixelSize
     m_windowView = m_renderWindow->getView();
     m_clearColor = Color(50,50,50);
 
-    m_spriteScale.x = (float)m_windowSize.x/(float)m_pixelMapSize.x;
-    m_spriteScale.y = (float)m_windowSize.y/(float)m_pixelMapSize.y;
 
     m_image.create(m_pixelMapSize.x,m_pixelMapSize.y,m_clearColor);
     m_texture.loadFromImage(m_image);
     m_sprite.setTexture(m_texture);
-    m_sprite.setScale(m_spriteScale);
+
+    setRenderFrame(RectF(Vector2f(0,0),Vector2f(m_pixelMapSize)));
 }
 PixelDisplay::PixelDisplay(const PixelDisplay &other)
 {
@@ -41,12 +41,8 @@ PixelDisplay::~PixelDisplay()
 void PixelDisplay::display()
 {
     EASY_FUNCTION("PixelDisplay::display()",profiler::colors::Blue);
-    //auto stats_timePoint_1 = std::chrono::system_clock::now();
 
     m_renderWindow->clear();
-    //m_texture.loadFromImage(m_image);
-    //m_renderWindow->draw(m_sprite);
-
     EASY_BLOCK("draw m_spriteList",profiler::colors::Blue100);
     for(Sprite &object : m_spriteList)
     {
@@ -54,19 +50,29 @@ void PixelDisplay::display()
     }
     EASY_END_BLOCK;
     EASY_BLOCK("draw m_textList",profiler::colors::Blue100);
-    for(DisplayText* &text : m_textList)
+    for(size_t i=0; i<m_textList.size(); i++)
     {
-        if(text == nullptr)
+        if(m_textList[i] == nullptr)
             continue;
-        if(text->isVisible())
+        DisplayText text = *m_textList[i];
+
+        if(text.isVisible())
         {
-            m_renderWindow->draw(text->getText());
+            if(!text.getPositionFix())
+            {
+                text.setPixelRatio(m_spriteScale.x);
+                text.move(m_globalDisplayFrame.getPos());
+                text.setCharacterSize(text.getCharacterSize()*m_spriteScale.x);
+            }
+                m_renderWindow->draw(text.getText());
         }
     }
     EASY_END_BLOCK;
     EASY_BLOCK("draw m_vertexPathList",profiler::colors::Blue100);
     for(size_t i=0; i<m_vertexPathList.size(); i++)
+    {
         m_renderWindow->draw(m_vertexPathList[i].line, m_vertexPathList[i].length, m_vertexPathList[i].type);
+    }
     EASY_END_BLOCK;
     EASY_BLOCK("m_renderWindow->display()",profiler::colors::Blue100);
     m_renderWindow->display();
@@ -122,7 +128,7 @@ void PixelDisplay::addSprite(Sprite &sprite)
 {
     m_spriteList.push_back(sprite);
     m_spriteList[m_spriteList.size()-1].setScale(m_spriteScale.x,m_spriteScale.y);
-    Vector2f point(sprite.getPosition().x,sprite.getPosition().y);
+    Vector2f point = sprite.getPosition() + m_globalDisplayFrame.getPos();
     m_spriteList[m_spriteList.size()-1].setPosition(point.x * m_spriteScale.x, point.y * m_spriteScale.y);
 }
 void PixelDisplay::clearVertexLine()
@@ -137,8 +143,10 @@ void PixelDisplay::addVertexLine(VertexPath path)
     if(path.line != nullptr && path.length > 0)
         m_vertexPathList.push_back(path);
 
+    m_vertexPathList[m_vertexPathList.size()-1].move(m_globalDisplayFrame.getPos());
     for(size_t i=0; i<m_vertexPathList[m_vertexPathList.size()-1].length; i++)
     {
+
         m_vertexPathList[m_vertexPathList.size()-1].line[i].position.x *= m_spriteScale.x;
         m_vertexPathList[m_vertexPathList.size()-1].line[i].position.y *= m_spriteScale.y;
     }
@@ -197,10 +205,49 @@ sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
             case sf::Event::KeyPressed:{break;}
             case sf::Event::KeyReleased:{break;}
             case sf::Event::MouseWheelMoved:{break;}
-            case sf::Event::MouseWheelScrolled:{break;}
-            case sf::Event::MouseButtonPressed:{break;}
-            case sf::Event::MouseButtonReleased:{break;}
-            case sf::Event::MouseMoved:{break;}
+            case sf::Event::MouseWheelScrolled:
+            {
+                float scaleFactor = -0.1;
+                float scale = 1 + scaleFactor;
+                if(event.mouseWheelScroll.delta<0)
+                    scale = 1 - scaleFactor;
+
+                Vector2f mouse = Vector2f(event.mouseWheelScroll.x/m_spriteScale.x,
+                                          event.mouseWheelScroll.y/m_spriteScale.y);
+
+
+                float widthDelta  = m_globalDisplayFrame.getSize().x * scale - m_globalDisplayFrame.getSize().x;
+                float heightDelta = m_globalDisplayFrame.getSize().y * scale - m_globalDisplayFrame.getSize().y;
+                float xDelta      = widthDelta  * mouse.x / m_globalDisplayFrame.getSize().x;
+                float yDelta      = heightDelta * mouse.y / m_globalDisplayFrame.getSize().y;
+
+                RectF frame(m_globalDisplayFrame.getPos()+Vector2f(xDelta,yDelta),m_globalDisplayFrame.getSize()*scale);
+                setRenderFrame(frame);
+                break;
+            }
+            case sf::Event::MouseButtonPressed:{
+                if(event.mouseButton.button == sf::Mouse::Button::Middle)
+                {
+                    m_dragMap = true;
+                }
+
+                break;}
+            case sf::Event::MouseButtonReleased:{
+                if(event.mouseButton.button == sf::Mouse::Button::Middle)
+                {
+                    m_dragMap = false;
+                }
+                break;}
+            case sf::Event::MouseMoved:{
+                if(m_dragMap)
+                {
+                    Vector2f movingVec =  Vector2f(event.mouseMove.x,event.mouseMove.y) - m_lastMousePos;
+                    movingVec.x *= m_globalDisplayFrame.getSize().x/m_windowSize.x;
+                    movingVec.y *= m_globalDisplayFrame.getSize().y/m_windowSize.y;
+                    moveRenderFrame(movingVec);
+                }
+                m_lastMousePos = Vector2f(event.mouseMove.x,event.mouseMove.y);
+                break;}
             case sf::Event::MouseEntered:{break;}
             case sf::Event::MouseLeft:{break;}
             case sf::Event::JoystickButtonPressed:{break;}
@@ -282,4 +329,29 @@ RenderWindow *PixelDisplay::getRenderWindow()
 Vector2f PixelDisplay::getRenderScale()
 {
     return m_spriteScale;
+}
+void PixelDisplay::setRenderFramePosCenter(const Vector2f &pos)
+{
+    Vector2f size = m_globalDisplayFrame.getSize() / 2.f;
+    setRenderFramePos(size - pos);
+}
+void PixelDisplay::setRenderFramePos(const Vector2f &pos)
+{
+    m_globalDisplayFrame.setPos(pos);
+}
+void PixelDisplay::moveRenderFrame(const Vector2f &vec)
+{
+    m_globalDisplayFrame.move(vec);
+}
+void PixelDisplay::setRenderFrame(const RectF &frame)
+{
+    m_globalDisplayFrame = frame;
+    m_spriteScale.x = (float)m_windowSize.x/m_globalDisplayFrame.getSize().x;
+    m_spriteScale.y = (float)m_windowSize.y/m_globalDisplayFrame.getSize().y;
+
+    m_sprite.setScale(m_spriteScale);
+}
+const RectF &PixelDisplay::getRenderFrame() const
+{
+    return m_globalDisplayFrame;
 }

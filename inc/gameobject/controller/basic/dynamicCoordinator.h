@@ -23,7 +23,6 @@ class DynamicCoordinator
         virtual void tick();
 
         virtual void addMovement(const Vector2f &vec);
-        //virtual void addMovement(const Vector2i&vec);
 
         virtual void calculateMovement();
 
@@ -31,10 +30,6 @@ class DynamicCoordinator
         virtual const Vector2f      &getMovingVector() const;
         virtual const float       &getMovingVector_X() const;
         virtual const float       &getMovingVector_Y() const;
-
-        //virtual Vector2i       getRoundedVector() const;
-        //virtual int           getRoundedVector_X() const;
-        //virtual int           getRoundedVector_Y() const;
 
         virtual void clearMovement();
 

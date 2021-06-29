@@ -3,13 +3,9 @@
 PixelPainter::PixelPainter()
     :   Painter()
 {
-   //m_texture->loadFromImage(m_image);
-    //m_sprite->setTexture(m_sfTexture);
     m_sprite    = new sf::Sprite;
     m_texture   = new sf::Texture;
     m_image     = new sf::Image;
-
-    //m_sprite->setTexture(*m_texture);
 }
 PixelPainter::~PixelPainter()
 {
@@ -26,7 +22,6 @@ void PixelPainter::draw(PixelDisplay &display)
 
 
     m_sprite->setTexture(*m_texture,true);
-   // m_sprite->
 
     Painter::draw(display);
 }
@@ -47,19 +42,13 @@ void PixelPainter::addPixel(const Pixel &pixel)
 {
     EASY_FUNCTION(profiler::colors::Cyan);
     internalAddPixel(pixel);
-    //updateFrame();
 }
 void PixelPainter::addPixel(const vector<Pixel> &pixelList)
 {
     EASY_FUNCTION(profiler::colors::Cyan);
     for(const Pixel &p : pixelList)
         internalAddPixel(p);
-    //updateFrame();
 }
-/*const Pixel &Painter::getPixel(const size_t &index) const
-{
-    return m_pixelList[index];
-}*/
 const Pixel PixelPainter::getPixel(const Vector2i&pixelPos) const
 {
     Pixel p;
@@ -74,23 +63,7 @@ const Pixel PixelPainter::getPixel(unsigned int x,unsigned int y) const
     p.setColor(m_image->getPixel(x,y));
     return p;
 }
-/*size_t PixelPainter::getPixelAmount() const
-{
-    return m_pixelList.size();
-}*/
-/*void PixelPainter::setPixelColor(const size_t &index, const Color &color)
-{
-    EASY_FUNCTION(profiler::colors::Cyan100);
-    m_pixelList[index].setColor(color);
-}*/
-/*void PixelPainter::setPixelColor(const Color &color)
-{
-    EASY_FUNCTION(profiler::colors::Cyan100);
-    for(size_t i=0; i<m_pixelList.size(); i++)
-        m_pixelList[i].setColor(color);
 
-
-}*/
 void PixelPainter::update()
 {
     EASY_BLOCK("PixelPainter::update() loadFromImage",profiler::colors::Cyan900);
@@ -167,11 +140,6 @@ void PixelPainter::internalSetPixel(const vector<Pixel> &pixelList)
         }
     }
 
-
-    /*if(newSize.x >= imageSize.x || newSize.y >= imageSize.y)
-    {
-        resize(newSize);
-    }*/
     m_image->create(newSize.x,newSize.y);
     for(const Pixel &pixel : pixelList)
     {

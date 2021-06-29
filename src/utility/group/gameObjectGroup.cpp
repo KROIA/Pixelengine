@@ -2,7 +2,6 @@
 
 GameObjectGroup::GameObjectGroup()
 {
-   // this->setHitboxVisibility(false);
 }
 GameObjectGroup::GameObjectGroup(const GameObjectGroup &other)
 {
@@ -16,8 +15,6 @@ GameObjectGroup::~GameObjectGroup()
 GameObjectGroup &GameObjectGroup::operator=(const GameObjectGroup &other)
 {
     this->m_isVisible        = other.m_isVisible;
-  //  this->m_hitboxIsVisible  = other.m_hitboxIsVisible;
-
     this->m_isInList             = other.m_isInList;
     return *this;
 }
@@ -87,16 +84,6 @@ const vector<GameObject*> &GameObjectGroup::getVector() const
     return m_isInList;
 }
 // GameObject stuff
-/*void GameObjectGroup::setPosInitial(const Vector2i&pos)
-{
-    for(size_t i=0; i<m_isInList.size(); i++)
-        m_isInList[i]->setPos(pos);
-}
-void GameObjectGroup::setPosInitial(const int &x, const int &y)
-{
-    for(size_t i=0; i<m_isInList.size(); i++)
-        m_isInList[i]->setPos(x,y);
-}*/
 void GameObjectGroup::setPos(const int &x,const int &y)
 {
     EASY_FUNCTION(profiler::colors::Purple300);

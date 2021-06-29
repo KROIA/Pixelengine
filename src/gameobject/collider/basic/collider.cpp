@@ -69,25 +69,17 @@ void Collider::setPos(const Vector2f &pos)
     if(LayerItem::getPos() == pos)
         return;
     Vector2f deltaPos = pos - LayerItem::getPos();
-    m_boundingBox.setPos(m_boundingBox.getPos() + Vector2i(deltaPos));
+    m_boundingBox.setPos(m_boundingBox.getPos() + deltaPos);
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
-        m_hitboxList[i].setPos(m_hitboxList[i].getPos() + Vector2i(deltaPos));
+        m_hitboxList[i].setPos(m_hitboxList[i].getPos() + deltaPos);
     }
     LayerItem::setPos(pos);
 }
 void Collider::setPos(const Vector2i &pos)
 {
     EASY_FUNCTION(profiler::colors::Red);
-    if(LayerItem::getPosI() == pos)
-        return;
-    Vector2i deltaPos = pos - LayerItem::getPosI();
-    m_boundingBox.setPos(m_boundingBox.getPos() + Vector2i(deltaPos));
-    for(size_t i=0; i<m_hitboxList.size(); i++)
-    {
-        m_hitboxList[i].setPos(m_hitboxList[i].getPos() + Vector2i(deltaPos));
-    }
-    LayerItem::setPos(pos);
+    setPos(Vector2f(pos));
 }
 void Collider::setX(int x)
 {
@@ -102,7 +94,7 @@ void Collider::setX(float x)
     EASY_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == x)
         return;
-    int deltaX = x - LayerItem::getX();
+    float deltaX = x - LayerItem::getX();
     m_boundingBox.setX(m_boundingBox.getPos().x + deltaX);
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
@@ -115,7 +107,7 @@ void Collider::setY(float y)
     EASY_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == y)
         return;
-    int deltaY = y - LayerItem::getY();
+    float deltaY = y - LayerItem::getY();
     m_boundingBox.setY(m_boundingBox.getPos().y + deltaY);
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
@@ -125,7 +117,7 @@ void Collider::setY(float y)
 }
 
 
-const RectI &Collider::getBoundingBox() const
+const RectF &Collider::getBoundingBox() const
 {
     return m_boundingBox;
 }
@@ -136,15 +128,34 @@ void Collider::reserve(const size_t &amount)
     m_hitboxList.reserve(amount);
 }
 
-void Collider::addHitbox(const RectI &box)
+void Collider::addHitbox(const RectF &box)
 {
     EASY_FUNCTION(profiler::colors::Red100);
     m_boundingBoxUpdated = false;
     m_hitboxList.push_back(box);
-    m_hitboxList[m_hitboxList.size()-1].setPos(box.getPos() + Vector2i(LayerItem::getPos()));
+    m_hitboxList[m_hitboxList.size()-1].setPos(box.getPos() + LayerItem::getPos());
     updateBoundingBox();
 }
 
+void Collider::addHitbox(const vector<RectF> &boxList)
+{
+    EASY_FUNCTION(profiler::colors::Red100);
+    m_boundingBoxUpdated = false;
+    m_hitboxList.reserve(m_hitboxList.size()+boxList.size());
+    for(size_t i=0; i<boxList.size(); i++)
+    {
+        this->addHitbox(boxList[i]);
+    }
+    updateBoundingBox();
+}
+void Collider::addHitbox(const RectI &box)
+{
+    EASY_FUNCTION(profiler::colors::Red100);
+    m_boundingBoxUpdated = false;
+    m_hitboxList.push_back(RectF(box.getPos().x,box.getPos().y,box.getSize().x,box.getSize().y));
+    m_hitboxList[m_hitboxList.size()-1].setPos(Vector2f(box.getPos()) + LayerItem::getPos());
+    updateBoundingBox();
+}
 void Collider::addHitbox(const vector<RectI> &boxList)
 {
     EASY_FUNCTION(profiler::colors::Red100);
@@ -157,15 +168,14 @@ void Collider::addHitbox(const vector<RectI> &boxList)
     updateBoundingBox();
 }
 
-
-const RectI &Collider::getHitbox(const unsigned int &index) const
+const RectF &Collider::getHitbox(const unsigned int &index) const
 {
     if(index < m_hitboxList.size())
         return m_hitboxList[index];
     return m_dummy;
 }
 
-const vector<RectI> &Collider::getHitbox() const
+const vector<RectF> &Collider::getHitbox() const
 {
     return m_hitboxList;
 }
@@ -180,8 +190,6 @@ bool Collider::intersectsBoundingBox(const Collider &other)
     bool intersects = this->m_boundingBox.intersects(other.m_boundingBox);
     if(intersects)
         m_boundingBox_color = m_boundingBox_intersectingColor;
-   // else
-   //     m_boundingBox_color = m_boundingBox_standardColor;
     return intersects;
 }
 
@@ -200,7 +208,6 @@ bool Collider::collides(const Collider &other) const
             EASY_BLOCK("this->m_hitboxList[x].intersects(other.m_hitboxList[y])",profiler::colors::Red600);
             if(this->m_hitboxList[x].intersects(other.m_hitboxList[y]))
             {
-                //qDebug() << "this->Hitbox: "<<x<<"\tother.Hitbox: "<<y;
                 return true;
             }
             EASY_END_BLOCK;
@@ -239,9 +246,9 @@ void Collider::updateBoundingBox()
 void Collider::setBoundingBox()
 {
     EASY_FUNCTION(profiler::colors::Red900);
-    setBoundingBox(RectI::getFrame(m_hitboxList));
+    setBoundingBox(RectF::getFrame(m_hitboxList));
 }
-void Collider::setBoundingBox(const RectI &box)
+void Collider::setBoundingBox(const RectF &box)
 {
     EASY_FUNCTION(profiler::colors::RedA100);
     m_boundingBox = box;
@@ -325,12 +332,6 @@ void Collider::internalRotate(const Vector2f &rotPoint,const float &deg)
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
         Vector2f vec(m_hitboxList[i].getPos().x,m_hitboxList[i].getPos().y);
-        //GeneralVector<float> offset(this->getPos().x,this->getPos().y);
-        //offset.moveX(-0.5);
-        //offset.moveY(-0.5);
-        //vec -= offset;
-        //Vector2f newPos = GeneralVector<float>::rotate(vec,rotPoint,rad).toPoint();
-
         Vector2f newPos = Vector::rotate(vec,rotPoint,deg);
 
 

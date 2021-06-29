@@ -2,14 +2,12 @@
 
 Texture::Texture()
 {
-    m_textureFileName = "";
-    m_changesAvailable = false;
-    m_alphaThreshold = 150;
-    m_origin = Vector2f(0,0);
-   // m_frame.setPos(0,0);
-   // m_frame.setSize(0,0);
-    m_originType = Origin::middle;
-    m_rotation   = 0;
+    m_textureFileName       = "";
+    m_changesAvailable      = false;
+    m_alphaThreshold        = 150;
+    m_origin                = Vector2f(0,0);
+    m_originType            = Origin::middle;
+    m_rotation              = 0;
 
 }
 Texture::Texture(const Texture &other)
@@ -17,12 +15,10 @@ Texture::Texture(const Texture &other)
     this->m_textureFileName = other.m_textureFileName;
     this->m_image           = other.m_image;
     this->m_alphaThreshold  = other.m_alphaThreshold;
-   // this->m_pixelList       = other.m_pixelList;
     this->m_pixelRectList   = other.m_pixelRectList;
     this->m_changesAvailable= other.m_changesAvailable;
     this->m_origin          = other.m_origin;
     this->m_originType      = other.m_originType;
-   // this->m_frame           = other.m_frame;
     this->m_texture         = other.m_texture;
     this->m_rotation        = other.m_rotation;
 }
@@ -35,12 +31,10 @@ Texture &Texture::operator=(const Texture &other)
     this->m_textureFileName = other.m_textureFileName;
     this->m_image           = other.m_image;
     this->m_alphaThreshold  = other.m_alphaThreshold;
-   // this->m_pixelList       = other.m_pixelList;
     this->m_pixelRectList   = other.m_pixelRectList;
     this->m_changesAvailable= other.m_changesAvailable;
     this->m_origin          = other.m_origin;
     this->m_originType      = other.m_originType;
-   // this->m_frame           = other.m_frame;
     this->m_texture         = other.m_texture;
     this->m_rotation        = other.m_rotation;
     return *this;
@@ -76,10 +70,6 @@ bool Texture::loadTexture()
         return false;
     }
 
-
-
-    //fillPixelList(m_image);
-    //calculateBoxes(m_pixelList);
     internalUpdateOrigin();
     calculateBoxes();
     m_changesAvailable = true;
@@ -132,7 +122,6 @@ Origin Texture::getOriginType() const
 void Texture::setOrigin(const Vector2f &origin)
 {
     EASY_FUNCTION(profiler::colors::Brown200);
-    //setOriginType(Origin::costumPos);
     m_originType = Origin::costumPos;
     internalSetOrigin(origin);
 }
@@ -141,7 +130,6 @@ void Texture::internalSetOrigin(const Vector2f &origin)
     EASY_FUNCTION(profiler::colors::Brown200);
     if(m_origin == origin)
         return;
-    //Vector2f lastOrigin = m_origin;
     m_origin = origin;
 }
 const Vector2f &Texture::getOrigin() const
@@ -157,29 +145,14 @@ Color Texture::getColor(const Vector2i&pos) const
     if(pos.x >= signed(m_image.getSize().x) ||
        pos.y >= signed(m_image.getSize().y))
         return Color();
-    /*for(size_t i=0; i<m_pixelList.size(); i++)
-    {
-        if(m_pixelList[i].getPos() == pos)
-        {
-            return m_pixelList[i];
-        }
-    }*/
     return m_image.getPixel(pos.x,pos.y);
-    //return Color();
 }
 
-/*const vector<Pixel> &Texture::getPixels() const
-{
-    return m_pixelList;
-}*/
 const vector<RectI>  &Texture::getRects() const
 {
     return m_pixelRectList;
 }
-/*const RectI          &Texture::getFrame() const
-{
-    return m_frame;
-}*/
+
 bool Texture::changesAvailable()
 {
     return m_changesAvailable;
@@ -207,51 +180,6 @@ const float &Texture::getRotation() const
     return m_rotation;
 }
 
-/*oid Texture::fillPixelList(const Image &image)
-{
-    EASY_FUNCTION(profiler::colors::Brown300);
-    m_pixelList.clear();
-    Vector2u  texture_size(m_image.getSize().x,m_image.getSize().y);
-    switch(m_originType)
-    {
-        case Origin::topLeft:
-            internalSetOrigin(Point(0,0));
-        break;
-        case Origin::topRight:
-            internalSetOrigin(Point(m_image.getSize().x,0));
-        break;
-        case Origin::bottomLeft:
-            internalSetOrigin(Point(0,m_image.getSize().y));
-        break;
-        case Origin::bottomRight:
-            internalSetOrigin(Point(m_image.getSize().x,m_image.getSize().y));
-        break;
-        case Origin::middle:
-            internalSetOrigin(Point(m_image.getSize().x/2,m_image.getSize().y/2));
-        break;
-        default:
-
-        break;
-    }
-    EASY_BLOCK("fillPixel x loop",profiler::colors::Brown400);
-    for(unsigned int x=0; x<texture_size.getX(); x++)
-    {
-        EASY_BLOCK("fillPixel y loop",profiler::colors::Brown500);
-        for(unsigned int y=0; y<texture_size.getY(); y++)
-        {
-            uint8_t pixelAlpha = m_image.getPixel(x,y).a;
-            if(pixelAlpha > m_alphaThreshold)
-            {
-                Pixel p(m_image.getPixel(x,y));
-                p.setPos(x - m_origin.getX() , y - m_origin.getY());
-                m_pixelList.push_back(p);
-            }
-        }
-        EASY_END_BLOCK;
-    }
-    EASY_END_BLOCK;
-}*/
-//void Texture::calculateBoxes(const vector<Pixel> &pixelList)
 void Texture::calculateBoxes()
 {
     EASY_FUNCTION(profiler::colors::Brown50);

@@ -35,7 +35,7 @@ class KeyController     :   public Controller
         virtual void setKey_forMove_RIGHT(const int &key);
 
         virtual void setStepSize(const int size);
-        virtual const unsigned int &getStepSize() const;
+        virtual const int &getStepSize() const;
 
 
 

@@ -43,18 +43,6 @@ namespace Vector{
         Vector2<T> res(xComp+rotPoint.x,yComp+rotPoint.y);
         return res;
 
-/*
-        if((vec-GeneralVector<T>(rotationPoint)).getLength() == 0)
-               return vec;
-           double newAngle = asin(double(vec.getY()-rotationPoint.getY())/(vec-GeneralVector<T>(rotationPoint)).getLength());
-           if((vec.getX()-rotationPoint.getX()) < 0)
-               newAngle = M_PI - newAngle;
-           newAngle += angleRad;
-           double l = (vec-GeneralVector<T>(rotationPoint)).getLength();
-           double xComp = cos(newAngle)*l;
-           double yComp = sin(newAngle)*l;
-           GeneralVector<T> res(xComp+rotationPoint.getX(),yComp+rotationPoint.getY());
-           return res;*/
     }
     template <typename T>
     inline Vector2<T> rotate(const Vector2<T> &vec, float deg)
@@ -72,31 +60,5 @@ namespace Vector{
     }
 }
 
-/*namespace Rect
-{
-    template<typename T>
-    inline GeneralRect<T> rotate(GeneralRect<T> rect,const Vector2f &rotationPoint,const float &deg)
-    {
-        Vector2<T> vec(rect.m_size);
-
-
-        vec = Vector::rotate(vec,rotationPoint,deg);
-
-
-        if(vec.getX()<0)
-        {
-            rect.m_pos.setX(rect.m_pos.getX()+vec.getX()+1);
-            vec.setX(-vec.getX());
-        }
-        if(vec.getY()<0)
-        {
-            rect.m_pos.setY(rect.m_pos.getY()+vec.getY()+1);
-            vec.setY(-vec.getY());
-        }
-        rect.m_size.set(vec.toPoint());
-        return  rect;
-    }
-}
-*/
 
 #endif // MATH_H
