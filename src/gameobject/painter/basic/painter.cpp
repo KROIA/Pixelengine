@@ -213,7 +213,7 @@ void Painter::internalUpdateOrigin()
 void Painter::internalSetOrigin(const Vector2f &origin)
 {
     EASY_FUNCTION(profiler::colors::Cyan700);
-    m_sprite->setOrigin(origin.x,origin.x);
+    m_sprite->setOrigin(origin.x,origin.y);
    // m_sprite->setPosition(m_floatingPos.getX()-origin.getX(),m_floatingPos.getY()-origin.getY());
 }
 

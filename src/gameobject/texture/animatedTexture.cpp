@@ -167,6 +167,7 @@ bool AnimatedTexture::addTexture(const string &filePath)
 {
     Texture *texture = new Texture();
     //texture->setOrigin(this->m_origin);
+    *texture = *this;
     bool success = texture->loadTexture(filePath);
     m_textureList.push_back(texture);
 
@@ -175,27 +176,27 @@ bool AnimatedTexture::addTexture(const string &filePath)
     return success;
 }
 
-/*void AnimatedTexture::setOriginType(Origin origin)
+void AnimatedTexture::setOriginType(Origin origin)
 {
     Texture::setOriginType(origin);
     for(size_t i=0; i<m_textureList.size(); i++)
         m_textureList[i]->setOriginType(origin);
 }
-Texture::Origin AnimatedTexture::getOriginType() const
+Origin AnimatedTexture::getOriginType() const
 {
-    Texture::getOriginType();
+    return Texture::getOriginType();
 }
-void AnimatedTexture::setOrigin(const Vector2i&origin)
+void AnimatedTexture::setOrigin(const Vector2f &origin)
 {
     Texture::setOrigin(origin);
     for(size_t i=0; i<m_textureList.size(); i++)
         m_textureList[i]->setOrigin(origin);
 }
-const Vector2i&AnimatedTexture::getOrigin() const
+const Vector2f &AnimatedTexture::getOrigin() const
 {
-    Texture::getOrigin();
+    return Texture::getOrigin();
 }
-*/
+
 /*vector< vector<Pixel>  > AnimatedTexture::getPixelsList() const
 {
     vector< vector<Pixel>   > list;

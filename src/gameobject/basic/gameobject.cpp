@@ -103,7 +103,11 @@ void GameObject::deleteMeFromEngine()
     if(m_objEventHandler != nullptr)
         m_objEventHandler->deleteObject(this);
 }
-
+void GameObject::preRun()
+{
+    EASY_FUNCTION("GameObject::preRun()",profiler::colors::Green300);
+    updateHitboxPainter();
+}
 void GameObject::tick(const Vector2i&direction)
 {
     EASY_FUNCTION(profiler::colors::Green300);
@@ -112,6 +116,7 @@ void GameObject::tick(const Vector2i&direction)
     m_layerItem.swapPosToLastPos();
     if(direction.x > 0)
     {
+        m_collider->tick();
         EASY_BLOCK("for(size_t i=0; i<m_controllerList.size(); i++)",profiler::colors::Green300);
         for(size_t i=0; i<m_controllerList.size(); i++)
         {
@@ -213,29 +218,9 @@ void GameObject::draw(PixelDisplay &display)
     }*/
     m_painter->draw(display);
     if(m_hitboxPainter->isVisible())
-    {
-
         m_hitboxPainter->draw(display);
-
-        // ----------------- TEST ---------------
-       // Vector2f renderScale = display.getRenderScale();
-       // vector<sf::Vertex>  line {
-      /*  sf::Vertex line[] ={
-            sf::Vertex(sf::Vector2f(m_collider->getBoundingBox().getCornerPoint_TL().getX()*renderScale.getX(), m_collider->getBoundingBox().getCornerPoint_TL().getY()*renderScale.getY())),
-            sf::Vertex(sf::Vector2f(m_collider->getBoundingBox().getCornerPoint_BR().getX()*renderScale.getX(), m_collider->getBoundingBox().getCornerPoint_BR().getY()*renderScale.getY()))
-        };*/
-        VertexPath line_;
-        line_.line = new sf::Vertex [2]{
-            sf::Vertex(sf::Vector2f(m_collider->getBoundingBox().getCornerPoint_TL().x, m_collider->getBoundingBox().getCornerPoint_TL().y)),
-            sf::Vertex(sf::Vector2f(m_collider->getBoundingBox().getCornerPoint_BR().x, m_collider->getBoundingBox().getCornerPoint_BR().y))
-        };
-        line_.length = 2;
-        line_.type = sf::Lines;
-
-        display.addVertexLine(line_);
-
-        //display.getRenderWindow()->draw(line_.line, line_.length, line_.type);
-    }
+    if(m_boundingBoxIsVisible)
+        display.addVertexLine(m_collider->getDrawableBoundingBox());
 
 }
 
@@ -302,8 +287,6 @@ void GameObject::setPos(int x,int y)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_layerItem.setPosInitial(x,y);
-    //m_collider->setPos(x,y);
-   // m_painter->setPos(x,y);
 }
 void GameObject::setPos(const Vector2i &pos)
 {
@@ -542,15 +525,20 @@ void GameObject::setHitboxVisibility(const bool &isVisible)
 {
     EASY_FUNCTION(profiler::colors::Green700);
     m_hitboxPainter->setVisibility(isVisible);
+    showBoundingBox(isVisible);
     if(isVisible)
     {
         //EASY_BLOCK("makeVisibleCollider");
-        updateHitboxPainter();
+        //updateHitboxPainter();
         //EASY_END_BLOCK;
         //getchar();
         //getchar();
     }
 
+}
+void GameObject::showBoundingBox(bool enable)
+{
+    m_boundingBoxIsVisible = enable;
 }
 void GameObject::updateHitboxPainter()
 {

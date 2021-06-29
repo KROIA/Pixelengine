@@ -3,6 +3,7 @@
 
 #include <SFML/System/Vector2.hpp>
 #include "mathFunctions.h"
+#include "drawUtilities.h"
 
 #include "profiler.h"
 
@@ -57,6 +58,8 @@ class GeneralRect
 
         bool operator==(const GeneralRect<T> &other);
         bool operator!=(const GeneralRect<T> &other);
+
+        VertexPath getDrawable(const sf::Color &color = sf::Color(255,255,255,255)) const;
 
         static GeneralRect<T> rotate(GeneralRect<T> rect,const float &deg);
         static GeneralRect<T> rotate(GeneralRect<T> rect,const Vector2f &rotationPoint,const float &deg);
@@ -226,7 +229,7 @@ Vector2<T> GeneralRect<T>::getCornerPoint_TR() const
 template<class T>
 Vector2<T> GeneralRect<T>::getCornerPoint_BL() const
 {
-    return Vector2<T>(m_pos.x, m_pos.y + m_size.x-1);
+    return Vector2<T>(m_pos.x, m_pos.y + m_size.y-1);
 }
 template<class T>
 Vector2<T> GeneralRect<T>::getCornerPoint_BR() const
@@ -291,6 +294,38 @@ bool GeneralRect<T>::operator!=(const GeneralRect<T> &other)
     if(this->getCornerPoint_BR() != other.getCornerPoint_BR())
         return true;
     return false;
+}
+template<class T>
+VertexPath GeneralRect<T>::getDrawable(const sf::Color &color) const
+{
+    VertexPath path;
+    path.length = 12;
+    path.type = sf::Lines;
+    path.line = new sf::Vertex[path.length]
+    {
+        sf::Vertex(Vector2f(getCornerPoint_TL())),
+        sf::Vertex(Vector2f(getCornerPoint_TR()) + Vector2f(1,0)),
+
+        sf::Vertex(Vector2f(getCornerPoint_TR()) + Vector2f(1,0)),
+        sf::Vertex(Vector2f(getCornerPoint_BR()) + Vector2f(1,1)),
+
+        sf::Vertex(Vector2f(getCornerPoint_BR()) + Vector2f(1,1)),
+        sf::Vertex(Vector2f(getCornerPoint_BL()) + Vector2f(0,1)),
+
+        sf::Vertex(Vector2f(getCornerPoint_BL()) + Vector2f(0,1)),
+        sf::Vertex(Vector2f(getCornerPoint_TL())),
+
+        sf::Vertex(Vector2f(getCornerPoint_TL())),
+        sf::Vertex(Vector2f(getCornerPoint_BR()) + Vector2f(1,1)),
+
+        sf::Vertex(Vector2f(getCornerPoint_TR()) + Vector2f(1,0)),
+        sf::Vertex(Vector2f(getCornerPoint_BL()) + Vector2f(0,1))
+    };
+
+    for(std::size_t i=0; i<path.length; i++)
+        path.line[i].color = color;
+
+    return path;
 }
 
 template<class T>

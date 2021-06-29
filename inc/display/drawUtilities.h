@@ -10,4 +10,6 @@ struct VertexPath
     sf::PrimitiveType type;
 };
 
+//inline VertexPath getCrossedRect()
+
 #endif // DRAWUTILITIES_H

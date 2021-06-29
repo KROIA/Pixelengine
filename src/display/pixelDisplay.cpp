@@ -40,17 +40,20 @@ PixelDisplay::~PixelDisplay()
 
 void PixelDisplay::display()
 {
-    EASY_FUNCTION(profiler::colors::Blue);
+    EASY_FUNCTION("PixelDisplay::display()",profiler::colors::Blue);
     //auto stats_timePoint_1 = std::chrono::system_clock::now();
 
     m_renderWindow->clear();
     //m_texture.loadFromImage(m_image);
     //m_renderWindow->draw(m_sprite);
 
+    EASY_BLOCK("draw m_spriteList",profiler::colors::Blue100);
     for(Sprite &object : m_spriteList)
     {
         m_renderWindow->draw(object);
     }
+    EASY_END_BLOCK;
+    EASY_BLOCK("draw m_textList",profiler::colors::Blue100);
     for(DisplayText* &text : m_textList)
     {
         if(text == nullptr)
@@ -60,11 +63,14 @@ void PixelDisplay::display()
             m_renderWindow->draw(text->getText());
         }
     }
-
+    EASY_END_BLOCK;
+    EASY_BLOCK("draw m_vertexPathList",profiler::colors::Blue100);
     for(size_t i=0; i<m_vertexPathList.size(); i++)
         m_renderWindow->draw(m_vertexPathList[i].line, m_vertexPathList[i].length, m_vertexPathList[i].type);
-
+    EASY_END_BLOCK;
+    EASY_BLOCK("m_renderWindow->display()",profiler::colors::Blue100);
     m_renderWindow->display();
+    EASY_END_BLOCK;
     clear();
 }
 void PixelDisplay::clear()

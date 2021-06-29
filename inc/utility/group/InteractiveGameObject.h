@@ -33,12 +33,15 @@ class InteractiveGameObject
         virtual void setInteractionWith(vector<GameObjectGroup*> *groupList, bool doesCollide = true);
 
         virtual const vector<GameObjectGroup*> &getInteractiveObjectsList() const;
-        virtual const GameObjectGroup getInteractiveObjects() const;
+        virtual const GameObjectGroup &getInteractiveObjects();
 
 
     protected:
+        virtual void updateAllList();
+
         GameObject *m_gameObject;
         vector<GameObjectGroup*> m_interactsWithObjectsList;
+        GameObjectGroup m_alllist;
 
     private:
 };

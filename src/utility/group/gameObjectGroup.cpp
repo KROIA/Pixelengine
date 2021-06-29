@@ -70,7 +70,10 @@ void GameObjectGroup::clear()
     EASY_FUNCTION(profiler::colors::Purple200);
     m_isInList.clear();
 }
-
+void GameObjectGroup::reserve(size_t size)
+{
+    m_isInList.reserve(size);
+}
 size_t GameObjectGroup::size() const
 {
     return m_isInList.size();

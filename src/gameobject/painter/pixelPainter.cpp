@@ -91,6 +91,12 @@ const Pixel PixelPainter::getPixel(unsigned int x,unsigned int y) const
 
 
 }*/
+void PixelPainter::update()
+{
+    EASY_BLOCK("PixelPainter::update() loadFromImage",profiler::colors::Cyan900);
+    m_texture->loadFromImage(*m_image);
+    EASY_END_BLOCK;
+}
 void PixelPainter::resize(Vector2u size)
 {
     EASY_FUNCTION(profiler::colors::Cyan100);
@@ -190,9 +196,9 @@ void PixelPainter::internalAddPixel(const Pixel &pixel)
     }
     if(doResize)
         resize(newSize);
+    EASY_BLOCK("setPixel",profiler::colors::Cyan900);
     m_image->setPixel(pixel.getX(),pixel.getY(),pixel);
-    m_texture->loadFromImage(*m_image);
-
+    EASY_END_BLOCK;
 }
 void PixelPainter::internalAddPixel(const vector<Pixel> &pixelList)
 {

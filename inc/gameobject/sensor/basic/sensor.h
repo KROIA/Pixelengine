@@ -32,12 +32,16 @@ class Sensor
         virtual void rotate_180();
         virtual void rotate_270();
 
+        virtual void showBoundingBox(bool enable);
+
 
     protected:
         Collider *m_sensorCollider;
         PixelPainter  *m_sensorPainter;
         vector<GameObject*> m_detected;
         GameObject *m_owner;
+
+        bool m_boundingBoxIsVisible;
     private:
 };
 

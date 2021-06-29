@@ -35,6 +35,7 @@ class GameObject
 
 
         // called by the Engine
+        virtual void preRun();
         virtual void tick(const Vector2i&direction);
         virtual unsigned int checkCollision(const vector<GameObject*> &other);
         virtual unsigned int checkCollision(const vector<vector<GameObject*> >&other);
@@ -92,6 +93,7 @@ class GameObject
     //    virtual void setHitboxFromTexture();
         virtual void setHitboxFromTexture(const Texture &texture);
         virtual void setHitboxVisibility(const bool &isVisible);
+        virtual void showBoundingBox(bool enable);
         virtual void updateHitboxPainter();
         virtual const bool &isHitboxVisible() const;
         //virtual bool checkTextureUpdateForCollider();
@@ -145,9 +147,10 @@ class GameObject
 
         vector<Controller*> m_controllerList;
         DynamicCoordinator m_movementCoordinator;
-        Collider   *m_collider;
-        Painter    *m_painter;
+        Collider      *m_collider;
+        Painter       *m_painter;
         PixelPainter  *m_hitboxPainter;
+        bool          m_boundingBoxIsVisible;
 
         //Texture    *m_texture;
         //bool        m_textureIsActiveForPainter;
@@ -162,6 +165,7 @@ class GameObject
     private:
 
         void rotate(const float &deg);
+
 
 
 };

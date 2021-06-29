@@ -6,6 +6,7 @@ Sensor::Sensor()
     m_sensorCollider = new Collider();
     m_sensorPainter  = new PixelPainter();
     m_owner = nullptr;
+    m_boundingBoxIsVisible = false;
 }
 
 Sensor::Sensor(const Sensor &other)
@@ -26,6 +27,7 @@ const Sensor &Sensor::operator=(const Sensor &other)
     *this->m_sensorPainter  = *other.m_sensorPainter;
     this->m_detected        = other.m_detected;
     this->m_owner           = other.m_owner;
+    this->m_boundingBoxIsVisible  = other.m_boundingBoxIsVisible;
     return *this;
 }
 
@@ -47,6 +49,7 @@ void Sensor::setSensorCollider(Collider *collider)
 void Sensor::checkCollision(const vector<GameObject*> &other)
 {
     EASY_FUNCTION(profiler::colors::Yellow100);
+    m_sensorCollider->tick();
     if(m_owner != nullptr)
         m_sensorCollider->setPos(m_owner->getPos());
     m_detected.clear();
@@ -67,6 +70,8 @@ void Sensor::draw(PixelDisplay &display)
     EASY_FUNCTION(profiler::colors::Yellow200);
     m_sensorPainter->setPos(m_owner->getPos());
     m_sensorPainter->draw(display);
+    if(m_boundingBoxIsVisible)
+        display.addVertexLine(m_sensorCollider->getDrawableBoundingBox());
 }
 const vector<GameObject*> &Sensor::getDetectedObjects() const
 {
@@ -100,4 +105,8 @@ void Sensor::rotate_270()
     EASY_FUNCTION(profiler::colors::Yellow300);
     m_sensorPainter->rotate_270();
     m_sensorCollider->rotate_270();
+}
+void Sensor::showBoundingBox(bool enable)
+{
+    m_boundingBoxIsVisible = enable;
 }

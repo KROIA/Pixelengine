@@ -3,6 +3,7 @@
 void HitboxPainter::makeVisibleCollider(Collider *collider,
                                         PixelPainter  *painter)
 {
+    EASY_FUNCTION(profiler::colors::Cyan);
     painter->clear();
     RectI boundingBox = collider->getBoundingBox();
     painter->resize(Vector2u (boundingBox.getSize().x,boundingBox.getSize().y));
@@ -21,6 +22,7 @@ void HitboxPainter::makeVisibleCollider(Collider *collider,
     painter->addPixel(Pixel(boundingBox.getCornerPoint_BL()-offset,color));
     painter->addPixel(Pixel(boundingBox.getCornerPoint_BR()-offset,color));
     //painter->setOrigin(Vector2f(offset.getX(),offset.getY()));
+    painter->update();
     Vector2f origin = collider->getPos() - Vector2f(offset);
     painter->setOrigin(origin);
 }

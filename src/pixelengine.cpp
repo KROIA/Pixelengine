@@ -159,7 +159,8 @@ void PixelEngine::checkEvent()
     {
         case sf::Event::Closed:
         {
-            qDebug() << "Window closed";
+            EASY_BLOCK("sf::Event::Closed",profiler::colors::Orange);
+            //qDebug() << "Window closed";
             m_engineIsRunning = false;
             return;
         }
@@ -239,14 +240,17 @@ void PixelEngine::tickY()
 void PixelEngine::tickXY(const Vector2i &dirLock)
 {
     EASY_FUNCTION(profiler::colors::Orange400);
+    //for(InteractiveGameObject* &interactiveObject : m_masterGameObjectGroup)
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
     {
         EASY_BLOCK("For each m_masterGameObjectGroup index",profiler::colors::Orange500);
+        InteractiveGameObject* interactiveObject = m_masterGameObjectGroup[i];
+        GameObject *obj = interactiveObject->getGameObject();
 #ifdef STATISTICS
         auto stats_timer_start = std::chrono::system_clock::now();
 
 #endif
-        m_masterGameObjectGroup[i]->getGameObject()->tick(dirLock);
+        obj->tick(dirLock);
 
 #ifdef STATISTICS
         auto stats_timer_end = std::chrono::system_clock::now();
@@ -255,7 +259,7 @@ void PixelEngine::tickXY(const Vector2i &dirLock)
         stats_timer_start = std::chrono::system_clock::now();
 #endif
        // m_statistics.collisionsPerTick += m_masterGameObjectGroup[i]->checkCollision(m_masterGameObjectGroup_collisionInteractiveList[i].getVector());
-        m_statistics.collisionsPerTick += m_masterGameObjectGroup[i]->getGameObject()->checkCollision(m_masterGameObjectGroup[i]->getInteractiveObjects().getVector());
+        m_statistics.collisionsPerTick += obj->checkCollision(interactiveObject->getInteractiveObjects().getVector());
 #ifdef STATISTICS
         stats_timer_end = std::chrono::system_clock::now();
         stats_time_span = stats_timer_end - stats_timer_start;
@@ -437,6 +441,7 @@ void PixelEngine::addGameObject(GameObject *obj)
     if(!obj->isBoundingBoxUpdated())
         obj->updateBoundingBox();
     obj->setEventHandler(this);
+    obj->preRun();
     m_masterGameObjectGroup.add(obj);
    // m_masterGameObjectGroup_collisionInteractiveList.push_back(GameObjectGroup());
     m_renderLayer[2].add(obj);

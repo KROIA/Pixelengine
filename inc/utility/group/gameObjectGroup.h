@@ -26,6 +26,7 @@ class GameObjectGroup
         virtual void remove(GameObjectGroup *other);
         virtual void remove(const size_t index);
         virtual void clear();
+        virtual void reserve(size_t size);
         virtual size_t size() const;
         virtual GameObject *operator[](const size_t &index) const;
         virtual const vector<GameObject*> &getVector() const;

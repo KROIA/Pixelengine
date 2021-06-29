@@ -8,7 +8,9 @@ Texture::Texture()
     m_origin = Vector2f(0,0);
    // m_frame.setPos(0,0);
    // m_frame.setSize(0,0);
-   // setOriginType(Origin::middle);
+    m_originType = Origin::middle;
+    m_rotation   = 0;
+
 }
 Texture::Texture(const Texture &other)
 {
@@ -19,9 +21,10 @@ Texture::Texture(const Texture &other)
     this->m_pixelRectList   = other.m_pixelRectList;
     this->m_changesAvailable= other.m_changesAvailable;
     this->m_origin          = other.m_origin;
-   // this->m_originType      = other.m_originType;
+    this->m_originType      = other.m_originType;
    // this->m_frame           = other.m_frame;
     this->m_texture         = other.m_texture;
+    this->m_rotation        = other.m_rotation;
 }
 Texture::~Texture()
 {
@@ -36,9 +39,10 @@ Texture &Texture::operator=(const Texture &other)
     this->m_pixelRectList   = other.m_pixelRectList;
     this->m_changesAvailable= other.m_changesAvailable;
     this->m_origin          = other.m_origin;
-   // this->m_originType      = other.m_originType;
+    this->m_originType      = other.m_originType;
    // this->m_frame           = other.m_frame;
     this->m_texture         = other.m_texture;
+    this->m_rotation        = other.m_rotation;
     return *this;
 }
 

@@ -32,6 +32,7 @@ class PixelPainter  : public Painter
         virtual void setPixelColor(unsigned int x,unsigned int y, const Color &color);
         //virtual void setPixelColor(const Color &color);
 
+        virtual void update();
         virtual void resize(Vector2u size);
         virtual void clear();
 

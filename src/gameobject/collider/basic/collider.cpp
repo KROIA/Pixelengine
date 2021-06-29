@@ -9,6 +9,10 @@ Collider::Collider()
     m_dummy.setSize(0,0);
     m_boundingBoxUpdated = false;
     m_rotationDeg = 0;
+
+    m_boundingBox_standardColor = Color(255,255,255,255);
+    m_boundingBox_intersectingColor = Color(255,100,0,255);
+    m_boundingBox_color = m_boundingBox_standardColor;
 }
 
 Collider::Collider(const Collider &other)
@@ -167,13 +171,18 @@ const vector<RectI> &Collider::getHitbox() const
 }
 
 
-bool Collider::intersectsBoundingBox(const Collider &other) const
+bool Collider::intersectsBoundingBox(const Collider &other)
 {
     EASY_FUNCTION(profiler::colors::Red200);
     if(LayerItem::getLastPos() == LayerItem::getPos() && other.LayerItem::getLastPos() == other.LayerItem::getPos())
         return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben
 
-    return this->m_boundingBox.intersects(other.m_boundingBox);
+    bool intersects = this->m_boundingBox.intersects(other.m_boundingBox);
+    if(intersects)
+        m_boundingBox_color = m_boundingBox_intersectingColor;
+   // else
+   //     m_boundingBox_color = m_boundingBox_standardColor;
+    return intersects;
 }
 
 bool Collider::collides(const Collider &other) const
@@ -200,6 +209,10 @@ bool Collider::collides(const Collider &other) const
     }
     EASY_END_BLOCK;
     return false;
+}
+void Collider::tick()
+{
+    m_boundingBox_color = m_boundingBox_standardColor;
 }
 void Collider::erase(const size_t &index)
 {
@@ -299,6 +312,10 @@ void Collider::setHitboxFromTexture(const Texture *texture)
     EASY_FUNCTION(profiler::colors::RedA400);
     this->clear();
     this->addHitbox(texture->getRects());
+}
+VertexPath Collider::getDrawableBoundingBox()
+{
+    return m_boundingBox.getDrawable(m_boundingBox_color);
 }
 
 

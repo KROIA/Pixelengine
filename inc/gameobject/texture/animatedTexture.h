@@ -26,10 +26,10 @@ class AnimatedTexture   :   public Texture
 
         virtual bool addTexture(const string &filePath);
 
-       // virtual void setOriginType(Origin origin);
-       // virtual Origin getOriginType() const;
-       // virtual void setOrigin(const Vector2i&origin);
-       // virtual const Vector2i&getOrigin() const;
+        virtual void setOriginType(Origin origin);
+        virtual Origin getOriginType() const;
+        virtual void setOrigin(const Vector2f &origin);
+        virtual const Vector2f &getOrigin() const;
 
 
         //virtual vector< vector<Pixel>  > getPixelsList() const;
