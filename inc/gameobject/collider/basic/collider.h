@@ -75,6 +75,13 @@ class Collider  :   public LayerItem
 
         virtual VertexPath getDrawableBoundingBox();
 
+        static void stats_reset();
+        static unsigned long long stats_checkIntersectCounter;
+        static unsigned long long stats_doesIntersectCounter;
+        static unsigned long long stats_checkCollisionCounter;
+        static unsigned long long stats_doesCollideCounter;
+
+
     protected:
 
         virtual void setBoundingBox();
@@ -99,6 +106,7 @@ class Collider  :   public LayerItem
     private:
 
         virtual void internalRotate(const Vector2f &rotPoint,const float &deg);
+
 
 };
 #endif

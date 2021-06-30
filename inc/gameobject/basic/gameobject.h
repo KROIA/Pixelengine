@@ -31,7 +31,7 @@ class GameObject
         virtual void checkEvent();
         virtual void killMe();             // Not defined jet in the engine class
         virtual void removeMeFromEngine(); // Removes this obj from the engine, but the obj won't get destroyed
-        virtual void deleteMeFromEngine(); // Removes this obj from the engine and destroyes it (delete call)
+        //virtual void deleteMeFromEngine(); // Removes this obj from the engine and destroyes it (delete call)
 
 
         // called by the Engine
@@ -137,6 +137,9 @@ class GameObject
 
         virtual const vector<DisplayText*> &getTextList();
 
+        void markAsTrash(bool isTrash);
+        bool isTrash() const;
+
     protected:
         virtual void event_hasCollision(vector<GameObject *> other);
 
@@ -161,6 +164,7 @@ class GameObject
     private:
 
         void rotate(const float &deg);
+        bool m_isTrash;
 
 
 

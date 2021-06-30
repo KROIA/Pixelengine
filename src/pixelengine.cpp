@@ -97,6 +97,12 @@ PixelEngine::~PixelEngine()
     }
     m_masterGameObjectGroup.clear();
 
+    for(size_t i=0; i<m_trashList.size(); i++)
+    {
+        delete m_trashList[i];
+    }
+    m_trashList.clear();
+
     delete m_display;
     delete m_eventTimer;
     delete m_mainTickTimer;
@@ -229,8 +235,12 @@ void PixelEngine::tick()
     EASY_END_BLOCK;
 
 #ifdef STATISTICS
-    m_statistics.collisionChecksPerTick = RectF::stats_getIntersectionCounter();
-    RectF::stats_resetIntersectionCounter();
+    m_statistics.intersectionCheckPerTick   = Collider::stats_checkIntersectCounter;
+    m_statistics.doesIntersectPerTick       = Collider::stats_doesIntersectCounter;
+    m_statistics.collisionChecksPerTick     = Collider::stats_checkCollisionCounter;
+    m_statistics.collisionsPerTick          = Collider::stats_doesCollideCounter;
+    Collider::stats_reset();
+
     m_stats_tps_timer_end = std::chrono::system_clock::now();
     std::chrono::duration<float> time_span_tick_time = m_stats_tps_timer_end - stats_tick_timer_start;
     filter(m_statistics.tickTime, time_span_tick_time.count()*1000.f,m_statsFilterFactor);
@@ -650,15 +660,23 @@ void PixelEngine::addGameObject(const vector<GameObject *> &list)
     for(size_t i=0; i<list.size(); i++)
         this->addGameObject(list[i]);
 }
+void PixelEngine::addToTrash(GameObject *obj)
+{
+    obj->markAsTrash(true);
+    m_trashList.add(obj);
+}
 void PixelEngine::removeGameObject(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
+    // Remove the obj out of all lists
     this->removeObjectFromList_unmanaged(m_userGroups,obj);
     obj->setEventHandler(nullptr);
     this->removeObjectFromList(m_renderLayer,obj);
     m_masterGameObjectGroup.removeAllInteractionsWithObj(obj);
     m_masterGameObjectGroup.remove(obj);
-    // Remove the obj out of all lists
+
+    addToTrash(obj);
+
 
 }
 void PixelEngine::removeGameObject(ManagedGameObjectGroup *group)
@@ -675,7 +693,7 @@ void PixelEngine::removeGameObject(const vector<GameObject *> &list)
     }
 }
 
-void PixelEngine::deleteGameObject(GameObject *obj)
+/*void PixelEngine::deleteGameObject(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
     this->removeGameObject(obj);
@@ -692,7 +710,7 @@ void PixelEngine::deleteGameObject(const vector<GameObject *> &list)
     {
         this->deleteGameObject(list[i]);
     }
-}
+}*/
 void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObject *obj2, const bool &doesCollide)
 {
     EASY_FUNCTION(profiler::colors::OrangeA700);
@@ -804,7 +822,7 @@ void PixelEngine::removeGroup(ManagedGameObjectGroup *group)
         if(m_userGroups[i] == group)
             m_userGroups.erase(m_userGroups.begin() + i);
 }
-void PixelEngine::deleteGroup(ManagedGameObjectGroup *group)
+/*void PixelEngine::deleteGroup(ManagedGameObjectGroup *group)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
     for(size_t i=0; i<m_userGroups.size(); i++)
@@ -813,7 +831,7 @@ void PixelEngine::deleteGroup(ManagedGameObjectGroup *group)
             m_userGroups.erase(m_userGroups.begin() + i);
             delete group;
         }
-}
+}*/
 
 // Rendering
 void PixelEngine::moveRenderLayer_UP(GameObject *obj)
@@ -936,11 +954,11 @@ void PixelEngine::removeFromEngine(GameObject *obj)
     EASY_FUNCTION(profiler::colors::OrangeA400);
     this->removeGameObject(obj);
 }
-void PixelEngine::deleteObject(GameObject *obj)
+/*void PixelEngine::deleteObject(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
     this->deleteGameObject(obj);
-}
+}*/
 void PixelEngine::collisionOccured(GameObject *obj1,vector<GameObject *> obj2)
 {
     EASY_FUNCTION(profiler::colors::Orange100);
@@ -1028,8 +1046,12 @@ void PixelEngine::updateStatsText()
     std::string text =
      "framesPerSecond:       \t" + to_string(m_statistics.framesPerSecond) +        "\n"+
      "ticksPerSecond:        \t" + to_string(m_statistics.ticksPerSecond) +         "\n"+
-     "collisionsPerTick:     \t" + to_string(m_statistics.collisionsPerTick) +      "\n"+
-     "collisionChecksPerTick:\t" + to_string(m_statistics.collisionChecksPerTick) + "\n"+
+     "Collider:\n"+
+     "  Check Intersections: \t" + to_string(m_statistics.intersectionCheckPerTick)+"/Tick\n"+
+     "  Intersecting:        \t" + to_string(m_statistics.doesIntersectPerTick) +   "/Tick\n"+
+     "  Collision checks:    \t" + to_string(m_statistics.collisionChecksPerTick) + "/Tick\n"+
+     "  Collisions:          \t" + to_string(m_statistics.collisionsPerTick) +      "/Tick\n"+
+     "\n"+
      "objectsInEngine:       \t" + to_string(m_statistics.objectsInEngine) +        "\n"+
      "collisionCheckTime:    \t" + to_string(m_statistics.collisionCheckTime) +     " ms\n"+
      "gameObjectTickTime:    \t" + to_string(m_statistics.gameObjectTickTime) +     " ms\n"+

@@ -1,6 +1,9 @@
 #include "collider.h"
 
-
+unsigned long long Collider::stats_checkIntersectCounter = 0;
+unsigned long long Collider::stats_doesIntersectCounter  = 0;
+unsigned long long Collider::stats_checkCollisionCounter = 0;
+unsigned long long Collider::stats_doesCollideCounter    = 0;
 Collider::Collider()
     :   LayerItem()
 {
@@ -188,8 +191,12 @@ bool Collider::intersectsBoundingBox(const Collider &other)
         return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben
 
     bool intersects = this->m_boundingBox.intersects(other.m_boundingBox);
+    stats_checkIntersectCounter++;
     if(intersects)
+    {
         m_boundingBox_color = m_boundingBox_intersectingColor;
+        stats_doesIntersectCounter++;
+    }
     return intersects;
 }
 
@@ -208,8 +215,11 @@ bool Collider::collides(const Collider &other) const
             EASY_BLOCK("this->m_hitboxList[x].intersects(other.m_hitboxList[y])",profiler::colors::Red600);
             if(this->m_hitboxList[x].intersects(other.m_hitboxList[y]))
             {
+                stats_checkCollisionCounter++;
+                stats_doesCollideCounter++;
                 return true;
             }
+            stats_checkCollisionCounter++;
             EASY_END_BLOCK;
         }
         EASY_END_BLOCK;
@@ -324,7 +334,13 @@ VertexPath Collider::getDrawableBoundingBox()
 {
     return m_boundingBox.getDrawable(m_boundingBox_color);
 }
-
+void Collider::stats_reset()
+{
+    stats_checkIntersectCounter = 0;
+    stats_doesIntersectCounter  = 0;
+    stats_checkCollisionCounter = 0;
+    stats_doesCollideCounter    = 0;
+}
 
 void Collider::internalRotate(const Vector2f &rotPoint,const float &deg)
 {

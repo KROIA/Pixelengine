@@ -73,12 +73,12 @@ void GameObject::removeMeFromEngine()
     if(m_objEventHandler != nullptr)
         m_objEventHandler->removeFromEngine(this);
 }
-void GameObject::deleteMeFromEngine()
+/*void GameObject::deleteMeFromEngine()
 {
     EASY_FUNCTION(profiler::colors::Green200);
     if(m_objEventHandler != nullptr)
         m_objEventHandler->deleteObject(this);
-}
+}*/
 void GameObject::preRun()
 {
     EASY_FUNCTION("GameObject::preRun()",profiler::colors::Green300);
@@ -583,6 +583,14 @@ const vector<DisplayText*> &GameObject::getTextList()
     return m_displayTextList;
 }
 
+void GameObject::markAsTrash(bool isTrash)
+{
+    m_isTrash = isTrash;
+}
+bool GameObject::isTrash() const
+{
+    return m_isTrash;
+}
 
 
 void GameObject::event_hasCollision(vector<GameObject *> other)

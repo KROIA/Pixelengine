@@ -52,9 +52,9 @@
 const Color __color_minimalAlphaColor(255,255,255);
 #endif
 
-//#define NO_TIMED_LOOPS
+#define NO_TIMED_LOOPS
 #define STATISTICS
-//#define USE_THREADS
+#define USE_THREADS
 
 #include "QDebug"
 
@@ -71,8 +71,10 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         {
             float  framesPerSecond;
             float  ticksPerSecond;
-            unsigned long collisionsPerTick;
-            unsigned long collisionChecksPerTick;
+            unsigned long long intersectionCheckPerTick;
+            unsigned long long doesIntersectPerTick;
+            unsigned long long collisionChecksPerTick;
+            unsigned long long collisionsPerTick;
             unsigned long objectsInEngine;
 
             float  collisionCheckTime;
@@ -123,8 +125,8 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual void addGameObject(ManagedGameObjectGroup *group);
         virtual void removeGameObject(GameObject *obj);
         virtual void removeGameObject(ManagedGameObjectGroup *group);
-        virtual void deleteGameObject(GameObject *obj);
-        virtual void deleteGameObject(ManagedGameObjectGroup *group);
+        //virtual void deleteGameObject(GameObject *obj);
+        //virtual void deleteGameObject(ManagedGameObjectGroup *group);
 
         // obj1 only interacts with obj2 not obj2 with obj1
         virtual void setCollisionSingleInteraction(GameObject                *obj1      ,GameObject                *obj2    , const bool &doesCollide = true);
@@ -147,7 +149,7 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         // Groups
         virtual void addGroup(ManagedGameObjectGroup *group);
         virtual void removeGroup(ManagedGameObjectGroup *group); // Removes the Group from the engine.
-        virtual void deleteGroup(ManagedGameObjectGroup *group); // Removes the Group from the engine and deletes the pointer to the Group.
+        //virtual void deleteGroup(ManagedGameObjectGroup *group); // Removes the Group from the engine and deletes the pointer to the Group.
 
         // Rendering
         virtual void moveRenderLayer_UP(GameObject *obj);
@@ -163,7 +165,7 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         // These functions will be called from the GameObject's
         virtual void kill(GameObject *obj);
         virtual void removeFromEngine(GameObject *obj);
-        virtual void deleteObject(GameObject *obj);
+        //virtual void deleteObject(GameObject *obj);
         virtual void collisionOccured(GameObject *obj1,vector<GameObject *> obj2);
         virtual void addDisplayText(DisplayText *text);
         virtual void removeDisplayText(DisplayText *text);
@@ -187,10 +189,12 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual void checkForUserGroupChanges(); // Check if any Object of a added List was removed or added
 
     private:
+
         virtual void addGameObject(GameObjectGroup *group); // won't add the list to de m_userGroups
         virtual void addGameObject(const vector<GameObject *> &list);
+        virtual void addToTrash(GameObject *obj);
         virtual void removeGameObject(const vector<GameObject *> &list);
-        virtual void deleteGameObject(const vector<GameObject *> &list);
+        //virtual void deleteGameObject(const vector<GameObject *> &list);
 
 
         static void removeObjectFromList(GameObjectGroup &group,GameObject* obj);
@@ -220,6 +224,7 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         InteractiveGameObjectGroup  m_masterGameObjectGroup;
 
         vector<GameObjectGroup> m_renderLayer;
+        GameObjectGroup         m_trashList;
 
         vector<ManagedGameObjectGroup*> m_userGroups;
 

@@ -245,7 +245,7 @@ Vector2<T> GeneralRect<T>::getCornerPoint_BR() const
 template<class T>
 bool GeneralRect<T>::intersectsX(const GeneralRect<T> &other) const
 {
-    GeneralRect<T>::stats_intersectionCounter ++;
+   // GeneralRect<T>::stats_intersectionCounter ++;
     // If one rectangle is on left side of other
     if(this->getCornerPoint_TL().x >  other.getCornerPoint_BR().x ||
        other.getCornerPoint_TL().x > this->getCornerPoint_BR().x)
@@ -255,7 +255,7 @@ bool GeneralRect<T>::intersectsX(const GeneralRect<T> &other) const
 template<class T>
 bool GeneralRect<T>::intersectsY(const GeneralRect<T> &other) const
 {
-    GeneralRect<T>::stats_intersectionCounter ++;
+    //GeneralRect<T>::stats_intersectionCounter ++;
     // If one rectangle is above other
     if(this->getCornerPoint_TL().y >  other.getCornerPoint_BR().y ||
        other.getCornerPoint_TL().y > this->getCornerPoint_BR().y)
@@ -268,10 +268,10 @@ bool GeneralRect<T>::intersects(const GeneralRect<T> &other) const
 
     if(intersectsX(other) && intersectsY(other))
     {
-        GeneralRect<T>::stats_intersectionCounter--;
+       // GeneralRect<T>::stats_intersectionCounter--;
         return true;
     }
-    GeneralRect<T>::stats_intersectionCounter--; // Because for x and y will be added 2 and now its back at +1
+    //GeneralRect<T>::stats_intersectionCounter--; // Because for x and y will be added 2 and now its back at +1
     return false;
 }
 
