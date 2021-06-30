@@ -2,6 +2,7 @@
 #define MATHFUNCTIONS_H
 
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Transform.hpp>
 #include <math.h>
 #include <vector>
 
@@ -22,7 +23,7 @@ namespace Vector{
     }
 
     template <typename T>
-    inline Vector2<T> rotate(const Vector2<T> &vec,const Vector2<T> &rotPoint, float deg)
+    inline Vector2<T> getRotated(const Vector2<T> &vec,const Vector2<T> &rotPoint, float deg)
     {
         if(long(100*deg)%36000 == 0)
             return vec;
@@ -42,12 +43,37 @@ namespace Vector{
             yComp = 0;
         Vector2<T> res(xComp+rotPoint.x,yComp+rotPoint.y);
         return res;
+    }
 
+    inline void rotate(Vector2f &vec,const Vector2f &rotPoint, float deg)
+    {
+        sf::Transform t;
+        t.rotate(deg, rotPoint);
+        vec = t.transformPoint(vec);
+        //vec = sf::Transform(vec).rotate(deg, rotPoint);
+        /*
+        if(long(100*deg)%36000 == 0)
+            return vec;
+        if(length(vec - rotPoint) <= 0.00001)
+            return vec;
+        float newAngle = asin(float(vec.y-rotPoint.y) / length(vec-rotPoint));
+        if((vec.x-rotPoint.x) < 0)
+            newAngle = M_PI - newAngle;
+        newAngle += deg * M_PI / 180;
+        float l = length(vec-rotPoint);
+        float xComp = cos(newAngle)*l;
+        float yComp = sin(newAngle)*l;
+
+        if(xComp<0.00001 && xComp>-0.00001)
+            xComp = 0;
+        if(yComp<0.00001 && yComp>-0.00001)
+            yComp = 0;
+        vec = Vector2<T>(xComp+rotPoint.x,yComp+rotPoint.y);*/
     }
     template <typename T>
-    inline Vector2<T> rotate(const Vector2<T> &vec, float deg)
+    inline Vector2<T> getRotated(const Vector2<T> &vec, float deg)
     {
-        return rotate(vec,Vector2<T>(0,0),deg);
+        return getRotated(vec,Vector2<T>(0,0),deg);
     }
 
     template <typename T>

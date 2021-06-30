@@ -347,8 +347,10 @@ void Collider::internalRotate(const Vector2f &rotPoint,const float &deg)
     EASY_FUNCTION(profiler::colors::RedA200);
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
-        Vector2f vec(m_hitboxList[i].getPos().x,m_hitboxList[i].getPos().y);
-        Vector2f newPos = Vector::rotate(vec,rotPoint,deg);
+        EASY_BLOCK("internalRotate Obj",profiler::colors::RedA200);
+
+       /* Vector2f vec(m_hitboxList[i].getPos().x,m_hitboxList[i].getPos().y);
+        Vector2f newPos = Vector::getRotated(vec,rotPoint,deg);
 
 
         m_hitboxList[i].setPos(round(newPos.x),round(newPos.y));
@@ -357,6 +359,13 @@ void Collider::internalRotate(const Vector2f &rotPoint,const float &deg)
 
         m_hitboxList[i].setPos(round(newRect.getX()),round(newRect.getY()));
         m_hitboxList[i].setSize(round(newRect.getSize().x),round(newRect.getSize().y));
+
+*/
+        /*RectF newRect = RectF::rotate(m_hitboxList[i],rotPoint,deg);
+
+        m_hitboxList[i].setPos(newRect.getPos());
+        m_hitboxList[i].setSize(newRect.getSize());*/
+        m_hitboxList[i].rotate(rotPoint,deg);
     }
     m_rotationDeg += deg;
     m_rotationDeg = float(int(m_rotationDeg*1000) % int(360 *1000))/1000.f;

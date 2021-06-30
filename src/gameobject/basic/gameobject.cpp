@@ -388,7 +388,7 @@ void GameObject::rotate_270()
 void GameObject::setRotation(const Vector2f &rotationPoint,const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    Vector2f newPos = Vector::rotate(Vector2f(this->getPos()),rotationPoint,deg);
+    Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,deg);
     this->setPos(round(newPos.x),round(newPos.y));
     float rot = m_rotationDeg - deg;
     for(size_t i=0; i<m_controllerList.size(); i++)
@@ -400,7 +400,7 @@ void GameObject::setRotation(const Vector2f &rotationPoint,const float &deg)
 void GameObject::rotate_90(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    Vector2f newPos = Vector::rotate(Vector2f(this->getPos()),rotationPoint,90);
+    Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,90);
     this->setPos(round(newPos.x),round(newPos.y));
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate_90();
@@ -411,7 +411,7 @@ void GameObject::rotate_90(const Vector2f &rotationPoint)
 void GameObject::rotate_180(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    Vector2f newPos = Vector::rotate(Vector2f(this->getPos()),rotationPoint,180);
+    Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,180);
     this->setPos(round(newPos.x),round(newPos.y));
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate_180();
@@ -422,7 +422,7 @@ void GameObject::rotate_180(const Vector2f &rotationPoint)
 void GameObject::rotate_270(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    Vector2f newPos = Vector::rotate(Vector2f(this->getPos()),rotationPoint,270);
+    Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,270);
     this->setPos(round(newPos.x),round(newPos.y));
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate_270();
