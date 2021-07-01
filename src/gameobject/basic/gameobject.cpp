@@ -6,21 +6,19 @@ GameObject::GameObject()
     this->addController(new Controller());
     m_collider              = new Collider();
     m_painter               = nullptr;
-    m_hitboxPainter         = new PixelPainter();
     m_objEventHandler       = nullptr;
     m_rotationDeg           = 90; // 90 deg
-    setHitboxVisibility(false);
+    showHitbox(false);
 }
 GameObject::GameObject(const GameObject &other)
 {
     this->addController(new Controller());
     m_collider              = new Collider();
     m_painter               = nullptr;
-    m_hitboxPainter         = new PixelPainter();
     m_objEventHandler       = nullptr;
 
     *this = other;
-    setHitboxVisibility(false);
+    showHitbox(false);
 }
 GameObject::GameObject(Controller *controller,
                        Collider   *collider,
@@ -31,7 +29,7 @@ GameObject::GameObject(Controller *controller,
     this->setPainter(painter);
     m_objEventHandler   = nullptr;
     m_rotationDeg       = 90; // 90 deg
-    setHitboxVisibility(false);
+    showHitbox(false);
 }
 
 GameObject::~GameObject()
@@ -41,14 +39,12 @@ GameObject::~GameObject()
     delete m_collider;
     if(m_painter != nullptr)
         delete m_painter;
-    delete m_hitboxPainter;
 }
 const GameObject &GameObject::operator=(const GameObject &other)
 {
     this->m_controllerList      = other.m_controllerList;
     *this->m_collider           = *other.m_collider;
     *this->m_painter            = *other.m_painter;
-    *this->m_hitboxPainter      = *other.m_hitboxPainter;
     this->m_property            = other.m_property;
     this->m_objEventHandler     = other.m_objEventHandler;
     this->m_rotationDeg         = other.m_rotationDeg;
@@ -73,16 +69,9 @@ void GameObject::removeMeFromEngine()
     if(m_objEventHandler != nullptr)
         m_objEventHandler->removeFromEngine(this);
 }
-/*void GameObject::deleteMeFromEngine()
-{
-    EASY_FUNCTION(profiler::colors::Green200);
-    if(m_objEventHandler != nullptr)
-        m_objEventHandler->deleteObject(this);
-}*/
 void GameObject::preRun()
 {
     EASY_FUNCTION("GameObject::preRun()",profiler::colors::Green300);
-    updateHitboxPainter();
 }
 void GameObject::tick(const Vector2i&direction)
 {
@@ -167,16 +156,13 @@ void GameObject::draw(PixelDisplay &display)
 {
     EASY_FUNCTION(profiler::colors::Green700);
     m_painter->setPos(m_layerItem.getPos());
-    m_hitboxPainter->setPos(m_layerItem.getPos());
     RectF frame = display.getRenderFrame();
     frame.setPos(-frame.getPos());
 
-    if(!this->m_painter->getFrame().intersects(frame))
-        return;
 
     m_painter->draw(display);
-    if(m_hitboxPainter->isVisible())
-        m_hitboxPainter->draw(display);
+    if(m_hitboxIsVisible)
+        display.addVertexLine(m_collider->getDrawableHitBox());
     if(m_boundingBoxIsVisible)
         display.addVertexLine(m_collider->getDrawableBoundingBox());
 
@@ -330,17 +316,17 @@ const Vector2f &GameObject::getMovingVector() const
 void GameObject::rotate(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    if(m_hitboxPainter->isVisible())
-    {
-        this->setHitboxVisibility(false);
-        this->setHitboxVisibility(true);
-    }
     m_rotationDeg+=deg;
     if(m_rotationDeg >= 360)
         m_rotationDeg = m_rotationDeg%360;
 
     m_painter->setPos(m_layerItem.getPos());
     m_collider->setPos(m_layerItem.getPos());
+
+    m_painter->rotate(deg);
+    m_collider->rotate(deg);
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_controllerList[i]->rotate(deg);
 }
 
 float GameObject::getRotation() const
@@ -351,84 +337,50 @@ void GameObject::setRotation(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Green);
     float rot = m_rotationDeg - deg;
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->setRotation(deg);
-    m_collider->setRotation(deg);
-    m_painter->setRotation(deg);
-    rotate(rot/180.f*M_PI);
+    rotate(rot);
 }
 void GameObject::rotate_90()
 {
     EASY_FUNCTION(profiler::colors::Green);
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->rotate_90();
-    m_collider->rotate_90();
-    m_painter->setPos(m_layerItem.getPos());
-    m_painter->rotate_90();
-    rotate(M_PI_2);
+    rotate(90);
 }
 void GameObject::rotate_180()
 {
     EASY_FUNCTION(profiler::colors::Green);
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->rotate_180();
-    m_collider->rotate_180();
-    m_painter->rotate_180();
-    rotate(M_PI);
+    rotate(180);
 }
 void GameObject::rotate_270()
 {
+    rotate(270);
     EASY_FUNCTION(profiler::colors::Green);
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->rotate_270();
-    m_collider->rotate_270();
-    m_painter->rotate_270();
-    rotate(M_PI_2*3);
 }
 void GameObject::setRotation(const Vector2f &rotationPoint,const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Green);
     Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,deg);
-    this->setPos(round(newPos.x),round(newPos.y));
-    float rot = m_rotationDeg - deg;
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->setRotation(deg);
-    m_collider->setRotation(deg);
-    m_painter->setRotation(deg);
-    rotate(rot/180.f*M_PI);
+    this->setPos(newPos);
+    rotate(deg);
 }
 void GameObject::rotate_90(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Green);
     Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,90);
-    this->setPos(round(newPos.x),round(newPos.y));
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->rotate_90();
-    m_collider->rotate_90();
-    m_painter->rotate_90();
-    rotate(M_PI_2);
+    this->setPos(newPos);
+    rotate(90);
 }
 void GameObject::rotate_180(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Green);
     Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,180);
-    this->setPos(round(newPos.x),round(newPos.y));
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->rotate_180();
-    m_collider->rotate_180();
-    m_painter->rotate_180();
-    rotate(M_PI);
+    this->setPos(newPos);
+    rotate(180);
 }
 void GameObject::rotate_270(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Green);
     Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,270);
-    this->setPos(round(newPos.x),round(newPos.y));
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->rotate_270();
-    m_collider->rotate_270();
-    m_painter->rotate_270();
-    rotate(M_PI_2*3);
+    this->setPos(newPos);
+    rotate(270);
 }
 void GameObject::addHitbox(const RectI &box)
 {
@@ -466,34 +418,20 @@ void GameObject::setHitboxFromTexture(const Texture &texture)
     EASY_FUNCTION(profiler::colors::Green600);
     m_textureIsActiveForCollider = true;
     m_collider->setHitboxFromTexture(&texture);
-    updateHitboxPainter();
 }
-void GameObject::setHitboxVisibility(const bool &isVisible)
+void GameObject::showHitbox(const bool &isVisible)
 {
     EASY_FUNCTION(profiler::colors::Green700);
-    m_hitboxPainter->setVisibility(isVisible);
+    m_hitboxIsVisible = isVisible;
     showBoundingBox(isVisible);
-    if(isVisible)
-    {
-        updateHitboxPainter();;
-    }
-
 }
 void GameObject::showBoundingBox(bool enable)
 {
     m_boundingBoxIsVisible = enable;
 }
-void GameObject::updateHitboxPainter()
-{
-    EASY_FUNCTION(profiler::colors::Green800);
-    if(m_hitboxPainter->isVisible())
-    {
-        HitboxPainter::makeVisibleCollider(m_collider,m_hitboxPainter);
-    }
-}
 const bool &GameObject::isHitboxVisible() const
 {
-    return m_hitboxPainter->isVisible();
+    return m_hitboxIsVisible;
 }
 
 void GameObject::setVisibility(const bool &isVisible)

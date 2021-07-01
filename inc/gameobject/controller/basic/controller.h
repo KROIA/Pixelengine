@@ -47,6 +47,7 @@ class Controller    :   public UserEventHandler//, public LayerItem
         virtual const Vector2f &getMovingVector() const;
 
         virtual void setRotation(const float &deg);
+        virtual void rotate(const float &deg);
         virtual float getRotation() const;
         virtual void rotate_90();
         virtual void rotate_180();

@@ -107,7 +107,6 @@ class Collider  :   public LayerItem
         Color m_boundingBox_standardColor;
         Color m_boundingBox_intersectingColor;
 
-        //Color m_hitbox_color;
         Color m_hitbox_standardColor;
         Color m_hitbox_intersectingColor;
         vector<bool>    m_hitBoxListDoesIntersect;

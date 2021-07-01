@@ -31,7 +31,6 @@ class GameObject
         virtual void checkEvent();
         virtual void killMe();             // Not defined jet in the engine class
         virtual void removeMeFromEngine(); // Removes this obj from the engine, but the obj won't get destroyed
-        //virtual void deleteMeFromEngine(); // Removes this obj from the engine and destroyes it (delete call)
 
 
         // called by the Engine
@@ -72,6 +71,7 @@ class GameObject
         virtual const Vector2f &getMovingVector() const;
 
         virtual float getRotation() const;
+        virtual void rotate(const float &deg);
         virtual void setRotation(const float &deg);
         virtual void rotate_90();
         virtual void rotate_180();
@@ -90,39 +90,14 @@ class GameObject
         virtual void clearCollider();
         virtual const bool &isBoundingBoxUpdated() const;
         virtual void updateBoundingBox();
-    //    virtual void setHitboxFromTexture();
         virtual void setHitboxFromTexture(const Texture &texture);
-        virtual void setHitboxVisibility(const bool &isVisible);
+        virtual void showHitbox(const bool &isVisible);
         virtual void showBoundingBox(bool enable);
-        virtual void updateHitboxPainter();
         virtual const bool &isHitboxVisible() const;
-        //virtual bool checkTextureUpdateForCollider();
 
         // Painter settings
-     //   virtual void reservePixelAmount(const size_t amount);
-     //   virtual void addPixel(const Pixel &pixel);
-     //   virtual void addPixel(const vector<Pixel> &pixelList);
-     //   virtual const Pixel &getPixel(const size_t &index) const;
-     //   virtual const Pixel &getPixel(const Vector2i&pixelPos) const;
-     //   virtual const Pixel &getPixel(int x, int y) const;
-     //   virtual size_t getPixelAmount() const;
-     //   virtual void setPixelColor(const size_t &index, const Color &color);
-     //   virtual void setPixelColor(const Vector2i&pixelPos, const Color &color);
-     //   virtual void setPixelColor(int x, int y, const Color &color);
-     //   virtual void setPixelColor(const Color &color);
-     //   virtual void erasePixel(const size_t &index);
-     //   virtual void erasePixel(const Vector2i&pixelPos);
-     //   virtual void erasePixel(int x, int y);
-     //   virtual void clearPainter(); // Deletes all pixels
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;
-       // virtual void setTexture(Texture *texture);
-       // virtual void setTexturePath(const string &path);
-       // virtual void loadTexture();
-       // const virtual Texture &getTexture() const;
-       // virtual void setTextureOnPainter();
-       // virtual void setTextureOnPainter(Texture &texture);
-       // virtual bool checkTextureUpdateForPainter();
 
         // Properties
         virtual void setProperty(const Property::Property &property);
@@ -152,7 +127,7 @@ class GameObject
         DynamicCoordinator m_movementCoordinator;
         Collider      *m_collider;
         Painter       *m_painter;
-        PixelPainter  *m_hitboxPainter;
+        bool          m_hitboxIsVisible;
         bool          m_boundingBoxIsVisible;
 
         bool          m_textureIsActiveForCollider;
@@ -162,11 +137,6 @@ class GameObject
         unsigned int m_rotationDeg;
 
     private:
-
-        void rotate(const float &deg);
         bool m_isTrash;
-
-
-
 };
 #endif // GAMEOBJECT_H

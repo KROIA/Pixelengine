@@ -87,6 +87,12 @@ float Sensor::getRotation() const
 {
     return m_sensorCollider->getRotation();
 }
+void Sensor::rotate(const float &deg)
+{
+    EASY_FUNCTION(profiler::colors::Yellow300);
+    m_sensorPainter->rotate(deg);
+    m_sensorCollider->rotate(deg);
+}
 void Sensor::setRotation(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Yellow300);

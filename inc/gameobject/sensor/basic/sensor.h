@@ -27,6 +27,7 @@ class Sensor
         virtual const vector<GameObject*> &getDetectedObjects() const;
 
         virtual float getRotation() const;
+        virtual void rotate(const float &deg);
         virtual void setRotation(const float &deg);
         virtual void rotate_90();
         virtual void rotate_180();

@@ -98,6 +98,11 @@ void Controller::setRotation(const float &deg)
     EASY_FUNCTION(profiler::colors::Pink300);
     m_rotationDeg = int(deg) % 360;
 }
+void Controller::rotate(const float &deg)
+{
+    EASY_FUNCTION(profiler::colors::Pink300);
+    m_rotationDeg += deg;
+}
 float Controller::getRotation() const
 {
     return m_rotationDeg;

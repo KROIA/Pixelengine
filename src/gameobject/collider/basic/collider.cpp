@@ -199,7 +199,7 @@ bool Collider::intersectsBoundingBox(const Collider &other)
         return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben
 
     bool intersects = this->m_boundingBox.intersects(other.m_boundingBox);
-    stats_checkIntersectCounter++;
+    stats_checkIntersectCounter += this->m_boundingBox.stats_intersectionCheckCounter;
     if(intersects)
     {
         m_boundingBox_color = m_boundingBox_intersectingColor;
@@ -223,7 +223,7 @@ bool Collider::collides(const Collider &other)
             EASY_BLOCK("this->m_hitboxList[x].intersects(other.m_hitboxList[y])",profiler::colors::Red600);
             if(this->m_hitboxList[x].intersects(other.m_hitboxList[y]))
             {
-                stats_checkCollisionCounter++;
+                stats_checkCollisionCounter += this->m_hitboxList[x].stats_intersectionCheckCounter;
                 stats_doesCollideCounter++;
                 m_hitBoxListDoesIntersect[x] = true;
                 return true;

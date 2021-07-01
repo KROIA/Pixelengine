@@ -56,7 +56,7 @@ class GameObjectGroup
 
         virtual void setVisibility(const bool &isVisible);
         virtual const bool &isVisible() const;
-        virtual void setHitboxVisibility(const bool &isVisible);
+        virtual void showHitbox(const bool &isVisible);
         virtual const bool &isHitboxVisible() const;
 
         virtual long long indexOf(const GameObject* obj);

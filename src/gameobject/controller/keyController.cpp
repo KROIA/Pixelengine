@@ -57,6 +57,12 @@ void KeyController::tick()
     EASY_FUNCTION(profiler::colors::Pink100);
     Controller::tick();
 }
+void KeyController::rotate(const float &deg)
+{
+    EASY_FUNCTION(profiler::colors::Pink200);
+    Controller::rotate(deg);
+    this->setRotation();
+}
 void KeyController::setRotation(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Pink200);

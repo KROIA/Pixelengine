@@ -48,18 +48,20 @@ class GeneralRect
 
         virtual const Vector2<T> &getPos() const;
 
-        virtual void setSize(Vector2<T> size);
+        virtual void setSize(const Vector2<T> &size);
         virtual void setSize(const T &width, const T &height);
         virtual Vector2<T> getSize() const;
 
-        virtual Vector2<T> getCornerPoint_TL() const; // Top Left
-        virtual Vector2<T> getCornerPoint_TR() const; // Top Right
-        virtual Vector2<T> getCornerPoint_BL() const; // Bottom Left
-        virtual Vector2<T> getCornerPoint_BR() const; // Bottom Right
+        virtual const Vector2<T> &getCornerPoint_TL() const; // Top Left
+        virtual const Vector2<T> &getCornerPoint_TR() const; // Top Right
+        virtual const Vector2<T> &getCornerPoint_BL() const; // Bottom Left
+        virtual const Vector2<T> &getCornerPoint_BR() const; // Bottom Right
+        virtual const Vector2<T> &getTop()            const;
+        virtual const Vector2<T> &getRight()          const;
+        virtual const Vector2<T> &getBottom()         const;
+        virtual const Vector2<T> &getLeft()           const;
 
-        virtual bool intersectsX(const GeneralRect<T> &other) const; // returns true if this and ohter are intersecting
-        virtual bool intersectsY(const GeneralRect<T> &other) const; // returns true if this and ohter are intersecting
-        virtual bool intersects(const GeneralRect<T> &other) const; // returns true if this and ohter are intersecting
+        virtual bool intersects(const GeneralRect<T> &other); // returns true if this and ohter are intersecting
 
         bool operator==(const GeneralRect<T> &other);
         bool operator!=(const GeneralRect<T> &other);
@@ -77,82 +79,89 @@ class GeneralRect
 
         // A Rect which includes all rects in the List
         static GeneralRect<T> getFrame(const std::vector<GeneralRect<T> > &list);
-        static int getMinX(const std::vector<GeneralRect<T> > &list);
-        static int getMaxX(const std::vector<GeneralRect<T> > &list);
-        static int getMinY(const std::vector<GeneralRect<T> > &list);
-        static int getMaxY(const std::vector<GeneralRect<T> > &list);
+        static T getMinX(const std::vector<GeneralRect<T> > &list);
+        static T getMaxX(const std::vector<GeneralRect<T> > &list);
+        static T getMinY(const std::vector<GeneralRect<T> > &list);
+        static T getMaxY(const std::vector<GeneralRect<T> > &list);
 
-        /*static unsigned long long stats_getIntersectionCounter();
-        static void stats_resetIntersectionCounter();
-        static void stats_reset();*/
-
-
+        unsigned long stats_intersectionCheckCounter;
     protected:
-       // static unsigned long long stats_intersectionCounter;
+        virtual inline void update();
 
     private:
-       // Vector2<T>  m_pos;
-       // Vector2<T>  m_size;
+
+        /*
+
+            TL            top           TR
+              +---------------------->+
+              |                    .  |
+              |                  .    |
+         left |                .      | right
+              |.             .        |
+              v            .          v
+              +---------------------->+
+            BL ..      . bottom   .     BR
+                .     .      .
+                   .   .
+                 +0
+
+         */
         Vector2<T> TL;
         Vector2<T> TR;
         Vector2<T> BL;
         Vector2<T> BR;
+
+        Vector2<T> top;
+        Vector2<T> left;
+        Vector2<T> bottom;
+        Vector2<T> right;
 };
-/*template<class T>
-unsigned long long GeneralRect<T>::stats_intersectionCounter = 0;
-template<class T>
-unsigned long long GeneralRect<T>::stats_getIntersectionCounter()
-{
-    return GeneralRect<T>::stats_intersectionCounter;
-}
-template<class T>
-void GeneralRect<T>::stats_resetIntersectionCounter(){
-    GeneralRect<T>::stats_intersectionCounter = 0;
-}
-template<class T>
-void GeneralRect<T>::stats_reset()
-{
-    GeneralRect<T>::stats_resetIntersectionCounter();
-}*/
 
 template<class T>
 GeneralRect<T>::GeneralRect()
 {
     this->setPos(0,0);
     this->setSize(1,1);
+    stats_intersectionCheckCounter = 0;
 }
 template<class T>
 GeneralRect<T>::GeneralRect(const T &width, const T &height)
 {
     this->setSize(width,height);
+    stats_intersectionCheckCounter = 0;
 }
 template<class T>
 GeneralRect<T>::GeneralRect(const Vector2<T> &size)
 {
     this->setSize(size);
+    stats_intersectionCheckCounter = 0;
 }
 template<class T>
 GeneralRect<T>::GeneralRect(const T &xPos, const T &yPos, const T &width, const T &height)
 {
     this->setPos(xPos,yPos);
     this->setSize(width,height);
+    stats_intersectionCheckCounter = 0;
 }
 template<class T>
 GeneralRect<T>::GeneralRect( const Vector2<T> &pos,const Vector2<T> &size)
 {
     this->setPos(pos);
     this->setSize(size);
+    stats_intersectionCheckCounter = 0;
 }
 template<class T>
 GeneralRect<T>::GeneralRect(const Vector2<T> &topLeft, const Vector2<T> &topRight,
                             const Vector2<T> &bottomLeft, const Vector2<T> &bottomRight)
 {
     this->set(topLeft,topRight,bottomLeft,bottomRight);
+    stats_intersectionCheckCounter = 0;
 }
 template<class T>
 GeneralRect<T>::GeneralRect(const GeneralRect<T> &other)
 {
     *this = other;
+    stats_intersectionCheckCounter = 0;
 }
 template<class T>
 GeneralRect<T>::~GeneralRect()
@@ -162,12 +171,15 @@ GeneralRect<T>::~GeneralRect()
 template<class T>
 GeneralRect<T> &GeneralRect<T>::operator=(const GeneralRect<T> &other)
 {
-    //this->m_pos  = other.m_pos;
-    //this->m_size = other.m_size;
-    this->TL = other.TL;
-    this->TR = other.TR;
-    this->BL = other.BL;
-    this->BR = other.BR;
+    this->TL        = other.TL;
+    this->TR        = other.TR;
+    this->BL        = other.BL;
+    this->BR        = other.BR;
+
+    this->top       = other.top;
+    this->left      = other.left;
+    this->bottom    = other.bottom;
+    this->right     = other.right;
     return *this;
 }
 template<class T>
@@ -177,7 +189,6 @@ void GeneralRect<T>::move(const Vector2<T> &vec)
     TR += vec;
     BL += vec;
     BR += vec;
-   // m_pos += vec;
 }
 template<class T>
 void GeneralRect<T>::set(const Vector2<T> &pos, const Vector2<T> &size)
@@ -186,8 +197,7 @@ void GeneralRect<T>::set(const Vector2<T> &pos, const Vector2<T> &size)
     TR = TL + Vector2<T>(size.x,0);
     BL = TL + Vector2<T>(0,size.y);
     BR = TL + size;
-   /* m_pos  = pos;
-    m_size = size;*/
+    this->update();
 }
 template<class T>
 void GeneralRect<T>::set(const T &posX, const T &posY, const T &width, const T &height)
@@ -196,11 +206,7 @@ void GeneralRect<T>::set(const T &posX, const T &posY, const T &width, const T &
     TR = TL + Vector2<T>(width,0);
     BL = TL + Vector2<T>(0,height);
     BR = TL + Vector2<T>(width,height);
-    /*
-    m_pos.x = posX;
-    m_pos.y = posY;
-    m_size.x = width;
-    m_size.y = height;*/
+    this->update();
 }
 template<class T>
 void GeneralRect<T>::set(const Vector2<T> &topLeft, const Vector2<T> &topRight,
@@ -210,32 +216,40 @@ void GeneralRect<T>::set(const Vector2<T> &topLeft, const Vector2<T> &topRight,
     TR = topRight;
     BL = bottomLeft;
     BR = bottomRight;
+    this->update();
 }
 template<class T>
 void GeneralRect<T>::setPos(const Vector2<T> &pos)
 {
-    Vector2<T> delta(pos - TL);
-    this->move(delta);
-    //m_pos = pos;
+    TL = pos;
+    TR = TL + top;
+    BL = TL + left;
+    BR = TR + right;
 }
 template<class T>
 void GeneralRect<T>::setPos(const T &posX, const T &posY)
 {
-    this->setPos(Vector2<T>(posX,posY));
-    //m_pos.x = posX;
-    //m_pos.y = posY;
+    TL.x = posX;
+    TL.y = posY;
+    TR = TL + top;
+    BL = TL + left;
+    BR = TR + right;
 }
 template<class T>
 void GeneralRect<T>::setX(const T &x)
 {
-    this->setPos(Vector2<T>(x,TL.y));
-    //m_pos.x = x;
+    TL.x = x;
+    TR = TL + top;
+    BL = TL + left;
+    BR = TR + right;
 }
 template<class T>
 void GeneralRect<T>::setY(const T &y)
 {
-    this->setPos(Vector2<T>(TL.x,y));
-    //m_pos.y = y;
+    TL.y = y;
+    TR = TL + top;
+    BL = TL + left;
+    BR = TR + right;
 }
 template<class T>
 const T &GeneralRect<T>::getX() const
@@ -254,106 +268,165 @@ const Vector2<T> &GeneralRect<T>::getPos() const
 }
 
 template<class T>
-void GeneralRect<T>::setSize(Vector2<T> size)
+void GeneralRect<T>::setSize(const Vector2<T> &size)
 {
     TR = TL + Vector2<T>(size.x,0);
     BL = TL + Vector2<T>(0,size.y);
     BR = TL + size;
-    //m_size = size;
+    this->update();
 }
 template<class T>
 void GeneralRect<T>::setSize(const T &width, const T &height)
 {
     this->setSize(Vector2<T>(width,height));
-    //m_size.x = width;
-    //m_size.y = height;
+    this->update();
 }
 template<class T>
 Vector2<T> GeneralRect<T>::getSize() const
 {
     return BR - TL;
-    //return m_size;
 }
 
 template<class T>
-Vector2<T> GeneralRect<T>::getCornerPoint_TL() const
+const Vector2<T> &GeneralRect<T>::getCornerPoint_TL() const
 {
     return TL;
 }
 template<class T>
-Vector2<T> GeneralRect<T>::getCornerPoint_TR() const
+const Vector2<T> &GeneralRect<T>::getCornerPoint_TR() const
 {
     return TR;
-    //return Vector2<T>(m_pos.x + m_size.x-1, m_pos.y);
 }
 template<class T>
-Vector2<T> GeneralRect<T>::getCornerPoint_BL() const
+const Vector2<T> &GeneralRect<T>::getCornerPoint_BL() const
 {
     return BL;
-    //return Vector2<T>(m_pos.x, m_pos.y + m_size.y-1);
 }
 template<class T>
-Vector2<T> GeneralRect<T>::getCornerPoint_BR() const
+const Vector2<T> &GeneralRect<T>::getCornerPoint_BR() const
 {
     return BR;
-    //return Vector2<T>(m_pos.x + m_size.x-1, m_pos.y + m_size.y-1);
 }
 template<class T>
-bool GeneralRect<T>::intersectsX(const GeneralRect<T> &other) const
+const Vector2<T> &GeneralRect<T>::getTop()            const
 {
-   // GeneralRect<T>::stats_intersectionCounter ++;
-    // If one rectangle is on left side of other
-    if(this->getCornerPoint_TL().x >  other.getCornerPoint_BR().x ||
-       other.getCornerPoint_TL().x > this->getCornerPoint_BR().x)
-        return false;
-    return true;
+    return top;
 }
 template<class T>
-bool GeneralRect<T>::intersectsY(const GeneralRect<T> &other) const
+const Vector2<T> &GeneralRect<T>::getRight()          const
 {
-    //GeneralRect<T>::stats_intersectionCounter ++;
-    // If one rectangle is above other
-    if(this->getCornerPoint_TL().y >  other.getCornerPoint_BR().y ||
-       other.getCornerPoint_TL().y > this->getCornerPoint_BR().y)
-        return false;
-    return true;
+    return right;
 }
 template<class T>
-bool GeneralRect<T>::intersects(const GeneralRect<T> &other) const
+const Vector2<T> &GeneralRect<T>::getBottom()         const
 {
+    return bottom;
+}
+template<class T>
+const Vector2<T> &GeneralRect<T>::getLeft()           const
+{
+    return left;
+}
+template<class T>
+bool GeneralRect<T>::intersects(const GeneralRect<T> &other)
+{
+    /*
 
-    if(intersectsX(other) && intersectsY(other))
+        TL            top           TR
+          +---------------------->+
+          |                    .  |
+          |                  .    |
+     left |                .      | right
+          |.             .        |
+          v            .          v
+          +---------------------->+
+        BL ..      . bottom   .     BR
+            .     .      .
+               .   .
+             +0
+
+     */
+    struct Vfunc
     {
-       // GeneralRect<T>::stats_intersectionCounter--;
-        return true;
+        const Vector2<T> *s; // Supportvector
+        const Vector2<T> *d; // Directionvector
+    };
+
+    vector<Vfunc> frameVecList(4);
+    frameVecList[0].s = &TL;
+    frameVecList[1].s = &TL;
+    frameVecList[2].s = &BL;
+    frameVecList[3].s = &TR;
+
+    frameVecList[0].d = &top    ;
+    frameVecList[1].d = &left   ;
+    frameVecList[2].d = &bottom ;
+    frameVecList[3].d = &right  ;
+
+    vector<Vfunc> other_frameVecList(4);
+    other_frameVecList[0].s = &other.TL;
+    other_frameVecList[1].s = &other.TL;
+    other_frameVecList[2].s = &other.BL;
+    other_frameVecList[3].s = &other.TR;
+
+    other_frameVecList[0].d = &other.top    ;
+    other_frameVecList[1].d = &other.left   ;
+    other_frameVecList[2].d = &other.bottom ;
+    other_frameVecList[3].d = &other.right  ;
+
+
+
+
+    Vector2<T> intersectionFac;
+    size_t frameVecList_size = frameVecList.size();
+    size_t other_frameVecList_size = other_frameVecList.size();
+
+
+
+    for(size_t i=0; i<frameVecList_size; i++)
+    {
+        for(size_t j=0; j<other_frameVecList_size; j++)
+        {
+            if(Vector::doesIntersect(*frameVecList[i].d,*other_frameVecList[j].d))
+            {
+                intersectionFac = Vector::getIntersection(*frameVecList[i].s,        *frameVecList[i].d,
+                                                          *other_frameVecList[j].s,  *other_frameVecList[j].d);
+                if(intersectionFac.x > 0 && intersectionFac.x < 1.f &&
+                   intersectionFac.y > 0 && intersectionFac.y < 1.f)
+                {
+                    stats_intersectionCheckCounter =  i * j;
+                    return true;
+                }
+            }
+        }
     }
-    //GeneralRect<T>::stats_intersectionCounter--; // Because for x and y will be added 2 and now its back at +1
+    stats_intersectionCheckCounter = frameVecList_size * other_frameVecList_size;
     return false;
 }
 
 template<class T>
 bool GeneralRect<T>::operator==(const GeneralRect<T> &other)
 {
-    if(this->getCornerPoint_TL() != other.getCornerPoint_TL())
+    if(this->TL != other.TL)
         return false;
-    if(this->getCornerPoint_TR() != other.getCornerPoint_TR())
+    if(this->TR != other.TR)
         return false;
-    if(this->getCornerPoint_BL() != other.getCornerPoint_BL())
+    if(this->BL != other.BL)
         return false;
-    if(this->getCornerPoint_BR() != other.getCornerPoint_BR())
+    if(this->BR != other.BR)
         return false;
     return true;
 }
 template<class T>
 bool GeneralRect<T>::operator!=(const GeneralRect<T> &other)
 {
-    if(this->getCornerPoint_TL() != other.getCornerPoint_TL())
+    if(this->TL != other.TL)
         return true;
-    if(this->getCornerPoint_TR() != other.getCornerPoint_TR())
+    if(this->TR != other.TR)
         return true;
-    if(this->getCornerPoint_BL() != other.getCornerPoint_BL())
+    if(this->BL != other.BL)
         return true;
-    if(this->getCornerPoint_BR() != other.getCornerPoint_BR())
+    if(this->BR != other.BR)
         return true;
     return false;
 }
@@ -365,17 +438,17 @@ VertexPath GeneralRect<T>::getDrawable(const sf::Color &color) const
     path.type = sf::Lines;
     path.line = new sf::Vertex[path.length]
     {
-        sf::Vertex(Vector2f(getCornerPoint_TL())),
-        sf::Vertex(Vector2f(getCornerPoint_TR()) + Vector2f(1,0)),
+        sf::Vertex(Vector2f(TL)),
+        sf::Vertex(Vector2f(TR)),
 
-        sf::Vertex(Vector2f(getCornerPoint_TR()) + Vector2f(1,0)),
-        sf::Vertex(Vector2f(getCornerPoint_BR()) + Vector2f(1,1)),
+        sf::Vertex(Vector2f(TR)),
+        sf::Vertex(Vector2f(BR)),
 
-        sf::Vertex(Vector2f(getCornerPoint_BR()) + Vector2f(1,1)),
-        sf::Vertex(Vector2f(getCornerPoint_BL()) + Vector2f(0,1)),
+        sf::Vertex(Vector2f(BR)),
+        sf::Vertex(Vector2f(BL)),
 
-        sf::Vertex(Vector2f(getCornerPoint_BL()) + Vector2f(0,1)),
-        sf::Vertex(Vector2f(getCornerPoint_TL())),
+        sf::Vertex(Vector2f(BL)),
+        sf::Vertex(Vector2f(TL)),
     };
 
     for(std::size_t i=0; i<path.length; i++)
@@ -392,23 +465,23 @@ VertexPath GeneralRect<T>::getDrawableMesh(const sf::Color &color) const
     path.type = sf::Lines;
     path.line = new sf::Vertex[path.length]
     {
-        sf::Vertex(Vector2f(getCornerPoint_TL())),
-        sf::Vertex(Vector2f(getCornerPoint_TR()) + Vector2f(1,0)),
+        sf::Vertex(Vector2f(TL)),
+        sf::Vertex(Vector2f(TR)),
 
-        sf::Vertex(Vector2f(getCornerPoint_TR()) + Vector2f(1,0)),
-        sf::Vertex(Vector2f(getCornerPoint_BR()) + Vector2f(1,1)),
+        sf::Vertex(Vector2f(TR)),
+        sf::Vertex(Vector2f(BR)),
 
-        sf::Vertex(Vector2f(getCornerPoint_BR()) + Vector2f(1,1)),
-        sf::Vertex(Vector2f(getCornerPoint_BL()) + Vector2f(0,1)),
+        sf::Vertex(Vector2f(BR)),
+        sf::Vertex(Vector2f(BL)),
 
-        sf::Vertex(Vector2f(getCornerPoint_BL()) + Vector2f(0,1)),
-        sf::Vertex(Vector2f(getCornerPoint_TL())),
+        sf::Vertex(Vector2f(BL)),
+        sf::Vertex(Vector2f(TL)),
 
-        sf::Vertex(Vector2f(getCornerPoint_TL())),
-        sf::Vertex(Vector2f(getCornerPoint_BR()) + Vector2f(1,1)),
+        sf::Vertex(Vector2f(TL)),
+        sf::Vertex(Vector2f(BR)),
 
-        sf::Vertex(Vector2f(getCornerPoint_TR()) + Vector2f(1,0)),
-        sf::Vertex(Vector2f(getCornerPoint_BL()) + Vector2f(0,1))
+        sf::Vertex(Vector2f(TR)),
+        sf::Vertex(Vector2f(BL))
     };
 
     for(std::size_t i=0; i<path.length; i++)
@@ -454,6 +527,7 @@ void GeneralRect<T>::rotate(const Vector2<T> &rotationPoint,const float &deg)
     TR = Vector2<T>(transform.transformPoint(Vector2f(TR)));
     BL = Vector2<T>(transform.transformPoint(Vector2f(BL)));
     BR = Vector2<T>(transform.transformPoint(Vector2f(BR)));
+    this->update();
     /*sf::Rect<float> rect(m_pos.x,m_pos.y,m_size.x,m_size.y);
     sf::Transform transform;
     transform.rotate(deg,Vector2f(rotationPoint));
@@ -492,79 +566,87 @@ GeneralRect<T> GeneralRect<T>::getFrame(const std::vector<GeneralRect<T> > &list
     return GeneralRect<T>(minX,minY,maxX-minX,maxY-minY);
 }
 template<class T>
-int GeneralRect<T>::getMinX(const std::vector<GeneralRect<T> > &list)
+T GeneralRect<T>::getMinX(const std::vector<GeneralRect<T> > &list)
 {
     if(list.size() == 0)
         return 0;
-    int minX = list[0].getCornerPoint_TL().x;
+    T minX = list[0].TL.x;
     for(size_t i=0; i<list.size(); i++)
     {
-        if(list[i].getCornerPoint_TL().x < minX)
-            minX = list[i].getCornerPoint_TL().x;
-        if(list[i].getCornerPoint_TR().x < minX)
-            minX = list[i].getCornerPoint_TR().x;
-        if(list[i].getCornerPoint_BL().x < minX)
-            minX = list[i].getCornerPoint_BL().x;
-        if(list[i].getCornerPoint_BR().x < minX)
-            minX = list[i].getCornerPoint_BR().x;
+        if(list[i].TL.x < minX)
+            minX = list[i].TL.x;
+        if(list[i].TR.x < minX)
+            minX = list[i].TR.x;
+        if(list[i].BL.x < minX)
+            minX = list[i].BL.x;
+        if(list[i].BR.x < minX)
+            minX = list[i].BR.x;
     }
     return minX;
 }
 template<class T>
-int GeneralRect<T>::getMaxX(const std::vector<GeneralRect<T> > &list)
+T GeneralRect<T>::getMaxX(const std::vector<GeneralRect<T> > &list)
 {
     if(list.size() == 0)
         return 0;
-    int maxX = list[0].getCornerPoint_TL().x;
+    T maxX = list[0].TL.x;
     for(size_t i=0; i<list.size(); i++)
     {
-        if(list[i].getCornerPoint_TL().x > maxX)
-            maxX = list[i].getCornerPoint_TL().x;
-        if(list[i].getCornerPoint_TR().x > maxX)
-            maxX = list[i].getCornerPoint_TR().x;
-        if(list[i].getCornerPoint_BL().x > maxX)
-            maxX = list[i].getCornerPoint_BL().x;
-        if(list[i].getCornerPoint_BR().x > maxX)
-            maxX = list[i].getCornerPoint_BR().x;
+        if(list[i].TL.x > maxX)
+            maxX = list[i].TL.x;
+        if(list[i].TR.x > maxX)
+            maxX = list[i].TR.x;
+        if(list[i].BL.x > maxX)
+            maxX = list[i].BL.x;
+        if(list[i].BR.x > maxX)
+            maxX = list[i].BR.x;
     }
     return maxX;
 }
 template<class T>
-int GeneralRect<T>::getMinY(const std::vector<GeneralRect<T> > &list)
+T GeneralRect<T>::getMinY(const std::vector<GeneralRect<T> > &list)
 {
     if(list.size() == 0)
         return 0;
-    int minY = list[0].getCornerPoint_TL().y;
+    T minY = list[0].TL.y;
     for(size_t i=0; i<list.size(); i++)
     {
-        if(list[i].getCornerPoint_TL().y < minY)
-            minY = list[i].getCornerPoint_TL().y;
-        if(list[i].getCornerPoint_TR().y < minY)
-            minY = list[i].getCornerPoint_TR().y;
-        if(list[i].getCornerPoint_BL().y < minY)
-            minY = list[i].getCornerPoint_BL().y;
-        if(list[i].getCornerPoint_BR().y < minY)
-            minY = list[i].getCornerPoint_BR().y;
+        if(list[i].TL.y < minY)
+            minY = list[i].TL.y;
+        if(list[i].TR.y < minY)
+            minY = list[i].TR.y;
+        if(list[i].BL.y < minY)
+            minY = list[i].BL.y;
+        if(list[i].BR.y < minY)
+            minY = list[i].BR.y;
     }
     return minY;
 }
 template<class T>
-int GeneralRect<T>::getMaxY(const std::vector<GeneralRect<T> > &list)
+T GeneralRect<T>::getMaxY(const std::vector<GeneralRect<T> > &list)
 {
     if(list.size() == 0)
         return 0;
-    int maxY = list[0].getCornerPoint_TL().y;
+    T maxY = list[0].TL.y;
     for(size_t i=0; i<list.size(); i++)
     {
-        if(list[i].getCornerPoint_TL().y > maxY)
-            maxY = list[i].getCornerPoint_TL().y;
-        if(list[i].getCornerPoint_TR().y > maxY)
-            maxY = list[i].getCornerPoint_TR().y;
-        if(list[i].getCornerPoint_BL().y > maxY)
-            maxY = list[i].getCornerPoint_BL().y;
-        if(list[i].getCornerPoint_BR().y > maxY)
-            maxY = list[i].getCornerPoint_BR().y;
+        if(list[i].TL.y > maxY)
+            maxY = list[i].TL.y;
+        if(list[i].TR.y > maxY)
+            maxY = list[i].TR.y;
+        if(list[i].BL.y > maxY)
+            maxY = list[i].BL.y;
+        if(list[i].BR.y > maxY)
+            maxY = list[i].BR.y;
     }
     return maxY;
+}
+template<class T>
+void GeneralRect<T>::update()
+{
+    top              = TR - TL;
+    left             = BL - TL;
+    bottom           = BR - BL;
+    right            = BR - TR;
 }
 #endif // RECT_H

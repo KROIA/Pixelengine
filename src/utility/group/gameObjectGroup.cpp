@@ -212,14 +212,14 @@ const bool &GameObjectGroup::isVisible() const
 {
     return m_isVisible;
 }
-void GameObjectGroup::setHitboxVisibility(const bool &isVisible)
+void GameObjectGroup::showHitbox(const bool &isVisible)
 {
     EASY_FUNCTION(profiler::colors::Purple600);
     m_hitboxIsVisible = isVisible;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
         try {
-            m_isInList[i]->setHitboxVisibility(m_hitboxIsVisible);
+            m_isInList[i]->showHitbox(m_hitboxIsVisible);
         }  catch (...) {
             qDebug() << "error on pointer";
         }

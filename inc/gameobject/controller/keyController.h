@@ -16,6 +16,7 @@ class KeyController     :   public Controller
         // From Controller
         virtual void checkEvent();
         virtual void tick();
+        virtual void rotate(const float &deg);
         virtual void setRotation(const float &deg);
         virtual float getRotation() const;
         virtual void rotate_90();
