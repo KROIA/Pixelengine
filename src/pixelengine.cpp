@@ -393,7 +393,7 @@ void PixelEngine::thread_tick(ThreadParam *param)
             {
                 break;
             }
-            sf::sleep(sf::microseconds(1));
+            sf::sleep(sf::milliseconds(1));
         }
         EASY_END_BLOCK;
         EASY_BLOCK("working");
