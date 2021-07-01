@@ -1,5 +1,5 @@
 #include "hitboxPainter.h"
-
+/*
 void HitboxPainter::makeVisibleCollider(Collider *collider,
                                         PixelPainter  *painter)
 {
@@ -25,5 +25,5 @@ void HitboxPainter::makeVisibleCollider(Collider *collider,
     painter->update();
     Vector2f origin = collider->getPos() - Vector2f(offset);
     painter->setOrigin(origin);
-}
+}*/
 

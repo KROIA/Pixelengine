@@ -4,7 +4,7 @@
 #include "pixelengine.h"
 #include "wall.h"
 #include "player.h"
-#include "texture.h"
+#include "texturePainter.h"
 #include "animatedTexture.h"
 
 extern PixelEngine     *engine;
@@ -37,15 +37,15 @@ extern Event *keyEvent_H;
 extern ManagedGameObjectGroup hitboxObjectList;
 extern bool hitboxIsVisible;
 
-void userEventLoop(double tickInterval,unsigned long long tick);
-void userTickLoop(double tickInterval,unsigned long long tick);
-void userDisplayLoop(double frameInterval,unsigned long long tick);
+void userEventLoop(float tickInterval,unsigned long long tick);
+void userTickLoop(float tickInterval,unsigned long long tick);
+void userDisplayLoop(float frameInterval,unsigned long long tick);
 
 GameObject *getimportedObject();
 
 Color getRainbow(double phase);
 ManagedGameObjectGroup *makeBoarder(PixelEngine *engine);
-ManagedGameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &blocksY,const Point &bottomLeftOrigin);
+ManagedGameObjectGroup *factory_terain(const unsigned int &blocksX,const unsigned int &blocksY,const Vector2i &bottomLeftOrigin);
 
 
 void setup_level();

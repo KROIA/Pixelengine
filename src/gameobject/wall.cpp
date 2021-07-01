@@ -5,7 +5,7 @@ Wall::Wall()
 {
     m_collider      = new Collider();
     m_controller    = new Controller();
-    m_painter       = new Painter();
+    m_painter       = new PixelPainter();
 
     this->setCollider(m_collider);
     this->addController(m_controller);

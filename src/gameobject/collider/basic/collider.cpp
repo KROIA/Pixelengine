@@ -36,6 +36,7 @@ const Collider &Collider::operator=(const Collider &other)
 {
     LayerItem::operator=(other);
     this->m_hitboxList      = other.m_hitboxList;
+    this->m_hitBoxListDoesIntersect = other.m_hitBoxListDoesIntersect;
     this->m_boundingBox     = other.m_boundingBox;
 
     this->m_boundingBoxUpdated = other.m_boundingBoxUpdated;
@@ -133,6 +134,7 @@ const RectF &Collider::getBoundingBox() const
 void Collider::reserve(const size_t &amount)
 {
     m_hitboxList.reserve(amount);
+    m_hitBoxListDoesIntersect.reserve(amount);
 }
 
 void Collider::addHitbox(const RectF &box)
@@ -198,7 +200,7 @@ bool Collider::intersectsBoundingBox(const Collider &other)
     if(LayerItem::getLastPos() == LayerItem::getPos() && other.LayerItem::getLastPos() == other.LayerItem::getPos())
         return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben
 
-    bool intersects = this->m_boundingBox.intersects(other.m_boundingBox);
+    bool intersects = this->m_boundingBox.intersects_fast(other.m_boundingBox);
     stats_checkIntersectCounter += this->m_boundingBox.stats_intersectionCheckCounter;
     if(intersects)
     {

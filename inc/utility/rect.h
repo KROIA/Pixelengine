@@ -62,6 +62,8 @@ class GeneralRect
         virtual const Vector2<T> &getLeft()           const;
 
         virtual bool intersects(const GeneralRect<T> &other); // returns true if this and ohter are intersecting
+        virtual bool intersects_fast(const GeneralRect<T> &other); // returns true if this and ohter are intersecting
+        virtual bool contains(const Vector2<T> &point);
 
         bool operator==(const GeneralRect<T> &other);
         bool operator!=(const GeneralRect<T> &other);
@@ -84,9 +86,15 @@ class GeneralRect
         static T getMinY(const std::vector<GeneralRect<T> > &list);
         static T getMaxY(const std::vector<GeneralRect<T> > &list);
 
+        T getMinX();
+        T getMinY();
+        T getMaxX();
+        T getMaxY();
+
         unsigned long stats_intersectionCheckCounter;
     protected:
         virtual inline void update();
+        virtual inline void updateFrame();
 
     private:
 
@@ -115,6 +123,9 @@ class GeneralRect
         Vector2<T> left;
         Vector2<T> bottom;
         Vector2<T> right;
+
+        Vector2<T> frame_pos;
+        Vector2<T> frame_size;
 };
 
 template<class T>
@@ -180,6 +191,9 @@ GeneralRect<T> &GeneralRect<T>::operator=(const GeneralRect<T> &other)
     this->left      = other.left;
     this->bottom    = other.bottom;
     this->right     = other.right;
+
+    this->frame_pos = other.frame_pos;
+    this->frame_size= other.frame_size;
     return *this;
 }
 template<class T>
@@ -189,6 +203,7 @@ void GeneralRect<T>::move(const Vector2<T> &vec)
     TR += vec;
     BL += vec;
     BR += vec;
+    updateFrame();
 }
 template<class T>
 void GeneralRect<T>::set(const Vector2<T> &pos, const Vector2<T> &size)
@@ -225,6 +240,7 @@ void GeneralRect<T>::setPos(const Vector2<T> &pos)
     TR = TL + top;
     BL = TL + left;
     BR = TR + right;
+    updateFrame();
 }
 template<class T>
 void GeneralRect<T>::setPos(const T &posX, const T &posY)
@@ -234,6 +250,7 @@ void GeneralRect<T>::setPos(const T &posX, const T &posY)
     TR = TL + top;
     BL = TL + left;
     BR = TR + right;
+    updateFrame();
 }
 template<class T>
 void GeneralRect<T>::setX(const T &x)
@@ -242,6 +259,7 @@ void GeneralRect<T>::setX(const T &x)
     TR = TL + top;
     BL = TL + left;
     BR = TR + right;
+    updateFrame();
 }
 template<class T>
 void GeneralRect<T>::setY(const T &y)
@@ -250,6 +268,7 @@ void GeneralRect<T>::setY(const T &y)
     TR = TL + top;
     BL = TL + left;
     BR = TR + right;
+    updateFrame();
 }
 template<class T>
 const T &GeneralRect<T>::getX() const
@@ -346,6 +365,8 @@ bool GeneralRect<T>::intersects(const GeneralRect<T> &other)
              +0
 
      */
+
+
     struct Vfunc
     {
         const Vector2<T> *s; // Supportvector
@@ -400,7 +421,47 @@ bool GeneralRect<T>::intersects(const GeneralRect<T> &other)
             }
         }
     }
-    stats_intersectionCheckCounter = frameVecList_size * other_frameVecList_size;
+    stats_intersectionCheckCounter = frameVecList_size * other_frameVecList_size+1;
+    if(contains(other.TL))
+        return true;
+    return false;
+}
+template<class T>
+bool GeneralRect<T>::intersects_fast(const GeneralRect<T> &other)
+{
+    // This function will not check the collision using vectors
+    // It will check the collision on the Frame of the Rect
+
+    // If one rectangle is on left side of other
+    if(frame_pos.x >  other.frame_pos.x + other.frame_size.x ||
+       other.frame_pos.x > frame_pos.x + frame_size.x)
+    {
+        stats_intersectionCheckCounter = 1;
+        return false;
+    }
+
+    // If one rectangle is above other
+    if(frame_pos.y >  other.frame_pos.y + other.frame_size.y ||
+       other.frame_pos.y > frame_pos.y + frame_size.y)
+    {
+        stats_intersectionCheckCounter = 1;
+        return false;
+    }
+    stats_intersectionCheckCounter = 2;
+    return true;
+}
+template<class T>
+bool GeneralRect<T>::contains(const Vector2<T> &point)
+{
+    T divisor = left.x * bottom.y - left.y * bottom.x;
+    if(divisor == 0)
+        return false;
+    divisor = 1.f/divisor;
+    float bottomScalar = (point.x * left.y - point.y * left.x - BL.x * left.y + BL.y * left.x) * divisor;
+    float leftScalar   = (point.x * bottom.y - point.y * bottom.x - BL.x * bottom.y + BL.y * bottom.x) * divisor;
+    if(bottomScalar < 1.f && bottomScalar > 0 &&
+       leftScalar   < 1.f && leftScalar   > 0)
+        return true;
     return false;
 }
 
@@ -642,11 +703,75 @@ T GeneralRect<T>::getMaxY(const std::vector<GeneralRect<T> > &list)
     return maxY;
 }
 template<class T>
+T GeneralRect<T>::getMinX()
+{
+    T minX = TL.x;
+
+   if(TR.x < minX)
+       minX = TR.x;
+   if(BL.x < minX)
+       minX = BL.x;
+   if(BR.x < minX)
+       minX = BR.x;
+    return minX;
+}
+template<class T>
+T GeneralRect<T>::getMinY()
+{
+    T minY = TL.y;
+
+   if(TR.y < minY)
+       minY = TR.y;
+   if(BL.y < minY)
+       minY = BL.y;
+   if(BR.y < minY)
+       minY = BR.y;
+    return minY;
+}
+template<class T>
+T GeneralRect<T>::getMaxX()
+{
+    T maxX = TL.x;
+
+   if(TR.x > maxX)
+       maxX = TR.x;
+   if(BL.x > maxX)
+       maxX = BL.x;
+   if(BR.x > maxX)
+       maxX = BR.x;
+    return maxX;
+}
+template<class T>
+T GeneralRect<T>::getMaxY()
+{
+    T maxY = TL.y;
+
+   if(TR.y > maxY)
+       maxY = TR.y;
+   if(BL.x > maxY)
+       maxY = BL.y;
+   if(BR.y > maxY)
+       maxY = BR.y;
+    return maxY;
+}
+template<class T>
 void GeneralRect<T>::update()
 {
     top              = TR - TL;
     left             = BL - TL;
     bottom           = BR - BL;
     right            = BR - TR;
+
+    updateFrame();
 }
+template<class T>
+void GeneralRect<T>::updateFrame()
+{
+    frame_pos.x = getMinX();
+    frame_pos.y = getMinY();
+
+    frame_size.x = getMaxX() - frame_pos.x;
+    frame_size.y = getMaxY() - frame_pos.y;
+}
+
 #endif // RECT_H

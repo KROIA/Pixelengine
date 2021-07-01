@@ -4,10 +4,10 @@
 #include "pixelPainter.h"
 #include "collider.h"
 
-namespace HitboxPainter
+/*namespace HitboxPainter
 {
      void makeVisibleCollider(Collider *collider,
                               PixelPainter  *painter);
 
-};
+};*/
 #endif // HITBOXPAINTER_H

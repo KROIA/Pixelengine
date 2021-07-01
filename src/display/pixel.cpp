@@ -6,15 +6,15 @@ Pixel::Pixel()
 Pixel::Pixel(const Color &color)
     :   Color(color), LayerItem(0,0)
 {}
-Pixel::Pixel(const Vector2i &pos, const Color &color)
-    :   Color(color), LayerItem(pos)
+Pixel::Pixel(const Vector2u &pos, const Color &color)
+    :   Color(color), LayerItem(Vector2f(pos))
 {}
 Pixel::Pixel(const Uint8 &red, const Uint8 &green, const Uint8 &blue, const Uint8 &alpha)
     :   Color(red,green,blue,alpha), LayerItem(0,0)
 {}
-Pixel::Pixel(const int &x, const int & y,
+Pixel::Pixel(const unsigned int &x,const unsigned int &y,
              const Uint8 &red, const Uint8 &green, const Uint8 &blue, const Uint8 &alpha)
-    :   Color(red,green,blue,alpha), LayerItem(x,y)
+    :   Color(red,green,blue,alpha), LayerItem(Vector2f(x,y))
 {}
 Pixel::Pixel(const Pixel &other)
     :   Color(other), LayerItem(other)

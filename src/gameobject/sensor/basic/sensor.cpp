@@ -42,7 +42,7 @@ void Sensor::setSensorCollider(Collider *collider)
         return;
     delete m_sensorCollider;
     m_sensorCollider = collider;
-    HitboxPainter::makeVisibleCollider(m_sensorCollider,m_sensorPainter);
+    //HitboxPainter::makeVisibleCollider(m_sensorCollider,m_sensorPainter);
    // Point offset = m_sensorCollider->getBoundingBox().getCornerPoint_TL();
    // m_sensorPainter->setOrigin(Vector2f(-offset.getX(),-offset.getY()));
 }

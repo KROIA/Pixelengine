@@ -44,7 +44,7 @@ const GameObject &GameObject::operator=(const GameObject &other)
 {
     this->m_controllerList      = other.m_controllerList;
     *this->m_collider           = *other.m_collider;
-    *this->m_painter            = *other.m_painter;
+    this->m_painter             = other.m_painter;
     this->m_property            = other.m_property;
     this->m_objEventHandler     = other.m_objEventHandler;
     this->m_rotationDeg         = other.m_rotationDeg;
@@ -73,7 +73,7 @@ void GameObject::preRun()
 {
     EASY_FUNCTION("GameObject::preRun()",profiler::colors::Green300);
 }
-void GameObject::tick(const Vector2i&direction)
+void GameObject::tick(const Vector2i &direction)
 {
     EASY_FUNCTION(profiler::colors::Green300);
     m_layerItem.swapPosToLastPos();
