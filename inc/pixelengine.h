@@ -54,7 +54,7 @@ const Color __color_minimalAlphaColor(255,255,255);
 
 #define NO_TIMED_LOOPS
 #define STATISTICS
-//#define USE_THREADS
+#define USE_THREADS
 
 #include "QDebug"
 

@@ -270,7 +270,12 @@ void PixelEngine::tickXY(const Vector2i &dirLock)
         EASY_BLOCK("Create Threads",profiler::colors::Orange500);
         unsigned int threadAmount = m_masterGameObjectGroup.size()/500;
         if(threadAmount == 0)
-            threadAmount = 1;
+        {
+            if(m_masterGameObjectGroup.size() >= 4)
+                threadAmount = 4;
+            else
+                threadAmount = 1;
+        }
         qDebug() << "create "<<threadAmount<< " Threads";
         for(unsigned int i=0; i<threadAmount; i++)
         {
@@ -388,7 +393,7 @@ void PixelEngine::thread_tick(ThreadParam *param)
             {
                 break;
             }
-            sf::sleep(sf::milliseconds(1));
+            sf::sleep(sf::microseconds(1));
         }
         EASY_END_BLOCK;
         EASY_BLOCK("working");
