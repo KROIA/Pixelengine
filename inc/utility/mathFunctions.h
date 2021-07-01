@@ -5,6 +5,7 @@
 #include <SFML/Graphics/Transform.hpp>
 #include <math.h>
 #include <vector>
+#include <QtDebug>
 
 //#include "rect.h"
 
@@ -83,6 +84,12 @@ namespace Vector{
         for(const Vector2<T> &summand : list)
             result += summand;
         return result;
+    }
+
+    template <typename T>
+    inline Vector2<T> print(const Vector2<T> &vec)
+    {
+        qDebug() << "Vector: X="<<vec.x<<"\tY="<<vec.y;
     }
 }
 

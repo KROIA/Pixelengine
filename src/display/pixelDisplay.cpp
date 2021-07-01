@@ -20,6 +20,12 @@ PixelDisplay::PixelDisplay(const Vector2u &windowSize, const Vector2u &pixelSize
     m_sprite.setTexture(m_texture);
 
     setRenderFrame(RectF(Vector2f(0,0),Vector2f(m_pixelMapSize)));
+
+    m_localPixlerUsed = true;
+    m_spriteListUsed  = true;
+    m_vertexPathUsed  = true;
+    m_textListUsed    = false;
+    clear();
 }
 PixelDisplay::PixelDisplay(const PixelDisplay &other)
 {
@@ -44,34 +50,43 @@ void PixelDisplay::display()
 
     m_renderWindow->clear();
     EASY_BLOCK("draw m_spriteList",profiler::colors::Blue100);
-    for(Sprite &object : m_spriteList)
+    if(m_spriteListUsed)
     {
-        m_renderWindow->draw(object);
+        for(Sprite &object : m_spriteList)
+        {
+            m_renderWindow->draw(object);
+        }
     }
     EASY_END_BLOCK;
     EASY_BLOCK("draw m_textList",profiler::colors::Blue100);
-    for(size_t i=0; i<m_textList.size(); i++)
+    if(m_textListUsed)
     {
-        if(m_textList[i] == nullptr)
-            continue;
-        DisplayText text = *m_textList[i];
-
-        if(text.isVisible())
+        for(size_t i=0; i<m_textList.size(); i++)
         {
-            if(!text.getPositionFix())
+            if(m_textList[i] == nullptr)
+                continue;
+            DisplayText text = *m_textList[i];
+
+            if(text.isVisible())
             {
-                text.setPixelRatio(m_spriteScale.x);
-                text.move(m_globalDisplayFrame.getPos());
-                text.setCharacterSize(text.getCharacterSize()*m_spriteScale.x);
+                if(!text.getPositionFix())
+                {
+                    text.setPixelRatio(m_spriteScale.x);
+                    text.move(m_globalDisplayFrame.getPos());
+                    text.setCharacterSize(text.getCharacterSize()*m_spriteScale.x);
+                }
+                    m_renderWindow->draw(text.getText());
             }
-                m_renderWindow->draw(text.getText());
         }
     }
     EASY_END_BLOCK;
     EASY_BLOCK("draw m_vertexPathList",profiler::colors::Blue100);
-    for(size_t i=0; i<m_vertexPathList.size(); i++)
+    if(m_vertexPathUsed)
     {
-        m_renderWindow->draw(m_vertexPathList[i].line, m_vertexPathList[i].length, m_vertexPathList[i].type);
+        for(size_t i=0; i<m_vertexPathList.size(); i++)
+        {
+            m_renderWindow->draw(m_vertexPathList[i].line, m_vertexPathList[i].length, m_vertexPathList[i].type);
+        }
     }
     EASY_END_BLOCK;
     EASY_BLOCK("m_renderWindow->display()",profiler::colors::Blue100);
@@ -82,10 +97,22 @@ void PixelDisplay::display()
 void PixelDisplay::clear()
 {
     EASY_FUNCTION(profiler::colors::Blue100);
-    auto px1 = reinterpret_cast<sf::Color*>(const_cast<sf::Uint8*>(m_image.getPixelsPtr()));
-    std::fill(px1, px1 + m_image.getSize().x * m_image.getSize().y, m_clearColor);
-    clearSprite();
-    clearVertexLine();
+    if(m_localPixlerUsed)
+    {
+        auto px1 = reinterpret_cast<sf::Color*>(const_cast<sf::Uint8*>(m_image.getPixelsPtr()));
+        std::fill(px1, px1 + m_image.getSize().x * m_image.getSize().y, m_clearColor);
+        m_localPixlerUsed = false;
+    }
+    if(m_spriteListUsed)
+    {
+        m_spriteListUsed = false;
+        clearSprite();
+    }
+    if(m_vertexPathUsed)
+    {
+        m_vertexPathUsed = false;
+        clearVertexLine();
+    }
 }
 
 void PixelDisplay::setPixel(const Vector2i &pos, const Color &color)
@@ -97,6 +124,8 @@ void PixelDisplay::setPixel(const Vector2i &pos, const Color &color)
         return;
     EASY_BLOCK("m_image.setPixel",profiler::colors::Blue300);
     m_image.setPixel(pos.x,pos.y,color);
+    m_localPixlerUsed = true;
+
 }
 void PixelDisplay::setPixel(const Pixel &pixel)
 {
@@ -109,6 +138,7 @@ void PixelDisplay::setPixel(const Pixel &pixel)
         return;
     EASY_BLOCK("m_image.setPixel",profiler::colors::Blue300);
     m_image.setPixel(x,y,pixel);
+    m_localPixlerUsed = true;
 }
 void PixelDisplay::setPixel(const vector<Pixel> &pixelList)
 {
@@ -126,6 +156,7 @@ void PixelDisplay::clearSprite()
 }
 void PixelDisplay::addSprite(Sprite &sprite)
 {
+    m_spriteListUsed = true;
     m_spriteList.push_back(sprite);
     m_spriteList[m_spriteList.size()-1].setScale(m_spriteScale.x,m_spriteScale.y);
     Vector2f point = sprite.getPosition() + m_globalDisplayFrame.getPos();
@@ -138,8 +169,9 @@ void PixelDisplay::clearVertexLine()
     m_vertexPathList.clear();
     m_vertexPathList.reserve(500);
 }
-void PixelDisplay::addVertexLine(VertexPath path)
+void PixelDisplay::addVertexLine(const VertexPath &path)
 {
+    m_vertexPathUsed = true;
     if(path.line != nullptr && path.length > 0)
         m_vertexPathList.push_back(path);
 
@@ -149,6 +181,14 @@ void PixelDisplay::addVertexLine(VertexPath path)
 
         m_vertexPathList[m_vertexPathList.size()-1].line[i].position.x *= m_spriteScale.x;
         m_vertexPathList[m_vertexPathList.size()-1].line[i].position.y *= m_spriteScale.y;
+    }
+}
+void PixelDisplay::addVertexLine(const vector<VertexPath> &pathList)
+{
+    m_vertexPathList.reserve(m_vertexPathList.size()+pathList.size());
+    for(const VertexPath &path : pathList)
+    {
+        addVertexLine(path);
     }
 }
 
@@ -294,6 +334,7 @@ bool PixelDisplay::addText(DisplayText *text)       // This function will not ow
     if(m_pixelMapSize.x != 0)
         text->setPixelRatio(float(m_windowSize.x) / float(m_pixelMapSize.x));
     m_textList.push_back(text);
+    m_textListUsed = true;
     return true;
 }
 bool PixelDisplay::removeText(DisplayText *text)
@@ -307,12 +348,15 @@ bool PixelDisplay::removeText(DisplayText *text)
             return true;
         }
     }
+    if(m_textList.size() == 0)
+        m_textListUsed = false;
     return false;
 }
 void PixelDisplay::clearText()
 {
     EASY_FUNCTION(profiler::colors::BlueA100);
     m_textList.clear();
+    m_textListUsed = false;
 }
 Vector2u PixelDisplay::getWindowSize() const
 {

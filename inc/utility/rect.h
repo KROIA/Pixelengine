@@ -65,6 +65,7 @@ class GeneralRect
         bool operator!=(const GeneralRect<T> &other);
 
         VertexPath getDrawable(const sf::Color &color = sf::Color(255,255,255,255)) const;
+        VertexPath getDrawableMesh(const sf::Color &color = sf::Color(255,255,255,255)) const;
 
         static GeneralRect<T> rotate(GeneralRect<T> rect,const float &deg);
         static GeneralRect<T> rotate(GeneralRect<T> rect,const Vector2<T> &rotationPoint,const float &deg);
@@ -375,6 +376,33 @@ VertexPath GeneralRect<T>::getDrawable(const sf::Color &color) const
 
         sf::Vertex(Vector2f(getCornerPoint_BL()) + Vector2f(0,1)),
         sf::Vertex(Vector2f(getCornerPoint_TL())),
+    };
+
+    for(std::size_t i=0; i<path.length; i++)
+        path.line[i].color = color;
+
+    return path;
+}
+
+template<class T>
+VertexPath GeneralRect<T>::getDrawableMesh(const sf::Color &color) const
+{
+    VertexPath path;
+    path.length = 12;
+    path.type = sf::Lines;
+    path.line = new sf::Vertex[path.length]
+    {
+        sf::Vertex(Vector2f(getCornerPoint_TL())),
+        sf::Vertex(Vector2f(getCornerPoint_TR()) + Vector2f(1,0)),
+
+        sf::Vertex(Vector2f(getCornerPoint_TR()) + Vector2f(1,0)),
+        sf::Vertex(Vector2f(getCornerPoint_BR()) + Vector2f(1,1)),
+
+        sf::Vertex(Vector2f(getCornerPoint_BR()) + Vector2f(1,1)),
+        sf::Vertex(Vector2f(getCornerPoint_BL()) + Vector2f(0,1)),
+
+        sf::Vertex(Vector2f(getCornerPoint_BL()) + Vector2f(0,1)),
+        sf::Vertex(Vector2f(getCornerPoint_TL())),
 
         sf::Vertex(Vector2f(getCornerPoint_TL())),
         sf::Vertex(Vector2f(getCornerPoint_BR()) + Vector2f(1,1)),
@@ -461,7 +489,7 @@ GeneralRect<T> GeneralRect<T>::getFrame(const std::vector<GeneralRect<T> > &list
     T maxX = GeneralRect<T>::getMaxX(list);
     T maxY = GeneralRect<T>::getMaxY(list);
 
-    return GeneralRect<T>(minX,minY,maxX-minX+1,maxY-minY+1);
+    return GeneralRect<T>(minX,minY,maxX-minX,maxY-minY);
 }
 template<class T>
 int GeneralRect<T>::getMinX(const std::vector<GeneralRect<T> > &list)

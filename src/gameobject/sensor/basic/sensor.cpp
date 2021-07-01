@@ -73,8 +73,9 @@ void Sensor::draw(PixelDisplay &display)
     if(m_boundingBoxIsVisible)
     {
         display.addVertexLine(m_sensorCollider->getDrawableBoundingBox());
-        for(size_t i=0; i<m_sensorCollider->getHitboxAmount(); i++)
-            display.addVertexLine(m_sensorCollider->getHitbox(i).getDrawable(Color(0,255,100)));
+        display.addVertexLine(m_sensorCollider->getDrawableHitBox());
+        //for(size_t i=0; i<m_sensorCollider->getHitboxAmount(); i++)
+        //    display.addVertexLine(m_sensorCollider->getHitbox(i).getDrawable(Color(0,255,100)));
     }
 }
 const vector<GameObject*> &Sensor::getDetectedObjects() const

@@ -55,7 +55,8 @@ class PixelDisplay
         virtual void addSprite(Sprite &sprite);
 
         virtual void clearVertexLine();
-        virtual void addVertexLine(VertexPath path);
+        virtual void addVertexLine(const VertexPath &path);
+        virtual void addVertexLine(const vector<VertexPath> &pathList);
 
         virtual bool isOpen() const;
 
@@ -92,12 +93,16 @@ class PixelDisplay
         sf::Texture m_texture;
         Image m_image;
         Sprite m_sprite;
+        bool m_localPixlerUsed;
 
         Color m_clearColor;
         vector<DisplayText*> m_textList;
+        bool                 m_textListUsed;
 
         vector<Sprite>       m_spriteList;
+        bool                 m_spriteListUsed;
         vector<VertexPath>   m_vertexPathList;
+        bool                 m_vertexPathUsed;
         Vector2f             m_spriteScale;
         RectF                m_globalDisplayFrame;
 

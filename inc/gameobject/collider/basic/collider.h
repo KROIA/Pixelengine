@@ -49,7 +49,7 @@ class Collider  :   public LayerItem
         virtual const vector<RectF> &getHitbox() const;
 
         virtual bool intersectsBoundingBox(const Collider &other);
-        virtual bool collides(const Collider &other) const;
+        virtual bool collides(const Collider &other);
 
         virtual void tick();
 
@@ -62,10 +62,12 @@ class Collider  :   public LayerItem
         virtual size_t getHitboxAmount() const;
 
         virtual float getRotation() const;
+        virtual void rotate(const float &deg);
         virtual void setRotation(const float &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
+        virtual void rotate(const Vector2f &rotationPoint,const float &deg);
         virtual void setRotation(const Vector2f &rotationPoint,const float &deg);
         virtual void rotate_90(const Vector2f &rotationPoint);
         virtual void rotate_180(const Vector2f &rotationPoint);
@@ -74,6 +76,7 @@ class Collider  :   public LayerItem
         virtual void setHitboxFromTexture(const Texture *texture);
 
         virtual VertexPath getDrawableBoundingBox();
+        virtual vector<VertexPath> getDrawableHitBox();
 
         static void stats_reset();
         static unsigned long long stats_checkIntersectCounter;
@@ -103,6 +106,11 @@ class Collider  :   public LayerItem
         Color m_boundingBox_color;
         Color m_boundingBox_standardColor;
         Color m_boundingBox_intersectingColor;
+
+        //Color m_hitbox_color;
+        Color m_hitbox_standardColor;
+        Color m_hitbox_intersectingColor;
+        vector<bool>    m_hitBoxListDoesIntersect;
     private:
 
         virtual void internalRotate(const Vector2f &rotPoint,const float &deg);
