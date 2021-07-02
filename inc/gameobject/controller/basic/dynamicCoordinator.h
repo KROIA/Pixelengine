@@ -1,12 +1,16 @@
 #ifndef DYNAMICCOORDINATOR_H
 #define DYNAMICCOORDINATOR_H
 
-#include "vector.h"
-#include "vector"
+#include "SFML/System/Vector2.hpp"
+#include "mathFunctions.h"
+//#include "vector"
 
+#include "qdebug.h"
 #include "profiler.h"
 
 using std::vector;
+using sf::Vector2f;
+using sf::Vector2i;
 
 class DynamicCoordinator
 {
@@ -18,25 +22,20 @@ class DynamicCoordinator
 
         virtual void tick();
 
-        virtual void addMovement(const VectorF &vec);
-        virtual void addMovement(const Vector &vec);
+        virtual void addMovement(const Vector2f &vec);
 
         virtual void calculateMovement();
 
         virtual const unsigned int &getNeededSteps() const;
-        virtual const VectorF      &getMovingVector() const;
-        virtual const double       &getMovingVector_X() const;
-        virtual const double       &getMovingVector_Y() const;
-
-        virtual Vector        getRoundedVector() const;
-        virtual int           getRoundedVector_X() const;
-        virtual int           getRoundedVector_Y() const;
+        virtual const Vector2f      &getMovingVector() const;
+        virtual const float       &getMovingVector_X() const;
+        virtual const float       &getMovingVector_Y() const;
 
         virtual void clearMovement();
 
     protected:
-        vector<VectorF> m_vecList;
-        VectorF m_movingVector;
+        vector<Vector2f> m_vecList;
+        Vector2f m_movingVector;
         unsigned int m_neededSteps;
 
         unsigned int m_xStepInterval;

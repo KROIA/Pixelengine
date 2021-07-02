@@ -8,12 +8,22 @@ DisplayText::DisplayText()
     setText("");
     setVisibility(false);
     setPixelRatio(1);
+    setPositionFix(false);
 }
 DisplayText::~DisplayText()
 {
 
 }
-
+DisplayText &DisplayText::operator=(const DisplayText &other)
+{
+    this->m_isVisible   = other.m_isVisible;
+    this->m_position    = other.m_position;
+    this->m_text        = other.m_text;
+    this->m_font        = other.m_font;
+    this->m_pixelRatio  = other.m_pixelRatio;
+    this->m_positionFix = other.m_positionFix;
+    return *this;
+}
 void DisplayText::setVisibility(bool isVisible)
 {
     m_isVisible = isVisible;
@@ -35,10 +45,10 @@ const Text &DisplayText::getText() const
 {
     return m_text;
 }
-void DisplayText::setPixelRatio(double ratio)
+void DisplayText::setPixelRatio(float ratio)
 {
     m_pixelRatio = ratio;
-    m_text.setPosition(m_position.getX() * m_pixelRatio,m_position.getY() * m_pixelRatio);
+    m_text.setPosition(m_position * m_pixelRatio);
 }
 
 void DisplayText::setFont(const string &fontPath)
@@ -86,12 +96,25 @@ const Color &DisplayText::getColor() const
     return m_text.getFillColor();
 }
 
-void DisplayText::setPos(const Point &position)
+void DisplayText::setPos(const Vector2f &position)
 {
     m_position = position;
-    m_text.setPosition(m_position.getX() * m_pixelRatio,m_position.getY() * m_pixelRatio);
+    m_text.setPosition(m_position * m_pixelRatio);
 }
-const Point &DisplayText::getPos() const
+const Vector2f &DisplayText::getPos() const
 {
     return m_position;
+}
+void DisplayText::move(const Vector2f &vec)
+{
+    m_position += vec;
+    m_text.setPosition(m_position * m_pixelRatio);
+}
+void DisplayText::setPositionFix(bool fix)
+{
+    m_positionFix = fix;
+}
+bool DisplayText::getPositionFix() const
+{
+    return m_positionFix;
 }

@@ -10,7 +10,7 @@ Player::Player()
 
     m_onceBuild  = false;
 
-    m_painter      = new Painter();
+    m_painter      = new PixelPainter();
     m_collider     = new Collider();
     m_controller   = new KeyController();
 
@@ -30,7 +30,7 @@ Player::Player()
 
     m_sensor.setOwner(this);
     sensorCollider = new Collider();
-    sensorCollider->addHitbox(Rect(-10,-10,20,5));
+    sensorCollider->addHitbox(RectF(-10,-10,20,5));
     sensorCollider->updateBoundingBox();
     m_sensor.setSensorCollider(sensorCollider);
 }
@@ -52,7 +52,7 @@ Player::~Player()
 
 }
 
-void Player::tick(const Point &direction)
+void Player::tick(const Vector2i &direction)
 {
     GameObject::tick(direction);
 }
@@ -88,9 +88,9 @@ void Player::draw(PixelDisplay &display)
 void Player::setColor(const Color &color)
 {
     m_playerColor = color;
-    m_painter->setPixelColor(m_playerColor);
+    //m_painter->setPixelColor(m_playerColor);
 }
-void Player::setStartPos(const Point &point)
+void Player::setStartPos(const Vector2f &point)
 {
     m_initalPos = point;
 }
@@ -105,11 +105,11 @@ void Player::setKeyBinding(const int &UP_KEY,
     m_keyRIGHT  = RIGHT_KEY;
 
 }
-void Player::setStepSize(const unsigned int size)
+void Player::setStepSize(const int size)
 {
     m_controller->setStepSize(size);
 }
-const unsigned int &Player::getStepSize() const
+const int &Player::getStepSize() const
 {
     return m_controller->getStepSize();
 }
@@ -137,7 +137,7 @@ void Player::buildPlayer()
 
 }
 
-void Player::setupPLayerBody(Painter *p,Collider *c)
+void Player::setupPLayerBody(PixelPainter *p,Collider *c)
 {
     /**3**0**3*
      *   ###
@@ -151,34 +151,34 @@ void Player::setupPLayerBody(Painter *p,Collider *c)
      */
 
     // Head
-    p->addPixel(Pixel(Point(-1,-2),m_playerColor));
-    p->addPixel(Pixel(Point( 0,-2),m_playerColor));
-    p->addPixel(Pixel(Point( 1,-2),m_playerColor));
-    p->addPixel(Pixel(Point( 0,-1),m_playerColor));
+    p->addPixel(Pixel(Vector2u(4,0),m_playerColor));
+    p->addPixel(Pixel(Vector2u(5,0),m_playerColor));
+    p->addPixel(Pixel(Vector2u(6,0),m_playerColor));
+    p->addPixel(Pixel(Vector2u(5,1),m_playerColor));
 
-    c->addHitbox(Rect(-1,-2,3,1));
-    c->addHitbox(Rect(0,-1,1,1));
+    c->addHitbox(RectF(-1,-2,3,1));
+    c->addHitbox(RectF(0,-1,1,1));
 
     // Arms and shoulders
-    for(int x=-4; x<=4; x++)
-        p->addPixel(Pixel(Point(x,0),m_playerColor));
-    c->addHitbox(Rect(-4,0,9,1));
+    for(int x=1; x<=9; x++)
+        p->addPixel(Pixel(Vector2u(x,2),m_playerColor));
+    c->addHitbox(RectF(-4,0,9,1));
 
     // Body
     for(int x=-1; x<=1; x++)
-        for(int y=0; y<=3; y++)
-            p->addPixel(Pixel(Point(x,y),m_playerColor));
-    c->addHitbox(Rect(-1,1,3,3));
+        for(int y=2; y<=5; y++)
+            p->addPixel(Pixel(Vector2u(x,y),m_playerColor));
+    c->addHitbox(RectF(-1,1,3,3));
 
     // Legs
-    p->addPixel(Pixel(Point(-1,4),m_playerColor));
-    p->addPixel(Pixel(Point(-1,5),m_playerColor));
-    p->addPixel(Pixel(Point( 1,4),m_playerColor));
-    p->addPixel(Pixel(Point( 1,5),m_playerColor));
-    c->addHitbox(Rect(-1,4,1,2));
-    c->addHitbox(Rect( 1,4,1,2));
+    p->addPixel(Pixel(Vector2u(4,6),m_playerColor));
+    p->addPixel(Pixel(Vector2u(4,8),m_playerColor));
+    p->addPixel(Pixel(Vector2u(6,6),m_playerColor));
+    p->addPixel(Pixel(Vector2u(6,8),m_playerColor));
+    c->addHitbox(RectF(-1,4,1,2));
+    c->addHitbox(RectF( 1,4,1,2));
 }
-void Player::setRotation(const double &deg)
+void Player::setRotation(const float &deg)
 {
     GameObject::setRotation(deg);
     m_sensor.setRotation(deg);
@@ -198,22 +198,22 @@ void Player::rotate_270()
     GameObject::rotate_270();
     m_sensor.rotate_270();
 }
-void Player::setRotation(const PointF &rotationPoint,const double &deg)
+void Player::setRotation(const Vector2f &rotationPoint,const float &deg)
 {
     GameObject::setRotation(rotationPoint,deg);
     m_sensor.setRotation(deg);
 }
-void Player::rotate_90(const PointF &rotationPoint)
+void Player::rotate_90(const Vector2f &rotationPoint)
 {
     GameObject::rotate_90(rotationPoint);
     m_sensor.rotate_90();
 }
-void Player::rotate_180(const PointF &rotationPoint)
+void Player::rotate_180(const Vector2f &rotationPoint)
 {
     GameObject::rotate_180(rotationPoint);
     m_sensor.rotate_180();
 }
-void Player::rotate_270(const PointF &rotationPoint)
+void Player::rotate_270(const Vector2f &rotationPoint)
 {
     GameObject::rotate_270(rotationPoint);
     m_sensor.rotate_270();

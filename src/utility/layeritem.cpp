@@ -2,21 +2,37 @@
 
 LayerItem::LayerItem()
 {
-    setPos(0,0);
+    m_pos.x = 0;
+    m_pos.y = 0;
+    m_lastPos.x = 0;
+    m_lastPos.y = 0;
+
 }
 LayerItem::LayerItem(const LayerItem &other)
 {
     *this = other;
 }
-LayerItem::LayerItem(const Point &pos)
+LayerItem::LayerItem(int x, int y)
 {
-    this->setPos(pos.getX(),pos.getY());
-    this->swapPosToLastPos();
+    m_pos.x = x;
+    m_pos.y = y;
+    m_lastPos = m_pos;
 }
-LayerItem::LayerItem(const PointF &pos)
+LayerItem::LayerItem(float x, float y)
 {
-    this->setPos(pos);
-    this->swapPosToLastPos();
+    m_pos.x = x;
+    m_pos.y = y;
+    m_lastPos = m_pos;
+}
+LayerItem::LayerItem(const Vector2f &pos)
+{
+    m_pos       = pos;
+    m_lastPos   = pos;
+}
+LayerItem::LayerItem(const Vector2i &pos)
+{
+    m_pos       = Vector2f(pos);
+    m_lastPos   = Vector2f(pos);
 }
 LayerItem::~LayerItem()
 {
@@ -24,140 +40,106 @@ LayerItem::~LayerItem()
 }
 LayerItem &LayerItem::operator=(const LayerItem &other)
 {
-    this->m_floatingPos = other.m_floatingPos;
+    this->m_pos         = other.m_pos;
     this->m_lastPos     = other.m_lastPos;
     return  *this;
 }
 void LayerItem::swapPosToLastPos()
 {
-    m_lastPos = m_floatingPos;
+    m_lastPos = m_pos;
 }
-void LayerItem::setPosInitial(const PointU &pos)
+void LayerItem::setPosInitial(const Vector2f &pos)
 {
     this->setPos(pos);
     this->swapPosToLastPos();
 }
-void LayerItem::setPosInitial(const Point &pos)
-{
-    this->setPos(pos);
-    this->swapPosToLastPos();
-}
-void LayerItem::setPosInitial(const PointF &pos)
+void LayerItem::setPosInitial(const Vector2i &pos)
 {
     this->setPos(pos);
     this->swapPosToLastPos();
 }
 void LayerItem::setPosInitial(int x, int y)
 {
-    this->setPos(double(x),double(y));
+    m_pos.x = x;
+    m_pos.y = y;
     this->swapPosToLastPos();
 }
-void LayerItem::setPosInitial_F(const double &x, const double &y)
+void LayerItem::setPosInitial(float x, float y)
 {
-    this->setPos(x,y);
+    m_pos.x = x;
+    m_pos.y = y;
     this->swapPosToLastPos();
 }
 
-void LayerItem::setPos(const PointU &pos)
+void LayerItem::setPos(const Vector2f &pos)
 {
-    m_floatingPos.set(double(pos.getX()),double(pos.getY()));
+    m_pos = pos;
 }
-void LayerItem::setPos(const Point &pos)
+void LayerItem::setPos(const Vector2i &pos)
 {
-    m_floatingPos.set(double(pos.getX()),double(pos.getY()));
+    m_pos = Vector2f(pos);
 }
-void LayerItem::setPos(const PointF &pos)
+const Vector2f &LayerItem::getPos() const
 {
-    m_floatingPos       = pos;
+    return m_pos;
 }
-void LayerItem::setPos(int x, int y)
+const Vector2f &LayerItem::getLastPos() const
 {
-    m_floatingPos.setX(double(x));
-    m_floatingPos.setY(double(y));
+    return m_lastPos;
 }
-void LayerItem::setPos_F(const double &x, const double &y)
+Vector2i LayerItem::getPosI() const
 {
-    m_floatingPos.setX(x);
-    m_floatingPos.setY(y);
+    return Vector2i(round(m_pos.x),round(m_pos.y));
 }
-Point LayerItem::getPos() const
+Vector2i LayerItem::getLastPosI() const
 {
-    return Point(int(round(m_floatingPos.getX())),
-                 int(round(m_floatingPos.getY())));
-}
-Point LayerItem::getLastPos() const
-{
-    return Point(int(round(m_lastPos.getX())),
-                 int(round(m_lastPos.getY())));
+    return Vector2i(round(m_lastPos.x),round(m_lastPos.y));
 }
 void LayerItem::setX(int x)
 {
-    m_floatingPos.setX(double(x));
-}
-void LayerItem::setX_F(const double &x)
-{
-    m_floatingPos.setX(x);
+    m_pos.x = x;
 }
 void LayerItem::setY(int y)
 {
-    m_floatingPos.setY(double(y));
+    m_pos.y = y;
 }
-void LayerItem::setY_F(const double &y)
+void LayerItem::setX(float x)
 {
-    m_floatingPos.setY(y);
+    m_pos.x = x;
+}
+void LayerItem::setY(float y)
+{
+    m_pos.y = y;
 }
 
-int LayerItem::getX() const
+float LayerItem::getX() const
 {
-    EASY_FUNCTION(profiler::colors::Blue500);
-    return int(round(m_floatingPos.getX()));
+    return m_pos.x;
 }
-int LayerItem::getY() const
+float LayerItem::getY() const
 {
-    EASY_FUNCTION(profiler::colors::Blue500);
-    return int(round(m_floatingPos.getY()));
+    return m_pos.y;
 }
-
-void LayerItem::move(const VectorU &vec)
+int LayerItem::getXI() const
 {
-    m_floatingPos.move(double(vec.getX()),double(vec.getY()));
+    return round(m_pos.x);
 }
-void LayerItem::move(const Vector &vec)
+int LayerItem::getYI() const
 {
-    m_floatingPos.move(double(vec.getX()),double(vec.getY()));
-}
-void LayerItem::move(const VectorF &vec)
-{
-    m_floatingPos.move(vec);
+    return round(m_pos.y);
 }
 
-void LayerItem::move(int deltaX, int deltaY)
+void LayerItem::move(const Vector2f &vec)
 {
-    m_floatingPos.move(double(deltaX),double(deltaY));
+    m_pos += vec;
 }
-void LayerItem::move_F(const double &deltaX, const double &deltaY)
+void LayerItem::move(const Vector2i &vec)
 {
-    m_floatingPos.move(deltaX,deltaY);
+    m_pos += Vector2f(vec);
 }
-void LayerItem::moveX(int delta)
-{
-    m_floatingPos.moveX(double(delta));
-}
-void LayerItem::moveX_F(const double &delta)
-{
-    m_floatingPos.moveX(delta);
-}
-void LayerItem::moveY(int delta)
-{
-    m_floatingPos.moveY(double(delta));
-}
-void LayerItem::moveY_F(const double &delta)
-{
-    m_floatingPos.moveY(delta);
-}
+
+
 void LayerItem::setToLastPos()
 {
-    PointF bufferPos = m_lastPos;
-    LayerItem::setPos_F(bufferPos.getX(),bufferPos.getY());
-    m_lastPos = bufferPos;
+    m_pos = m_lastPos;
 }

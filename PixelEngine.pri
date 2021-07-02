@@ -32,6 +32,7 @@ message( "  Path: $$ENGINE_PATH " )
 include(extern/easy_profiler.pri)
 include(extern/SFML.pri)
 
+
 PixelEngine_incPath = $$ENGINE_PATH/inc
 PixelEngine_srcPath = $$ENGINE_PATH/src
 
@@ -54,10 +55,13 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/display
 
 SOURCES += \
-        $$PWD/src/display/displayText.cpp \
-        $$PWD/src/utility/group/InteractiveGameObject.cpp \
-        $$PWD/src/utility/group/InteractiveGameObjectGroup.cpp \
+        $$PixelEngine_srcPath/display/drawUtilities.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/texturePainter.cpp \
+        $$PixelEngine_srcPath/display/displayText.cpp \
+        $$PixelEngine_srcPath/utility/group/InteractiveGameObject.cpp \
+        $$PixelEngine_srcPath/utility/group/InteractiveGameObjectGroup.cpp \
         $$PixelEngine_srcPath/gameobject/controller/basic/dynamicCoordinator.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/pixelpainter.cpp \
         $$PixelEngine_srcPath/pixelengine.cpp \
         $$PixelEngine_srcPath/display/pixelDisplay.cpp \
         $$PixelEngine_srcPath/display/pixel.cpp \
@@ -80,11 +84,15 @@ SOURCES += \
         $$PixelEngine_srcPath/utility/layeritem.cpp
 
 HEADERS += \
-        $$PWD/inc/display/displayText.h \
-        $$PWD/inc/utility/group/InteractiveGameObject.h \
-        $$PWD/inc/utility/group/InteractiveGameObjectGroup.h \
-        $$PWD/inc/utility/group/groupManagerInterface.h \
-        $$PWD/inc/utility/profiler.h \
+        $$PixelEngine_incPath/display/drawUtilities.h \
+        $$PixelEngine_incPath/gameobject/painter/texturePainter.h \
+        $$PixelEngine_incPath/utility/mathFunctions.h \
+        $$PixelEngine_incPath/display/displayText.h \
+        $$PixelEngine_incPath/utility/group/InteractiveGameObject.h \
+        $$PixelEngine_incPath/utility/group/InteractiveGameObjectGroup.h \
+        $$PixelEngine_incPath/utility/group/groupManagerInterface.h \
+        $$PixelEngine_incPath/utility/profiler.h \
+        $$PixelEngine_incPath/gameobject/painter/pixelPainter.h \
         $$PixelEngine_incPath/gameobject/controller/basic/dynamicCoordinator.h \
         $$PixelEngine_incPath/gameobject/property/body.h \
         $$PixelEngine_incPath/gameobject/property/food.h \
@@ -110,7 +118,6 @@ HEADERS += \
         $$PixelEngine_incPath/utility/group/gameObjectGroup.h \
         $$PixelEngine_incPath/utility/group/managedGameObjectGroup.h \
         $$PixelEngine_incPath/utility/point.h \
-        $$PixelEngine_incPath/utility/vector.h \
         $$PixelEngine_incPath/utility/timer.h \
         $$PixelEngine_incPath/utility/rect.h \
         $$PixelEngine_incPath/utility/keyboard.h \

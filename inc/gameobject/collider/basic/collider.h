@@ -1,15 +1,18 @@
 #ifndef COLLIDER_H
 #define COLLIDER_H
 
+//#include <SFML/Graphics/Rect.hpp>
+#include "mathFunctions.h"
 #include "layeritem.h"
-#include "point.h"
+//#include "point.h"
 #include "rect.h"
-#include "vector.h"
+//#include "vector.h"
 #include "texture.h"
 
 #include "profiler.h"
 
 using std::vector;
+using sf::Vector2f;
 
 class Collider  :   public LayerItem
 {
@@ -19,25 +22,36 @@ class Collider  :   public LayerItem
         virtual ~Collider();
         virtual const Collider &operator=(const Collider &other);
 
-        virtual void setPos(const int &x,const int &y);
-        virtual void setPos(const Point &pos);
+        virtual void setPosInitial(const Vector2f &pos);
+        virtual void setPosInitial(const Vector2i &pos);
+        virtual void setPosInitial(int x, int y);
+        virtual void setPosInitial(float x, float y);
 
-        virtual void setX(const int &x);
-        virtual void setY(const int &y);
+        virtual void setPos(const Vector2f &pos);
+        virtual void setPos(const Vector2i &pos);
 
-        virtual const Rect &getBoundingBox() const;
+        virtual void setX(int x);
+        virtual void setY(int y);
+        virtual void setX(float x);
+        virtual void setY(float y);
+
+        virtual const RectF &getBoundingBox() const;
 
 
         virtual void reserve(const size_t &amount);
 
-        virtual void addHitbox(const Rect &box);
-        virtual void addHitbox(const vector<Rect> &boxList);
+        virtual void addHitbox(const RectF &box);
+        virtual void addHitbox(const vector<RectF> &boxList);
+        virtual void addHitbox(const RectI &box);
+        virtual void addHitbox(const vector<RectI> &boxList);
 
-        virtual const Rect &getHitbox(const unsigned int &index) const;
-        virtual const vector<Rect> &getHitbox() const;
+        virtual const RectF &getHitbox(const unsigned int &index) const;
+        virtual const vector<RectF> &getHitbox() const;
 
-        virtual bool intersectsBoundingBox(const Collider &other) const;
-        virtual bool collides(const Collider &other) const;
+        virtual bool intersectsBoundingBox(const Collider &other);
+        virtual bool collides(const Collider &other);
+
+        virtual void tick();
 
         virtual void erase(const size_t &index);
         virtual void clear();
@@ -47,39 +61,59 @@ class Collider  :   public LayerItem
 
         virtual size_t getHitboxAmount() const;
 
-        virtual double getRotation() const;
-        virtual void setRotation(const double &deg);
+        virtual float getRotation() const;
+        virtual void rotate(const float &deg);
+        virtual void setRotation(const float &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
-        virtual void setRotation(const PointF &rotationPoint,const double &deg);
-        virtual void rotate_90(const PointF &rotationPoint);
-        virtual void rotate_180(const PointF &rotationPoint);
-        virtual void rotate_270(const PointF &rotationPoint);
+        virtual void rotate(const Vector2f &rotationPoint,const float &deg);
+        virtual void setRotation(const Vector2f &rotationPoint,const float &deg);
+        virtual void rotate_90(const Vector2f &rotationPoint);
+        virtual void rotate_180(const Vector2f &rotationPoint);
+        virtual void rotate_270(const Vector2f &rotationPoint);
 
         virtual void setHitboxFromTexture(const Texture *texture);
+
+        virtual VertexPath getDrawableBoundingBox();
+        virtual vector<VertexPath> getDrawableHitBox();
+
+        static void stats_reset();
+        static unsigned long long stats_checkIntersectCounter;
+        static unsigned long long stats_doesIntersectCounter;
+        static unsigned long long stats_checkCollisionCounter;
+        static unsigned long long stats_doesCollideCounter;
 
 
     protected:
 
         virtual void setBoundingBox();
-        virtual void setBoundingBox(const Rect &box);
+        virtual void setBoundingBox(const RectF &box);
         virtual void setBoundingBox(const int &x,const int &y,
                                     const int &width,const int &height);
 
 
 
-        Rect  m_boundingBox;
-        vector<Rect> m_hitboxList;
+        RectF  m_boundingBox;
+        vector<RectF> m_hitboxList;
 
         bool m_boundingBoxUpdated;
 
-        Rect m_dummy;
+        RectF m_dummy;
 
-        double m_rotationRad;
+        float m_rotationDeg;
+
+        Color m_boundingBox_color;
+        Color m_boundingBox_standardColor;
+        Color m_boundingBox_intersectingColor;
+
+        Color m_hitbox_standardColor;
+        Color m_hitbox_intersectingColor;
+        vector<bool>    m_hitBoxListDoesIntersect;
     private:
 
-        virtual void rotate(const PointF &rotPoint,const double &rad);
+        virtual void internalRotate(const Vector2f &rotPoint,const float &deg);
+
 
 };
 #endif

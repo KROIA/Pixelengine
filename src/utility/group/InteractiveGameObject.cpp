@@ -125,13 +125,24 @@ const vector<GameObjectGroup*> &InteractiveGameObject::getInteractiveObjectsList
 {
     return m_interactsWithObjectsList;
 }
-const GameObjectGroup InteractiveGameObject::getInteractiveObjects() const
+const GameObjectGroup &InteractiveGameObject::getInteractiveObjects()
 {
     EASY_FUNCTION(profiler::colors::Purple400);
-    GameObjectGroup list;
+    updateAllList();
+    return m_alllist;
+}
+void InteractiveGameObject::updateAllList()
+{
+    EASY_FUNCTION(profiler::colors::Purple400);
+    m_alllist.clear();
+    size_t size = 0;
     for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
     {
-        list.add(m_interactsWithObjectsList[i]);
+        size += m_interactsWithObjectsList[i]->size();
     }
-    return list;
+    m_alllist.reserve(size);
+    for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
+    {
+        m_alllist.add(m_interactsWithObjectsList[i]);
+    }
 }

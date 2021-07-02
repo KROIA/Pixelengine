@@ -1,11 +1,12 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
+#include "SFML/System/Vector2.hpp"
 #include "layeritem.h"
 #include "SFML/System.hpp"
 #include <vector>
 #include "point.h"
-#include "vector.h"
+//#include "vector.h"
 
 #include "userEventHandler.h"
 #include "event.h"
@@ -13,6 +14,7 @@
 #include "profiler.h"
 
 using std::vector;
+using sf::Vector2f;
 
 class Controller    :   public UserEventHandler//, public LayerItem
 {
@@ -33,19 +35,20 @@ class Controller    :   public UserEventHandler//, public LayerItem
         virtual void setMovingMode(MovingMode mode);
         virtual MovingMode getMovingMode() const;
 
-        virtual void moveToPos(const Point &currentPos,const Point &destination,MovingMode mode = MovingMode::add);
+        virtual void moveToPos(const Vector2i&currentPos,const Vector2i&destination,MovingMode mode = MovingMode::add);
         virtual void moveToPos(const int &currentX,const int &currentY,
                                const int &destinationX,const int &destinationY,MovingMode mode = MovingMode::override);
-        virtual void move(const Point &directionVector,MovingMode mode = MovingMode::add);
-        virtual void move(const PointF &directionVector,MovingMode mode = MovingMode::add);
-        virtual void move(double x,double y,MovingMode mode = MovingMode::add);
-        virtual void moveX(double x,MovingMode mode = MovingMode::add);
-        virtual void moveY(double y,MovingMode mode = MovingMode::add);
+        virtual void move(const Vector2i&directionVector,MovingMode mode = MovingMode::add);
+        virtual void move(const Vector2f &directionVector,MovingMode mode = MovingMode::add);
+        virtual void move(float x,float y,MovingMode mode = MovingMode::add);
+        virtual void moveX(float x,MovingMode mode = MovingMode::add);
+        virtual void moveY(float y,MovingMode mode = MovingMode::add);
 
-        virtual const VectorF &getMovingVector() const;
+        virtual const Vector2f &getMovingVector() const;
 
-        virtual void setRotation(const double &deg);
-        virtual double getRotation() const;
+        virtual void setRotation(const float &deg);
+        virtual void rotate(const float &deg);
+        virtual float getRotation() const;
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
@@ -57,7 +60,7 @@ class Controller    :   public UserEventHandler//, public LayerItem
         virtual void reveive_key_goesDown(const int &key);
         virtual void reveive_key_goesUp(const int &key);
 
-        VectorF m_currentDeltaMove;
+        Vector2f m_currentDeltaMove;
         int m_rotationDeg;
         MovingMode m_movingMode;
     private:

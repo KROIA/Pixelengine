@@ -18,6 +18,7 @@ class InteractiveGameObjectGroup
 
         InteractiveGameObject* operator[](size_t index);
 
+        virtual void reserve(size_t size);
         virtual void add(InteractiveGameObject *obj);
         virtual void add(GameObject *obj);
 

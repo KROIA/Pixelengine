@@ -4,30 +4,21 @@
 GameObject::GameObject()
 {
     this->addController(new Controller());
-    m_collider      = new Collider();
-    m_painter       = new Painter();
-    m_hitboxPainter = new Painter();
-    m_texture       = new Texture();
-   // m_texture->setAlphaColor(Color(255,255,255,255));
-    m_objEventHandler = nullptr;
-    m_textureIsActiveForPainter         = false;
-    m_painterNeedsUpdateFromTexture     = false;
-    m_textureIsActiveForCollider        = false;
-    m_colliderNeedsUpdateFromTexture    = false;
-    m_rotationDeg      = 90; // 90 deg
-    setHitboxVisibility(false);
+    m_collider              = new Collider();
+    m_painter               = nullptr;
+    m_objEventHandler       = nullptr;
+    m_rotationDeg           = 90; // 90 deg
+    showHitbox(false);
 }
 GameObject::GameObject(const GameObject &other)
 {
     this->addController(new Controller());
-    m_collider      = new Collider();
-    m_painter       = new Painter();
-    m_hitboxPainter = new Painter();
-    m_texture       = new Texture();
-    m_objEventHandler = nullptr;
+    m_collider              = new Collider();
+    m_painter               = nullptr;
+    m_objEventHandler       = nullptr;
 
     *this = other;
-    setHitboxVisibility(false);
+    showHitbox(false);
 }
 GameObject::GameObject(Controller *controller,
                        Collider   *collider,
@@ -36,14 +27,9 @@ GameObject::GameObject(Controller *controller,
     this->addController(controller);
     this->setCollider(collider);
     this->setPainter(painter);
-    m_texture         = new Texture();
-    m_objEventHandler = nullptr;
-    m_textureIsActiveForPainter         = false;
-    m_painterNeedsUpdateFromTexture     = false;
-    m_textureIsActiveForCollider        = false;
-    m_colliderNeedsUpdateFromTexture    = false;
-    m_rotationDeg      = 90; // 90 deg
-    setHitboxVisibility(false);
+    m_objEventHandler   = nullptr;
+    m_rotationDeg       = 90; // 90 deg
+    showHitbox(false);
 }
 
 GameObject::~GameObject()
@@ -51,34 +37,23 @@ GameObject::~GameObject()
     removeText();
     clearController();
     delete m_collider;
-    delete m_painter;
-    delete m_hitboxPainter;
-    delete m_texture;
+    if(m_painter != nullptr)
+        delete m_painter;
 }
 const GameObject &GameObject::operator=(const GameObject &other)
 {
     this->m_controllerList      = other.m_controllerList;
     *this->m_collider           = *other.m_collider;
-    *this->m_painter            = *other.m_painter;
-    *this->m_hitboxPainter      = *other.m_hitboxPainter;
-    *this->m_texture            = *other.m_texture;
+    this->m_painter             = other.m_painter;
     this->m_property            = other.m_property;
     this->m_objEventHandler     = other.m_objEventHandler;
     this->m_rotationDeg         = other.m_rotationDeg;
-    this->m_textureIsActiveForPainter       = other.m_textureIsActiveForPainter;
-    this->m_painterNeedsUpdateFromTexture   = other.m_painterNeedsUpdateFromTexture;
-    this->m_textureIsActiveForCollider      = other.m_textureIsActiveForCollider;
-    this->m_colliderNeedsUpdateFromTexture  = other.m_colliderNeedsUpdateFromTexture;
 
     return *this;
 }
 void GameObject::checkEvent()
 {
     EASY_FUNCTION(profiler::colors::Green);
-    this->checkTextureUpdateForCollider();
-    this->checkTextureUpdateForPainter();
-    m_texture->changesApplied();
-
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->checkEvent();
 }
@@ -94,21 +69,17 @@ void GameObject::removeMeFromEngine()
     if(m_objEventHandler != nullptr)
         m_objEventHandler->removeFromEngine(this);
 }
-void GameObject::deleteMeFromEngine()
+void GameObject::preRun()
 {
-    EASY_FUNCTION(profiler::colors::Green200);
-    if(m_objEventHandler != nullptr)
-        m_objEventHandler->deleteObject(this);
+    EASY_FUNCTION("GameObject::preRun()",profiler::colors::Green300);
 }
-
-void GameObject::tick(const Point &direction)
+void GameObject::tick(const Vector2i &direction)
 {
     EASY_FUNCTION(profiler::colors::Green300);
-    if(m_colliderNeedsUpdateFromTexture)
-        this->setHitboxFromTexture();
     m_layerItem.swapPosToLastPos();
-    if(direction.getX() > 0)
+    if(direction.x > 0)
     {
+        m_collider->tick();
         EASY_BLOCK("for(size_t i=0; i<m_controllerList.size(); i++)",profiler::colors::Green300);
         for(size_t i=0; i<m_controllerList.size(); i++)
         {
@@ -118,16 +89,16 @@ void GameObject::tick(const Point &direction)
             m_controllerList[i]->tick(); // Clears the movingVector
         }
         m_movementCoordinator.calculateMovement();
-        m_layerItem.moveX_F(m_movementCoordinator.getMovingVector_X());
+        Property::Property p = this->getProperty();
+        m_layerItem.move(Vector2f(m_movementCoordinator.getMovingVector_X(),0));
         EASY_END_BLOCK;
     }
     else
     {
-        m_layerItem.moveY_F(m_movementCoordinator.getMovingVector_Y());
+        m_layerItem.move(Vector2f(0,m_movementCoordinator.getMovingVector_Y()));
         m_movementCoordinator.tick();
     }
     m_collider->setPos(m_layerItem.getPos());
-    //m_painter->setPos(m_layerItem.getPos());
 }
 
 
@@ -184,27 +155,17 @@ vector<GameObject*> GameObject::getCollidedObjects(GameObject *owner, Collider *
 void GameObject::draw(PixelDisplay &display)
 {
     EASY_FUNCTION(profiler::colors::Green700);
-    if(m_painterNeedsUpdateFromTexture)
-        this->setTextureOnPainter();
     m_painter->setPos(m_layerItem.getPos());
-    m_hitboxPainter->setPos(m_layerItem.getPos());
-    int outOfFrameBoundry = 16;
-    if(m_layerItem.getX() > signed(display.getMapSize().getX()) + outOfFrameBoundry)
-        return;
-    if(m_layerItem.getY() > signed(display.getMapSize().getY()) + outOfFrameBoundry)
-        return;
-    if(m_layerItem.getX() < -outOfFrameBoundry)
-        return;
-    if(m_layerItem.getY() < -outOfFrameBoundry)
-        return;
+    RectF frame = display.getRenderFrame();
+    frame.setPos(-frame.getPos());
 
 
-    /*if(!this->m_painter->getFrame().intersects(Rect(10,10,display.getMapSize().getX()-20,display.getMapSize().getY()-20)))
-    {
-        return;
-    }*/
     m_painter->draw(display);
-    m_hitboxPainter->draw(display);
+    if(m_hitboxIsVisible)
+        display.addVertexLine(m_collider->getDrawableHitBox());
+    if(m_boundingBoxIsVisible)
+        display.addVertexLine(m_collider->getDrawableBoundingBox());
+
 }
 
 void GameObject::addController(Controller *controller)
@@ -232,7 +193,8 @@ void GameObject::setCollider(Collider *collider)
     EASY_FUNCTION(profiler::colors::GreenA100);
     if(m_collider == collider || collider == nullptr)
         return;
-    delete m_collider;
+    if(m_collider != nullptr)
+        delete m_collider;
     m_collider = collider;
 }
 const Collider &GameObject::getCollider() const
@@ -244,7 +206,8 @@ void GameObject::setPainter(Painter *painter)
     EASY_FUNCTION(profiler::colors::GreenA200);
     if(m_painter == painter || painter == nullptr)
         return;
-    delete m_painter;
+    if(m_painter != nullptr)
+        delete m_painter;
     m_painter = painter;
 }
 const Painter &GameObject::getPainter() const
@@ -264,185 +227,167 @@ void GameObject::setEventHandler(GameObjectEventHandler *handler)
 
 }
 
-void GameObject::setPos(const int &x,const int &y)
+void GameObject::setPos(int x,int y)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_layerItem.setPosInitial(x,y);
-    //m_collider->setPos(x,y);
-   // m_painter->setPos(x,y);
 }
-void GameObject::setPos(const Point &pos)
+void GameObject::setPos(const Vector2i &pos)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_layerItem.setPosInitial(pos);
 }
-
-void GameObject::setX(const int &x)
+void GameObject::setPos(float x, float y)
+{
+    EASY_FUNCTION(profiler::colors::GreenA700);
+    m_layerItem.setPosInitial(x,y);
+}
+void GameObject::setPos(const Vector2f &pos)
+{
+    EASY_FUNCTION(profiler::colors::GreenA700);
+    m_layerItem.setPosInitial(pos);
+}
+void GameObject::setX(int x)
+{
+    EASY_FUNCTION(profiler::colors::GreenA700);
+    m_layerItem.setPosInitial(float(x),m_layerItem.getY());
+}
+void GameObject::setY(int y)
+{
+    EASY_FUNCTION(profiler::colors::GreenA700);
+    m_layerItem.setPosInitial(m_layerItem.getX(),float(y));
+}
+void GameObject::setX(float x)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_layerItem.setPosInitial(x,m_layerItem.getY());
 }
-void GameObject::setY(const int &y)
+void GameObject::setY(float y)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_layerItem.setPosInitial(m_layerItem.getX(),y);
 }
 
-void GameObject::moveToPos(const Point &destination,Controller::MovingMode mode)
+void GameObject::moveToPos(const Vector2i&destination,Controller::MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
-    m_controllerList[0]->moveToPos(m_layerItem.getPos(),destination,mode);
+    m_controllerList[0]->moveToPos(m_layerItem.getPosI(),destination,mode);
 }
 void GameObject::moveToPos(const int &x,const int &y,Controller::MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
-    m_controllerList[0]->moveToPos(m_layerItem.getPos().getX(),m_layerItem.getPos().getY(),x,y,mode);
+    m_controllerList[0]->moveToPos(m_layerItem.getXI(),m_layerItem.getYI(),x,y,mode);
 }
-void GameObject::move(const Vector &vec,Controller::MovingMode mode)
+void GameObject::move(const Vector2i&vec,Controller::MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->move(vec,mode);
 }
-void GameObject::move(const VectorF &vec,Controller::MovingMode mode)
+void GameObject::move(const Vector2f &vec,Controller::MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->move(vec,mode);
 }
-void GameObject::move(const double &deltaX, const double &deltaY,Controller::MovingMode mode)
+void GameObject::move(const float &deltaX, const float &deltaY,Controller::MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->move(deltaX,deltaY,mode);
 }
-void GameObject::moveX(const double &delta,Controller::MovingMode mode)
+void GameObject::moveX(const float &delta,Controller::MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->moveX(delta,mode);
 }
-void GameObject::moveY(const double &delta,Controller::MovingMode mode)
+void GameObject::moveY(const float &delta,Controller::MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
     m_controllerList[0]->moveY(delta,mode);
 }
 
-const Point GameObject::getPos() const
+const Vector2f &GameObject::getPos() const
 {
     return m_layerItem.getPos();
 }
-const VectorF &GameObject::getMovingVector() const
+const Vector2f &GameObject::getMovingVector() const
 {
     return m_movementCoordinator.getMovingVector();
 }
 
-void GameObject::rotate(const double &rad)
+void GameObject::rotate(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    if(m_hitboxPainter->isVisible())
-    {
-        this->setHitboxVisibility(false);
-        this->setHitboxVisibility(true);
-    }
-    m_rotationDeg+=rad*180/M_PI;
+    m_rotationDeg+=deg;
     if(m_rotationDeg >= 360)
         m_rotationDeg = m_rotationDeg%360;
 
     m_painter->setPos(m_layerItem.getPos());
     m_collider->setPos(m_layerItem.getPos());
+
+    m_painter->rotate(deg);
+    m_collider->rotate(deg);
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_controllerList[i]->rotate(deg);
 }
 
-double GameObject::getRotation() const
+float GameObject::getRotation() const
 {
     return m_rotationDeg;
 }
-//this->rotate(PointF(this->getX(),this->getY()),(deg*M_PI/180.f) - m_rotationRad);
-void GameObject::setRotation(const double &deg)
+void GameObject::setRotation(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    double rot = m_rotationDeg - deg;
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->setRotation(deg);
-    m_collider->setRotation(deg);
-    m_painter->setRotation(deg);
-    rotate(rot/180.f*M_PI);
+    float rot = m_rotationDeg - deg;
+    rotate(rot);
 }
 void GameObject::rotate_90()
 {
     EASY_FUNCTION(profiler::colors::Green);
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->rotate_90();
-    m_collider->rotate_90();
-    m_painter->setPos(m_layerItem.getPos());
-    m_painter->rotate_90();
-    rotate(M_PI_2);
+    rotate(90);
 }
 void GameObject::rotate_180()
 {
     EASY_FUNCTION(profiler::colors::Green);
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->rotate_180();
-    m_collider->rotate_180();
-    m_painter->rotate_180();
-    rotate(M_PI);
+    rotate(180);
 }
 void GameObject::rotate_270()
 {
+    rotate(270);
     EASY_FUNCTION(profiler::colors::Green);
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->rotate_270();
-    m_collider->rotate_270();
-    m_painter->rotate_270();
-    rotate(M_PI_2*3);
 }
-void GameObject::setRotation(const PointF &rotationPoint,const double &deg)
+void GameObject::setRotation(const Vector2f &rotationPoint,const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,deg*M_PI/180).toPoint();
-    this->setPos(round(newPos.getX()),round(newPos.getY()));
-    double rot = m_rotationDeg - deg;
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->setRotation(deg);
-    m_collider->setRotation(deg);
-    m_painter->setRotation(deg);
-    rotate(rot/180.f*M_PI);
+    Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,deg);
+    this->setPos(newPos);
+    rotate(deg);
 }
-void GameObject::rotate_90(const PointF &rotationPoint)
+void GameObject::rotate_90(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI_2).toPoint();
-    this->setPos(round(newPos.getX()),round(newPos.getY()));
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->rotate_90();
-    m_collider->rotate_90();
-    m_painter->rotate_90();
-    rotate(M_PI_2);
+    Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,90);
+    this->setPos(newPos);
+    rotate(90);
 }
-void GameObject::rotate_180(const PointF &rotationPoint)
+void GameObject::rotate_180(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI).toPoint();
-    this->setPos(round(newPos.getX()),round(newPos.getY()));
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->rotate_180();
-    m_collider->rotate_180();
-    m_painter->rotate_180();
-    rotate(M_PI);
+    Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,180);
+    this->setPos(newPos);
+    rotate(180);
 }
-void GameObject::rotate_270(const PointF &rotationPoint)
+void GameObject::rotate_270(const Vector2f &rotationPoint)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    PointF newPos = VectorF::rotate(VectorF(this->getPos().getX(), this->getPos().getY()),rotationPoint,M_PI_2*3).toPoint();
-    this->setPos(round(newPos.getX()),round(newPos.getY()));
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->rotate_270();
-    m_collider->rotate_270();
-    m_painter->rotate_270();
-    rotate(M_PI_2*3);
+    Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,270);
+    this->setPos(newPos);
+    rotate(270);
 }
-void GameObject::addHitbox(const Rect &box)
+void GameObject::addHitbox(const RectI &box)
 {
     EASY_FUNCTION(profiler::colors::Green100);
     m_collider->addHitbox(box);
 }
-void GameObject::addHitbox(const vector<Rect> &boxList)
+void GameObject::addHitbox(const vector<RectI> &boxList)
 {
     EASY_FUNCTION(profiler::colors::Green100);
     m_collider->addHitbox(boxList);
@@ -467,112 +412,28 @@ void GameObject::updateBoundingBox()
     EASY_FUNCTION(profiler::colors::Green500);
     m_collider->updateBoundingBox();
 }
-void GameObject::setHitboxFromTexture()
-{
-    EASY_FUNCTION(profiler::colors::Green600);
-    m_textureIsActiveForCollider = true;
-    m_collider->setHitboxFromTexture(m_texture);
-    this->updateHitboxPainter();
-    m_colliderNeedsUpdateFromTexture = false;
-}
+
 void GameObject::setHitboxFromTexture(const Texture &texture)
 {
     EASY_FUNCTION(profiler::colors::Green600);
-    //m_textureIsActiveForCollider = true;
+    m_textureIsActiveForCollider = true;
     m_collider->setHitboxFromTexture(&texture);
-    //m_colliderNeedsUpdateFromTexture = false;
 }
-void GameObject::setHitboxVisibility(const bool &isVisible)
+void GameObject::showHitbox(const bool &isVisible)
 {
     EASY_FUNCTION(profiler::colors::Green700);
-    if(isVisible)
-    {
-        HitboxPainter::makeVisibleCollider(m_collider,m_hitboxPainter);
-    }
-    m_hitboxPainter->setVisibility(isVisible);
+    m_hitboxIsVisible = isVisible;
+    showBoundingBox(isVisible);
 }
-void GameObject::updateHitboxPainter()
+void GameObject::showBoundingBox(bool enable)
 {
-    EASY_FUNCTION(profiler::colors::Green800);
-    if(m_hitboxPainter->isVisible())
-    {
-        HitboxPainter::makeVisibleCollider(m_collider,m_hitboxPainter);
-    }
+    m_boundingBoxIsVisible = enable;
 }
 const bool &GameObject::isHitboxVisible() const
 {
-    return m_hitboxPainter->isVisible();
-}
-bool GameObject::checkTextureUpdateForCollider()
-{
-    if(m_textureIsActiveForCollider && m_texture->changesAvailable())
-    {
-        m_colliderNeedsUpdateFromTexture = true;
-        return true;
-    }
-    return false;
+    return m_hitboxIsVisible;
 }
 
-void GameObject::reservePixelAmount(const size_t amount)
-{
-    m_painter->reserve(amount);
-}
-void GameObject::addPixel(const Pixel &pixel)
-{
-    m_painter->addPixel(pixel);
-}
-void GameObject::addPixel(const vector<Pixel> &pixelList)
-{
-    m_painter->addPixel(pixelList);
-}
-const Pixel &GameObject::getPixel(const size_t &index) const
-{
-    return m_painter->getPixel(index);
-}
-const Pixel &GameObject::getPixel(const Point &pixelPos) const
-{
-    return m_painter->getPixel(pixelPos);
-}
-const Pixel &GameObject::getPixel(int x, int y) const
-{
-    return m_painter->getPixel(x,y);
-}
-size_t GameObject::getPixelAmount() const
-{
-    return m_painter->getPixelAmount();
-}
-void GameObject::setPixelColor(const size_t &index, const Color &color)
-{
-    m_painter->setPixelColor(index,color);
-}
-void GameObject::setPixelColor(const Point &pixelPos, const Color &color)
-{
-    m_painter->setPixelColor(pixelPos,color);
-}
-void GameObject::setPixelColor(int x, int y, const Color &color)
-{
-    m_painter->setPixelColor(x,y,color);
-}
-void GameObject::setPixelColor(const Color &color)
-{
-    m_painter->setPixelColor(color);
-}
-void GameObject::erasePixel(const size_t &index)
-{
-    m_painter->erasePixel(index);
-}
-void GameObject::erasePixel(const Point &pixelPos)
-{
-    m_painter->erasePixel(pixelPos);
-}
-void GameObject::erasePixel(int x, int y)
-{
-    m_painter->erasePixel(x,y);
-}
-void GameObject::clearPainter()
-{
-    m_painter->clear();
-}
 void GameObject::setVisibility(const bool &isVisible)
 {
     m_painter->setVisibility(isVisible);
@@ -580,51 +441,6 @@ void GameObject::setVisibility(const bool &isVisible)
 const bool &GameObject::isVisible() const
 {
     return m_painter->isVisible();
-}
-
-void GameObject::setTexture(Texture *texture)
-{
-    if(texture == nullptr)
-        return;
-    if(texture == m_texture)
-        return;
-    delete m_texture;
-    m_texture = texture;
-}
-void GameObject::setTexturePath(const string &path)
-{
-    EASY_FUNCTION(profiler::colors::Green900);
-    m_texture->setFilePath(path);
-}
-void GameObject::loadTexture()
-{
-    EASY_FUNCTION(profiler::colors::GreenA100);
-    m_texture->loadTexture();
-}
-const Texture &GameObject::getTexture() const
-{
-    return *m_texture;
-}
-void GameObject::setTextureOnPainter()
-{
-    EASY_FUNCTION(profiler::colors::GreenA200);
-    m_textureIsActiveForPainter = true;
-    m_painter->setTexture(m_texture);
-    m_painterNeedsUpdateFromTexture = false;
-}
-void GameObject::setTextureOnPainter(const Texture &texture)
-{
-    EASY_FUNCTION(profiler::colors::GreenA200);
-    m_painter->setTexture(&texture);
-}
-bool GameObject::checkTextureUpdateForPainter()
-{
-    if(m_textureIsActiveForPainter && m_texture->changesAvailable())
-    {
-        m_painterNeedsUpdateFromTexture = true;
-        return true;
-    }
-    return false;
 }
 
 
@@ -705,6 +521,14 @@ const vector<DisplayText*> &GameObject::getTextList()
     return m_displayTextList;
 }
 
+void GameObject::markAsTrash(bool isTrash)
+{
+    m_isTrash = isTrash;
+}
+bool GameObject::isTrash() const
+{
+    return m_isTrash;
+}
 
 
 void GameObject::event_hasCollision(vector<GameObject *> other)

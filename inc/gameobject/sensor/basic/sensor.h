@@ -4,7 +4,8 @@
 #include "gameobject.h"
 #include "point.h"
 #include "rect.h"
-#include "hitboxPainter.h"
+#include "pixelPainter.h"
+//#include "hitboxPainter.h"
 
 #include "profiler.h"
 
@@ -25,18 +26,23 @@ class Sensor
 
         virtual const vector<GameObject*> &getDetectedObjects() const;
 
-        virtual double getRotation() const;
-        virtual void setRotation(const double &deg);
+        virtual float getRotation() const;
+        virtual void rotate(const float &deg);
+        virtual void setRotation(const float &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
 
+        virtual void showBoundingBox(bool enable);
+
 
     protected:
         Collider *m_sensorCollider;
-        Painter  *m_sensorPainter;
+        PixelPainter  *m_sensorPainter;
         vector<GameObject*> m_detected;
         GameObject *m_owner;
+
+        bool m_boundingBoxIsVisible;
     private:
 };
 

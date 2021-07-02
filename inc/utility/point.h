@@ -11,7 +11,7 @@ class GeneralPoint;
 
 typedef GeneralPoint<unsigned int> PointU;
 typedef GeneralPoint<int> Point;
-typedef GeneralPoint<double> PointF;
+typedef GeneralPoint<float> PointF;
 
 
 template<class T>
@@ -108,7 +108,6 @@ void GeneralPoint<T>::moveX(const T &deltaX)
 template<class T>
 const T &GeneralPoint<T>::getX() const
 {
-    EASY_FUNCTION(profiler::colors::Blue600);
     return m_x;
 }
 template<class T>
@@ -124,7 +123,6 @@ void GeneralPoint<T>::moveY(const T &deltaY)
 template<class T>
 const T &GeneralPoint<T>::getY() const
 {
-    EASY_FUNCTION(profiler::colors::Blue600);
     return m_y;
 }
 
@@ -167,8 +165,8 @@ T GeneralPoint<T>::getDistance(const GeneralPoint<T> &other) const
 template<class T>
 T GeneralPoint<T>::getDistance(const GeneralPoint<T> &p1,const GeneralPoint<T> &p2)
 {
-    GeneralPoint<double> _p1(p1.getX(),p1.getY());
-    GeneralPoint<double> _p2(p2.getX(),p2.getY());
+    GeneralPoint<float> _p1(p1.getX(),p1.getY());
+    GeneralPoint<float> _p2(p2.getX(),p2.getY());
 
     return static_cast<T>(sqrt(pow(_p2.getX() - _p1.getX(),2) + pow(_p2.getY() - p1.getY(),2)));
 }

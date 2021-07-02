@@ -1,7 +1,7 @@
 #include "pixelengine.h"
 
-PixelEngine::PixelEngine(const PointU &mapsize,const PointU &displaySize)
-    :   GameObjectEventHandler()//, GroupManagerInterface()
+PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
+    :   GameObjectEventHandler()
 {
     m_mapSize = mapsize;
     m_windowSize = displaySize;
@@ -39,14 +39,13 @@ PixelEngine::PixelEngine(const PointU &mapsize,const PointU &displaySize)
     m_statistics.userDisplayTime        = 0;
     m_statsFilterFactor                 = 0.5;
 
-    //m_display->loadFontFromFile("C:\\Windows\\Fonts\\consolab.ttf");
+
     m_stats_text = new DisplayText();
-    //m_stats_text->setVisibility(false);
-    //m_stats_text->setString("");
-    m_stats_text->setCharacterSize(m_windowSize.getX()/80); // in pixels, not points!
+    m_stats_text->setCharacterSize(m_windowSize.x/80); // in pixels, not points!
     sf::Color col(255,255,255,100); // Transparent white
     display_stats(false,col);
-    m_stats_text->setPos(Point(5,5));
+    m_stats_text->setPos(Vector2f(5,5));
+    m_stats_text->setPositionFix(true);
 
     m_display->addText(m_stats_text);
     resetTick();
@@ -55,25 +54,24 @@ PixelEngine::PixelEngine(const PointU &mapsize,const PointU &displaySize)
 PixelEngine::PixelEngine(const PixelEngine &other)
     :   GameObjectEventHandler(other)//, GroupManagerInterface(other)
 {
-    *this->m_display            = *other.m_display;
-    this->m_windowSize          = other.m_windowSize;
-    this->m_mapSize             = other.m_mapSize;
+    *this->m_display               = *other.m_display;
+    this->m_windowSize             = other.m_windowSize;
+    this->m_mapSize                = other.m_mapSize;
 
-    *this->m_eventTimer         = *other.m_eventTimer;
-    this->m_eventInterval       = other.m_eventInterval;
+    *this->m_eventTimer            = *other.m_eventTimer;
+    this->m_eventInterval          = other.m_eventInterval;
 
-    *this->m_mainTickTimer      = *other.m_mainTickTimer;
-    this->m_mainTickInterval    = other.m_mainTickInterval;
+    *this->m_mainTickTimer         = *other.m_mainTickTimer;
+    this->m_mainTickInterval       = other.m_mainTickInterval;
 
-    *this->m_displayTimer       = *other.m_displayTimer;
-    this->m_displayInterval     = other.m_displayInterval;
+    *this->m_displayTimer          = *other.m_displayTimer;
+    this->m_displayInterval        = other.m_displayInterval;
 
-    this->m_masterGameObjectGroup     = other.m_masterGameObjectGroup;
-    //this->m_masterGameObjectGroup_collisionInteractiveList = other.m_masterGameObjectGroup_collisionInteractiveList;
+    this->m_masterGameObjectGroup  = other.m_masterGameObjectGroup;
 
-    this->m_renderLayer         = other.m_renderLayer;
+    this->m_renderLayer            = other.m_renderLayer;
 
-    this->m_userGroups          = other.m_userGroups;
+    this->m_userGroups             = other.m_userGroups;
 
     this->m_p_func_userDisplayLoop = other.m_p_func_userDisplayLoop;
     this->m_p_func_userTickLoop    = other.m_p_func_userTickLoop;
@@ -84,7 +82,7 @@ PixelEngine::PixelEngine(const PixelEngine &other)
 
     this->m_stats_text             = other.m_stats_text;
 
-    this->m_tick                    = other.m_tick;
+    this->m_tick                   = other.m_tick;
 }
 
 PixelEngine::~PixelEngine()
@@ -99,6 +97,12 @@ PixelEngine::~PixelEngine()
     }
     m_masterGameObjectGroup.clear();
 
+    for(size_t i=0; i<m_trashList.size(); i++)
+    {
+        delete m_trashList[i];
+    }
+    m_trashList.clear();
+
     delete m_display;
     delete m_eventTimer;
     delete m_mainTickTimer;
@@ -110,11 +114,27 @@ bool PixelEngine::running()
 {
     return m_engineIsRunning;
 }
-const PointU &PixelEngine::getWindwoSize() const
+void PixelEngine::stop()
+{
+    qDebug() << "Stop Engine";
+#ifdef USE_THREADS
+    for(size_t i=0; i<m_threadList.size(); i++)
+    {
+        m_threadList[i]->terminate();
+        delete m_threadList[i];
+        delete m_threadParamList[i];
+        m_threadList.clear();
+        m_threadParamList.clear();
+    }
+#endif
+    m_engineIsRunning = false;
+
+}
+const Vector2u  &PixelEngine::getWindwoSize() const
 {
     return m_windowSize;
 }
-const PointU &PixelEngine::getMapSize() const
+const Vector2u  &PixelEngine::getMapSize() const
 {
     return m_mapSize;
 }
@@ -148,7 +168,7 @@ void PixelEngine::checkEvent()
     EASY_END_BLOCK;
 #ifdef STATISTICS
     auto stats_checkEvent_timer_start = std::chrono::system_clock::now();
-    std::chrono::duration<double> time_span_checkUserEvent_time = stats_checkEvent_timer_start - stats_checkUserEvent_timer_start;
+    std::chrono::duration<float> time_span_checkUserEvent_time = stats_checkEvent_timer_start - stats_checkUserEvent_timer_start;
     filter(m_statistics.checkUserEventTime,time_span_checkUserEvent_time.count()*1000.f,m_statsFilterFactor);
 #endif
     // Check if any Object of a added List was removed or added
@@ -159,8 +179,9 @@ void PixelEngine::checkEvent()
     {
         case sf::Event::Closed:
         {
-            qDebug() << "Window closed";
-            m_engineIsRunning = false;
+            EASY_BLOCK("sf::Event::Closed",profiler::colors::Orange);
+            stop();
+
             return;
         }
         default:
@@ -176,7 +197,7 @@ void PixelEngine::checkEvent()
     EASY_END_BLOCK;
 #ifdef STATISTICS
     auto stats_checkEvent_timer_end = std::chrono::system_clock::now();
-    std::chrono::duration<double> time_span_checkEvent_time = stats_checkEvent_timer_end - stats_checkEvent_timer_start;
+    std::chrono::duration<float> time_span_checkEvent_time = stats_checkEvent_timer_end - stats_checkEvent_timer_start;
     filter(m_statistics.checkEventTime,time_span_checkEvent_time.count()*1000.f,m_statsFilterFactor);
 
 #endif
@@ -204,7 +225,7 @@ void PixelEngine::tick()
     m_statistics.gameObjectTickTime     *= m_statsFilterFactor;
     m_statistics.collisionCheckTime     *= m_statsFilterFactor;
     auto stats_tick_timer_start = std::chrono::system_clock::now();
-    std::chrono::duration<double> time_span_userEventEvent_time = stats_tick_timer_start - stats_userTick_timer_start;
+    std::chrono::duration<float> time_span_userEventEvent_time = stats_tick_timer_start - stats_userTick_timer_start;
     filter(m_statistics.userTickTime, time_span_userEventEvent_time.count()*1000.f,m_statsFilterFactor);
 #endif
 
@@ -214,13 +235,17 @@ void PixelEngine::tick()
     EASY_END_BLOCK;
 
 #ifdef STATISTICS
-    m_statistics.collisionChecksPerTick = Rect::stats_getIntersectionCounter();
-    Rect::stats_resetIntersectionCounter();
+    m_statistics.intersectionCheckPerTick   = Collider::stats_checkIntersectCounter;
+    m_statistics.doesIntersectPerTick       = Collider::stats_doesIntersectCounter;
+    m_statistics.collisionChecksPerTick     = Collider::stats_checkCollisionCounter;
+    m_statistics.collisionsPerTick          = Collider::stats_doesCollideCounter;
+    Collider::stats_reset();
+
     m_stats_tps_timer_end = std::chrono::system_clock::now();
-    std::chrono::duration<double> time_span_tick_time = m_stats_tps_timer_end - stats_tick_timer_start;
+    std::chrono::duration<float> time_span_tick_time = m_stats_tps_timer_end - stats_tick_timer_start;
     filter(m_statistics.tickTime, time_span_tick_time.count()*1000.f,m_statsFilterFactor);
 
-    std::chrono::duration<double> time_span = m_stats_tps_timer_end - m_stats_tps_timer_start;
+    std::chrono::duration<float> time_span = m_stats_tps_timer_end - m_stats_tps_timer_start;
     m_stats_tps_timer_start = std::chrono::system_clock::now();
     if(time_span.count() != 0.f)
         filter(m_statistics.ticksPerSecond, 1.f/time_span.count(),m_statsFilterFactor);
@@ -229,33 +254,115 @@ void PixelEngine::tick()
 void PixelEngine::tickX()
 {
     EASY_FUNCTION(profiler::colors::Orange300);
-    tickXY(Point(1,0));
+    tickXY(Vector2i(1,0));
 }
 void PixelEngine::tickY()
 {
     EASY_FUNCTION(profiler::colors::Orange300);
-    tickXY(Point(0,1));
+    tickXY(Vector2i(0,1));
 }
-void PixelEngine::tickXY(const Point &dirLock)
+void PixelEngine::tickXY(const Vector2i &dirLock)
 {
     EASY_FUNCTION(profiler::colors::Orange400);
+#ifdef USE_THREADS
+    if(!m_threadsCreated)
+    {
+        EASY_BLOCK("Create Threads",profiler::colors::Orange500);
+        unsigned int threadAmount = m_masterGameObjectGroup.size()/500;
+        if(threadAmount == 0)
+        {
+            if(m_masterGameObjectGroup.size() >= 4)
+                threadAmount = 4;
+            else
+                threadAmount = 1;
+        }
+        qDebug() << "create "<<threadAmount<< " Threads";
+        for(unsigned int i=0; i<threadAmount; i++)
+        {
+            m_threadParamList.push_back(new ThreadParam());
+            m_threadParamList[m_threadParamList.size()-1]->isRunning = false;
+            m_threadParamList[m_threadParamList.size()-1]->globalStart = &m_threadGlobalStart;
+            m_threadParamList[m_threadParamList.size()-1]->globalMutex = &m_threadGlobalMutex;
+            m_threadParamList[m_threadParamList.size()-1]->stats = &m_statistics;
+            m_threadList.push_back(new sf::Thread(&PixelEngine::thread_tick,m_threadParamList[m_threadParamList.size()-1]));
+        }
+        m_threadsCreated = true;
+        m_thread_lastObjAmount = 0;
+        for(size_t i=0; i<m_threadList.size(); i++)
+        {
+            m_threadList[i]->launch();
+        }
+    }
+    if(m_masterGameObjectGroup.size() != m_thread_lastObjAmount)
+    {
+        EASY_BLOCK("Ajust Threads",profiler::colors::Orange500);
+        size_t iterator = 0;
+        size_t objectAmount = m_masterGameObjectGroup.size();
+        size_t objPerThread = objectAmount/m_threadList.size();
+        for(size_t i=0; i<m_threadList.size(); i++)
+        {
+            if(i == m_threadList.size()-1)
+               objPerThread =  objectAmount - iterator;
+
+            m_threadParamList[i]->obj_begin = iterator;
+            m_threadParamList[i]->obj_end = iterator + objPerThread;
+            m_threadParamList[i]->group = &m_masterGameObjectGroup;
+            m_threadParamList[i]->isRunning = false;
+
+            iterator += objPerThread;
+        }
+        m_thread_lastObjAmount = objectAmount;
+    }
+    EASY_BLOCK("Set Thread parameter",profiler::colors::Orange500);
+    for(size_t i=0; i<m_threadList.size(); i++)
+    {
+        m_threadParamList[i]->dirLock = dirLock;
+    }
+    EASY_END_BLOCK;
+    EASY_BLOCK("Enable Threads",profiler::colors::Orange500);
+    for(size_t i=0; i<m_threadList.size(); i++)
+    {
+        m_threadParamList[i]->mutex.lock();
+        m_threadParamList[i]->isRunning = true;
+        m_threadParamList[i]->mutex.unlock();
+    }
+    EASY_END_BLOCK;
+
+    bool isRunning = false;
+
+    EASY_BLOCK("Wait for Threads",profiler::colors::Orange500);
+    for(size_t i=0; i<m_threadParamList.size(); i++)
+    {
+        EASY_BLOCK("Wait",profiler::colors::Orange500);
+        isRunning = true;
+        while(isRunning)
+        {
+            m_threadParamList[i]->mutex.lock();
+            isRunning = m_threadParamList[i]->isRunning;
+            m_threadParamList[i]->mutex.unlock();
+        }
+        EASY_END_BLOCK;
+    }
+    EASY_END_BLOCK;
+#else
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
     {
         EASY_BLOCK("For each m_masterGameObjectGroup index",profiler::colors::Orange500);
+        InteractiveGameObject* interactiveObject = m_masterGameObjectGroup[i];
+        GameObject *obj = interactiveObject->getGameObject();
 #ifdef STATISTICS
         auto stats_timer_start = std::chrono::system_clock::now();
 
 #endif
-        m_masterGameObjectGroup[i]->getGameObject()->tick(dirLock);
+        obj->tick(dirLock);
 
 #ifdef STATISTICS
         auto stats_timer_end = std::chrono::system_clock::now();
-        std::chrono::duration<double> stats_time_span = stats_timer_end - stats_timer_start;
+        std::chrono::duration<float> stats_time_span = stats_timer_end - stats_timer_start;
         m_statistics.gameObjectTickTime += stats_time_span.count()*1000.f*(1.f-m_statsFilterFactor);
         stats_timer_start = std::chrono::system_clock::now();
 #endif
-       // m_statistics.collisionsPerTick += m_masterGameObjectGroup[i]->checkCollision(m_masterGameObjectGroup_collisionInteractiveList[i].getVector());
-        m_statistics.collisionsPerTick += m_masterGameObjectGroup[i]->getGameObject()->checkCollision(m_masterGameObjectGroup[i]->getInteractiveObjects().getVector());
+        m_statistics.collisionsPerTick += obj->checkCollision(interactiveObject->getInteractiveObjects().getVector());
 #ifdef STATISTICS
         stats_timer_end = std::chrono::system_clock::now();
         stats_time_span = stats_timer_end - stats_timer_start;
@@ -263,7 +370,85 @@ void PixelEngine::tickXY(const Point &dirLock)
 #endif
     }
 
+#endif
+
 }
+#ifdef USE_THREADS
+void PixelEngine::thread_tick(ThreadParam *param)
+{
+    EASY_THREAD("thread_tick");
+    bool isRunning = false;
+    while(1)
+    {
+
+        EASY_BLOCK("waiting");
+        while(!isRunning)
+        {
+
+            param->mutex.lock();
+            isRunning = param->isRunning;
+            param->mutex.unlock();
+
+            if(isRunning)
+            {
+                break;
+            }
+            sf::sleep(sf::milliseconds(1));
+        }
+        EASY_END_BLOCK;
+        EASY_BLOCK("working");
+        unsigned long collisionsPerTick = 0;
+        double gameObjectTickTime = 0;
+        double collisionCheckTime = 0;
+        for(size_t i=param->obj_begin; i<param->obj_end; i++)
+        {
+            EASY_BLOCK("For each m_masterGameObjectGroup index",profiler::colors::Orange500);
+            InteractiveGameObject* interactiveObject = (*param->group)[i];
+            GameObject *obj = interactiveObject->getGameObject();
+    #ifdef STATISTICS
+            auto stats_timer_start = std::chrono::system_clock::now();
+    #endif
+            obj->tick(param->dirLock);
+
+    #ifdef STATISTICS
+            auto stats_timer_end = std::chrono::system_clock::now();
+            std::chrono::duration<float> stats_time_span = stats_timer_end - stats_timer_start;
+            gameObjectTickTime += stats_time_span.count()*500.f;
+
+            stats_timer_start = std::chrono::system_clock::now();
+            collisionsPerTick += obj->checkCollision(interactiveObject->getInteractiveObjects().getVector());
+    #else
+            obj->checkCollision(interactiveObject->getInteractiveObjects().getVector());
+    #endif
+
+    #ifdef STATISTICS
+            stats_timer_end = std::chrono::system_clock::now();
+            stats_time_span = stats_timer_end - stats_timer_start;
+            collisionCheckTime += stats_time_span.count()*500.f;
+
+
+    #endif
+        }
+    #ifdef STATISTICS
+        param->globalMutex->lock();
+        param->stats->collisionsPerTick  += collisionsPerTick;
+        param->stats->collisionCheckTime += collisionCheckTime;
+        param->stats->gameObjectTickTime += gameObjectTickTime;
+        param->globalMutex->unlock();
+    #endif
+        EASY_END_BLOCK;
+        EASY_BLOCK("ende");
+        isRunning = false;
+        param->mutex.lock();
+        param->isRunning = isRunning;
+        param->mutex.unlock();
+        EASY_END_BLOCK;
+    }
+    EASY_BLOCK("closing");
+    sf::sleep(sf::milliseconds(1));
+    EASY_END_BLOCK;
+}
+#endif
 void PixelEngine::updateText()
 {
     EASY_FUNCTION(profiler::colors::Orange600);
@@ -372,7 +557,7 @@ void PixelEngine::display()
     EASY_END_BLOCK;
 #ifdef STATISTICS
     auto stats_timePoint_2 = std::chrono::system_clock::now();
-    std::chrono::duration<double> time_span_userDisplay_time = stats_timePoint_2 - stats_timePoint_1;
+    std::chrono::duration<float> time_span_userDisplay_time = stats_timePoint_2 - stats_timePoint_1;
     filter(m_statistics.userDisplayTime,time_span_userDisplay_time.count()*1000.f,m_statsFilterFactor);
 #endif
 
@@ -384,7 +569,7 @@ void PixelEngine::display()
     EASY_END_BLOCK;
 #ifdef STATISTICS
     stats_timePoint_1 = std::chrono::system_clock::now();
-    std::chrono::duration<double> m_time_span_draw_time = stats_timePoint_1 - stats_timePoint_2;
+    std::chrono::duration<float> m_time_span_draw_time = stats_timePoint_1 - stats_timePoint_2;
     filter(m_statistics.drawTime, m_time_span_draw_time.count()*1000.f,m_statsFilterFactor);
     updateText();
     m_display->display();
@@ -393,37 +578,58 @@ void PixelEngine::display()
 
 #ifdef STATISTICS
     m_stats_fps_timer_end = std::chrono::system_clock::now();
-    std::chrono::duration<double> m_time_span_display_time = m_stats_fps_timer_end - stats_timePoint_1;
+    std::chrono::duration<float> m_time_span_display_time = m_stats_fps_timer_end - stats_timePoint_1;
     filter(m_statistics.displayTime, m_time_span_display_time.count()*1000.f,m_statsFilterFactor);
 
-    std::chrono::duration<double> time_span = m_stats_fps_timer_end - m_stats_fps_timer_start;
+    std::chrono::duration<float> time_span = m_stats_fps_timer_end - m_stats_fps_timer_start;
     m_stats_fps_timer_start = std::chrono::system_clock::now();
     if(time_span.count() != 0.f)
         filter(m_statistics.framesPerSecond, 1.f/time_span.count(),m_statsFilterFactor);
 
 #endif
 }
-void PixelEngine::set_setting_checkEventInterval(const double &seconds)
+
+void PixelEngine::display_setRenderFramePosCenter(const Vector2f &pos)
+{
+    m_display->setRenderFramePosCenter(pos);
+}
+void PixelEngine::display_moveRenderFrame(const Vector2f &vec)
+{
+    m_display->moveRenderFrame(vec);
+}
+void PixelEngine::display_setRenderFramePos(const Vector2f &pos)
+{
+    m_display->setRenderFramePos(pos);
+}
+void PixelEngine::display_setRenderFrame(const RectF &frame)
+{
+    m_display->setRenderFrame(frame);
+}
+const RectF &PixelEngine::display_getRenderFrame() const
+{
+    return m_display->getRenderFrame();
+}
+void PixelEngine::set_setting_checkEventInterval(const float &seconds)
 {
     m_eventInterval = abs(seconds);
 }
-const double &PixelEngine::get_setting_eventHandleInterval() const
+const float &PixelEngine::get_setting_eventHandleInterval() const
 {
     return m_eventInterval;
 }
-void PixelEngine::set_setting_gameTickInterval(const double &seconds)
+void PixelEngine::set_setting_gameTickInterval(const float &seconds)
 {
     m_mainTickInterval = abs(seconds);
 }
-const double  &PixelEngine::get_setting_gameTickInterval() const
+const float  &PixelEngine::get_setting_gameTickInterval() const
 {
     return m_mainTickInterval;
 }
-void PixelEngine::set_setting_displayInterval(const double &seconds)
+void PixelEngine::set_setting_displayInterval(const float &seconds)
 {
     m_displayInterval = abs(seconds);
 }
-const double  &PixelEngine::get_setting_displayInterval() const
+const float  &PixelEngine::get_setting_displayInterval() const
 {
     return m_displayInterval;
 }
@@ -437,8 +643,8 @@ void PixelEngine::addGameObject(GameObject *obj)
     if(!obj->isBoundingBoxUpdated())
         obj->updateBoundingBox();
     obj->setEventHandler(this);
+    obj->preRun();
     m_masterGameObjectGroup.add(obj);
-   // m_masterGameObjectGroup_collisionInteractiveList.push_back(GameObjectGroup());
     m_renderLayer[2].add(obj);
 }
 void PixelEngine::addGameObject(ManagedGameObjectGroup *group)
@@ -455,34 +661,27 @@ void PixelEngine::addGameObject(GameObjectGroup *group)
 void PixelEngine::addGameObject(const vector<GameObject *> &list)
 {
     EASY_FUNCTION(profiler::colors::OrangeA200);
-    //m_masterGameObjectGroup_collisionInteractiveList.reserve(m_masterGameObjectGroup_collisionInteractiveList.size()+list.size());
+    m_masterGameObjectGroup.reserve(list.size());
     for(size_t i=0; i<list.size(); i++)
         this->addGameObject(list[i]);
+}
+void PixelEngine::addToTrash(GameObject *obj)
+{
+    obj->markAsTrash(true);
+    m_trashList.add(obj);
 }
 void PixelEngine::removeGameObject(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
-    // Remove the obj out of the masterList
-    /*for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
-    {
-        if(m_masterGameObjectGroup[i]->getGameObject() == obj)
-        {
-            for(size_t j=0; j<m_masterGameObjectGroup.size(); j++)
-            {
-                this->setCollisionSingleInteraction(m_masterGameObjectGroup[j],obj,false);
-            }
-           // m_masterGameObjectGroup_collisionInteractiveList.erase(m_masterGameObjectGroup_collisionInteractiveList.begin() + i);
-           // this->removeObjectFromList(m_masterGameObjectGroup,obj);
-            m_masterGameObjectGroup.remove(obj);
-            this->removeObjectFromList(m_renderLayer,obj);
-       }
-    }*/
+    // Remove the obj out of all lists
     this->removeObjectFromList_unmanaged(m_userGroups,obj);
     obj->setEventHandler(nullptr);
     this->removeObjectFromList(m_renderLayer,obj);
     m_masterGameObjectGroup.removeAllInteractionsWithObj(obj);
     m_masterGameObjectGroup.remove(obj);
-    // Remove the obj out of all lists
+
+    addToTrash(obj);
+
 
 }
 void PixelEngine::removeGameObject(ManagedGameObjectGroup *group)
@@ -499,12 +698,10 @@ void PixelEngine::removeGameObject(const vector<GameObject *> &list)
     }
 }
 
-void PixelEngine::deleteGameObject(GameObject *obj)
+/*void PixelEngine::deleteGameObject(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
     this->removeGameObject(obj);
-    //delete obj;
-    //obj = nullptr;
 }
 void PixelEngine::deleteGameObject(ManagedGameObjectGroup *group)
 {
@@ -518,7 +715,7 @@ void PixelEngine::deleteGameObject(const vector<GameObject *> &list)
     {
         this->deleteGameObject(list[i]);
     }
-}
+}*/
 void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObject *obj2, const bool &doesCollide)
 {
     EASY_FUNCTION(profiler::colors::OrangeA700);
@@ -527,53 +724,12 @@ void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObject *obj
 
     InteractiveGameObject *interactive_1 = m_masterGameObjectGroup.getInteractiveObject(obj1);
     interactive_1->setInteractionWith(obj2,doesCollide);
-    /*GameObject *object1 = nullptr;
-    size_t objext1_index;
-    GameObject *object2 = nullptr;
-
-    for(size_t x=0; x<m_masterGameObjectGroup.size(); x++)
-    {
-        if(m_masterGameObjectGroup[x]->getGameObject() == obj1)
-        {
-            object1 = obj1;
-            objext1_index = x;
-        }else if(m_masterGameObjectGroup[x]->getGameObject() == obj2)
-        {
-            object2 = obj2;
-        }
-    }
-    if(object1 != nullptr && object2 != nullptr)
-    {
-        bool obj2Found = false;
-        GameObjectGroup obj1_interactorList = m_masterGameObjectGroup[objext1_index]->getInteractiveObjects();
-        for(size_t i=0; i<obj1_interactorList.size(); i++)
-        {
-            if(obj1_interactorList[i] == object2)
-            {
-                obj2Found = true;
-                if(!doesCollide)
-                {
-                    // Remove Object2 from the Object1's colliderList
-                    // Object1 will no longer collide with Object2
-                    m_masterGameObjectGroup[objext1_index]->removeInteractionWith(object2);
-                }
-            }
-        }
-        if(!obj2Found && doesCollide)
-        {
-            // Add Object2 to the Object1's colliderList
-            // Object1 will now collide with Object2
-            m_masterGameObjectGroup[objext1_index]->addInteractionWith(object2);
-        }
-    }*/
 }
 void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObjectGroup *obj2List, const bool &doesCollide)
 {
     EASY_FUNCTION(profiler::colors::OrangeA700);
     InteractiveGameObject *interactive_1 = m_masterGameObjectGroup.getInteractiveObject(obj1);
     interactive_1->setInteractionWith(obj2List,doesCollide);
-   //for(size_t i=0; i<obj2List->size(); i++)
-   //    this->setCollisionSingleInteraction(obj1,(*obj2List)[i],doesCollide); // Not very efficient code ;)
 }
 void PixelEngine::setCollisionSingleInteraction(GameObjectGroup *obj1List,GameObjectGroup *obj2List, const bool &doesCollide)
 {
@@ -626,8 +782,6 @@ void PixelEngine::setCollisionMultiInteraction(GameObjectGroup *obj1List,GameObj
     EASY_FUNCTION(profiler::colors::OrangeA700);
     setCollisionSingleInteraction(obj1List,obj2List,doesCollide);
     setCollisionSingleInteraction(obj2List,obj1List,doesCollide);
-    //for(size_t i=0; i<obj1List->size(); i++)
-    //    this->setCollisionMultiInteraction((*obj1List)[i],obj2List,doesCollide);
 }
 void PixelEngine::setCollisionMultiInteraction(GameObject *obj1, const vector<GameObject*> &obj2List, const bool &doesCollide)
 {
@@ -640,16 +794,12 @@ void PixelEngine::setCollisionMultiInteraction(GameObjectGroup *obj1List,const v
     EASY_FUNCTION(profiler::colors::OrangeA700);
     this->setCollisionSingleInteraction(obj2List,obj1List,doesCollide);
     this->setCollisionSingleInteraction(obj1List,obj2List,doesCollide);
-    //for(size_t i=0; i<obj1List->size(); i++)
-    //   this->setCollisionMultiInteraction((*obj1List)[i],obj2List,doesCollide);
 }
 void PixelEngine::setCollisionMultiInteraction(const vector<GameObject*> &obj1List,GameObjectGroup *obj2List, const bool &doesCollide)
 {
     EASY_FUNCTION(profiler::colors::OrangeA700);
     this->setCollisionSingleInteraction(obj1List,obj2List,doesCollide);
     this->setCollisionSingleInteraction(obj2List,obj1List,doesCollide);
-    //for(size_t i=0; i<obj1List.size(); i++)
-    //    this->setCollisionMultiInteraction(obj1List[i],obj2List,doesCollide);
 }
 void PixelEngine::setCollisionMultiInteraction(const vector<GameObject*> &obj1List, const vector<GameObject*> &obj2List, const bool &doesCollide)
 {
@@ -677,7 +827,7 @@ void PixelEngine::removeGroup(ManagedGameObjectGroup *group)
         if(m_userGroups[i] == group)
             m_userGroups.erase(m_userGroups.begin() + i);
 }
-void PixelEngine::deleteGroup(ManagedGameObjectGroup *group)
+/*void PixelEngine::deleteGroup(ManagedGameObjectGroup *group)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
     for(size_t i=0; i<m_userGroups.size(); i++)
@@ -686,7 +836,7 @@ void PixelEngine::deleteGroup(ManagedGameObjectGroup *group)
             m_userGroups.erase(m_userGroups.begin() + i);
             delete group;
         }
-}
+}*/
 
 // Rendering
 void PixelEngine::moveRenderLayer_UP(GameObject *obj)
@@ -766,6 +916,7 @@ void PixelEngine::setRenderLayer_BOTTOM(GameObject *obj)
 void PixelEngine::setRenderLayer_BOTTOM(GameObjectGroup *objGroup)
 {
     EASY_FUNCTION(profiler::colors::OrangeA700);
+    m_renderLayer[0].reserve(objGroup->size());
     for(size_t i=0; i<objGroup->size(); i++)
         this->setRenderLayer_BOTTOM((*objGroup)[i]);
 }
@@ -793,6 +944,7 @@ void PixelEngine::setRenderLayer_TOP(GameObject *obj)
 void PixelEngine::setRenderLayer_TOP(GameObjectGroup *objGroup)
 {
     EASY_FUNCTION(profiler::colors::OrangeA700);
+    m_renderLayer[m_renderLayer.size()-1].reserve(objGroup->size());
     for(size_t i=0; i<objGroup->size(); i++)
         this->setRenderLayer_TOP((*objGroup)[i]);
 }
@@ -807,15 +959,14 @@ void PixelEngine::removeFromEngine(GameObject *obj)
     EASY_FUNCTION(profiler::colors::OrangeA400);
     this->removeGameObject(obj);
 }
-void PixelEngine::deleteObject(GameObject *obj)
+/*void PixelEngine::deleteObject(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
     this->deleteGameObject(obj);
-}
+}*/
 void PixelEngine::collisionOccured(GameObject *obj1,vector<GameObject *> obj2)
 {
     EASY_FUNCTION(profiler::colors::Orange100);
-   // qDebug() << "collision"<<obj1<<"\t"<<obj2;
 }
 void PixelEngine::addDisplayText(DisplayText*text)
 {
@@ -830,7 +981,7 @@ void PixelEngine::removeDisplayText(DisplayText*text)
 
 
 // General functions
-double PixelEngine::random(double min, double max)
+float PixelEngine::random(float min, float max)
 {
     EASY_FUNCTION(profiler::colors::Orange400);
     if(min == max || abs(min - max) < 0.000001)
@@ -838,7 +989,7 @@ double PixelEngine::random(double min, double max)
         return min;
     }
     if(min > max)
-    {   double buf=min;
+    {   float buf=min;
         min = max;
         max = buf;
     }
@@ -847,224 +998,9 @@ double PixelEngine::random(double min, double max)
     std::time_t t = std::time(0);   // get time now
     std::tm* now = std::localtime(&t);
     int seed = now->tm_year + now->tm_mon + now->tm_mday + now->tm_hour + now->tm_min + now->tm_sec;
-    return double((min*1000.0)+((seed*rand())%(int)((max-min)*1000.0)))/1000.0;
+    return float((min*1000.0)+((seed*rand())%(int)((max-min)*1000.0)))/1000.0;
 }
-/*bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider, Painter *painter, const ImageOrigin &origin)
-{
-    Image image;
-    if(!image.loadFromFile(picture))
-    {
-        #ifdef IMAGE_IMPORT_DEBUG
-        qDebug() << "Can't load File: \""<<picture.c_str()<<"\"";
-        #endif
-        return false;
-    }
-#ifdef IMAGE_IMPORT_DEBUG
-    qDebug() << "import image: \""<<picture.c_str()<<"\"";
-    Timer dbgTimer;
-#endif
-    Point originPoint;
-    switch(origin)
-    {
-        case ImageOrigin::topRightCorner:
-            originPoint.set(image.getSize().x,0);
-        break;
-        case ImageOrigin::bottomLeftCorner:
-            originPoint.set(0,image.getSize().y);
-        break;
-        case ImageOrigin::bottomRightCorner:
-            originPoint.set(image.getSize().x,image.getSize().y);
-        break;
-        case ImageOrigin::center:
-            originPoint.set(image.getSize().x/2,image.getSize().y/2);
-        break;
-        case ImageOrigin::topLeftCorner:
-        default:
-             originPoint.set(0,0);
-    }
-    return PixelEngine::loadFromImage(picture,collider,painter,originPoint);
-}
-bool   PixelEngine::loadFromImage(const std::string &picture, Collider *collider, Painter *painter, const Point &origin)
-{
-    Image image;
-    if(!image.loadFromFile(picture))
-    {
-        #ifdef IMAGE_IMPORT_DEBUG
-        qDebug() << "Can't load File: \""<<picture.c_str()<<"\"";
-        #endif
-        return false;
-    }
-#ifdef IMAGE_IMPORT_DEBUG
-    qDebug() << "import image: \""<<picture.c_str()<<"\"";
-    Timer dbgTimer;
-#endif
-    Timer timer;        // only for stats
-    timer.start(1000);  // only for stats
-    sf::Vector2u size = image.getSize();
 
-    double progress = 0;
-    double maxProgress = size.x * size.y;
-
-    // Reserve the maximum amount of possible pixels
-    painter->reserve(size.x * size.y);
-
-    Color color;
-    Rect rect;
-    rect.setSize(1,1);
-    Pixel pixel;
-#ifdef IMAGE_IMPORT_DEBUG
-    qDebug() << "Imagesize x="<<size.x<<"\ty="<<size.y;
-#endif
-
-    // Each pixel in the image is set to Rect with the size of width=1 height=1
-    // The list is converted into fewer rects
-    vector<Rect> rawRectList;
-
-    // Loop through all Pixels in x-direction
-    for(unsigned int x=0; x<size.x; x++)
-    {
-        // Loop through all Pixels in y-direction
-        for(unsigned int y=0; y<size.y; y++)
-        {
-#ifdef IMAGE_IMPORT_DEBUG
-            if(dbgTimer.start(0.01))
-                qDebug() << "[\t"<<100.f*progress/maxProgress<<"%\t]";
-#endif
-            // Get the color of the current pixel
-            color = image.getPixel(x,y);
-
-            // Only treat pixels that are not completely invisible (alpha == 0)
-            // And only treat pixels that are not white -> So you can use white instead of adding an alpha channel
-#ifdef IMAGE_IMPORT_ALPHA_WHITE
-            if(color.a != 0 &&
-                    !(color.r >= __color_minimalAlphaColor.r &&
-                      color.g >= __color_minimalAlphaColor.g &&
-                      color.b >= __color_minimalAlphaColor.b))
-#else
-            if(color.a != 0)
-#endif
-            {
-
-                pixel.setPos(x-origin.getX(),y-origin.getY());
-                rect.setPos(x,y);
-                pixel.setColor(color);
-
-                painter->addPixel(pixel);
-                rawRectList.push_back(rect);
-            }
-            progress += 1;
-        }
-    }
-    // This is the new Collider-RectList
-    // This list will contain optimized colliders for this picture
-    vector<Rect> colliderRects;
-
-    // Converts many small Rect's to a few large ones
-    PixelEngine::optimize_Hitboxes(rawRectList,colliderRects,origin);
-
-    collider->addHitbox(colliderRects);
-    collider->updateBoundingBox();
-#ifdef IMAGE_IMPORT_DEBUG
-    qDebug() << "[\t"<<100.f*progress/maxProgress<<"%\t]";
-    qDebug() << "import image done. Time: "<<timer.getTime();
-    qDebug() << "Pixels:       "<<painter->getPixelAmount();
-    qDebug() << "Hitboxamount: "<<collider->getHitboxAmount();
-#endif
-    return true;
-}
-void PixelEngine::optimize_Hitboxes(vector<Rect> &input,vector<Rect> &outputColliderList,const Point origin)
-{
-    size_t width = 0;
-    size_t height = 0;
-
-    vector<vector<Rect*>    > map;
-    for(size_t i=0; i<input.size(); i++)
-    {
-        if(width < static_cast<size_t>(input[i].getX()+origin.getX()))
-            width = static_cast<size_t>(input[i].getX()+origin.getX());
-        if(height < static_cast<size_t>(input[i].getY()+origin.getY()))
-            height = static_cast<size_t>(input[i].getY()+origin.getY());
-    }
-    width++;
-    height++;
-    map.reserve(width);
-    for(size_t x=0; x<width; x++)
-    {
-        map.push_back(vector<Rect*>());
-        map[x].reserve(height);
-
-        for(size_t y=0; y<height; y++)
-        {
-            map[x].push_back(nullptr);
-        }
-    }
-    for(size_t i=0; i<input.size(); i++)
-    {
-         map[input[i].getX()][input[i].getY()] = new Rect();
-        *map[input[i].getX()][input[i].getY()] = input[i];
-    }
-    PixelEngine::optimize_HitboxMap(map,outputColliderList);
-    for(size_t i=0; i<outputColliderList.size(); i++)
-    {
-        outputColliderList[i].setPos(outputColliderList[i].getX()-origin.getX(),
-                                     outputColliderList[i].getY()-origin.getY());
-    }
-    for(size_t x=0; x<width; x++)
-    {
-        for(size_t y=0; y<height; y++)
-        {
-            delete map[x][y];
-        }
-    }
-}
-void PixelEngine::optimize_HitboxMap(vector<vector<Rect*>  > &map,vector<Rect> &outputColliderList)
-{
-    if(map.size() == 0)
-        return;
-    if(map[0].size() == 0)
-        return;
-    outputColliderList.clear();
-    size_t width    = map.size();
-    size_t height   = map[0].size();
-
-    for(size_t y=0; y<height; y++)
-    {
-        for(size_t x=0; x<width; x++)
-        {
-            if(map[x][y] == nullptr)
-                continue;
-            bool endXloop = false;
-            size_t xIterator = 1;
-            unsigned int colliderWidth = map[x][y]->getSize().getX();
-            vector<Rect**> toDeleteList;
-            while(!endXloop)
-            {
-                if(x+xIterator >= width)
-                {
-                    endXloop = true;
-                    continue;
-                }
-                if(map[x+xIterator][y] == nullptr)
-                {
-                    endXloop = true;
-                    continue;
-                }
-                colliderWidth += map[x+xIterator][y]->getSize().getX();
-                toDeleteList.push_back(&map[x+xIterator][y]);
-                xIterator++;
-            }
-            for(size_t i=0; i<toDeleteList.size(); i++)
-            {
-                delete *toDeleteList[i];
-                *toDeleteList[i] = nullptr;
-            }
-            map[x][y]->setSize(colliderWidth,map[x][y]->getSize().getY());
-            outputColliderList.push_back(Rect(*map[x][y]));
-            x+=xIterator-1;
-        }
-    }
-}
-*/
 const unsigned long long &PixelEngine::getTick() const
 {
     return m_tick;
@@ -1089,14 +1025,14 @@ void PixelEngine::display_stats(bool enable, const Color &color)
     m_stats_text->setColor(color);
     display_stats(enable);
 }
-void PixelEngine::display_stats(bool enable,const Color &color, const Point &pos, const unsigned int size)
+void PixelEngine::display_stats(bool enable,const Color &color, const Vector2i &pos, const unsigned int size)
 {
     EASY_FUNCTION(profiler::colors::Orange600);
-    m_stats_text->setPos(pos);
+    m_stats_text->setPos(Vector2f(pos));
     if(size > 0)
         m_stats_text->setCharacterSize(size);
     else
-        m_stats_text->setCharacterSize(m_windowSize.getX()/80);
+        m_stats_text->setCharacterSize(m_windowSize.x/80);
     display_stats(enable,color);
 }
 bool PixelEngine::display_stats()
@@ -1115,8 +1051,12 @@ void PixelEngine::updateStatsText()
     std::string text =
      "framesPerSecond:       \t" + to_string(m_statistics.framesPerSecond) +        "\n"+
      "ticksPerSecond:        \t" + to_string(m_statistics.ticksPerSecond) +         "\n"+
-     "collisionsPerTick:     \t" + to_string(m_statistics.collisionsPerTick) +      "\n"+
-     "collisionChecksPerTick:\t" + to_string(m_statistics.collisionChecksPerTick) + "\n"+
+     "Collider:\n"+
+     "  Check Intersections: \t" + to_string(m_statistics.intersectionCheckPerTick)+"/Tick\n"+
+     "  Intersecting:        \t" + to_string(m_statistics.doesIntersectPerTick) +   "/Tick\n"+
+     "  Collision checks:    \t" + to_string(m_statistics.collisionChecksPerTick) + "/Tick\n"+
+     "  Collisions:          \t" + to_string(m_statistics.collisionsPerTick) +      "/Tick\n"+
+     "\n"+
      "objectsInEngine:       \t" + to_string(m_statistics.objectsInEngine) +        "\n"+
      "collisionCheckTime:    \t" + to_string(m_statistics.collisionCheckTime) +     " ms\n"+
      "gameObjectTickTime:    \t" + to_string(m_statistics.gameObjectTickTime) +     " ms\n"+
@@ -1129,7 +1069,7 @@ void PixelEngine::updateStatsText()
      "userDisplayTime:       \t" + to_string(m_statistics.userDisplayTime) +        " ms";
     m_stats_text->setString(text);
 }
-void PixelEngine::filter(double &oldValue, double newValue, double filterFactor)
+void PixelEngine::filter(float &oldValue, float newValue, float filterFactor)
 {
     oldValue = oldValue * filterFactor + (1.f-filterFactor) * newValue;
 }
