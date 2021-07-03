@@ -1,10 +1,7 @@
 #ifndef GROUPMANAGERINTERFACE_H
 #define GROUPMANAGERINTERFACE_H
-
-#include "vector"
+//#include "base.h"
 #include "gameobject.h"
-
-using std::vector;
 
 class GroupManagerInterface
 {
@@ -19,8 +16,8 @@ class GroupManagerInterface
         virtual const vector<GameObject *> &getNewObjects() = 0;
         virtual const vector<GameObject *> &getDeletableObjects() = 0;
 
-        virtual void newObjectsAddedToEngine() = 0;
-        virtual void deletableObjectsRemovedFromEngine() = 0;
+        virtual void newObjectsaddingToEngine() = 0;
+        virtual void deletableObjectsremovingFromEngine() = 0;
 
         virtual void removeObject_unmanaged(GameObject *obj) = 0;
     private:

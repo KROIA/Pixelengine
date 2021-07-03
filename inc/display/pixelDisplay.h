@@ -1,15 +1,12 @@
 #ifndef PIXELDISPLAY_H
 #define PIXELDISPLAY_H
 
-#include "SFML/Graphics.hpp"
-//#include "vector"
-//#include "point.h"
+#include "base.h"
+
 #include "rect.h"
 #include "pixel.h"
 #include "displayText.h"
 #include "drawUtilities.h"
-
-#include "profiler.h"
 
 using sf::Color;
 using sf::RenderWindow;
@@ -55,8 +52,8 @@ class PixelDisplay
         virtual void addSprite(Sprite &sprite);
 
         virtual void clearVertexLine();
-        virtual void addVertexLine(const VertexPath &path);
-        virtual void addVertexLine(const vector<VertexPath> &pathList);
+        virtual void addVertexLine(VertexPath* path);
+        virtual void addVertexLine(const vector<VertexPath*> &pathList);
 
         virtual bool isOpen() const;
 
@@ -81,6 +78,10 @@ class PixelDisplay
         virtual void setRenderFrame(const RectF &frame);
         virtual const RectF &getRenderFrame() const;
 
+        virtual unsigned long long stats_getRenderSprites() const;
+        virtual unsigned long long stats_getRenderVertexPaths() const;
+        virtual unsigned long long stats_getRenderText() const;
+
     protected:
 
 
@@ -101,7 +102,7 @@ class PixelDisplay
 
         vector<Sprite>       m_spriteList;
         bool                 m_spriteListUsed;
-        vector<VertexPath>   m_vertexPathList;
+        vector<VertexPath*>   m_vertexPathList;
         bool                 m_vertexPathUsed;
         Vector2f             m_spriteScale;
         RectF                m_globalDisplayFrame;
@@ -110,6 +111,10 @@ class PixelDisplay
         bool                 m_dragMap;
         Vector2f             m_lastMousePos;
 
+
+        unsigned long long m_stats_renderSprites;
+        unsigned long long m_stats_renderVertexPaths;
+        unsigned long long m_stats_renderText;
 
 };
 #endif // PIXELDISPLAY_H

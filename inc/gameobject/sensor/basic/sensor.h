@@ -1,13 +1,11 @@
 #ifndef SENSOR_H
 #define SENSOR_H
 
+#include "base.h"
+
 #include "gameobject.h"
-#include "point.h"
 #include "rect.h"
 #include "pixelPainter.h"
-//#include "hitboxPainter.h"
-
-#include "profiler.h"
 
 class Sensor
 {

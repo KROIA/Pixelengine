@@ -1,13 +1,7 @@
 #ifndef LAYERITEM_H
 #define LAYERITEM_H
 
-#include <SFML/System/Vector2.hpp>
-#include "profiler.h"
-#include <QDebug>
-
-using sf::Vector2f;
-using sf::Vector2i;
-
+#include "base.h"
 
 class LayerItem
 {
@@ -23,6 +17,7 @@ class LayerItem
         virtual LayerItem &operator=(const LayerItem &other);
 
         virtual void swapPosToLastPos();
+        virtual void swapRotationToLastRotation();
 
         virtual void setPosInitial(const Vector2f &pos);
         virtual void setPosInitial(const Vector2i &pos);
@@ -50,11 +45,22 @@ class LayerItem
         virtual void move(const Vector2f &vec);
         virtual void move(const Vector2i &vec);
 
+
+        virtual void rotate(float deg);
+        virtual void setRotationInitial(float deg);
+        virtual void setRotation(float deg);
+        virtual float getRotation() const;
+
+
+
         virtual void setToLastPos();
+        virtual void setToLastRotation();
 
     protected:
         Vector2f  m_pos;
         Vector2f  m_lastPos;
+        float     m_rotation;
+        float     m_lastRotation;
     private:
 
 

@@ -7,6 +7,8 @@ LayerItem::LayerItem()
     m_lastPos.x = 0;
     m_lastPos.y = 0;
 
+    m_rotation = 0;
+    m_lastRotation =0;
 }
 LayerItem::LayerItem(const LayerItem &other)
 {
@@ -42,12 +44,19 @@ LayerItem &LayerItem::operator=(const LayerItem &other)
 {
     this->m_pos         = other.m_pos;
     this->m_lastPos     = other.m_lastPos;
+    this->m_rotation    = other.m_rotation;
+    this->m_lastRotation=other.m_lastRotation;
     return  *this;
 }
 void LayerItem::swapPosToLastPos()
 {
     m_lastPos = m_pos;
 }
+void LayerItem::swapRotationToLastRotation()
+{
+    m_lastRotation = m_rotation;
+}
+
 void LayerItem::setPosInitial(const Vector2f &pos)
 {
     this->setPos(pos);
@@ -137,9 +146,30 @@ void LayerItem::move(const Vector2i &vec)
 {
     m_pos += Vector2f(vec);
 }
+void LayerItem::rotate(float deg)
+{
+    m_rotation += deg;
+}
+void LayerItem::setRotationInitial(float deg)
+{
+    m_rotation      = deg;
+    swapRotationToLastRotation();
+}
+void LayerItem::setRotation(float deg)
+{
+    m_rotation = deg;
+}
 
+float LayerItem::getRotation() const
+{
+    return m_rotation;
+}
 
 void LayerItem::setToLastPos()
 {
     m_pos = m_lastPos;
+}
+void LayerItem::setToLastRotation()
+{
+    m_rotation = m_lastRotation;
 }

@@ -25,6 +25,9 @@ PixelDisplay::PixelDisplay(const Vector2u &windowSize, const Vector2u &pixelSize
     m_spriteListUsed  = true;
     m_vertexPathUsed  = true;
     m_textListUsed    = false;
+    m_stats_renderSprites = 0;
+    m_stats_renderText    = 0;
+    m_stats_renderVertexPaths = 0;
     clear();
 }
 PixelDisplay::PixelDisplay(const PixelDisplay &other)
@@ -49,6 +52,8 @@ void PixelDisplay::display()
     EASY_FUNCTION("PixelDisplay::display()",profiler::colors::Blue);
 
     m_renderWindow->clear();
+    m_stats_renderVertexPaths = m_vertexPathList.size();
+    m_stats_renderSprites     = m_spriteList.size();
     EASY_BLOCK("draw m_spriteList",profiler::colors::Blue100);
     if(m_spriteListUsed)
     {
@@ -59,8 +64,10 @@ void PixelDisplay::display()
     }
     EASY_END_BLOCK;
     EASY_BLOCK("draw m_textList",profiler::colors::Blue100);
+
     if(m_textListUsed)
     {
+        m_stats_renderText = 0;
         for(size_t i=0; i<m_textList.size(); i++)
         {
             if(m_textList[i] == nullptr)
@@ -69,6 +76,7 @@ void PixelDisplay::display()
 
             if(text.isVisible())
             {
+                m_stats_renderText++;
                 if(!text.getPositionFix())
                 {
                     text.setPixelRatio(m_spriteScale.x);
@@ -85,7 +93,7 @@ void PixelDisplay::display()
     {
         for(size_t i=0; i<m_vertexPathList.size(); i++)
         {
-            m_renderWindow->draw(m_vertexPathList[i].line, m_vertexPathList[i].length, m_vertexPathList[i].type);
+            m_renderWindow->draw(m_vertexPathList[i]->line, m_vertexPathList[i]->length, m_vertexPathList[i]->type);
         }
     }
     EASY_END_BLOCK;
@@ -113,6 +121,7 @@ void PixelDisplay::clear()
         m_vertexPathUsed = false;
         clearVertexLine();
     }
+
 }
 
 void PixelDisplay::setPixel(const Vector2i &pos, const Color &color)
@@ -165,28 +174,28 @@ void PixelDisplay::addSprite(Sprite &sprite)
 void PixelDisplay::clearVertexLine()
 {
     for(size_t i=0; i<m_vertexPathList.size(); i++)
-        delete m_vertexPathList[i].line;
+        delete m_vertexPathList[i];
     m_vertexPathList.clear();
     m_vertexPathList.reserve(500);
 }
-void PixelDisplay::addVertexLine(const VertexPath &path)
+void PixelDisplay::addVertexLine(VertexPath* path)
 {
     m_vertexPathUsed = true;
-    if(path.line != nullptr && path.length > 0)
+    if(path->line != nullptr && path->length > 0)
         m_vertexPathList.push_back(path);
 
-    m_vertexPathList[m_vertexPathList.size()-1].move(m_globalDisplayFrame.getPos());
-    for(size_t i=0; i<m_vertexPathList[m_vertexPathList.size()-1].length; i++)
+    m_vertexPathList[m_vertexPathList.size()-1]->move(m_globalDisplayFrame.getPos());
+    for(size_t i=0; i<m_vertexPathList[m_vertexPathList.size()-1]->length; i++)
     {
 
-        m_vertexPathList[m_vertexPathList.size()-1].line[i].position.x *= m_spriteScale.x;
-        m_vertexPathList[m_vertexPathList.size()-1].line[i].position.y *= m_spriteScale.y;
+        m_vertexPathList[m_vertexPathList.size()-1]->line[i].position.x *= m_spriteScale.x;
+        m_vertexPathList[m_vertexPathList.size()-1]->line[i].position.y *= m_spriteScale.y;
     }
 }
-void PixelDisplay::addVertexLine(const vector<VertexPath> &pathList)
+void PixelDisplay::addVertexLine(const vector<VertexPath*> &pathList)
 {
     m_vertexPathList.reserve(m_vertexPathList.size()+pathList.size());
-    for(const VertexPath &path : pathList)
+    for(VertexPath* path : pathList)
     {
         addVertexLine(path);
     }
@@ -398,4 +407,16 @@ void PixelDisplay::setRenderFrame(const RectF &frame)
 const RectF &PixelDisplay::getRenderFrame() const
 {
     return m_globalDisplayFrame;
+}
+unsigned long long PixelDisplay::stats_getRenderSprites() const
+{
+    return m_stats_renderSprites;
+}
+unsigned long long PixelDisplay::stats_getRenderVertexPaths() const
+{
+    return m_stats_renderVertexPaths;
+}
+unsigned long long PixelDisplay::stats_getRenderText() const
+{
+    return m_stats_renderText;
 }

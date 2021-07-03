@@ -2,12 +2,8 @@
 #define INTERACTIVEGAMEOBJECTGROUP_H
 
 #include "InteractiveGameObject.h"
-#include "vector"
 
 #define CHECK_FOR_DOUBLE_OBJ
-
-using std::vector;
-
 
 class InteractiveGameObjectGroup
 {

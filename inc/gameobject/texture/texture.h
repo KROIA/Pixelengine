@@ -1,15 +1,10 @@
 #ifndef Texture_H
 #define Texture_H
-#include "string.h"
-#include <SFML/Graphics/Image.hpp>
-#include <SFML/Graphics/Texture.hpp>
-#include <SFML/System/Vector2.hpp>
+
+#include "base.h"
+
 #include "pixel.h"
 #include "rect.h"
-#include "point.h"
-#include "QDebug"
-
-#include "profiler.h"
 
 using std::string;
 using sf::Image;

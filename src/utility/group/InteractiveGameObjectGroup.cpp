@@ -10,6 +10,9 @@ InteractiveGameObjectGroup::InteractiveGameObjectGroup(const InteractiveGameObje
 }
 InteractiveGameObjectGroup::~InteractiveGameObjectGroup()
 {
+    for(InteractiveGameObject* &o : m_interactiveObjectsList)
+        delete o;
+    m_interactiveObjectsList.clear();
 }
 
 InteractiveGameObject* InteractiveGameObjectGroup::operator[](size_t index)

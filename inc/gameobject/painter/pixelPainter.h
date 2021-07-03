@@ -1,8 +1,9 @@
 #ifndef PIXELPAINTER_H
 #define PIXELPAINTER_H
 
+#include "base.h"
+
 #include "painter.h"
-#include "SFML/Graphics/Rect.hpp"
 
 class PixelPainter  : public Painter
 {

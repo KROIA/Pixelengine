@@ -4,8 +4,6 @@
 #include "gameObjectGroup.h"
 #include "groupManagerInterface.h"
 
-using std::vector;
-
 class ManagedGameObjectGroup    :   public GameObjectGroup,  GroupManagerInterface
 {
     public:
@@ -19,8 +17,8 @@ class ManagedGameObjectGroup    :   public GameObjectGroup,  GroupManagerInterfa
         virtual const vector<GameObject *> &getNewObjects();
         virtual const vector<GameObject *> &getDeletableObjects();
 
-        virtual void newObjectsAddedToEngine();
-        virtual void deletableObjectsRemovedFromEngine();
+        virtual void newObjectsaddingToEngine();
+        virtual void deletableObjectsremovingFromEngine();
 
         virtual void removeObject_unmanaged(GameObject *obj);
 
@@ -34,8 +32,8 @@ class ManagedGameObjectGroup    :   public GameObjectGroup,  GroupManagerInterfa
 
     protected:
 
-        vector<GameObject *> m_toBeAdded; // To be added to the engine
-        vector<GameObject *> m_toBeRemoved; // To be removed from the engine
+        vector<GameObject *> m_toBeadding; // To be adding to the engine
+        vector<GameObject *> m_toBeremoving; // To be removing from the engine
     private:
 
 

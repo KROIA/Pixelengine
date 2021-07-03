@@ -1,11 +1,10 @@
 #ifndef EVENT_H
 #define EVENT_H
+#include "base.h"
 
 #include <windows.h>
-#include <QDebug>
 #include "keyboard.h"
 
-#include "profiler.h"
 
 class Event
 {

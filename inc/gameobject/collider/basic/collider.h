@@ -1,15 +1,13 @@
 #ifndef COLLIDER_H
 #define COLLIDER_H
 
-//#include <SFML/Graphics/Rect.hpp>
+#include "base.h"
+
 #include "mathFunctions.h"
 #include "layeritem.h"
-//#include "point.h"
 #include "rect.h"
-//#include "vector.h"
 #include "texture.h"
 
-#include "profiler.h"
 
 using std::vector;
 using sf::Vector2f;
@@ -62,21 +60,23 @@ class Collider  :   public LayerItem
         virtual size_t getHitboxAmount() const;
 
         virtual float getRotation() const;
-        virtual void rotate(const float &deg);
-        virtual void setRotation(const float &deg);
+        virtual void rotate(float deg);
+        virtual void setRotation(float deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
-        virtual void rotate(const Vector2f &rotationPoint,const float &deg);
-        virtual void setRotation(const Vector2f &rotationPoint,const float &deg);
+        virtual void rotate(const Vector2f &rotationPoint,float deg);
+        virtual void setRotation(const Vector2f &rotationPoint,float deg);
         virtual void rotate_90(const Vector2f &rotationPoint);
         virtual void rotate_180(const Vector2f &rotationPoint);
         virtual void rotate_270(const Vector2f &rotationPoint);
 
         virtual void setHitboxFromTexture(const Texture *texture);
 
-        virtual VertexPath getDrawableBoundingBox();
-        virtual vector<VertexPath> getDrawableHitBox();
+        virtual void generateCollisionData(bool enable);
+        virtual VertexPath* getDrawableBoundingBox();
+        virtual vector<VertexPath*> getDrawableHitBox();
+        virtual vector<VertexPath*> getDrawableColliderVector();
 
         static void stats_reset();
         static unsigned long long stats_checkIntersectCounter;
@@ -101,8 +101,6 @@ class Collider  :   public LayerItem
 
         RectF m_dummy;
 
-        float m_rotationDeg;
-
         Color m_boundingBox_color;
         Color m_boundingBox_standardColor;
         Color m_boundingBox_intersectingColor;
@@ -110,6 +108,9 @@ class Collider  :   public LayerItem
         Color m_hitbox_standardColor;
         Color m_hitbox_intersectingColor;
         vector<bool>    m_hitBoxListDoesIntersect;
+
+        bool m_generate_collisionData;
+        vector<VertexPath*> m_collisionData;
     private:
 
         virtual void internalRotate(const Vector2f &rotPoint,const float &deg);

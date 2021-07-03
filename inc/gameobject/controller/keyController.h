@@ -1,6 +1,7 @@
 #ifndef KEYCONTROLLER_H
 #define KEYCONTROLLER_H
 
+#include "base.h"
 #include "controller.h"
 #include "mathFunctions.h"
 

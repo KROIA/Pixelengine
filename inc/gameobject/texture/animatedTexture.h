@@ -1,7 +1,8 @@
 #ifndef ANIMATEDTEXTURE_H
 #define ANIMATEDTEXTURE_H
+
 #include "texture.h"
-#include "QDebug"
+
 
 using std::vector;
 

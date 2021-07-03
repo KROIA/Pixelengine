@@ -1,14 +1,12 @@
 #ifndef GAMEOBJECTGROUP_H
 #define GAMEOBJECTGROUP_H
+#include "base.h"
 
 #include "gameobject.h"
 #include "painter.h"
 
-#include "profiler.h"
-
-using std::vector;
-
-class GameObjectGroup
+//                         Will receive GameObject Signals
+class GameObjectGroup  :   private ObjSignal//, GroupSignal
 {
     public:
         GameObjectGroup();
@@ -62,16 +60,34 @@ class GameObjectGroup
         virtual long long indexOf(const GameObject* obj);
         static  long long indexOf(const vector<GameObject *> list,const GameObject* obj);
 
-        static void removeDuplicates(vector<GameObject *> *list);
-        static void removeDuplicates(GameObjectGroup *list);
+        static void removinguplicates(vector<GameObject *> *list);
+        static void removinguplicates(GameObjectGroup *list);
+
+        // Signals
+        virtual void subscribe(GroupSignal   *subscriber);
+        virtual void unsubscribe(GroupSignal *subscriber);
+        virtual void unsubscribeAll();
 
     protected:
+        void addInternal(GameObject *object);
+        void removeInternal(GameObject *object);
+        void removeInternal(size_t index);
+
+        // GameObject singals:
+        virtual void moved(GameObject* sender,const Vector2f &move);
+
         bool m_isVisible;
         bool m_hitboxIsVisible;
 
         vector<GameObject *> m_isInList;
+        GroupSubscriberList m_groupSubscriberList;
     private:
 
+
+
+
+        // GameObjectGroup signals:
+        // virtual void adding(GameObjectGroup* group,GameObject* obj);
 
 };
 #endif // GAMEOBJECTGROUP_H

@@ -1,5 +1,7 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
+#include "base.h"
+
 
 #include "property.h"
 #include "controller.h"
@@ -9,13 +11,10 @@
 #include "dynamicCoordinator.h"
 #include "texture.h"
 #include "displayText.h"
+#include "signalSubscriber.h"
 
-#include "profiler.h"
 
-class GameObjectEventHandler;
-class GameObject;
-
-class GameObject
+class GameObject //   :   public ObjSignal
 {
     public:
         GameObject();
@@ -40,6 +39,14 @@ class GameObject
         virtual unsigned int checkCollision(const vector<vector<GameObject*> >&other);
         static vector<GameObject*> getCollidedObjects(GameObject *owner, Collider *collider,const vector<GameObject*> &other);
         virtual void draw(PixelDisplay &display);
+        virtual void setEventHandler(GameObjectEventHandler *handler);
+        virtual const GameObjectEventHandler *getEventHandler() const;
+
+        // Signals
+        virtual void subscribe(ObjSignal *subscriber);
+        virtual void unsubscribe(ObjSignal *subscriber);
+        virtual void unsubscribeAll();
+
 
         // For user call
         virtual void addController(Controller *controller);
@@ -48,8 +55,9 @@ class GameObject
         virtual const Collider &getCollider() const;
         virtual void setPainter(Painter *painter);
         virtual const Painter &getPainter() const;
-        virtual void setEventHandler(GameObjectEventHandler *handler);
 
+
+        virtual void setPosInital(const Vector2f &pos);
         virtual void setPos(int x, int y);
         virtual void setPos(const Vector2i &pos);
         virtual void setPos(float x, float y);
@@ -122,6 +130,7 @@ class GameObject
 
         Property::Property m_property;
         GameObjectEventHandler *m_objEventHandler;
+        ObjSubscriberList          m_ObjSubscriberList;
 
         vector<Controller*> m_controllerList;
         DynamicCoordinator m_movementCoordinator;
@@ -134,7 +143,7 @@ class GameObject
 
         vector<DisplayText* > m_displayTextList;
 
-        unsigned int m_rotationDeg;
+        //float m_rotationDeg;
 
     private:
         bool m_isTrash;

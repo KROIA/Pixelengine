@@ -1,21 +1,32 @@
 #include "gameObjectGroup.h"
 
 GameObjectGroup::GameObjectGroup()
+    :   ObjSignal()
 {
+    this->m_isVisible       = true;
+    this->m_hitboxIsVisible = false;
 }
 GameObjectGroup::GameObjectGroup(const GameObjectGroup &other)
+    :   ObjSignal()
 {
     *this = other;
 }
 
 GameObjectGroup::~GameObjectGroup()
 {
-
+    for(GameObject* &obj : m_isInList)
+        obj->unsubscribe(this);
 }
 GameObjectGroup &GameObjectGroup::operator=(const GameObjectGroup &other)
 {
+    for(GameObject* &obj : m_isInList)
+        obj->unsubscribe(this);
     this->m_isVisible        = other.m_isVisible;
-    this->m_isInList             = other.m_isInList;
+    this->m_hitboxIsVisible  = other.m_hitboxIsVisible;
+    this->m_isInList         = other.m_isInList;
+    for(GameObject* &obj : m_isInList)
+        obj->subscribe(this);
+    //this->m_groupSubscriberList = other.m_groupSubscriberList;
     return *this;
 }
 void GameObjectGroup::draw(PixelDisplay &display)
@@ -27,15 +38,23 @@ void GameObjectGroup::draw(PixelDisplay &display)
 void GameObjectGroup::add(GameObject *object)
 {
     EASY_FUNCTION(profiler::colors::Purple50);
-    m_isInList.push_back(object);
+    addInternal(object);
+    m_groupSubscriberList.adding(this,object);//emit signal
 }
 void GameObjectGroup::add(GameObjectGroup *other)
 {
     EASY_FUNCTION(profiler::colors::Purple50);
     m_isInList.reserve(m_isInList.size()   + other->size());
     for(size_t i=0; i<other->size(); i++)
-        this->add((*other)[i]);
+        this->addInternal((*other)[i]);
+    m_groupSubscriberList.adding(this,other);//emit signal
 }
+void GameObjectGroup::addInternal(GameObject *object)
+{
+    m_isInList.push_back(object);
+    object->subscribe(this);
+}
+
 void GameObjectGroup::remove(GameObject *toRemove)
 {
     EASY_FUNCTION(profiler::colors::Purple100);
@@ -43,28 +62,52 @@ void GameObjectGroup::remove(GameObject *toRemove)
     {
         if(m_isInList[i] == toRemove)
         {
-            this->remove(i);
+            m_groupSubscriberList.removing(this,m_isInList[i]);//emit signal
+            this->removeInternal(i);
         }
     }
 }
 void GameObjectGroup::remove(GameObjectGroup *other)
 {
     EASY_FUNCTION(profiler::colors::Purple100);
+    //other->unsubscribe(this);
+    m_groupSubscriberList.removing(this,other);//emit signal
     for(size_t i=0; i<m_isInList.size(); i++)
     {
-        this->remove((*other)[i]);
+        this->removeInternal((*other)[i]);
     }
+
 }
 void GameObjectGroup::remove(const size_t index)
 {
     EASY_FUNCTION(profiler::colors::Purple100);
     if(index >= m_isInList.size())
         return;
+    m_groupSubscriberList.removing(this,m_isInList[index]);//emit signal
+    removeInternal(index);
+
+}
+void GameObjectGroup::removeInternal(GameObject *object)
+{
+    for(size_t i=0; i<m_isInList.size(); i++)
+    {
+        if(m_isInList[i] == object)
+        {
+            removeInternal(i);
+        }
+    }
+}
+void GameObjectGroup::removeInternal(size_t index)
+{
+    m_isInList[index]->unsubscribe(this);
     m_isInList.erase(m_isInList.begin()+index);
 }
 void GameObjectGroup::clear()
 {
     EASY_FUNCTION(profiler::colors::Purple200);
+    m_groupSubscriberList.willBeCleared(this);
+    for(GameObject* &obj : m_isInList)
+        obj->unsubscribe(this);
     m_isInList.clear();
 }
 void GameObjectGroup::reserve(size_t size)
@@ -245,7 +288,7 @@ long long GameObjectGroup::indexOf(const vector<GameObject *> list,const GameObj
     return -1;
 }
 
-void GameObjectGroup::removeDuplicates(vector<GameObject *> *list)
+void GameObjectGroup::removinguplicates(vector<GameObject *> *list)
 {
     EASY_FUNCTION(profiler::colors::Purple700);
     vector<GameObject *> copyList;
@@ -273,8 +316,50 @@ void GameObjectGroup::removeDuplicates(vector<GameObject *> *list)
     EASY_END_BLOCK;
     *list = copyList;
 }
-void GameObjectGroup::removeDuplicates(GameObjectGroup *list)
+void GameObjectGroup::removinguplicates(GameObjectGroup *list)
 {
     EASY_FUNCTION(profiler::colors::Purple700);
-    removeDuplicates(&list->m_isInList);
+    removinguplicates(&list->m_isInList);
 }
+void GameObjectGroup::subscribe(GroupSignal *subscriber)
+{
+    if(subscriber == nullptr)
+        return;
+    for(size_t i=0; i<m_groupSubscriberList.size(); i++)
+    {
+        if(m_groupSubscriberList[i] == subscriber)
+        {
+            return;
+        }
+    }
+    m_groupSubscriberList.push_back(subscriber);
+}
+void GameObjectGroup::unsubscribe(GroupSignal *subscriber)
+{
+    for(size_t i=0; i<m_groupSubscriberList.size(); i++)
+    {
+        if(m_groupSubscriberList[i] == subscriber)
+        {
+            m_groupSubscriberList.erase(m_groupSubscriberList.begin()+i);
+            return;
+        }
+    }
+}
+void GameObjectGroup::unsubscribeAll()
+{
+    m_groupSubscriberList.clear();
+}
+// GameObject singals:
+void GameObjectGroup::moved(GameObject* sender,const Vector2f &move)
+{
+    //receive signal
+    //qDebug() << "sender: "<<sender << " moved: "<<Vector::toString(move).c_str();
+}
+
+// GameObjectGroup signals:
+/*void GameObjectGroup::adding(GameObjectGroup* group,GameObject* obj)
+{
+
+}*/
+
+

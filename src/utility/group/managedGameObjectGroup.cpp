@@ -17,35 +17,35 @@ GameObject *ManagedGameObjectGroup::operator[](const size_t &index) const
 }
 bool ManagedGameObjectGroup::newObjectsAvailable()
 {
-    if(m_toBeAdded.size() > 0)
+    if(m_toBeadding.size() > 0)
         return true;
     return false;
 }
 bool ManagedGameObjectGroup::deletableObjectsAvailable()
 {
-    if(m_toBeRemoved.size() > 0)
+    if(m_toBeremoving.size() > 0)
         return true;
     return false;
 }
 
 const vector<GameObject *> &ManagedGameObjectGroup::getNewObjects()
 {
-    return m_toBeAdded;
+    return m_toBeadding;
 }
 const vector<GameObject *> &ManagedGameObjectGroup::getDeletableObjects()
 {
-    return m_toBeRemoved;
+    return m_toBeremoving;
 }
 
-void ManagedGameObjectGroup::newObjectsAddedToEngine()
+void ManagedGameObjectGroup::newObjectsaddingToEngine()
 {
     EASY_FUNCTION(profiler::colors::Purple50);
-    m_toBeAdded.clear();
+    m_toBeadding.clear();
 }
-void ManagedGameObjectGroup::deletableObjectsRemovedFromEngine()
+void ManagedGameObjectGroup::deletableObjectsremovingFromEngine()
 {
     EASY_FUNCTION(profiler::colors::Purple100);
-    m_toBeRemoved.clear();
+    m_toBeremoving.clear();
 }
 void ManagedGameObjectGroup::removeObject_unmanaged(GameObject *obj)
 {
@@ -61,18 +61,18 @@ void ManagedGameObjectGroup::removeObject_unmanaged(GameObject *obj)
 void ManagedGameObjectGroup::reserve(size_t size)
 {
     m_isInList.reserve(size);
-    m_toBeAdded.reserve(size);
+    m_toBeadding.reserve(size);
 }
 void ManagedGameObjectGroup::add(GameObject *object)
 {
     EASY_FUNCTION(profiler::colors::Purple300);
     m_isInList.push_back(object);
-    m_toBeAdded.push_back(object);
+    m_toBeadding.push_back(object);
 }
 void ManagedGameObjectGroup::add(GameObjectGroup *other)
 {
     EASY_FUNCTION(profiler::colors::Purple300);
-    m_toBeAdded.reserve(m_toBeAdded.size() + other->size());
+    m_toBeadding.reserve(m_toBeadding.size() + other->size());
     m_isInList.reserve(m_isInList.size()   + other->size());
     for(size_t i=0; i<other->size(); i++)
         this->add((*other)[i]);
@@ -84,7 +84,7 @@ void ManagedGameObjectGroup::remove(const size_t index)
     if(index >= m_isInList.size())
         return;
     m_isInList.erase(m_isInList.begin()+index);
-    m_toBeRemoved.push_back(m_isInList[index]);
+    m_toBeremoving.push_back(m_isInList[index]);
 }
 
 const vector<GameObject*> &ManagedGameObjectGroup::getVector() const

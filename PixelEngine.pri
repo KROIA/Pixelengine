@@ -40,6 +40,7 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath \
                $$PixelEngine_incPath/utility \
                $$PixelEngine_incPath/utility/group \
+               $$PixelEngine_incPath/utility/group/chunk \
                $$PixelEngine_incPath/gameobject \
                $$PixelEngine_incPath/gameobject/basic \
                $$PixelEngine_incPath/gameobject/collider \
@@ -55,6 +56,9 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/display
 
 SOURCES += \
+        $$PWD/src/utility/group/chunk/chunk.cpp \
+        $$PWD/src/utility/group/chunk/chunkMap.cpp \
+        $$PWD/src/utility/signalSubscriber.cpp \
         $$PixelEngine_srcPath/display/drawUtilities.cpp \
         $$PixelEngine_srcPath/gameobject/painter/texturePainter.cpp \
         $$PixelEngine_srcPath/display/displayText.cpp \
@@ -84,6 +88,10 @@ SOURCES += \
         $$PixelEngine_srcPath/utility/layeritem.cpp
 
 HEADERS += \
+        $$PWD/inc/utility/base.h \
+        $$PWD/inc/utility/group/chunk/chunk.h \
+        $$PWD/inc/utility/group/chunk/chunkMap.h \
+        $$PWD/inc/utility/signalSubscriber.h \
         $$PixelEngine_incPath/display/drawUtilities.h \
         $$PixelEngine_incPath/gameobject/painter/texturePainter.h \
         $$PixelEngine_incPath/utility/mathFunctions.h \

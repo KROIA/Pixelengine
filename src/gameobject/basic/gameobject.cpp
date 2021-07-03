@@ -7,8 +7,9 @@ GameObject::GameObject()
     m_collider              = new Collider();
     m_painter               = nullptr;
     m_objEventHandler       = nullptr;
-    m_rotationDeg           = 90; // 90 deg
+    //m_rotationDeg           = 90; // 90 deg
     showHitbox(false);
+    m_layerItem.setRotationInitial(0);
 }
 GameObject::GameObject(const GameObject &other)
 {
@@ -28,8 +29,9 @@ GameObject::GameObject(Controller *controller,
     this->setCollider(collider);
     this->setPainter(painter);
     m_objEventHandler   = nullptr;
-    m_rotationDeg       = 90; // 90 deg
+    //m_rotationDeg       = 90; // 90 deg
     showHitbox(false);
+    m_layerItem.setRotationInitial(0);
 }
 
 GameObject::~GameObject()
@@ -47,7 +49,7 @@ const GameObject &GameObject::operator=(const GameObject &other)
     this->m_painter             = other.m_painter;
     this->m_property            = other.m_property;
     this->m_objEventHandler     = other.m_objEventHandler;
-    this->m_rotationDeg         = other.m_rotationDeg;
+    //this->m_rotationDeg         = other.m_rotationDeg;
 
     return *this;
 }
@@ -77,6 +79,7 @@ void GameObject::tick(const Vector2i &direction)
 {
     EASY_FUNCTION(profiler::colors::Green300);
     m_layerItem.swapPosToLastPos();
+
     if(direction.x > 0)
     {
         m_collider->tick();
@@ -89,16 +92,26 @@ void GameObject::tick(const Vector2i &direction)
             m_controllerList[i]->tick(); // Clears the movingVector
         }
         m_movementCoordinator.calculateMovement();
-        Property::Property p = this->getProperty();
         m_layerItem.move(Vector2f(m_movementCoordinator.getMovingVector_X(),0));
+        m_collider->setRotation(m_layerItem.getRotation());
         EASY_END_BLOCK;
     }
     else
     {
         m_layerItem.move(Vector2f(0,m_movementCoordinator.getMovingVector_Y()));
+
+        //emit signal
+        if(m_ObjSubscriberList.size() > 0)
+            if(Vector::length(m_movementCoordinator.getMovingVector()) != 0)
+                m_ObjSubscriberList.moved(this,m_movementCoordinator.getMovingVector());
+
         m_movementCoordinator.tick();
+        m_layerItem.swapRotationToLastRotation();
     }
+
     m_collider->setPos(m_layerItem.getPos());
+
+
 }
 
 
@@ -124,7 +137,6 @@ unsigned int GameObject::checkCollision(const vector<vector<GameObject*> >&other
         {
             collided.push_back(coll[i]);
         }
-
     }
     if(collided.size() > 0)
     {
@@ -156,16 +168,67 @@ void GameObject::draw(PixelDisplay &display)
 {
     EASY_FUNCTION(profiler::colors::Green700);
     m_painter->setPos(m_layerItem.getPos());
+    m_painter->setRotation(m_layerItem.getRotation());
     RectF frame = display.getRenderFrame();
     frame.setPos(-frame.getPos());
+
+    if(!frame.intersects_fast(m_painter->getFrame()))
+        return;
 
 
     m_painter->draw(display);
     if(m_hitboxIsVisible)
+    {
         display.addVertexLine(m_collider->getDrawableHitBox());
+        display.addVertexLine(m_collider->getDrawableColliderVector());
+    }
     if(m_boundingBoxIsVisible)
         display.addVertexLine(m_collider->getDrawableBoundingBox());
 
+}
+void GameObject::setEventHandler(GameObjectEventHandler *handler)
+{
+    EASY_FUNCTION(profiler::colors::GreenA400);
+    m_objEventHandler = handler;
+
+    if(m_objEventHandler == nullptr)
+        return;
+    if(m_displayTextList.size() != 0)
+        for(DisplayText* &text : m_displayTextList)
+            m_objEventHandler->addDisplayText(text);
+
+}
+const GameObjectEventHandler *GameObject::getEventHandler() const
+{
+    return m_objEventHandler;
+}
+void GameObject::subscribe(ObjSignal *subscriber)
+{
+    if(subscriber == nullptr)
+        return;
+    for(size_t i=0; i<m_ObjSubscriberList.size(); i++)
+    {
+        if(m_ObjSubscriberList[i] == subscriber)
+        {
+            return;
+        }
+    }
+    m_ObjSubscriberList.push_back(subscriber);
+}
+void GameObject::unsubscribe(ObjSignal *subscriber)
+{
+    for(size_t i=0; i<m_ObjSubscriberList.size(); i++)
+    {
+        if(m_ObjSubscriberList[i] == subscriber)
+        {
+            m_ObjSubscriberList.erase(m_ObjSubscriberList.begin()+i);
+            return;
+        }
+    }
+}
+void GameObject::unsubscribeAll()
+{
+    m_ObjSubscriberList.clear();
 }
 
 void GameObject::addController(Controller *controller)
@@ -214,19 +277,15 @@ const Painter &GameObject::getPainter() const
 {
     return *m_painter;
 }
-void GameObject::setEventHandler(GameObjectEventHandler *handler)
+
+void GameObject::setPosInital(const Vector2f &pos)
 {
-    EASY_FUNCTION(profiler::colors::GreenA400);
-    m_objEventHandler = handler;
-
-    if(m_objEventHandler == nullptr)
-        return;
-    if(m_displayTextList.size() != 0)
-        for(DisplayText* &text : m_displayTextList)
-            m_objEventHandler->addDisplayText(text);
-
+    EASY_FUNCTION(profiler::colors::GreenA700);
+    m_layerItem.setPosInitial(pos);
+    m_collider->setPosInitial(pos);
+    if(m_painter != nullptr)
+        m_painter->setPosInitial(pos);
 }
-
 void GameObject::setPos(int x,int y)
 {
     EASY_FUNCTION(profiler::colors::GreenA700);
@@ -316,28 +375,30 @@ const Vector2f &GameObject::getMovingVector() const
 void GameObject::rotate(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    m_rotationDeg+=deg;
-    if(m_rotationDeg >= 360)
-        m_rotationDeg = m_rotationDeg%360;
+    //m_rotationDeg+=deg;
+   // if(m_rotationDeg >= 360)
+   //     m_rotationDeg = (float)((int)(100*m_rotationDeg)%36000)/100;
 
-    m_painter->setPos(m_layerItem.getPos());
-    m_collider->setPos(m_layerItem.getPos());
+    //m_painter->setPos(m_layerItem.getPos());
+    //m_collider->setPos(m_layerItem.getPos());
 
-    m_painter->rotate(deg);
-    m_collider->rotate(deg);
+    //m_painter->rotate(deg);
+    //m_collider->rotate(deg);
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate(deg);
+    m_layerItem.rotate(deg);
 }
 
 float GameObject::getRotation() const
 {
-    return m_rotationDeg;
+    return m_layerItem.getRotation();
 }
 void GameObject::setRotation(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Green);
-    float rot = m_rotationDeg - deg;
-    rotate(rot);
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_controllerList[i]->setRotation(deg);
+    m_layerItem.setRotation(deg);
 }
 void GameObject::rotate_90()
 {
@@ -423,6 +484,7 @@ void GameObject::showHitbox(const bool &isVisible)
 {
     EASY_FUNCTION(profiler::colors::Green700);
     m_hitboxIsVisible = isVisible;
+    m_collider->generateCollisionData(isVisible);
     showBoundingBox(isVisible);
 }
 void GameObject::showBoundingBox(bool enable)
@@ -479,7 +541,7 @@ void GameObject::removeText(DisplayText *text)
         if(m_displayTextList[i] == text)
         {
             if(m_objEventHandler != nullptr)
-                m_objEventHandler->removeDisplayText(text);
+                m_objEventHandler->removingisplayText(text);
             m_displayTextList.erase(m_displayTextList.begin() + i);
         }
     }
@@ -498,7 +560,7 @@ void GameObject::deleteText(DisplayText *text)
         if(m_displayTextList[i] == text)
         {
             if(m_objEventHandler != nullptr)
-                m_objEventHandler->removeDisplayText(text);
+                m_objEventHandler->removingisplayText(text);
             delete m_displayTextList[i];
             m_displayTextList.erase(m_displayTextList.begin() + i);
         }
@@ -510,7 +572,7 @@ void GameObject::deleteText()
     for(size_t i=0; i<m_displayTextList.size(); i++)
     {
         if(m_objEventHandler != nullptr)
-            m_objEventHandler->removeDisplayText(m_displayTextList[i]);
+            m_objEventHandler->removingisplayText(m_displayTextList[i]);
         delete m_displayTextList[i];
     }
     m_displayTextList.clear();
@@ -537,6 +599,13 @@ void GameObject::event_hasCollision(vector<GameObject *> other)
     if(m_objEventHandler != nullptr)
         m_objEventHandler->collisionOccured(this,other);
     m_layerItem.setToLastPos();
+    m_layerItem.setToLastRotation();
+
     m_collider->setPos(m_layerItem.getPos());
     m_painter->setPos(m_layerItem.getPos());
+    m_collider->setRotation(m_layerItem.getRotation());
+    m_painter->setRotation(m_layerItem.getRotation());
+
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_controllerList[i]->setRotation(m_layerItem.getRotation());
 }

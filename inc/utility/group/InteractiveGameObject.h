@@ -1,16 +1,13 @@
 #ifndef INTERACTIVEGAMEOBJECT_H
 #define INTERACTIVEGAMEOBJECT_H
 
+#include "base.h"
 #include "gameobject.h"
 #include "gameObjectGroup.h"
-#include "vector"
 
 #define CHECK_FOR_DOUBLE_OBJ
 
-using std::vector;
-
-
-class InteractiveGameObject
+class InteractiveGameObject : private GroupSignal, ObjSignal
 {
     public:
         InteractiveGameObject();
@@ -41,8 +38,18 @@ class InteractiveGameObject
 
         GameObject *m_gameObject;
         vector<GameObjectGroup*> m_interactsWithObjectsList;
-        GameObjectGroup m_alllist;
+        GameObjectGroup m_allList;
 
     private:
+        // GameObject singals:
+        virtual void moved(GameObject* sender,const Vector2f &move);
+
+        // Signals from GameObjectGroup
+        virtual void adding(GameObjectGroup* sender,GameObject* obj);
+        virtual void adding(GameObjectGroup* sender,GameObjectGroup* group);
+        virtual void removing(GameObjectGroup* sender,GameObject* obj);
+        virtual void removing(GameObjectGroup* sender,GameObjectGroup* group);
+        virtual void willBeCleared(GameObjectGroup* sender);
+        virtual void cleared(GameObjectGroup* sender);
 };
 #endif // INTERACTIVEGAMEOBJECT_H

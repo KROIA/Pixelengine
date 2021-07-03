@@ -1,12 +1,8 @@
 #ifndef DYNAMICCOORDINATOR_H
 #define DYNAMICCOORDINATOR_H
 
-#include "SFML/System/Vector2.hpp"
+#include "base.h"
 #include "mathFunctions.h"
-//#include "vector"
-
-#include "qdebug.h"
-#include "profiler.h"
 
 using std::vector;
 using sf::Vector2f;
