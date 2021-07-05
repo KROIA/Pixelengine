@@ -15,6 +15,7 @@
 #include "chunkID.h"
 
 
+
 class GameObject //   :   public ObjSignal
 {
     public:
@@ -102,13 +103,24 @@ class GameObject //   :   public ObjSignal
         virtual const bool &isBoundingBoxUpdated() const;
         virtual void updateBoundingBox();
         virtual void setHitboxFromTexture(const Texture &texture);
-        virtual void showHitbox(const bool &isVisible);
-        virtual void showBoundingBox(bool enable);
-        virtual const bool &isHitboxVisible() const;
 
-        // Painter settings
-        virtual void setVisibility(const bool &isVisible);
-        virtual const bool &isVisible() const;
+
+        // Painter
+        virtual void setVisibility(bool isVisible);
+        virtual void setVisibility_chunks(bool isVisible);
+        virtual void setVisibility_chunk(const ChunkID &id, bool isVisible);
+        virtual void setVisibility_collider_hitbox(bool isVisible);
+        virtual void setVisibility_collider_boundingBox(bool isVisible);
+        virtual void setVisibility_collider_collisionData(bool isVisible);
+        virtual void setVisibility_collider_isCollidingWith(bool isVisible);
+
+        virtual bool isVisible() const;
+        virtual bool isVisible_chunks() const;
+        virtual bool isVisible_chunk(const ChunkID &id) const;
+        virtual bool isVisible_collider_hitbox() const;
+        virtual bool isVisible_collider_boundingBox() const;
+        virtual bool isVisible_collider_collisionData() const;
+        virtual bool isVisible_collider_isCollidingWith() const;
 
         // Properties
         virtual void setProperty(const Property::Property &property);
@@ -126,7 +138,8 @@ class GameObject //   :   public ObjSignal
         void markAsTrash(bool isTrash);
         bool isTrash() const;
 
-
+        void setThisInteractiveGameObject(InteractiveGameObject *parent);
+        InteractiveGameObject* getThisInteractiveGameObject();
 
     protected:
         virtual void event_hasCollision(vector<GameObject *> other);
@@ -140,17 +153,28 @@ class GameObject //   :   public ObjSignal
         vector<Controller*> m_controllerList;
         DynamicCoordinator m_movementCoordinator;
         Collider      *m_collider;
+
+
+        //Painter
         Painter       *m_painter;
-        bool          m_hitboxIsVisible;
-        bool          m_boundingBoxIsVisible;
+        bool          m_visibility_collider_hitbox;
+        bool          m_visibility_collider_boundingBox;
+        bool          m_visibility_collider_collisionData;
+        bool          m_visibility_collider_collidingWith;
+        //bool          m_visibility_chunkMap;
+        bool          m_visibility;
 
         bool          m_textureIsActiveForCollider;
 
         vector<DisplayText* > m_displayTextList;
+        vector<GameObject*>   m_collidedObjects;
+
+
 
         //float m_rotationDeg;
 
     private:
         bool m_isTrash;
+        InteractiveGameObject *m_thisInteractiveObject;
 };
 #endif // GAMEOBJECT_H

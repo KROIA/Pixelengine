@@ -732,7 +732,7 @@ void PixelEngine::display()
     }
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
     {
-        m_masterGameObjectGroup[i]->drawChunks(*m_display);
+        m_masterGameObjectGroup[i]->draw_chunks(*m_display);
     }
     EASY_END_BLOCK;
 #ifdef STATISTICS

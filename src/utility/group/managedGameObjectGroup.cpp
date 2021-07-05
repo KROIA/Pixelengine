@@ -5,7 +5,7 @@ ManagedGameObjectGroup::ManagedGameObjectGroup()
         GroupManagerInterface()
 {
     this->setVisibility(true);
-    //this->showHitbox(false);
+    //this->setVisibility_collider_hitbox(false);
 }
 ManagedGameObjectGroup::ManagedGameObjectGroup(const ManagedGameObjectGroup &other)
 {

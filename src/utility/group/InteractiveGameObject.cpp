@@ -13,13 +13,14 @@ InteractiveGameObject::InteractiveGameObject()
 InteractiveGameObject::InteractiveGameObject(const InteractiveGameObject &other)
 {
     this->m_interactsWithObjectsList = other.m_interactsWithObjectsList;
-    this->m_gameObject               = other.m_gameObject;
+    this->setGameObject(other.m_gameObject);
     this->m_interactiveObjectsChunkMap  = new ChunkMap(*other.m_interactiveObjectsChunkMap);
     this->m_gameObjectChunkMap          = new ChunkMap(*other.m_gameObjectChunkMap);
 }
 InteractiveGameObject::~InteractiveGameObject()
 {
     m_gameObject->unsubscribe(this);
+    m_gameObject->setThisInteractiveGameObject(nullptr);
     for(GameObjectGroup* &group : m_interactsWithObjectsList)
         group->unsubscribe(this);
     delete m_interactsWithObjectsList[0];
@@ -41,6 +42,7 @@ void InteractiveGameObject::setGameObject(GameObject *obj)
     }
     m_gameObject = obj;
     m_gameObject->subscribe(this);
+    m_gameObject->setThisInteractiveGameObject(this);
     m_gameObjectChunkMap->add(m_gameObject);
     //m_interactiveObjectsChunkMap->add(m_gameObject);
 }
@@ -120,7 +122,6 @@ void InteractiveGameObject::removeInteractionWith(GameObjectGroup *group)
             m_interactsWithObjectsList[i]->unsubscribe(this);
             m_interactiveObjectsChunkMap->remove(group);
             m_interactsWithObjectsList.erase(m_interactsWithObjectsList.begin()+i);
-            updateAllList();
         }
     }
     //m_interactiveObjectsChunkMap->remove(group);
@@ -169,25 +170,28 @@ const vector<GameObject*> &InteractiveGameObject::getInteractiveObjects()
     return m_interactiveObjectsChunkMap->getGameObjectGroup(m_gameObject->getChunkID());
     //return m_allList;
 }
-void InteractiveGameObject::drawChunks(PixelDisplay &display)
+void InteractiveGameObject::draw_chunks(PixelDisplay &display)
 {
-    m_interactiveObjectsChunkMap->draw(display);
+    m_interactiveObjectsChunkMap->draw_chunks(display);
+    m_gameObjectChunkMap->draw_chunks(display);
 }
-void InteractiveGameObject::updateAllList()
+void InteractiveGameObject::setVisibility_chunk(const ChunkID &id,bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Purple400);
-    /*m_allList.clear();
-    size_t size = 0;
-    for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
-    {
-        size += m_interactsWithObjectsList[i]->size();
-    }
-    m_allList.reserve(size);
-    for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
-    {
-        m_allList.add(m_interactsWithObjectsList[i]);
-    }*/
+    m_gameObjectChunkMap->setVisibility_chunk(id,isVisible);
 }
+void InteractiveGameObject::setVisibility_chunks(bool isVisible)
+{
+    m_gameObjectChunkMap->setVisibility_chunks(isVisible);
+}
+bool InteractiveGameObject::isVisible_chunk(const ChunkID &id) const
+{
+    return m_gameObjectChunkMap->isVisible_chunk(id);
+}
+bool InteractiveGameObject::isVisible_chunks() const
+{
+    return m_gameObjectChunkMap->isVisible_chunks();
+}
+
 // GameObject singals:
 void InteractiveGameObject::moved(GameObject* sender,const Vector2f &move)
 {

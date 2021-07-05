@@ -24,7 +24,12 @@ class ChunkMap  :   private ChunkSignal, GameObjectGroup
 
         virtual const vector<GameObject*> &getGameObjectGroup(const ChunkID &id) const;
 
-        virtual void draw(PixelDisplay &display);
+        virtual void draw_chunks(PixelDisplay &display);
+        virtual void setVisibility_chunk(const ChunkID &id,bool isVisible);
+        virtual void setVisibility_chunks(bool isVisible);
+        virtual bool isVisible_chunk(const ChunkID &id) const;
+        virtual bool isVisible_chunks() const;
+
     protected:
         // Signals from the chunks
         virtual void objectIsNowInChunk(Chunk *sender,GameObject* obj,const Vector2<size_t> &newChunkIndex);
@@ -44,5 +49,6 @@ class ChunkMap  :   private ChunkSignal, GameObjectGroup
         Vector2<size_t>           m_mapSize;
         vector<GameObject*>       m_dummyGroup;
 
+        bool                      m_isVisible_chunks;
 };
 #endif // CHUNKMAP_H

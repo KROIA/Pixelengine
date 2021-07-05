@@ -4,7 +4,7 @@ GameObjectGroup::GameObjectGroup()
     :   ObjSignal()
 {
     this->m_isVisible       = true;
-    this->m_hitboxIsVisible = false;
+    this->m_visibility_collider_hitbox = false;
 }
 GameObjectGroup::GameObjectGroup(const GameObjectGroup &other)
     :   ObjSignal()
@@ -22,7 +22,7 @@ GameObjectGroup &GameObjectGroup::operator=(const GameObjectGroup &other)
     for(GameObject* &obj : m_isInList)
         obj->unsubscribe(this);
     this->m_isVisible        = other.m_isVisible;
-    this->m_hitboxIsVisible  = other.m_hitboxIsVisible;
+    this->m_visibility_collider_hitbox  = other.m_visibility_collider_hitbox;
     this->m_isInList         = other.m_isInList;
     for(GameObject* &obj : m_isInList)
         obj->subscribe(this);
@@ -242,7 +242,7 @@ void GameObjectGroup::rotate_270(const Vector2f &rotationPoint)
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->rotate_270(rotationPoint);
 }
-void GameObjectGroup::setVisibility(const bool &isVisible)
+void GameObjectGroup::setVisibility(bool isVisible)
 {
     EASY_FUNCTION(profiler::colors::Purple500);
     m_isVisible = isVisible;
@@ -251,27 +251,27 @@ void GameObjectGroup::setVisibility(const bool &isVisible)
         m_isInList[i]->setVisibility(m_isVisible);
     }
 }
-const bool &GameObjectGroup::isVisible() const
+bool GameObjectGroup::isVisible() const
 {
     return m_isVisible;
 }
-void GameObjectGroup::showHitbox(const bool &isVisible)
+void GameObjectGroup::setVisibility_collider_hitbox(bool isVisible)
 {
     EASY_FUNCTION(profiler::colors::Purple600);
-    m_hitboxIsVisible = isVisible;
+    m_visibility_collider_hitbox = isVisible;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
         try {
-            m_isInList[i]->showHitbox(m_hitboxIsVisible);
+            m_isInList[i]->setVisibility_collider_hitbox(m_visibility_collider_hitbox);
         }  catch (...) {
             qDebug() << "error on pointer";
         }
 
     }
 }
-const bool &GameObjectGroup::isHitboxVisible() const
+bool GameObjectGroup::isVisible_collider_hitbox() const
 {
-    return m_hitboxIsVisible;
+    return m_visibility_collider_hitbox;
 }
 long long GameObjectGroup::indexOf(const GameObject* obj)
 {

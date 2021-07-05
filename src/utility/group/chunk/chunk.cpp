@@ -13,6 +13,7 @@ Chunk::Chunk(const Vector2u &size,
     m_chunkRect.setPos(pos);
     m_chunkID = chunkID;
     m_chunkID.isInChunkMap = true;
+    m_visibility_chunk = false;
 }
 Chunk::Chunk(const Chunk &other)
 {
@@ -116,9 +117,18 @@ void Chunk::unsubscribeAllChunks()
     m_chunkSubscriberList.clear();
 }
 
-void Chunk::draw(PixelDisplay &display)
+void Chunk::draw_chunk(PixelDisplay &display)
 {
-    display.addVertexLine(m_chunkRect.getDrawable());
+    if(m_visibility_chunk)
+        display.addVertexLine(m_chunkRect.getDrawable());
+}
+void Chunk::setVisibility_chunk(bool isVisible)
+{
+    m_visibility_chunk = isVisible;
+}
+bool Chunk::isVisible_chunk() const
+{
+    return m_visibility_chunk;
 }
 inline bool Chunk::isInChunk(GameObject *obj)
 {

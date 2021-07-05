@@ -52,10 +52,10 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         virtual void rotate_180(const Vector2f &rotationPoint);
         virtual void rotate_270(const Vector2f &rotationPoint);
 
-        virtual void setVisibility(const bool &isVisible);
-        virtual const bool &isVisible() const;
-        virtual void showHitbox(const bool &isVisible);
-        virtual const bool &isHitboxVisible() const;
+        virtual void setVisibility(bool isVisible);
+        virtual bool isVisible() const;
+        virtual void setVisibility_collider_hitbox(bool isVisible);
+        virtual bool isVisible_collider_hitbox() const;
 
         virtual long long indexOf(const GameObject* obj);
         static  long long indexOf(const vector<GameObject *> list,const GameObject* obj);
@@ -77,7 +77,7 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         virtual void moved(GameObject* sender,const Vector2f &move);
 
         bool m_isVisible;
-        bool m_hitboxIsVisible;
+        bool m_visibility_collider_hitbox;
 
         vector<GameObject *> m_isInList;
         GroupSubscriberList m_groupSubscriberList;

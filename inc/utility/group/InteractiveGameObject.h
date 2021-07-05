@@ -33,16 +33,22 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         virtual const vector<GameObjectGroup*> &getInteractiveObjectsList() const;
         virtual const vector<GameObject*> &getInteractiveObjects();
 
-        virtual void drawChunks(PixelDisplay &display);
+        virtual void draw_chunks(PixelDisplay &display);
+        virtual void setVisibility_chunk(const ChunkID &id,bool isVisible);
+        virtual void setVisibility_chunks(bool isVisible);
+        virtual bool isVisible_chunk(const ChunkID &id) const;
+        virtual bool isVisible_chunks() const;
+
+
 
     protected:
-        virtual void updateAllList();
+
 
         GameObject *m_gameObject;
         ChunkMap   *m_interactiveObjectsChunkMap;
         ChunkMap   *m_gameObjectChunkMap;
         vector<GameObjectGroup*> m_interactsWithObjectsList;
-        //GameObjectGroup m_allList;
+
 
     private:
         // GameObject singals:

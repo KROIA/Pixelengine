@@ -1,5 +1,6 @@
 #include "gameobject.h"
 #include "gameObjectEventHandler.h"
+#include "InteractiveGameObject.h"
 
 GameObject::GameObject()
 {
@@ -7,8 +8,14 @@ GameObject::GameObject()
     m_collider              = new Collider();
     m_painter               = nullptr;
     m_objEventHandler       = nullptr;
+    m_thisInteractiveObject = nullptr;
+    this->m_visibility                          = true;
+    this->m_visibility_collider_hitbox          = false;
+    this->m_visibility_collider_boundingBox     = false;
+    this->m_visibility_collider_collisionData   = false;
+    this->m_visibility_collider_collidingWith   = false;
+    //this->m_visibility_chunkMap                 = false;
     //m_rotationDeg           = 90; // 90 deg
-    showHitbox(false);
     m_layerItem.setRotationInitial(0);
 }
 GameObject::GameObject(const GameObject &other)
@@ -17,9 +24,15 @@ GameObject::GameObject(const GameObject &other)
     m_collider              = new Collider();
     m_painter               = nullptr;
     m_objEventHandler       = nullptr;
+    this->m_visibility                          = true;
+    this->m_visibility_collider_hitbox          = false;
+    this->m_visibility_collider_boundingBox     = false;
+    this->m_visibility_collider_collisionData   = false;
+    this->m_visibility_collider_collidingWith   = false;
+    //this->m_visibility_chunkMap                 = false;
+    m_thisInteractiveObject = other.m_thisInteractiveObject;
 
     *this = other;
-    showHitbox(false);
 }
 GameObject::GameObject(Controller *controller,
                        Collider   *collider,
@@ -28,9 +41,15 @@ GameObject::GameObject(Controller *controller,
     this->addController(controller);
     this->setCollider(collider);
     this->setPainter(painter);
-    m_objEventHandler   = nullptr;
+    m_objEventHandler                           = nullptr;
+    m_thisInteractiveObject                     = nullptr;
+    this->m_visibility                          = true;
+    this->m_visibility_collider_hitbox          = false;
+    this->m_visibility_collider_boundingBox     = false;
+    this->m_visibility_collider_collisionData   = false;
+    this->m_visibility_collider_collidingWith   = false;
+    //this->m_visibility_chunkMap                 = false;
     //m_rotationDeg       = 90; // 90 deg
-    showHitbox(false);
     m_layerItem.setRotationInitial(0);
 }
 
@@ -49,6 +68,13 @@ const GameObject &GameObject::operator=(const GameObject &other)
     this->m_painter             = other.m_painter;
     this->m_property            = other.m_property;
     this->m_objEventHandler     = other.m_objEventHandler;
+    this->m_thisInteractiveObject = other.m_thisInteractiveObject;
+    this->m_visibility          = other.m_visibility;
+    this->m_visibility_collider_hitbox         = other.m_visibility_collider_hitbox;
+    this->m_visibility_collider_boundingBox    = other.m_visibility_collider_boundingBox;
+    this->m_visibility_collider_collisionData  = other.m_visibility_collider_collisionData;
+    this->m_visibility_collider_collidingWith  = other.m_visibility_collider_collidingWith;
+    //this->m_visibility_chunkMap                = other.m_visibility_chunkMap;
     //this->m_rotationDeg         = other.m_rotationDeg;
 
     return *this;
@@ -74,6 +100,7 @@ void GameObject::removeMeFromEngine()
 void GameObject::preRun()
 {
     EASY_FUNCTION("GameObject::preRun()",profiler::colors::Green300);
+    this->setPosInital(m_layerItem.getPos());
 }
 void GameObject::tick(const Vector2i &direction)
 {
@@ -118,12 +145,12 @@ void GameObject::tick(const Vector2i &direction)
 unsigned int GameObject::checkCollision(const vector<GameObject*> &other)
 {
     EASY_FUNCTION(profiler::colors::Green400);
-    vector<GameObject*> collided = GameObject::getCollidedObjects(this, m_collider, other);
-    if(collided.size() > 0)
+    m_collidedObjects = GameObject::getCollidedObjects(this, m_collider, other);
+    if(m_collidedObjects.size() > 0)
     {
-        event_hasCollision(collided);
+        event_hasCollision(m_collidedObjects);
     }
-    return collided.size();
+    return m_collidedObjects.size();
 }
 unsigned int GameObject::checkCollision(const vector<vector<GameObject*> >&other)
 {
@@ -131,11 +158,11 @@ unsigned int GameObject::checkCollision(const vector<vector<GameObject*> >&other
     vector<GameObject*> collided;
     for(size_t i=0; i<other.size(); i++)
     {
-        vector<GameObject*> coll = GameObject::getCollidedObjects(this, m_collider, other[i]);
-        collided.reserve(collided.size() + coll.size());
-        for(size_t j=0; j<coll.size(); j++)
+        m_collidedObjects = GameObject::getCollidedObjects(this, m_collider, other[i]);
+        collided.reserve(collided.size() + m_collidedObjects.size());
+        for(size_t j=0; j<m_collidedObjects.size(); j++)
         {
-            collided.push_back(coll[i]);
+            collided.push_back(m_collidedObjects[i]);
         }
     }
     if(collided.size() > 0)
@@ -167,6 +194,8 @@ vector<GameObject*> GameObject::getCollidedObjects(GameObject *owner, Collider *
 void GameObject::draw(PixelDisplay &display)
 {
     EASY_FUNCTION(profiler::colors::Green700);
+    if(!m_visibility)
+        return;
     m_painter->setPos(m_layerItem.getPos());
     m_painter->setRotation(m_layerItem.getRotation());
     RectF frame = display.getRenderFrame();
@@ -177,13 +206,19 @@ void GameObject::draw(PixelDisplay &display)
 
 
     m_painter->draw(display);
-    if(m_hitboxIsVisible)
-    {
-        display.addVertexLine(m_collider->getDrawableHitBox());
-        display.addVertexLine(m_collider->getDrawableColliderVector());
-    }
-    if(m_boundingBoxIsVisible)
+
+    if(m_visibility_collider_boundingBox)
         display.addVertexLine(m_collider->getDrawableBoundingBox());
+    if(m_visibility_collider_hitbox)
+        display.addVertexLine(m_collider->getDrawableHitBox());    
+    if(m_visibility_collider_collisionData)
+        display.addVertexLine(m_collider->getDrawableColliderVector());
+    if(m_visibility_collider_collidingWith)
+        for(size_t i=0; i<m_collidedObjects.size(); i++)
+            display.addVertexLine(m_collidedObjects[i]->getCollider().getBoundingBox().getDrawable(Color(255,100,0)));
+
+
+
 
 }
 void GameObject::setEventHandler(GameObjectEventHandler *handler)
@@ -488,29 +523,77 @@ void GameObject::setHitboxFromTexture(const Texture &texture)
     m_textureIsActiveForCollider = true;
     m_collider->setHitboxFromTexture(&texture);
 }
-void GameObject::showHitbox(const bool &isVisible)
-{
-    EASY_FUNCTION(profiler::colors::Green700);
-    m_hitboxIsVisible = isVisible;
-    m_collider->generateCollisionData(isVisible);
-    showBoundingBox(isVisible);
-}
-void GameObject::showBoundingBox(bool enable)
-{
-    m_boundingBoxIsVisible = enable;
-}
-const bool &GameObject::isHitboxVisible() const
-{
-    return m_hitboxIsVisible;
-}
 
-void GameObject::setVisibility(const bool &isVisible)
+
+
+
+void GameObject::setVisibility(bool isVisible)
 {
+    m_visibility = isVisible;
     m_painter->setVisibility(isVisible);
 }
-const bool &GameObject::isVisible() const
+void GameObject::setVisibility_chunks(bool isVisible)
 {
-    return m_painter->isVisible();
+    //m_visibility_chunkMap = isVisible;
+    if(m_thisInteractiveObject != nullptr)
+        m_thisInteractiveObject->setVisibility_chunks(isVisible);
+}
+void GameObject::setVisibility_chunk(const ChunkID &id, bool isVisible)
+{
+    if(m_thisInteractiveObject != nullptr)
+        m_thisInteractiveObject->setVisibility_chunk(id,isVisible);
+}
+
+void GameObject::setVisibility_collider_hitbox(bool isVisible)
+{
+    m_visibility_collider_hitbox = isVisible;
+}
+void GameObject::setVisibility_collider_boundingBox(bool isVisible)
+{
+    m_visibility_collider_boundingBox = isVisible;
+}
+void GameObject::setVisibility_collider_collisionData(bool isVisible)
+{
+    m_visibility_collider_collisionData = isVisible;
+    m_collider->generateCollisionData(isVisible);
+}
+void GameObject::setVisibility_collider_isCollidingWith(bool isVisible)
+{
+    m_visibility_collider_collidingWith = isVisible;
+}
+
+bool GameObject::isVisible() const
+{
+    return m_visibility;
+}
+bool GameObject::isVisible_chunks() const
+{
+   // return m_visibility_chunkMap;
+    if(m_thisInteractiveObject != nullptr)
+        return m_thisInteractiveObject->isVisible_chunks();
+    return false;
+}
+bool GameObject::isVisible_chunk(const ChunkID &id) const
+{
+    if(m_thisInteractiveObject != nullptr)
+        return m_thisInteractiveObject->isVisible_chunk(id);
+    return false;
+}
+bool GameObject::isVisible_collider_hitbox() const
+{
+    return m_visibility_collider_hitbox;
+}
+bool GameObject::isVisible_collider_boundingBox() const
+{
+    return m_visibility_collider_boundingBox;
+}
+bool GameObject::isVisible_collider_collisionData() const
+{
+    return m_visibility_collider_collisionData;
+}
+bool GameObject::isVisible_collider_isCollidingWith() const
+{
+    return m_visibility_collider_collidingWith;
 }
 
 
@@ -599,7 +682,14 @@ bool GameObject::isTrash() const
 {
     return m_isTrash;
 }
-
+void GameObject::setThisInteractiveGameObject(InteractiveGameObject *parent)
+{
+    m_thisInteractiveObject = parent;
+}
+InteractiveGameObject* GameObject::getThisInteractiveGameObject()
+{
+    return m_thisInteractiveObject;
+}
 
 void GameObject::event_hasCollision(vector<GameObject *> other)
 {

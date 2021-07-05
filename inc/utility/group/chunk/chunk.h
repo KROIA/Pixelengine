@@ -34,7 +34,9 @@ class Chunk :   public GameObjectGroup
         virtual void unsubscribeChunk(ChunkSignal *subscriber);
         virtual void unsubscribeAllChunks();
 
-        virtual void draw(PixelDisplay &display);
+        virtual void draw_chunk(PixelDisplay &display);
+        virtual void setVisibility_chunk(bool isVisible);
+        virtual bool isVisible_chunk() const;
 
     protected:
         inline bool isInChunk(GameObject *obj);
@@ -47,5 +49,7 @@ class Chunk :   public GameObjectGroup
         ChunkSubscriberList m_chunkSubscriberList;
         RectF       m_chunkRect;
         ChunkID     m_chunkID;
+
+        bool        m_visibility_chunk;
 };
 #endif // CHUNK_H

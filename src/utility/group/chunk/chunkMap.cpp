@@ -13,6 +13,7 @@ ChunkMap::ChunkMap(Vector2u chunkSize,
     if(area.getSize().y == 0)
         area.setHeight(1);
 
+    m_isVisible_chunks = false;
     m_mapPos    = area.getPos();
     m_chunkSize = chunkSize;
     m_mapSize   = calculateMapSize(chunkSize, area.getSize());
@@ -90,12 +91,27 @@ Vector2<size_t> ChunkMap::findChunk(GameObject *obj,bool &outOfMap)
     Vector2i chunkOfObj(0,0);
     Vector2f posOfObj = obj->getCollider().getBoundingBox().getPos();
 
-    Vector2i relativeToChunkMapPos = Vector2i(posOfObj) - m_mapPos;
-    chunkOfObj.x = relativeToChunkMapPos.x / m_chunkSize.x ;
+    Vector2f relativeToChunkMapPos = posOfObj - Vector2f(m_mapPos);
+
+    float xScalar = relativeToChunkMapPos.x / float(m_chunkSize.x);
+    float yScalar = relativeToChunkMapPos.y / float(m_chunkSize.y);
+
+
+    chunkOfObj = Vector2i(floor(xScalar),floor(yScalar));
+    /*chunkOfObj.x = relativeToChunkMapPos.x / m_chunkSize.x ;
     chunkOfObj.y = relativeToChunkMapPos.y / m_chunkSize.y ;
 
-    chunkOfObj.x   += (relativeToChunkMapPos.x % m_chunkSize.x) != 0 ? 0 : -1;
-    chunkOfObj.y   += (relativeToChunkMapPos.y % m_chunkSize.y) != 0 ? 0 : -1;
+    chunkOfObj.x   += (int(relativeToChunkMapPos.x) % m_chunkSize.x) != 0 ? 0 : -1;
+    chunkOfObj.y   += (int(relativeToChunkMapPos.y) % m_chunkSize.y) != 0 ? 0 : -1;
+    */
+
+
+    /*float floatingX = relativeToChunkMapPos.x - int(relativeToChunkMapPos.x);
+    float floatingY = relativeToChunkMapPos.x - int(relativeToChunkMapPos.x);
+    if(floatingX > 0)
+    {
+
+    }*/
 
     if(chunkOfObj.x < 0 || chunkOfObj.x >= signed(m_mapSize.x) ||
        chunkOfObj.y < 0 || chunkOfObj.y >= signed(m_mapSize.y))
@@ -137,7 +153,7 @@ void ChunkMap::generateMap()
         movingPos = m_mapPos  + Vector2i(int(m_chunkSize.x)*int(x),0);
         for(size_t y=0; y<m_mapSize.y; y++)
         {
-            Chunk* chunk = new Chunk(m_chunkSize,Vector2f(movingPos),ChunkID{.isInChunkMap=true,.chunk=Vector2<size_t>(x,y)});
+            Chunk* chunk = new Chunk(m_chunkSize,Vector2f(movingPos),ChunkID(true,Vector2<size_t>(x,y)));
             chunk->subscribeChunk(this);
             m_chunkMap[x].push_back(chunk);
             movingPos += Vector2i(0,int(m_chunkSize.y));
@@ -154,15 +170,46 @@ const vector<GameObject*> &ChunkMap::getGameObjectGroup(const ChunkID &id) const
         return m_dummyGroup;
     return m_chunkMap[id.chunk.x][id.chunk.y]->getVector();
 }
-void ChunkMap::draw(PixelDisplay &display)
+void ChunkMap::draw_chunks(PixelDisplay &display)
 {
     for(size_t x=0; x<m_mapSize.x; x++)
     {
         for(size_t y=0; y<m_mapSize.y; y++)
         {
-            m_chunkMap[x][y]->draw(display);
+            m_chunkMap[x][y]->draw_chunk(display);
         }
     }
+}
+void ChunkMap::setVisibility_chunk(const ChunkID &id,bool isVisible)
+{
+    if(m_chunkMap.size() <= id.chunk.x)
+        return;
+    if(m_chunkMap[id.chunk.x].size() <= id.chunk.y)
+        return;
+    m_chunkMap[id.chunk.x][id.chunk.y]->setVisibility_chunk(isVisible);
+}
+void ChunkMap::setVisibility_chunks(bool isVisible)
+{
+    m_isVisible_chunks = isVisible;
+    for(size_t x=0; x<m_mapSize.x; x++)
+    {
+        for(size_t y=0; y<m_mapSize.y; y++)
+        {
+            m_chunkMap[x][y]->setVisibility_chunk(m_isVisible_chunks);
+        }
+    }
+}
+bool ChunkMap::isVisible_chunk(const ChunkID &id) const
+{
+    if(m_chunkMap.size() <= id.chunk.x)
+        return false;
+    if(m_chunkMap[id.chunk.x].size() <= id.chunk.y)
+        return false;
+    return m_chunkMap[id.chunk.x][id.chunk.y]->isVisible_chunk();
+}
+bool ChunkMap::isVisible_chunks() const
+{
+    return m_isVisible_chunks;
 }
 
 

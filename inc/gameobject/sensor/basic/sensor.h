@@ -40,7 +40,7 @@ class Sensor
         vector<GameObject*> m_detected;
         GameObject *m_owner;
 
-        bool m_boundingBoxIsVisible;
+        bool m_visibility_collider_boundingBox;
     private:
 };
 
