@@ -60,6 +60,10 @@ class GeneralRect
         virtual void clearColliderData();
         virtual bool intersects(const GeneralRect<T> &other); // returns true if this and ohter are intersecting
         virtual bool intersects_fast(const GeneralRect<T> &other); // returns true if this and ohter are intersecting
+        virtual bool isOnTopOf(const GeneralRect<T> &other);
+        virtual bool isBeneathOf(const GeneralRect<T> &other);
+        virtual bool isLeftOf(const GeneralRect<T> &other);
+        virtual bool isRightOf(const GeneralRect<T> &other);
         virtual bool contains(const Vector2<T> &point);
 
         bool operator==(const GeneralRect<T> &other);
@@ -525,6 +529,47 @@ bool GeneralRect<T>::intersects_fast(const GeneralRect<T> &other)
     }
     stats_intersectionCheckCounter = 2;
     return true;
+}
+
+template<class T>
+bool GeneralRect<T>::isOnTopOf(const GeneralRect<T> &other)
+{
+    if(other.frame_pos.y > frame_pos.y + frame_size.y)
+    {
+        stats_intersectionCheckCounter = 1;
+        return true;
+    }
+    return false;
+}
+template<class T>
+bool GeneralRect<T>::isBeneathOf(const GeneralRect<T> &other)
+{
+    if(frame_pos.y >  other.frame_pos.y + other.frame_size.y)
+    {
+        stats_intersectionCheckCounter = 1;
+        return true;
+    }
+    return false;
+}
+template<class T>
+bool GeneralRect<T>::isRightOf(const GeneralRect<T> &other)
+{
+    if(frame_pos.x >  other.frame_pos.x + other.frame_size.x)
+    {
+        stats_intersectionCheckCounter = 1;
+        return true;
+    }
+    return false;
+}
+template<class T>
+bool GeneralRect<T>::isLeftOf(const GeneralRect<T> &other)
+{
+    if(other.frame_pos.x > frame_pos.x + frame_size.x)
+    {
+        stats_intersectionCheckCounter = 1;
+        return true;
+    }
+    return false;
 }
 template<class T>
 bool GeneralRect<T>::contains(const Vector2<T> &point)

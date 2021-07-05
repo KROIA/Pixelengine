@@ -54,6 +54,7 @@ class InteractiveGameObject;
 class InteractiveGameObjectGroup;
 class ManagedGameObjectGroup;
 
+struct ChunkID;
 class Chunk;
 class ChunkMap;
 

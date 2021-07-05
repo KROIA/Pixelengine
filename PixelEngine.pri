@@ -90,6 +90,7 @@ SOURCES += \
 HEADERS += \
         $$PWD/inc/utility/base.h \
         $$PWD/inc/utility/group/chunk/chunk.h \
+        $$PWD/inc/utility/group/chunk/chunkID.h \
         $$PWD/inc/utility/group/chunk/chunkMap.h \
         $$PWD/inc/utility/signalSubscriber.h \
         $$PixelEngine_incPath/display/drawUtilities.h \

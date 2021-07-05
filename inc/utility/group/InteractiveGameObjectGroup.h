@@ -31,8 +31,8 @@ class InteractiveGameObjectGroup
 
         virtual const vector<GameObjectGroup*> &getInteractiveObjectsList(const GameObject *obj) const;
         virtual const vector<GameObjectGroup*> &getInteractiveObjectsList(size_t index) const;
-        virtual const GameObjectGroup getInteractiveObjects(const GameObject *obj) const;
-        virtual const GameObjectGroup getInteractiveObjects(size_t index) const;
+        virtual const vector<GameObject*> &getInteractiveObjects(const GameObject *obj) const;
+        virtual const vector<GameObject*> &getInteractiveObjects(size_t index) const;
 
         virtual void removeAllInteractionsWithObj(GameObject *obj);
         virtual void removeAllInteractionsWithObj(InteractiveGameObject *obj);
@@ -43,6 +43,7 @@ class InteractiveGameObjectGroup
 
         vector<InteractiveGameObject*> m_interactiveObjectsList;
         vector<GameObjectGroup*>       m_const_dummy_list;
+        vector<GameObject*>            m_const_dummy_list_2;
 
     private:
 };

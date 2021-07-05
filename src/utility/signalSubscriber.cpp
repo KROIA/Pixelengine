@@ -8,9 +8,10 @@ ObjSubscriberList::ObjSubscriberList()
 
 void ObjSubscriberList::moved(GameObject* sender,const Vector2f &move)
 {
-    for(ObjSignal* &sub : *this)
+    for(size_t i=0; i<this->size(); i++)
+    //for(ObjSignal* &sub : *this)
     {
-        sub->moved(sender,move);
+        (*this)[i]->moved(sender,move);
     }
 }
 
@@ -68,7 +69,7 @@ ChunkSubscriberList::ChunkSubscriberList()
     :   vector<ChunkSignal *>()
 {
 
-}
+}/*
 void ChunkSubscriberList::movingToUpperChunk(GameObject* sender)
 {
     for(ChunkSignal* &sub : *this)
@@ -95,5 +96,20 @@ void ChunkSubscriberList::movingToRightChunk(GameObject* sender)
     for(ChunkSignal* &sub : *this)
     {
         sub->movingToRightChunk(sender);
+    }
+}
+*/
+void ChunkSubscriberList::objectIsNowInChunk(Chunk *sender,GameObject* obj,const Vector2<size_t> &newChunkIndex)
+{
+    for(ChunkSignal* &sub : *this)
+    {
+        sub->objectIsNowInChunk(sender,obj,newChunkIndex);
+    }
+}
+void ChunkSubscriberList::objectIsNowOutOfBoundry(Chunk *sender,GameObject *obj)
+{
+    for(ChunkSignal* &sub : *this)
+    {
+        sub->objectIsNowOutOfBoundry(sender,obj);
     }
 }

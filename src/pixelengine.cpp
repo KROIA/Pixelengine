@@ -50,7 +50,7 @@ PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
     m_display->addText(m_stats_text);
 
     RectI rect(0,0,2000,2000);
-    m_chunkMap = new ChunkMap(Vector2u(128,128),rect);
+    //m_chunkMap = new ChunkMap(Vector2u(128,128),rect);
     resetTick();
 }
 
@@ -525,7 +525,7 @@ void *PixelEngine::thread_tick(void *p)
             gameObjectTickTime += stats_time_span.count()*500.f;
 
             stats_timer_start = std::chrono::system_clock::now();
-            collisionsPerTick += obj->checkCollision(interactiveObject->getInteractiveObjects().getVector());
+            collisionsPerTick += obj->checkCollision(interactiveObject->getInteractiveObjects());
     #else
             obj->checkCollision(interactiveObject->getInteractiveObjects().getVector());
     #endif
@@ -730,7 +730,10 @@ void PixelEngine::display()
     {        
         m_renderLayer[i].draw(*m_display);
     }
-    m_chunkMap->draw(*m_display);
+    for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
+    {
+        m_masterGameObjectGroup[i]->drawChunks(*m_display);
+    }
     EASY_END_BLOCK;
 #ifdef STATISTICS
     stats_timePoint_1 = std::chrono::system_clock::now();
@@ -811,7 +814,7 @@ void PixelEngine::addGameObject(GameObject *obj)
     obj->preRun();
     m_masterGameObjectGroup.add(obj);
     m_renderLayer[2].add(obj);
-    m_chunkMap->add(obj);
+    //m_chunkMap->add(obj);
 }
 /*void PixelEngine::addGameObject(GameObjectGroup *group)
 {

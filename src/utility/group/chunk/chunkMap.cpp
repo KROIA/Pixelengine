@@ -48,10 +48,42 @@ void ChunkMap::add(GameObject *object)
     Vector2<size_t> chunkPos = findChunk(object,outOfMap);
     if(!outOfMap)
         m_chunkMap[chunkPos.x][chunkPos.y]->add(object);
+    else
+        GameObjectGroup::add(object);
 }
 void ChunkMap::add(GameObjectGroup *other)
 {
     this->add(other->getVector());
+}
+void ChunkMap::remove(const vector<GameObject*> &list)
+{
+    for(size_t x=0; x<m_chunkSize.x; x++)
+    {
+        for(size_t y=0; y<m_chunkSize.y; y++)
+        {
+            m_chunkMap[x][y]->remove(list);
+        }
+    }
+}
+void ChunkMap::remove(GameObject *object)
+{
+    for(size_t x=0; x<m_chunkSize.x; x++)
+    {
+        for(size_t y=0; y<m_chunkSize.y; y++)
+        {
+            m_chunkMap[x][y]->remove(object);
+        }
+    }
+}
+void ChunkMap::remove(GameObjectGroup *other)
+{
+    for(size_t x=0; x<m_chunkSize.x; x++)
+    {
+        for(size_t y=0; y<m_chunkSize.y; y++)
+        {
+            m_chunkMap[x][y]->remove(other);
+        }
+    }
 }
 Vector2<size_t> ChunkMap::findChunk(GameObject *obj,bool &outOfMap)
 {
@@ -68,7 +100,7 @@ Vector2<size_t> ChunkMap::findChunk(GameObject *obj,bool &outOfMap)
     if(chunkOfObj.x < 0 || chunkOfObj.x >= signed(m_mapSize.x) ||
        chunkOfObj.y < 0 || chunkOfObj.y >= signed(m_mapSize.y))
     {
-        qDebug() << "out of map";
+        //qDebug() << "out of map";
         outOfMap = true;
         return Vector2<size_t>(0,0);
     }
@@ -89,9 +121,9 @@ Vector2<size_t> ChunkMap::calculateMapSize(const Vector2u &chunkSize,
         size.x += 1;
     if(area.y % chunkSize.y != 0)
         size.y += 1;
-    qDebug() << "chunkSize:    "<<chunkSize.x<<" "<<chunkSize.y;
-    qDebug() << "area:         "<<area.x<<" "<<area.y;
-    qDebug() << "mapSize:      "<<size.x<<" "<<size.y;
+   // qDebug() << "chunkSize:    "<<chunkSize.x<<" "<<chunkSize.y;
+   // qDebug() << "area:         "<<area.x<<" "<<area.y;
+   // qDebug() << "mapSize:      "<<size.x<<" "<<size.y;
     return size;
 }
 void ChunkMap::generateMap()
@@ -105,14 +137,23 @@ void ChunkMap::generateMap()
         movingPos = m_mapPos  + Vector2i(int(m_chunkSize.x)*int(x),0);
         for(size_t y=0; y<m_mapSize.y; y++)
         {
-            Chunk* chunk = new Chunk(m_chunkSize,Vector2f(movingPos));
+            Chunk* chunk = new Chunk(m_chunkSize,Vector2f(movingPos),ChunkID{.isInChunkMap=true,.chunk=Vector2<size_t>(x,y)});
             chunk->subscribeChunk(this);
             m_chunkMap[x].push_back(chunk);
             movingPos += Vector2i(0,int(m_chunkSize.y));
         }
     }
 }
-
+const vector<GameObject*> &ChunkMap::getGameObjectGroup(const ChunkID &id) const
+{
+    if(!id.isInChunkMap)
+        return this->getVector(); // Get the objects which are outside of any chunk
+    if(m_chunkMap.size() <= id.chunk.x)
+        return m_dummyGroup;
+    if(m_chunkMap[id.chunk.x].size() <= id.chunk.y)
+        return m_dummyGroup;
+    return m_chunkMap[id.chunk.x][id.chunk.y]->getVector();
+}
 void ChunkMap::draw(PixelDisplay &display)
 {
     for(size_t x=0; x<m_mapSize.x; x++)
@@ -125,19 +166,35 @@ void ChunkMap::draw(PixelDisplay &display)
 }
 
 
-void ChunkMap::movingToUpperChunk(GameObject* sender)
+void ChunkMap::objectIsNowInChunk(Chunk *sender,GameObject* obj,const Vector2<size_t> &newChunkIndex)
 {
-    qDebug() << "Obj: "<<sender<<" moving to upper chunk";
+    if(newChunkIndex.x < m_chunkSize.x &&
+       newChunkIndex.y < m_chunkSize.y)
+    {
+        sender->remove(obj);
+        m_chunkMap[newChunkIndex.x][newChunkIndex.y]->add(obj);
+
+        qDebug()<<"OBJ: "<<obj<<" is now in chunk: "<<newChunkIndex.x<<" "<<newChunkIndex.y;
+    }
 }
-void ChunkMap::movingToLowerChunk(GameObject* sender)
+void ChunkMap::objectIsNowOutOfBoundry(Chunk *sender,GameObject *obj)
 {
-    qDebug() << "Obj: "<<sender<<" moving to lower chunk";
+    qDebug()<<"OBJ: "<<obj<<" is out of boundry";
+    sender->remove(obj);
+    GameObjectGroup::add(obj);
+
 }
-void ChunkMap::movingToLeftChunk(GameObject* sender)
+
+void ChunkMap::moved(GameObject* sender,const Vector2f &move)
 {
-    qDebug() << "Obj: "<<sender<<" moving to left chunk";
-}
-void ChunkMap::movingToRightChunk(GameObject* sender)
-{
-    qDebug() << "Obj: "<<sender<<" moving to right chunk";
+    bool outOfMap;
+    Vector2<size_t> chunkPos = findChunk(sender,outOfMap);
+    if(!outOfMap)
+    {
+        GameObjectGroup::remove(sender);
+        m_chunkMap[chunkPos.x][chunkPos.y]->add(sender);
+        qDebug()<<"OBJ: "<<sender<<" is now in chunk: "<<chunkPos.x<<" "<<chunkPos.y;
+
+
+    }
 }

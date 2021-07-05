@@ -48,7 +48,7 @@
 const Color __color_minimalAlphaColor(255,255,255);
 #endif
 
-#define NO_TIMED_LOOPS
+//#define NO_TIMED_LOOPS
 #define STATISTICS
 #define USE_THREADS
 #define USE_STD_THREADS

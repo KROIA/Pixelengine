@@ -3,7 +3,7 @@
 #include "base.h"
 #include "chunk.h"
 
-class ChunkMap  :   private ChunkSignal
+class ChunkMap  :   private ChunkSignal, GameObjectGroup
 {
     public:
         ChunkMap(Vector2u chunkSize,
@@ -11,20 +11,27 @@ class ChunkMap  :   private ChunkSignal
         ChunkMap(const ChunkMap &other);
         ~ChunkMap();
 
+
         virtual void add(const vector<GameObject*> &list);
         virtual void add(GameObject *object);
         virtual void add(GameObjectGroup *other);
 
+        virtual void remove(const vector<GameObject*> &list);
+        virtual void remove(GameObject *object);
+        virtual void remove(GameObjectGroup *other);
+
         virtual Vector2<size_t> findChunk(GameObject *obj,bool &outOfMap);
+
+        virtual const vector<GameObject*> &getGameObjectGroup(const ChunkID &id) const;
 
         virtual void draw(PixelDisplay &display);
     protected:
         // Signals from the chunks
-        virtual void movingToUpperChunk(GameObject* sender);
-        virtual void movingToLowerChunk(GameObject* sender);
-        virtual void movingToLeftChunk(GameObject* sender);
-        virtual void movingToRightChunk(GameObject* sender);
+        virtual void objectIsNowInChunk(Chunk *sender,GameObject* obj,const Vector2<size_t> &newChunkIndex);
+        virtual void objectIsNowOutOfBoundry(Chunk *sender,GameObject *obj);
 
+        // GameObject singals:
+        virtual void moved(GameObject* sender,const Vector2f &move);
     private:
 
         Vector2<size_t>  calculateMapSize(const Vector2u &chunkSize,
@@ -35,6 +42,7 @@ class ChunkMap  :   private ChunkSignal
         Vector2u                  m_chunkSize;
         Vector2i                  m_mapPos;
         Vector2<size_t>           m_mapSize;
+        vector<GameObject*>       m_dummyGroup;
 
 };
 #endif // CHUNKMAP_H

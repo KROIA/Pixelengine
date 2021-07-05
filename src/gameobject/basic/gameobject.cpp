@@ -202,6 +202,14 @@ const GameObjectEventHandler *GameObject::getEventHandler() const
 {
     return m_objEventHandler;
 }
+void GameObject::setChunkID(const ChunkID &chunkID)
+{
+    m_chunkID = chunkID;
+}
+const ChunkID &GameObject::getChunkID() const
+{
+    return m_chunkID;
+}
 void GameObject::subscribe(ObjSignal *subscriber)
 {
     if(subscriber == nullptr)

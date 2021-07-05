@@ -134,7 +134,7 @@ const vector<GameObjectGroup*> &InteractiveGameObjectGroup::getInteractiveObject
      return m_interactiveObjectsList[index]->getInteractiveObjectsList();
 }
 
-const GameObjectGroup InteractiveGameObjectGroup::getInteractiveObjects(const GameObject *obj) const
+const vector<GameObject*> &InteractiveGameObjectGroup::getInteractiveObjects(const GameObject *obj) const
 {
     EASY_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_interactiveObjectsList.size(); i++)
@@ -142,11 +142,13 @@ const GameObjectGroup InteractiveGameObjectGroup::getInteractiveObjects(const Ga
         if(m_interactiveObjectsList[i]->getGameObject() == obj)
             return getInteractiveObjects(i);
     }
-    return GameObjectGroup();
+    return m_const_dummy_list_2;
 }
-const GameObjectGroup InteractiveGameObjectGroup::getInteractiveObjects(size_t index) const
+const vector<GameObject*> &InteractiveGameObjectGroup::getInteractiveObjects(size_t index) const
 {
     EASY_FUNCTION(profiler::colors::Purple400);
+    if(index<=m_interactiveObjectsList.size())
+        return m_const_dummy_list_2;
     return m_interactiveObjectsList[index]->getInteractiveObjects();
 }
 
@@ -163,6 +165,7 @@ void InteractiveGameObjectGroup::removeAllInteractionsWithObj(InteractiveGameObj
     EASY_FUNCTION(profiler::colors::Purple500);
     removeAllInteractionsWithObj(obj->getGameObject());
 }
+
 
 size_t InteractiveGameObjectGroup::size() const
 {

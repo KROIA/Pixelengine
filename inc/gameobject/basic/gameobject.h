@@ -12,6 +12,7 @@
 #include "texture.h"
 #include "displayText.h"
 #include "signalSubscriber.h"
+#include "chunkID.h"
 
 
 class GameObject //   :   public ObjSignal
@@ -41,6 +42,8 @@ class GameObject //   :   public ObjSignal
         virtual void draw(PixelDisplay &display);
         virtual void setEventHandler(GameObjectEventHandler *handler);
         virtual const GameObjectEventHandler *getEventHandler() const;
+        virtual void setChunkID(const ChunkID &chunkID);
+        virtual const ChunkID &getChunkID() const;
 
         // Signals
         virtual void subscribe(ObjSignal *subscriber);
@@ -123,11 +126,13 @@ class GameObject //   :   public ObjSignal
         void markAsTrash(bool isTrash);
         bool isTrash() const;
 
+
+
     protected:
         virtual void event_hasCollision(vector<GameObject *> other);
 
         LayerItem m_layerItem;
-
+        ChunkID   m_chunkID;
         Property::Property m_property;
         GameObjectEventHandler *m_objEventHandler;
         ObjSubscriberList          m_ObjSubscriberList;

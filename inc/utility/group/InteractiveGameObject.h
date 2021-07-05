@@ -4,6 +4,7 @@
 #include "base.h"
 #include "gameobject.h"
 #include "gameObjectGroup.h"
+#include "chunkMap.h"
 
 #define CHECK_FOR_DOUBLE_OBJ
 
@@ -30,15 +31,18 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         virtual void setInteractionWith(vector<GameObjectGroup*> *groupList, bool doesCollide = true);
 
         virtual const vector<GameObjectGroup*> &getInteractiveObjectsList() const;
-        virtual const GameObjectGroup &getInteractiveObjects();
+        virtual const vector<GameObject*> &getInteractiveObjects();
 
+        virtual void drawChunks(PixelDisplay &display);
 
     protected:
         virtual void updateAllList();
 
         GameObject *m_gameObject;
+        ChunkMap   *m_interactiveObjectsChunkMap;
+        ChunkMap   *m_gameObjectChunkMap;
         vector<GameObjectGroup*> m_interactsWithObjectsList;
-        GameObjectGroup m_allList;
+        //GameObjectGroup m_allList;
 
     private:
         // GameObject singals:
