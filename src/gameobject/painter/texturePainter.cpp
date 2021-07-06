@@ -5,6 +5,7 @@ TexturePainter::TexturePainter()
 {
     m_sprite = new sf::Sprite;
     m_textureObj = nullptr;
+    //m_sprite->setScale(globalScale);
 }
 
 TexturePainter::~TexturePainter()

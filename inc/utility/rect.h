@@ -1,22 +1,14 @@
 #ifndef RECT_H
 #define RECT_H
 
-#include <SFML/System/Vector2.hpp>
+#include "base.h"
+
 #include "mathFunctions.h"
 #include "drawUtilities.h"
-
-#include "profiler.h"
-
-template<class T>
-class GeneralRect;
-
-
 
 typedef GeneralRect<unsigned int> RectU;
 typedef GeneralRect<int> RectI;
 typedef GeneralRect<float> RectF;
-
-
 
 template<class T>
 class GeneralRect
@@ -43,6 +35,8 @@ class GeneralRect
         virtual void setPos(const T &posX, const T &posY);
         virtual void setX(const T &x);
         virtual void setY(const T &y);
+        virtual void setWidth(const T &width);
+        virtual void setHeight(const T &height);
         virtual const T &getX() const;
         virtual const T &getY() const;
 
@@ -61,15 +55,23 @@ class GeneralRect
         virtual const Vector2<T> &getBottom()         const;
         virtual const Vector2<T> &getLeft()           const;
 
+        virtual void generateColliderData(bool enable);
+        virtual vector<VertexPath*> getColliderData();
+        virtual void clearColliderData();
         virtual bool intersects(const GeneralRect<T> &other); // returns true if this and ohter are intersecting
         virtual bool intersects_fast(const GeneralRect<T> &other); // returns true if this and ohter are intersecting
+        virtual bool intersects_inverse_fast(const GeneralRect<T> &other); // returns true if this is intersecting the inverse of the other
+        virtual bool isOnTopOf(const GeneralRect<T> &other);
+        virtual bool isBeneathOf(const GeneralRect<T> &other);
+        virtual bool isLeftOf(const GeneralRect<T> &other);
+        virtual bool isRightOf(const GeneralRect<T> &other);
         virtual bool contains(const Vector2<T> &point);
 
         bool operator==(const GeneralRect<T> &other);
         bool operator!=(const GeneralRect<T> &other);
 
-        VertexPath getDrawable(const sf::Color &color = sf::Color(255,255,255,255)) const;
-        VertexPath getDrawableMesh(const sf::Color &color = sf::Color(255,255,255,255)) const;
+        VertexPath *getDrawable(const sf::Color &color = sf::Color(255,255,255,255)) const;
+        VertexPath *getDrawableMesh(const sf::Color &color = sf::Color(255,255,255,255)) const;
 
         static GeneralRect<T> rotate(GeneralRect<T> rect,const float &deg);
         static GeneralRect<T> rotate(GeneralRect<T> rect,const Vector2<T> &rotationPoint,const float &deg);
@@ -126,53 +128,70 @@ class GeneralRect
 
         Vector2<T> frame_pos;
         Vector2<T> frame_size;
+
+        bool colliderDataEnabled;
+        vector<VertexPath*> collisionData;
+        float rotation;
 };
 
 template<class T>
 GeneralRect<T>::GeneralRect()
 {
+    rotation = 0;
     this->setPos(0,0);
     this->setSize(1,1);
     stats_intersectionCheckCounter = 0;
+    colliderDataEnabled = false;
 }
 template<class T>
 GeneralRect<T>::GeneralRect(const T &width, const T &height)
 {
+    rotation = 0;
     this->setSize(width,height);
     stats_intersectionCheckCounter = 0;
+    colliderDataEnabled = false;
 }
 template<class T>
 GeneralRect<T>::GeneralRect(const Vector2<T> &size)
 {
+    rotation = 0;
     this->setSize(size);
     stats_intersectionCheckCounter = 0;
+    colliderDataEnabled = false;
 }
 template<class T>
 GeneralRect<T>::GeneralRect(const T &xPos, const T &yPos, const T &width, const T &height)
 {
+    rotation = 0;
     this->setPos(xPos,yPos);
     this->setSize(width,height);
     stats_intersectionCheckCounter = 0;
+    colliderDataEnabled = false;
 }
 template<class T>
 GeneralRect<T>::GeneralRect( const Vector2<T> &pos,const Vector2<T> &size)
 {
+    rotation = 0;
     this->setPos(pos);
     this->setSize(size);
     stats_intersectionCheckCounter = 0;
+    colliderDataEnabled = false;
 }
 template<class T>
 GeneralRect<T>::GeneralRect(const Vector2<T> &topLeft, const Vector2<T> &topRight,
                             const Vector2<T> &bottomLeft, const Vector2<T> &bottomRight)
 {
+    rotation = 0;
     this->set(topLeft,topRight,bottomLeft,bottomRight);
     stats_intersectionCheckCounter = 0;
+    colliderDataEnabled = false;
 }
 template<class T>
 GeneralRect<T>::GeneralRect(const GeneralRect<T> &other)
 {
     *this = other;
     stats_intersectionCheckCounter = 0;
+
 }
 template<class T>
 GeneralRect<T>::~GeneralRect()
@@ -194,6 +213,8 @@ GeneralRect<T> &GeneralRect<T>::operator=(const GeneralRect<T> &other)
 
     this->frame_pos = other.frame_pos;
     this->frame_size= other.frame_size;
+    this->colliderDataEnabled = other.colliderDataEnabled;
+    this->rotation  = other.rotation;
     return *this;
 }
 template<class T>
@@ -212,6 +233,7 @@ void GeneralRect<T>::set(const Vector2<T> &pos, const Vector2<T> &size)
     TR = TL + Vector2<T>(size.x,0);
     BL = TL + Vector2<T>(0,size.y);
     BR = TL + size;
+    rotation = 0;
     this->update();
 }
 template<class T>
@@ -221,6 +243,7 @@ void GeneralRect<T>::set(const T &posX, const T &posY, const T &width, const T &
     TR = TL + Vector2<T>(width,0);
     BL = TL + Vector2<T>(0,height);
     BR = TL + Vector2<T>(width,height);
+    rotation = 0;
     this->update();
 }
 template<class T>
@@ -271,6 +294,30 @@ void GeneralRect<T>::setY(const T &y)
     updateFrame();
 }
 template<class T>
+void GeneralRect<T>::setWidth(const T &width)
+{
+    float oldRot = rotation;
+    this->rotate(TL,-oldRot);
+
+    TR.x = TL.x + width;
+    BR.x = BL.x + width;
+
+    this->rotate(TL,oldRot);
+    this->update();
+}
+template<class T>
+void GeneralRect<T>::setHeight(const T &height)
+{
+    float oldRot = rotation;
+    this->rotate(TL,-oldRot);
+
+    BL.y = TL.y + height;
+    BR.y = TR.y + height;
+
+    this->rotate(TL,oldRot);
+    this->update();
+}
+template<class T>
 const T &GeneralRect<T>::getX() const
 {
     return TL.x;
@@ -289,15 +336,21 @@ const Vector2<T> &GeneralRect<T>::getPos() const
 template<class T>
 void GeneralRect<T>::setSize(const Vector2<T> &size)
 {
+    float oldRot = rotation;
+    this->rotate(TL,-oldRot);
     TR = TL + Vector2<T>(size.x,0);
     BL = TL + Vector2<T>(0,size.y);
     BR = TL + size;
+    this->rotate(TL,oldRot);
     this->update();
 }
 template<class T>
 void GeneralRect<T>::setSize(const T &width, const T &height)
 {
+    float oldRot = rotation;
+    this->rotate(TL,-oldRot);
     this->setSize(Vector2<T>(width,height));
+    this->rotate(TL,oldRot);
     this->update();
 }
 template<class T>
@@ -345,6 +398,26 @@ template<class T>
 const Vector2<T> &GeneralRect<T>::getLeft()           const
 {
     return left;
+}
+template<class T>
+void GeneralRect<T>::generateColliderData(bool enable)
+{
+    colliderDataEnabled = enable;
+    if(!enable)
+        clearColliderData();
+}
+template<class T>
+vector<VertexPath*> GeneralRect<T>::getColliderData()
+{
+    vector<VertexPath*> out = collisionData;
+    clearColliderData();
+    return out;
+}
+template<class T>
+void GeneralRect<T>::clearColliderData()
+{
+    collisionData.clear();
+    collisionData.reserve(20);
 }
 template<class T>
 bool GeneralRect<T>::intersects(const GeneralRect<T> &other)
@@ -416,14 +489,22 @@ bool GeneralRect<T>::intersects(const GeneralRect<T> &other)
                    intersectionFac.y > 0 && intersectionFac.y < 1.f)
                 {
                     stats_intersectionCheckCounter =  i * j;
+                    if(colliderDataEnabled)
+                    {
+                        collisionData.push_back(this->getDrawable(sf::Color(0,255,0)));
+                        collisionData.push_back(other.getDrawable(sf::Color(255,0,0)));
+
+                        collisionData.push_back(Vector::getDrawableVector(*frameVecList[i].s,*frameVecList[i].s+*frameVecList[i].d*intersectionFac.x,sf::Color(0,255,255)));
+                        collisionData.push_back(Vector::getDrawableVector(*other_frameVecList[j].s,*other_frameVecList[j].s+*other_frameVecList[j].d*intersectionFac.y,sf::Color(255,0,255)));
+                    }
                     return true;
                 }
             }
         }
     }
-    stats_intersectionCheckCounter = frameVecList_size * other_frameVecList_size+1;
-    if(contains(other.TL))
-        return true;
+    stats_intersectionCheckCounter = frameVecList_size * other_frameVecList_size/*+1*/;
+    //if(contains(other.TL))
+    //    return true;
     return false;
 }
 template<class T>
@@ -449,6 +530,81 @@ bool GeneralRect<T>::intersects_fast(const GeneralRect<T> &other)
     }
     stats_intersectionCheckCounter = 2;
     return true;
+}
+// returns true if this is intersecting the inverse of the other
+template<class T>
+bool GeneralRect<T>::intersects_inverse_fast(const GeneralRect<T> &other)
+{
+    stats_intersectionCheckCounter = 1;
+    /*if(frame_pos.x > other.frame_pos.x && frame_pos.x + frame_size.x < other.frame_pos.x + other.frame_size.x)
+        return true;
+    if(frame_pos.x < other.frame_pos.x && frame_pos.x + frame_size.x > other.frame_pos.x + other.frame_size.x)
+    {
+        stats_intersectionCheckCounter++;
+        return true;
+    }
+    stats_intersectionCheckCounter++;
+    if(frame_pos.y > other.frame_pos.y && frame_pos.y + frame_size.y < other.frame_pos.y + other.frame_size.y)
+    {
+        stats_intersectionCheckCounter++;
+        return true;
+    }
+    stats_intersectionCheckCounter++;
+    if(frame_pos.y < other.frame_pos.y && frame_pos.y + frame_size.y > other.frame_pos.y)
+    {
+        stats_intersectionCheckCounter++;
+        return true;
+    }*/
+
+    if(frame_pos.x > other.frame_pos.x && frame_pos.x + frame_size.x < other.frame_pos.x + other.frame_size.x &&
+       frame_pos.y > other.frame_pos.y && frame_pos.y + frame_size.y < other.frame_pos.y + other.frame_size.y)
+    {
+        stats_intersectionCheckCounter++;
+        return false;
+    }
+    stats_intersectionCheckCounter++;
+    return true;
+}
+
+template<class T>
+bool GeneralRect<T>::isOnTopOf(const GeneralRect<T> &other)
+{
+    if(other.frame_pos.y > frame_pos.y + frame_size.y)
+    {
+        stats_intersectionCheckCounter = 1;
+        return true;
+    }
+    return false;
+}
+template<class T>
+bool GeneralRect<T>::isBeneathOf(const GeneralRect<T> &other)
+{
+    if(frame_pos.y >  other.frame_pos.y + other.frame_size.y)
+    {
+        stats_intersectionCheckCounter = 1;
+        return true;
+    }
+    return false;
+}
+template<class T>
+bool GeneralRect<T>::isRightOf(const GeneralRect<T> &other)
+{
+    if(frame_pos.x >  other.frame_pos.x + other.frame_size.x)
+    {
+        stats_intersectionCheckCounter = 1;
+        return true;
+    }
+    return false;
+}
+template<class T>
+bool GeneralRect<T>::isLeftOf(const GeneralRect<T> &other)
+{
+    if(other.frame_pos.x > frame_pos.x + frame_size.x)
+    {
+        stats_intersectionCheckCounter = 1;
+        return true;
+    }
+    return false;
 }
 template<class T>
 bool GeneralRect<T>::contains(const Vector2<T> &point)
@@ -492,12 +648,12 @@ bool GeneralRect<T>::operator!=(const GeneralRect<T> &other)
     return false;
 }
 template<class T>
-VertexPath GeneralRect<T>::getDrawable(const sf::Color &color) const
+VertexPath *GeneralRect<T>::getDrawable(const sf::Color &color) const
 {
-    VertexPath path;
-    path.length = 12;
-    path.type = sf::Lines;
-    path.line = new sf::Vertex[path.length]
+    VertexPath *path = new VertexPath;
+    path->length = 8;
+    path->type = sf::Lines;
+    path->line = new sf::Vertex[path->length]
     {
         sf::Vertex(Vector2f(TL)),
         sf::Vertex(Vector2f(TR)),
@@ -509,22 +665,22 @@ VertexPath GeneralRect<T>::getDrawable(const sf::Color &color) const
         sf::Vertex(Vector2f(BL)),
 
         sf::Vertex(Vector2f(BL)),
-        sf::Vertex(Vector2f(TL)),
+        sf::Vertex(Vector2f(TL))
     };
 
-    for(std::size_t i=0; i<path.length; i++)
-        path.line[i].color = color;
+    for(std::size_t i=0; i<path->length; i++)
+        path->line[i].color = color;
 
     return path;
 }
 
 template<class T>
-VertexPath GeneralRect<T>::getDrawableMesh(const sf::Color &color) const
+VertexPath *GeneralRect<T>::getDrawableMesh(const sf::Color &color) const
 {
-    VertexPath path;
-    path.length = 12;
-    path.type = sf::Lines;
-    path.line = new sf::Vertex[path.length]
+    VertexPath *path = new VertexPath;
+    path->length = 12;
+    path->type = sf::Lines;
+    path->line = new sf::Vertex[path->length]
     {
         sf::Vertex(Vector2f(TL)),
         sf::Vertex(Vector2f(TR)),
@@ -545,8 +701,8 @@ VertexPath GeneralRect<T>::getDrawableMesh(const sf::Color &color) const
         sf::Vertex(Vector2f(BL))
     };
 
-    for(std::size_t i=0; i<path.length; i++)
-        path.line[i].color = color;
+    for(std::size_t i=0; i<path->length; i++)
+        path->line[i].color = color;
 
     return path;
 }
@@ -588,6 +744,7 @@ void GeneralRect<T>::rotate(const Vector2<T> &rotationPoint,const float &deg)
     TR = Vector2<T>(transform.transformPoint(Vector2f(TR)));
     BL = Vector2<T>(transform.transformPoint(Vector2f(BL)));
     BR = Vector2<T>(transform.transformPoint(Vector2f(BR)));
+    rotation += deg;
     this->update();
     /*sf::Rect<float> rect(m_pos.x,m_pos.y,m_size.x,m_size.y);
     sf::Transform transform;

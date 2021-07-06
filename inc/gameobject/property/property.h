@@ -1,13 +1,13 @@
 #ifndef PROPERTY_H
 #define PROPERTY_H
 
+#include "base.h"
+
 #include "body.h"
 #include "food.h"
 #include "objectType.h"
 #include "mood.h"
 #include <string>
-
-#include "profiler.h"
 
 using std::string;
 using std::to_string;

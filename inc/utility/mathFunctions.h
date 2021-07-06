@@ -1,23 +1,28 @@
 #ifndef MATHFUNCTIONS_H
 #define MATHFUNCTIONS_H
 
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics/Transform.hpp>
-#include <math.h>
-#include <vector>
-#include <QtDebug>
-
-#include "profiler.h"
-
-//#include "rect.h"
-
-using sf::Vector2;
-using sf::Vector2f;
-using sf::Vector2u;
-using sf::Vector2i;
-using std::vector;
+#include "base.h"
+#include "drawUtilities.h"
 
 namespace Vector{
+    template <typename T>
+    struct Func2{
+            Vector2<T> support;
+            Vector2<T> direction;
+            T scalar;
+            inline Vector2<T> operator()(const T &scalar) const
+            {
+                return support + (direction * scalar);
+            }
+            inline Vector2<T> getPoint() const
+            {
+                return (*this)(scalar);
+            }
+    };
+    typedef Func2<float> Func2f;
+    typedef Func2<int> Func2i;
+
+
     template <typename T>
     inline float length(const Vector2<T> &vec);
     template <typename T>
@@ -40,8 +45,17 @@ namespace Vector{
     template <typename T>
     inline Vector2<T> getAverage(const vector<Vector2<T> > &list);
     template <typename T>
-    inline Vector2<T> print(const Vector2<T> &vec);
-
+    inline void print(const Vector2<T> &vec);
+    template <typename T>
+    inline const string toString(const Vector2<T> &vec);
+    template <typename T>
+    inline VertexPath* getDrawableVectorFunc(const Func2<T> &vecFunc,const T &scalar,const sf::Color &color = sf::Color(255,255,255));
+    template <typename T>
+    inline VertexPath* getDrawableVectorFunc(const Vector2<T> &ref,const Func2<T> &vecFunc,const T &scalar,const sf::Color &color = sf::Color(255,255,255));
+    template <typename T>
+    inline VertexPath* getDrawableVector(const Vector2<T> &begin,const Vector2<T> &end,const sf::Color &color = sf::Color(255,255,255));
+    template <typename T>
+    inline Vector2<T>  multiply(const Vector2<T> &a,const Vector2<T> &b);
 
     template <typename T>
     inline float length(const Vector2<T> &vec)
@@ -52,24 +66,33 @@ namespace Vector{
     template <typename T>
     inline Vector2<T> getRotated(const Vector2<T> &vec,const Vector2<T> &rotPoint, float deg)
     {
-        if(long(100*deg)%36000 == 0)
+        sf::Transform t;
+        t.rotate(deg, rotPoint);
+        return t.transformPoint(vec);
+       /*// if(long(100*deg)%36000 == 0)
+       //     return vec;
+
+
+        //float normalX = float(vec.x)-float(rotPoint.x);
+        float normalY = float(vec.y)-float(rotPoint.y);
+        float lengthV  = length(vec-rotPoint);
+
+        if(lengthV <= 0.00001)
             return vec;
-        if(length(vec - rotPoint) <= 0.00001)
-            return vec;
-        float newAngle = asin(float(vec.y-rotPoint.y) / length(vec-rotPoint));
-        if((vec.x-rotPoint.x) < 0)
-            newAngle = M_PI - newAngle;
+
+        float newAngle = asin(normalY / lengthV);
+        //if(normalX < 0)
+        //    newAngle = M_PI - newAngle;
         newAngle += deg * M_PI / 180;
-        float l = length(vec-rotPoint);
-        float xComp = cos(newAngle)*l;
-        float yComp = sin(newAngle)*l;
+        float xComp = cos(newAngle)*lengthV;
+        float yComp = sin(newAngle)*lengthV;
 
         if(xComp<0.00001 && xComp>-0.00001)
             xComp = 0;
         if(yComp<0.00001 && yComp>-0.00001)
             yComp = 0;
         Vector2<T> res(xComp+rotPoint.x,yComp+rotPoint.y);
-        return res;
+        return res;*/
     }
 
     inline void rotate(Vector2f &vec,const Vector2f &rotPoint, float deg)
@@ -175,9 +198,63 @@ namespace Vector{
 
 
     template <typename T>
-    inline Vector2<T> print(const Vector2<T> &vec)
+    inline void print(const Vector2<T> &vec)
     {
-        qDebug() << "Vector: X="<<vec.x<<"\tY="<<vec.y;
+        qDebug() << toString(vec);
+    }
+    template <typename T>
+    inline const string toString(const Vector2<T> &vec)
+    {
+        return "Vector: X="+std::to_string(vec.x)+"\tY="+std::to_string(vec.y);
+    }
+
+    template <typename T>
+    inline VertexPath* getDrawableVectorFunc(const Func2<T> &vecFunc,const T &scalar,const sf::Color &color)
+    {
+        return getDrawableVectorFunc(Vector2<T>(0,0),vecFunc,scalar,color);
+    }
+    template <typename T>
+    inline VertexPath* getDrawableVectorFunc(const Vector2<T> &ref,const Func2<T> &vecFunc,const T &scalar,const sf::Color &color)
+    {
+        VertexPath *path = new VertexPath;
+        path->length = 4;
+        path->type   = sf::Lines;
+        path->line = new sf::Vertex[path->length]
+        {
+            sf::Vertex(Vector2f(ref)),
+            sf::Vertex(Vector2f(vecFunc.support + ref)),
+
+            sf::Vertex(Vector2f(vecFunc.support + ref)),
+            sf::Vertex(Vector2f(vecFunc(scalar) + ref))
+        };
+        for(std::size_t i=0; i<path->length; i++)
+            path->line[i].color = color;
+        return path;
+    }
+    template <typename T>
+    inline VertexPath* getDrawableVector(const Vector2<T> &begin,const Vector2<T> &end,const sf::Color &color)
+    {
+
+        VertexPath* path = new VertexPath;
+        path->length = 2;
+        path->type   = sf::Lines;
+        path->line = new sf::Vertex[path->length]
+        {
+            sf::Vertex(Vector2f(begin)),
+            sf::Vertex(Vector2f(end))
+        };
+        for(std::size_t i=0; i<path->length; i++)
+            path->line[i].color = color;
+        return path;
+    }
+
+    template <typename T>
+    inline Vector2<T>  multiply(const Vector2<T> &a,const Vector2<T> &b)
+    {
+        Vector2<T> res = a;
+        res.x *= b.x;
+        res.y *= b.y;
+        return res;
     }
 }
 

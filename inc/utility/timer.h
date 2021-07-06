@@ -1,11 +1,11 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#include "base.h"
+
 #include <ctime>
 #include <ratio>
 #include <chrono>
-
-#include "profiler.h"
 
 class Timer
 {

@@ -1,16 +1,14 @@
 #ifndef INTERACTIVEGAMEOBJECT_H
 #define INTERACTIVEGAMEOBJECT_H
 
+#include "base.h"
 #include "gameobject.h"
 #include "gameObjectGroup.h"
-#include "vector"
+#include "chunkMap.h"
 
 #define CHECK_FOR_DOUBLE_OBJ
 
-using std::vector;
-
-
-class InteractiveGameObject
+class InteractiveGameObject : private GroupSignal, ObjSignal
 {
     public:
         InteractiveGameObject();
@@ -33,16 +31,35 @@ class InteractiveGameObject
         virtual void setInteractionWith(vector<GameObjectGroup*> *groupList, bool doesCollide = true);
 
         virtual const vector<GameObjectGroup*> &getInteractiveObjectsList() const;
-        virtual const GameObjectGroup &getInteractiveObjects();
+        virtual const vector<GameObject*> getInteractiveObjects();
+
+        virtual void draw_chunks(PixelDisplay &display);
+        virtual void setVisibility_chunk(const ChunkID &id,bool isVisible);
+        virtual void setVisibility_chunks(bool isVisible);
+        virtual bool isVisible_chunk(const ChunkID &id) const;
+        virtual bool isVisible_chunks() const;
+
 
 
     protected:
-        virtual void updateAllList();
+
 
         GameObject *m_gameObject;
+        ChunkMap   *m_interactiveObjectsChunkMap;
+        ChunkMap   *m_gameObjectChunkMap;
         vector<GameObjectGroup*> m_interactsWithObjectsList;
-        GameObjectGroup m_alllist;
+        bool        m_drawingIsDisabled;
 
     private:
+        // GameObject singals:
+        virtual void moved(GameObject* sender,const Vector2f &move);
+
+        // Signals from GameObjectGroup
+        virtual void adding(GameObjectGroup* sender,GameObject* obj);
+        virtual void adding(GameObjectGroup* sender,GameObjectGroup* group);
+        virtual void removing(GameObjectGroup* sender,GameObject* obj);
+        virtual void removing(GameObjectGroup* sender,GameObjectGroup* group);
+        virtual void willBeCleared(GameObjectGroup* sender);
+        virtual void cleared(GameObjectGroup* sender);
 };
 #endif // INTERACTIVEGAMEOBJECT_H

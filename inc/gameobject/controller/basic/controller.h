@@ -1,17 +1,11 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "SFML/System/Vector2.hpp"
-#include "layeritem.h"
-#include "SFML/System.hpp"
-#include <vector>
-#include "point.h"
-//#include "vector.h"
+#include "base.h"
 
+#include "layeritem.h"
 #include "userEventHandler.h"
 #include "event.h"
-
-#include "profiler.h"
 
 using std::vector;
 using sf::Vector2f;

@@ -1,18 +1,12 @@
 #ifndef PAINTER_H
 #define PAINTER_H
 
+#include "base.h"
+
 #include "layeritem.h"
-#include "SFML/Graphics.hpp"
-#include "SFML/System/Vector2.hpp"
 #include "pixelDisplay.h"
 #include "pixel.h"
-#include "point.h"
 #include "texture.h"
-
-#include "profiler.h"
-
-using std::vector;
-using sf::Vector2f;
 
 class Painter   :   public  LayerItem
 {
@@ -26,6 +20,8 @@ class Painter   :   public  LayerItem
         virtual RectF getFrame() const;
 
         virtual void draw(PixelDisplay &display);
+        virtual void subscribeToDisplay(PixelDisplay &display);
+        virtual void unsubscribeToDisplay(PixelDisplay &display);
 
         virtual void setPos(const Vector2f &pos);
 
@@ -36,12 +32,12 @@ class Painter   :   public  LayerItem
         virtual const bool &isVisible() const;
 
         virtual float getRotation() const;
-        virtual void setRotation(const float &deg);
-        virtual void rotate(const float &deg);
+        virtual void setRotation(float deg);
+        virtual void rotate(float deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
-        virtual void setRotation(const Vector2f &rotPoint,const float &deg);
+        virtual void setRotation(const Vector2f &rotPoint,float deg);
         virtual void rotate_90(const Vector2f &rotPoint);
         virtual void rotate_180(const Vector2f &rotPoint);
         virtual void rotate_270(const Vector2f &rotPoint);
@@ -53,20 +49,25 @@ class Painter   :   public  LayerItem
         virtual const Vector2f getOrigin() const;
 
     protected:
-        virtual void internal_rotate(const Vector2f &rotPoint,const float &deg);
+        virtual void internal_rotate(const Vector2f &rotPoint,float deg);
         virtual void internal_rotate(const float &deg);
         virtual void internalUpdateOrigin();
         virtual void internalSetOrigin(const Vector2f &origin);
+        virtual void internalCalculateFrame();
 
         bool    m_isVisible;
 
         sf::Sprite  *m_sprite;
         sf::Texture *m_texture;
         sf::Image   *m_image;
-        Origin  m_originType;
+        Origin       m_originType;
+
+        RectF        m_frame;
 
     private:
 
+        bool m_spriteHasSubscribedToDisplay;
+        //Vector2f m_renderScale;
         Pixel m_const_dummy_pixel;
 };
 #endif

@@ -1,13 +1,9 @@
 #ifndef USEREVENTHANDLER_H
 #define USEREVENTHANDLER_H
 
-#include <windows.h>
+#include "base.h"
+
 #include "event.h"
-#include <vector>
-
-#include <QDebug>
-
-#include "profiler.h"
 
 using std::vector;
 

@@ -1,16 +1,7 @@
 #ifndef PIXELENGINE_H
 #define PIXELENGINE_H
 
-#include "iostream"
-#include "stdio.h"
-#include "vector"
-#include <windows.h>
-#include <ctime>
-#include <math.h>
-#include <chrono>
-#include <SFML/System/Thread.hpp>
-#include <SFML/System/Mutex.hpp>
-#include <SFML/System/Sleep.hpp>
+#include "base.h"
 
 #include "pixelDisplay.h"
 #include "pixel.h"
@@ -22,6 +13,7 @@
 #include "InteractiveGameObjectGroup.h"
 #include "groupManagerInterface.h"
 #include "gameObjectEventHandler.h"
+#include "chunkMap.h"
 
 #include "collider.h"
 #include "controller.h"
@@ -41,7 +33,11 @@
 #include "timer.h"
 #include "userEventHandler.h"
 
-#include "profiler.h"
+#include <iostream>
+#include <condition_variable>
+#include <thread>
+#include <chrono>
+#include <pthread.h>
 
 // When this is defined, all completely white pixels in an imported image
 // are treated the same as alpha channel pixels
@@ -52,17 +48,22 @@
 const Color __color_minimalAlphaColor(255,255,255);
 #endif
 
-#define NO_TIMED_LOOPS
+//#define NO_TIMED_LOOPS
 #define STATISTICS
 #define USE_THREADS
+#define USE_STD_THREADS
 
-#include "QDebug"
+//#define DBUG_THREAD
+
+#ifdef BUILD_WITH_EASY_PROFILER
+    #define NO_TIMED_LOOPS
+#endif
 
 
 typedef  void (*p_func)(float,unsigned long long);
 
 
-class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerInterface
+class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
 {
 
 
@@ -75,7 +76,11 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
             unsigned long long doesIntersectPerTick;
             unsigned long long collisionChecksPerTick;
             unsigned long long collisionsPerTick;
-            unsigned long objectsInEngine;
+            unsigned long long objectsInEngine;
+
+            unsigned long long display_sprites;
+            unsigned long long display_vertexPaths;
+            unsigned long long display_text;
 
             float  collisionCheckTime;
             float  gameObjectTickTime;
@@ -103,15 +108,17 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual void setUserDisplayLoop(p_func func);
         virtual void setUserTickLoop(p_func func);
 
+        virtual void setup();
+
         virtual void checkEvent();
         virtual void tick();
         virtual void display();
 
-        virtual void display_setRenderFramePosCenter(const Vector2f &pos);
-        virtual void display_moveRenderFrame(const Vector2f &vec);
-        virtual void display_setRenderFramePos(const Vector2f &pos);
-        virtual void display_setRenderFrame(const RectF &frame);
-        virtual const RectF &display_getRenderFrame() const;
+       // virtual void display_setRenderFramePosCenter(const Vector2f &pos);
+       // virtual void display_moveRenderFrame(const Vector2f &vec);
+       // virtual void display_setRenderFramePos(const Vector2f &pos);
+       // virtual void display_setRenderFrame(const RectF &frame);
+       // virtual const RectF &display_getRenderFrame() const;
 
 
         virtual void set_setting_checkEventInterval(const float &seconds);
@@ -122,9 +129,9 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual const float &get_setting_displayInterval() const;
 
         virtual void addGameObject(GameObject *obj);
-        virtual void addGameObject(ManagedGameObjectGroup *group);
+        virtual void addGameObject(GameObjectGroup *group);
         virtual void removeGameObject(GameObject *obj);
-        virtual void removeGameObject(ManagedGameObjectGroup *group);
+        virtual void removeGameObject(GameObjectGroup *group);
         //virtual void deleteGameObject(GameObject *obj);
         //virtual void deleteGameObject(ManagedGameObjectGroup *group);
 
@@ -147,8 +154,8 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual void setCollisionMultiInteraction(const vector<GameObject*>  &obj1List  ,const vector<GameObject*> &obj2List, const bool &doesCollide = true);
 
         // Groups
-        virtual void addGroup(ManagedGameObjectGroup *group);
-        virtual void removeGroup(ManagedGameObjectGroup *group); // Removes the Group from the engine.
+        //virtual void addGroup(GameObjectGroup *group);
+        //virtual void removeGroup(GameObjectGroup *group); // Removes the Group from the engine.
         //virtual void deleteGroup(ManagedGameObjectGroup *group); // Removes the Group from the engine and deletes the pointer to the Group.
 
         // Rendering
@@ -168,10 +175,11 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         //virtual void deleteObject(GameObject *obj);
         virtual void collisionOccured(GameObject *obj1,vector<GameObject *> obj2);
         virtual void addDisplayText(DisplayText *text);
-        virtual void removeDisplayText(DisplayText *text);
+        virtual void removingisplayText(DisplayText *text);
 
         // General functions
         static float random(float min, float max);
+        static long randomL(long min, long max);
         virtual const unsigned long long &getTick() const;
         virtual void resetTick();
 
@@ -186,14 +194,13 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         virtual void tickY();
         virtual void tickXY(const Vector2i &dirLock);
         virtual void updateText();
-        virtual void checkForUserGroupChanges(); // Check if any Object of a added List was removed or added
+        //virtual void checkForUserGroupChanges(); // Check if any Object of a adding List was removing or adding
 
     private:
 
-        virtual void addGameObject(GameObjectGroup *group); // won't add the list to de m_userGroups
-        virtual void addGameObject(const vector<GameObject *> &list);
-        virtual void addToTrash(GameObject *obj);
-        virtual void removeGameObject(const vector<GameObject *> &list);
+        //virtual void addGameObject(GameObjectGroup *group); // won't add the list to de m_userGroups
+        virtual void addGameObjectIntern(const vector<GameObject *> &list);
+        virtual void removeGameObjectsIntern();
         //virtual void deleteGameObject(const vector<GameObject *> &list);
 
 
@@ -204,7 +211,15 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         static void removeObjectFromList(vector<GameObjectGroup*> &list,GameObject* obj);
         static void removeObjectFromList(vector<GameObjectGroup*> &list,GameObjectGroup *obj);
 
-        static void removeObjectFromList_unmanaged(vector<ManagedGameObjectGroup*> &list,GameObject* obj);
+        //static void removeObjectFromList_unmanaged(vector<ManagedGameObjectGroup*> &list,GameObject* obj);
+
+        // User List Signals
+        virtual void adding(GameObjectGroup* sender,GameObject* obj);
+        virtual void adding(GameObjectGroup* sender,GameObjectGroup* group);
+        virtual void removing(GameObjectGroup* sender,GameObject* obj);
+        virtual void removing(GameObjectGroup* sender,GameObjectGroup* group);
+        virtual void willBeCleared(GameObjectGroup* sender);
+        virtual void cleared(GameObjectGroup* sender);
 
         virtual void resetStatistics();
         virtual void updateStatsText();
@@ -222,17 +237,20 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
         float m_displayInterval; // sec.
 
         InteractiveGameObjectGroup  m_masterGameObjectGroup;
+        vector<GameObject* >        m_removeLaterObjectGroup;
+        //ChunkMap                   *m_chunkMap;
 
         vector<GameObjectGroup> m_renderLayer;
-        GameObjectGroup         m_trashList;
+        InteractiveGameObjectGroup         m_trashList;
 
-        vector<ManagedGameObjectGroup*> m_userGroups;
+        vector<GameObjectGroup*> m_userGroups;
 
         p_func m_p_func_userCheckEventLoop;
         p_func m_p_func_userDisplayLoop;
         p_func m_p_func_userTickLoop;
 
         unsigned long long m_tick;
+        bool m_setupDone;
 
         // Statistics
         Statistics m_statistics;
@@ -251,25 +269,41 @@ class PixelEngine   :   public GameObjectEventHandler//, protected GroupManagerI
 
 #ifdef USE_THREADS
         struct ThreadParam{
+                int index;
                 Vector2i dirLock;
                 size_t obj_begin;
                 size_t obj_end;
                 InteractiveGameObjectGroup *group;
                 bool isRunning;
-                sf::Mutex mutex;
+#ifdef USE_STD_THREADS
+                pthread_mutex_t mutex;
+                pthread_mutex_t *globalMutex;
+                pthread_cond_t *cv;
+                bool *exit;
+#else
                 bool *globalStart;
+                sf::Mutex mutex;
                 sf::Mutex *globalMutex;
+#endif
                 Statistics *stats;
         };
         vector<sf::Thread*> m_threadList;
         vector<ThreadParam*> m_threadParamList;
         size_t m_thread_lastObjAmount;
+#ifdef USE_STD_THREADS
+        // std thread test
+        vector<pthread_t*> m_std_threadList;
+        pthread_cond_t cv                   = PTHREAD_COND_INITIALIZER;
+        pthread_mutex_t m_threadGlobalMutex = PTHREAD_MUTEX_INITIALIZER;
+        bool threadExit = false;
+#else
+        sf::Mutex m_threadGlobalMutex;
+#endif
 
         bool m_threadsCreated = false;
         bool m_threadGlobalStart = false;
-        sf::Mutex m_threadGlobalMutex;
 
-        static void thread_tick(ThreadParam *param);
+        static void *thread_tick(void * p);
 #endif
 };
 #endif // PIXELENGINE_H

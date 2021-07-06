@@ -1,6 +1,6 @@
 #ifndef POINT_H
 #define POINT_H
-
+/*
 #include <QDebug>
 #include <math.h>
 
@@ -171,5 +171,5 @@ T GeneralPoint<T>::getDistance(const GeneralPoint<T> &p1,const GeneralPoint<T> &
     return static_cast<T>(sqrt(pow(_p2.getX() - _p1.getX(),2) + pow(_p2.getY() - p1.getY(),2)));
 }
 
-
+*/
 #endif // POINT_H

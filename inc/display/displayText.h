@@ -1,12 +1,7 @@
 #ifndef DISPLAYTEXT_H
 #define DISPLAYTEXT_H
 
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics/Text.hpp>
-//#include "point.h"
-
-#include <QDebug>
-#include "profiler.h"
+#include "base.h"
 
 using sf::Text;
 using sf::Font;

@@ -1,10 +1,9 @@
 #ifndef PIXEL_H
 #define PIXEL_H
 
-#include <SFML/Graphics/Color.hpp>
+#include "base.h"
 #include "layeritem.h"
 
-#include "profiler.h"
 
 using sf::Color;
 using sf::Uint8;

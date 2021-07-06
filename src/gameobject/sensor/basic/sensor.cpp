@@ -4,9 +4,9 @@
 Sensor::Sensor()
 {
     m_sensorCollider = new Collider();
-    m_sensorPainter  = new PixelPainter();
+   // m_sensorPainter  = new PixelPainter();
     m_owner = nullptr;
-    m_boundingBoxIsVisible = false;
+    m_visibility_collider_boundingBox = false;
 }
 
 Sensor::Sensor(const Sensor &other)
@@ -18,16 +18,16 @@ Sensor::Sensor(const Sensor &other)
 Sensor::~Sensor()
 {
     delete m_sensorCollider;
-    delete m_sensorPainter;
+    //delete m_sensorPainter;
 }
 
 const Sensor &Sensor::operator=(const Sensor &other)
 {
     *this->m_sensorCollider = *other.m_sensorCollider;
-    *this->m_sensorPainter  = *other.m_sensorPainter;
+    //*this->m_sensorPainter  = *other.m_sensorPainter;
     this->m_detected        = other.m_detected;
     this->m_owner           = other.m_owner;
-    this->m_boundingBoxIsVisible  = other.m_boundingBoxIsVisible;
+    this->m_visibility_collider_boundingBox  = other.m_visibility_collider_boundingBox;
     return *this;
 }
 
@@ -68,9 +68,9 @@ void Sensor::checkCollision(const vector<GameObject*> &other)
 void Sensor::draw(PixelDisplay &display)
 {
     EASY_FUNCTION(profiler::colors::Yellow200);
-    m_sensorPainter->setPos(m_owner->getPos());
-    m_sensorPainter->draw(display);
-    if(m_boundingBoxIsVisible)
+    //m_sensorPainter->setPos(m_owner->getPos());
+    //m_sensorPainter->draw(display);
+    if(m_visibility_collider_boundingBox)
     {
         display.addVertexLine(m_sensorCollider->getDrawableBoundingBox());
         display.addVertexLine(m_sensorCollider->getDrawableHitBox());
@@ -90,34 +90,38 @@ float Sensor::getRotation() const
 void Sensor::rotate(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Yellow300);
-    m_sensorPainter->rotate(deg);
+    //m_sensorPainter->rotate(deg);
     m_sensorCollider->rotate(deg);
 }
 void Sensor::setRotation(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Yellow300);
-    m_sensorPainter->setRotation(deg);
+    //m_sensorPainter->setRotation(deg);
     m_sensorCollider->setRotation(deg);
 }
 void Sensor::rotate_90()
 {
     EASY_FUNCTION(profiler::colors::Yellow300);
-    m_sensorPainter->rotate_90();
+    //m_sensorPainter->rotate_90();
     m_sensorCollider->rotate_90();
 }
 void Sensor::rotate_180()
 {
     EASY_FUNCTION(profiler::colors::Yellow300);
-    m_sensorPainter->rotate_180();
+    //m_sensorPainter->rotate_180();
     m_sensorCollider->rotate_180();
 }
 void Sensor::rotate_270()
 {
     EASY_FUNCTION(profiler::colors::Yellow300);
-    m_sensorPainter->rotate_270();
+    //m_sensorPainter->rotate_270();
     m_sensorCollider->rotate_270();
 }
-void Sensor::showBoundingBox(bool enable)
+void Sensor::setVisibility_collider_boundingBox(bool isVisible)
 {
-    m_boundingBoxIsVisible = enable;
+    m_visibility_collider_boundingBox = isVisible;
+}
+bool Sensor::isVisible_collider_boundingBox() const
+{
+    return m_visibility_collider_boundingBox;
 }

@@ -9,6 +9,8 @@ DisplayText::DisplayText()
     setVisibility(false);
     setPixelRatio(1);
     setPositionFix(false);
+    m_text.setScale(0.1,0.1);
+    m_text.setOrigin(0,0);
 }
 DisplayText::~DisplayText()
 {
@@ -113,6 +115,10 @@ void DisplayText::move(const Vector2f &vec)
 void DisplayText::setPositionFix(bool fix)
 {
     m_positionFix = fix;
+    /*if(m_positionFix)
+        m_pixelRatio = 1;
+    else
+        m_pixelRatio = globalScale.x;*/
 }
 bool DisplayText::getPositionFix() const
 {

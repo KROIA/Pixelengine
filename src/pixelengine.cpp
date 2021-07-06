@@ -17,6 +17,7 @@ PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
     m_p_func_userCheckEventLoop  = nullptr;
     m_p_func_userDisplayLoop     = nullptr;
     m_p_func_userTickLoop        = nullptr;
+    m_setupDone = false;
 
     m_renderLayer.push_back(GameObjectGroup());
     m_renderLayer.push_back(GameObjectGroup());
@@ -41,13 +42,17 @@ PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
 
 
     m_stats_text = new DisplayText();
-    m_stats_text->setCharacterSize(m_windowSize.x/80); // in pixels, not points!
+    m_stats_text->setCharacterSize(m_windowSize.x/40); // in pixels, not points!
+    m_stats_text->setLineSpacing(0.8);
     sf::Color col(255,255,255,100); // Transparent white
     display_stats(false,col);
-    m_stats_text->setPos(Vector2f(5,5));
+    m_stats_text->setPos(Vector2f(0,0));
     m_stats_text->setPositionFix(true);
 
     m_display->addText(m_stats_text);
+
+    RectI rect(0,0,2000,2000);
+    //m_chunkMap = new ChunkMap(Vector2u(128,128),rect);
     resetTick();
 }
 
@@ -91,17 +96,28 @@ PixelEngine::~PixelEngine()
     {
         delete m_userGroups[i];
     }
+    m_renderLayer.clear();
+    vector<GameObject*>objList;
+    objList.reserve(m_masterGameObjectGroup.size()+m_trashList.size());
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
     {
+        objList.push_back(m_masterGameObjectGroup[i]->getGameObject());
         delete m_masterGameObjectGroup[i];
     }
     m_masterGameObjectGroup.clear();
 
     for(size_t i=0; i<m_trashList.size(); i++)
     {
+        objList.push_back(m_trashList[i]->getGameObject());
         delete m_trashList[i];
     }
     m_trashList.clear();
+
+    for(size_t i=0; i<objList.size(); i++)
+    {
+        delete objList[i];
+    }
+
 
     delete m_display;
     delete m_eventTimer;
@@ -118,6 +134,20 @@ void PixelEngine::stop()
 {
     qDebug() << "Stop Engine";
 #ifdef USE_THREADS
+#ifdef USE_STD_THREADS
+    for(size_t i=0; i<m_std_threadList.size(); i++)
+    {
+        pthread_mutex_lock(&m_threadParamList[i]->mutex);
+        threadExit = true;
+        pthread_cond_broadcast( &cv );
+        pthread_mutex_unlock(&m_threadParamList[i]->mutex);
+       // m_std_threadList[i]->join();
+        //delete m_std_threadList[i];
+        //delete m_threadParamList[i];
+        m_std_threadList.clear();
+        m_threadParamList.clear();
+    }
+#else
     for(size_t i=0; i<m_threadList.size(); i++)
     {
         m_threadList[i]->terminate();
@@ -126,6 +156,7 @@ void PixelEngine::stop()
         m_threadList.clear();
         m_threadParamList.clear();
     }
+#endif
 #endif
     m_engineIsRunning = false;
 
@@ -152,6 +183,16 @@ void PixelEngine::setUserTickLoop(p_func func)
 {
     m_p_func_userTickLoop = func;
 }
+
+void PixelEngine::setup()
+{
+    if(m_setupDone)
+        return;
+    EASY_BLOCK("PixelEngine::setup()",profiler::colors::Orange);
+    m_masterGameObjectGroup.buildCache();
+    m_setupDone = true;
+}
+
 void PixelEngine::checkEvent()
 {
 #ifndef NO_TIMED_LOOPS
@@ -162,6 +203,7 @@ void PixelEngine::checkEvent()
 #ifdef STATISTICS
     auto stats_checkUserEvent_timer_start = std::chrono::system_clock::now();
 #endif
+    removeGameObjectsIntern();
     EASY_BLOCK("userCheckEventLoop",profiler::colors::Orange50);
     if(m_p_func_userCheckEventLoop != nullptr)
         (*m_p_func_userCheckEventLoop)(m_eventInterval,m_tick);
@@ -171,8 +213,8 @@ void PixelEngine::checkEvent()
     std::chrono::duration<float> time_span_checkUserEvent_time = stats_checkEvent_timer_start - stats_checkUserEvent_timer_start;
     filter(m_statistics.checkUserEventTime,time_span_checkUserEvent_time.count()*1000.f,m_statsFilterFactor);
 #endif
-    // Check if any Object of a added List was removed or added
-    checkForUserGroupChanges();
+    // Check if any Object of a adding List was removing or adding
+    //checkForUserGroupChanges();
 
     // Handle display Events
     switch(m_display->handleEvents().type)
@@ -268,7 +310,7 @@ void PixelEngine::tickXY(const Vector2i &dirLock)
     if(!m_threadsCreated)
     {
         EASY_BLOCK("Create Threads",profiler::colors::Orange500);
-        unsigned int threadAmount = m_masterGameObjectGroup.size()/500;
+        unsigned int threadAmount = sqrt(sqrt(m_masterGameObjectGroup.size()));
         if(threadAmount == 0)
         {
             if(m_masterGameObjectGroup.size() >= 4)
@@ -280,28 +322,54 @@ void PixelEngine::tickXY(const Vector2i &dirLock)
         for(unsigned int i=0; i<threadAmount; i++)
         {
             m_threadParamList.push_back(new ThreadParam());
+            m_threadParamList[m_threadParamList.size()-1]->index = i;
             m_threadParamList[m_threadParamList.size()-1]->isRunning = false;
-            m_threadParamList[m_threadParamList.size()-1]->globalStart = &m_threadGlobalStart;
             m_threadParamList[m_threadParamList.size()-1]->globalMutex = &m_threadGlobalMutex;
             m_threadParamList[m_threadParamList.size()-1]->stats = &m_statistics;
+#ifdef USE_STD_THREADS
+            m_threadParamList[m_threadParamList.size()-1]->mutex = PTHREAD_MUTEX_INITIALIZER;
+            m_threadParamList[m_threadParamList.size()-1]->cv = &cv;
+            m_threadParamList[m_threadParamList.size()-1]->exit = &threadExit;
+            m_std_threadList.push_back(new pthread_t());
+            int rc = pthread_create(m_std_threadList[i], nullptr, &PixelEngine::thread_tick, static_cast<void *>(m_threadParamList[m_threadParamList.size()-1]));
+            //m_std_threadList.push_back(new std::thread(&PixelEngine::thread_tick,m_threadParamList[m_threadParamList.size()-1]));
+            //m_std_threadList.push_back(new std::thread());
+            //std::thread test  = std::thread(&PixelEngine::thread_tick,this,m_threadParamList[m_threadParamList.size()-1]);
+            //m_std_threadList[i]->detach();
+#else
+            m_threadParamList[m_threadParamList.size()-1]->globalStart = &m_threadGlobalStart;
             m_threadList.push_back(new sf::Thread(&PixelEngine::thread_tick,m_threadParamList[m_threadParamList.size()-1]));
+#endif
+
+
         }
+        sf::sleep(sf::milliseconds(2));
         m_threadsCreated = true;
         m_thread_lastObjAmount = 0;
+#ifndef USE_STD_THREADS
         for(size_t i=0; i<m_threadList.size(); i++)
         {
             m_threadList[i]->launch();
         }
+#endif
     }
+#ifdef USE_STD_THREADS
+    size_t threadAmount = m_std_threadList.size();
+#else
+    size_t threadAmount = m_threadList.size();
+#endif
+
+
     if(m_masterGameObjectGroup.size() != m_thread_lastObjAmount)
     {
         EASY_BLOCK("Ajust Threads",profiler::colors::Orange500);
+       // qDebug() << "Ajust Threads";
         size_t iterator = 0;
         size_t objectAmount = m_masterGameObjectGroup.size();
-        size_t objPerThread = objectAmount/m_threadList.size();
-        for(size_t i=0; i<m_threadList.size(); i++)
+        size_t objPerThread = objectAmount/threadAmount;
+        for(size_t i=0; i<threadAmount; i++)
         {
-            if(i == m_threadList.size()-1)
+            if(i == threadAmount-1)
                objPerThread =  objectAmount - iterator;
 
             m_threadParamList[i]->obj_begin = iterator;
@@ -314,35 +382,66 @@ void PixelEngine::tickXY(const Vector2i &dirLock)
         m_thread_lastObjAmount = objectAmount;
     }
     EASY_BLOCK("Set Thread parameter",profiler::colors::Orange500);
-    for(size_t i=0; i<m_threadList.size(); i++)
+   // qDebug() << "Set Thread parameter";
+    for(size_t i=0; i<threadAmount; i++)
     {
         m_threadParamList[i]->dirLock = dirLock;
     }
     EASY_END_BLOCK;
     EASY_BLOCK("Enable Threads",profiler::colors::Orange500);
-    for(size_t i=0; i<m_threadList.size(); i++)
+   // qDebug() << "Enable Threads";
+#ifdef USE_STD_THREADS
+   /* m_threadGlobalMutex.lock();
+    PixelEngine::thread_globalStart = true;
+    m_threadGlobalMutex.unlock();
+    cv.notify_all();*/
+
+    for(size_t i=0; i<threadAmount; i++)
+    {
+        pthread_mutex_lock(&m_threadParamList[i]->mutex);
+        m_threadParamList[i]->isRunning = true;
+        pthread_mutex_unlock(&m_threadParamList[i]->mutex);
+    }
+   // qDebug() << "brodcast";
+    pthread_mutex_lock(&m_threadGlobalMutex);
+    pthread_cond_broadcast( &cv );
+    pthread_mutex_unlock(&m_threadGlobalMutex);
+
+   /* m_threadGlobalMutex.lock();
+    PixelEngine::thread_globalStart = false;
+    m_threadGlobalMutex.unlock();*/
+#else
+    for(size_t i=0; i<threadAmount; i++)
     {
         m_threadParamList[i]->mutex.lock();
         m_threadParamList[i]->isRunning = true;
         m_threadParamList[i]->mutex.unlock();
     }
+#endif
     EASY_END_BLOCK;
 
     bool isRunning = false;
 
     EASY_BLOCK("Wait for Threads",profiler::colors::Orange500);
-    for(size_t i=0; i<m_threadParamList.size(); i++)
+    //qDebug() << "Wait for Threads";
+    //qDebug() << "Wait for Threads";
+    size_t finishedCounter = 0;
+    while(finishedCounter != m_threadParamList.size())
     {
         EASY_BLOCK("Wait",profiler::colors::Orange500);
         isRunning = true;
-        while(isRunning)
+        finishedCounter = 0;
+        for(size_t i=0; i<m_threadParamList.size(); i++)
         {
-            m_threadParamList[i]->mutex.lock();
+            pthread_mutex_lock(&m_threadGlobalMutex);
             isRunning = m_threadParamList[i]->isRunning;
-            m_threadParamList[i]->mutex.unlock();
+            pthread_mutex_unlock(&m_threadGlobalMutex);
+            if(!isRunning)
+                finishedCounter++;
         }
         EASY_END_BLOCK;
     }
+    //qDebug() << "Wait for Threads done";
     EASY_END_BLOCK;
 #else
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
@@ -362,7 +461,7 @@ void PixelEngine::tickXY(const Vector2i &dirLock)
         m_statistics.gameObjectTickTime += stats_time_span.count()*1000.f*(1.f-m_statsFilterFactor);
         stats_timer_start = std::chrono::system_clock::now();
 #endif
-        m_statistics.collisionsPerTick += obj->checkCollision(interactiveObject->getInteractiveObjects().getVector());
+        m_statistics.collisionsPerTick += obj->checkCollision(interactiveObject->getInteractiveObjects());
 #ifdef STATISTICS
         stats_timer_end = std::chrono::system_clock::now();
         stats_time_span = stats_timer_end - stats_timer_start;
@@ -374,14 +473,48 @@ void PixelEngine::tickXY(const Vector2i &dirLock)
 
 }
 #ifdef USE_THREADS
-void PixelEngine::thread_tick(ThreadParam *param)
+void *PixelEngine::thread_tick(void *p)
 {
     EASY_THREAD("thread_tick");
-    bool isRunning = false;
-    while(1)
+    struct ThreadParam *param;
+    param = static_cast<struct ThreadParam *>(p);
+#ifdef DBUG_THREAD
+    string threadIdentifier = "Thread: "+std::to_string(param->index);
+    qDebug() << "thread_tick: "<<threadIdentifier.c_str();
+#endif
+ //   bool isRunning = false;
+#ifdef USE_STD_THREADS
+    //std::unique_lock<std::mutex> lk(*param->globalMutex);
+#endif
+    bool exit = false;
+    try {
+
+
+    while(!exit)
     {
 
         EASY_BLOCK("waiting");
+#ifdef DBUG_THREAD
+        qDebug() << threadIdentifier.c_str() << " waiting";
+#endif
+#ifdef USE_STD_THREADS
+       // std::unique_lock<std::mutex> lk(*param->globalMutex);
+       // param->cv->wait(lk, []{return PixelEngine::thread_globalStart == true;});
+        pthread_mutex_lock(&param->mutex);
+    //    bool isR  = param->isRunning;
+        pthread_mutex_unlock(&param->mutex);
+     //   qDebug() << param->index << " waiting  | isRunning: "<<isR ;
+        pthread_mutex_lock(param->globalMutex);
+        param->isRunning = false;
+        pthread_cond_wait( param->cv, param->globalMutex);
+        exit = *param->exit;
+        pthread_mutex_unlock(param->globalMutex);
+        if(exit)
+            break;
+        //pthread_mutex_lock(&param->mutex);
+        //param->isRunning = true;
+        //pthread_mutex_unlock(&param->mutex);
+#else
         while(!isRunning)
         {
 
@@ -395,8 +528,13 @@ void PixelEngine::thread_tick(ThreadParam *param)
             }
             sf::sleep(sf::milliseconds(1));
         }
+#endif
         EASY_END_BLOCK;
+     //   qDebug() << param->index << " working";
         EASY_BLOCK("working");
+#ifdef DBUG_THREAD
+        qDebug() << threadIdentifier.c_str() << " working";
+#endif
         unsigned long collisionsPerTick = 0;
         double gameObjectTickTime = 0;
         double collisionCheckTime = 0;
@@ -416,7 +554,8 @@ void PixelEngine::thread_tick(ThreadParam *param)
             gameObjectTickTime += stats_time_span.count()*500.f;
 
             stats_timer_start = std::chrono::system_clock::now();
-            collisionsPerTick += obj->checkCollision(interactiveObject->getInteractiveObjects().getVector());
+            vector<GameObject*> other = interactiveObject->getInteractiveObjects();
+            collisionsPerTick += obj->checkCollision(other);
     #else
             obj->checkCollision(interactiveObject->getInteractiveObjects().getVector());
     #endif
@@ -429,24 +568,52 @@ void PixelEngine::thread_tick(ThreadParam *param)
 
     #endif
         }
+
     #ifdef STATISTICS
+#ifdef USE_STD_THREADS
+        pthread_mutex_lock(param->globalMutex);
+#else
         param->globalMutex->lock();
+#endif
         param->stats->collisionsPerTick  += collisionsPerTick;
         param->stats->collisionCheckTime += collisionCheckTime;
         param->stats->gameObjectTickTime += gameObjectTickTime;
+#ifdef USE_STD_THREADS
+        pthread_mutex_unlock(param->globalMutex);
+#else
         param->globalMutex->unlock();
+#endif
     #endif
         EASY_END_BLOCK;
         EASY_BLOCK("ende");
-        isRunning = false;
-        param->mutex.lock();
-        param->isRunning = isRunning;
-        param->mutex.unlock();
+#ifdef DBUG_THREAD
+        qDebug() << threadIdentifier.c_str() << " ende";
+#endif
+     //   isRunning = false;
+    //    qDebug() << param->index << " stoping";
+/*#ifdef USE_STD_THREADS
+        pthread_mutex_lock(&param->mutex);
+#else
+        param->mutex->lock();
+#endif
+        param->isRunning = false;
+#ifdef USE_STD_THREADS
+        pthread_mutex_unlock(&param->mutex);
+#else
+        param->mutex->unlock();
+#endif*/
         EASY_END_BLOCK;
     }
+    }  catch (...) {
+        qDebug() << "Thread error: Thread: "<<param->index;
+    }
+#ifdef DBUG_THREAD
+        qDebug() << threadIdentifier.c_str() << " closing";
+#endif
     EASY_BLOCK("closing");
     sf::sleep(sf::milliseconds(1));
     EASY_END_BLOCK;
+    pthread_exit(nullptr);
 }
 #endif
 void PixelEngine::updateText()
@@ -455,7 +622,7 @@ void PixelEngine::updateText()
     if(m_stats_text->isVisible())
         updateStatsText();
 }
-void PixelEngine::checkForUserGroupChanges()
+/*void PixelEngine::checkForUserGroupChanges()
 {
     EASY_FUNCTION(profiler::colors::Orange700);
     int changes = 0;
@@ -466,18 +633,18 @@ void PixelEngine::checkForUserGroupChanges()
         if(m_userGroups[i]->newObjectsAvailable())
         {
             // There are new GameObjects in the list,
-            // which will be added to de Engine now.
+            // which will be adding to de Engine now.
             this->addGameObject(m_userGroups[i]->getNewObjects());
-            m_userGroups[i]->newObjectsAddedToEngine();
+            m_userGroups[i]->newObjectsaddingToEngine();
             changes++;
             additions++;
         }
         if(m_userGroups[i]->deletableObjectsAvailable())
         {
             // There are GameObjects in the list,
-            // which will be removed now.
+            // which will be removing now.
             this->removeGameObject(m_userGroups[i]->getDeletableObjects());
-            m_userGroups[i]->deletableObjectsRemovedFromEngine();
+            m_userGroups[i]->deletableObjectsremovingFromEngine();
             changes++;
             removals++;
         }
@@ -486,7 +653,7 @@ void PixelEngine::checkForUserGroupChanges()
     {
         qDebug() << additions << " additions and "<<removals <<" romeved";
     }
-}
+}*/
 
 void PixelEngine::removeObjectFromList(GameObjectGroup &group,GameObject* obj)
 {
@@ -530,13 +697,48 @@ void PixelEngine::removeObjectFromList(vector<GameObjectGroup*> &list,GameObject
         PixelEngine::removeObjectFromList(list,(*obj)[i]);
     }
 }
-void PixelEngine::removeObjectFromList_unmanaged(vector<ManagedGameObjectGroup*> &list,GameObject* obj)
+/*void PixelEngine::removeObjectFromList_unmanaged(vector<GameObjectGroup*> &list,GameObject* obj)
 {
     EASY_FUNCTION(profiler::colors::Orange800);
     for(size_t i=0; i<list.size(); i++)
     {
         list[i]->removeObject_unmanaged(obj);
     }
+}*/
+void PixelEngine::adding(GameObjectGroup* sender,GameObject* obj)
+{
+    EASY_FUNCTION(profiler::colors::OrangeA200);
+    if(obj->getEventHandler() != this && !obj->isTrash())
+        this->addGameObject(obj);
+    qDebug() << "engine sender: "<<sender << " adding: "<<obj;
+}
+
+void PixelEngine::adding(GameObjectGroup* sender,GameObjectGroup* group)
+{
+    EASY_FUNCTION(profiler::colors::OrangeA200);
+    GameObjectGroup::removinguplicates(group);
+    addGameObjectIntern(group->getVector());
+}
+
+void PixelEngine::removing(GameObjectGroup* sender,GameObject* obj)
+{
+    EASY_FUNCTION(profiler::colors::OrangeA400);
+    //removeGameObject(obj);
+    qDebug() << "engine sender: "<<sender << " removing: "<<obj;
+}
+
+void PixelEngine::removing(GameObjectGroup* sender,GameObjectGroup* group)
+{
+    EASY_FUNCTION(profiler::colors::OrangeA400);
+    //removeGameObjectIntern(group->getVector());
+}
+void PixelEngine::willBeCleared(GameObjectGroup* sender)
+{
+
+}
+void PixelEngine::cleared(GameObjectGroup* sender)
+{
+
 }
 
 void PixelEngine::display()
@@ -567,6 +769,12 @@ void PixelEngine::display()
         m_renderLayer[i].draw(*m_display);
     }
     EASY_END_BLOCK;
+    /*EASY_BLOCK("draw_chunks",profiler::colors::OrangeA100)
+    for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
+    {
+        m_masterGameObjectGroup[i]->draw_chunks(*m_display);
+    }
+    EASY_END_BLOCK;*/
 #ifdef STATISTICS
     stats_timePoint_1 = std::chrono::system_clock::now();
     std::chrono::duration<float> m_time_span_draw_time = stats_timePoint_1 - stats_timePoint_2;
@@ -589,7 +797,7 @@ void PixelEngine::display()
 #endif
 }
 
-void PixelEngine::display_setRenderFramePosCenter(const Vector2f &pos)
+/*void PixelEngine::display_setRenderFramePosCenter(const Vector2f &pos)
 {
     m_display->setRenderFramePosCenter(pos);
 }
@@ -608,7 +816,7 @@ void PixelEngine::display_setRenderFrame(const RectF &frame)
 const RectF &PixelEngine::display_getRenderFrame() const
 {
     return m_display->getRenderFrame();
-}
+}*/
 void PixelEngine::set_setting_checkEventInterval(const float &seconds)
 {
     m_eventInterval = abs(seconds);
@@ -643,59 +851,77 @@ void PixelEngine::addGameObject(GameObject *obj)
     if(!obj->isBoundingBoxUpdated())
         obj->updateBoundingBox();
     obj->setEventHandler(this);
+    //obj->subscribeToDisplay(*m_display);
     obj->preRun();
-    m_masterGameObjectGroup.add(obj);
+    if(!m_setupDone)
+        m_masterGameObjectGroup.addToCache(obj);
+    else
+        m_masterGameObjectGroup.add(obj);
     m_renderLayer[2].add(obj);
+    //m_chunkMap->add(obj);
 }
-void PixelEngine::addGameObject(ManagedGameObjectGroup *group)
+/*void PixelEngine::addGameObject(GameObjectGroup *group)
 {
     EASY_FUNCTION(profiler::colors::OrangeA200);
     addGroup(group);
-}
+}*/
 void PixelEngine::addGameObject(GameObjectGroup *group)
 {
     EASY_FUNCTION(profiler::colors::OrangeA200);
-    GameObjectGroup::removeDuplicates(group);
-    addGameObject(group->getVector());
+    //GameObjectGroup::removinguplicates(group);
+    addGameObjectIntern(group->getVector());
+    group->subscribe(this);
 }
-void PixelEngine::addGameObject(const vector<GameObject *> &list)
+void PixelEngine::addGameObjectIntern(const vector<GameObject *> &list)
 {
     EASY_FUNCTION(profiler::colors::OrangeA200);
     m_masterGameObjectGroup.reserve(list.size());
     for(size_t i=0; i<list.size(); i++)
         this->addGameObject(list[i]);
 }
-void PixelEngine::addToTrash(GameObject *obj)
-{
-    obj->markAsTrash(true);
-    m_trashList.add(obj);
-}
 void PixelEngine::removeGameObject(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
-    // Remove the obj out of all lists
-    this->removeObjectFromList_unmanaged(m_userGroups,obj);
-    obj->setEventHandler(nullptr);
-    this->removeObjectFromList(m_renderLayer,obj);
-    m_masterGameObjectGroup.removeAllInteractionsWithObj(obj);
-    m_masterGameObjectGroup.remove(obj);
-
-    addToTrash(obj);
+    m_removeLaterObjectGroup.push_back(obj);
 
 
 }
-void PixelEngine::removeGameObject(ManagedGameObjectGroup *group)
+void PixelEngine::removeGameObject(GameObjectGroup *group)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
-    removeGameObject(group->getVector());
-}
-void PixelEngine::removeGameObject(const vector<GameObject *> &list)
-{
-    EASY_FUNCTION(profiler::colors::OrangeA400);
-    for(size_t i=0; i<list.size(); i++)
+    m_removeLaterObjectGroup.reserve(m_removeLaterObjectGroup.size()+group->size());
+    for(size_t i=0; i<group->size(); i++)
     {
-        this->removeGameObject(list[i]);
+        this->removeGameObject((*group)[i]);
     }
+    for(size_t i=0; i<m_userGroups.size(); i++)
+    {
+        if(m_userGroups[i] == group)
+            m_userGroups.erase(m_userGroups.begin() + i);
+    }
+    group->unsubscribe(this);
+}
+
+void PixelEngine::removeGameObjectsIntern()
+{
+    EASY_FUNCTION(profiler::colors::OrangeA400);
+    if(m_removeLaterObjectGroup.size() == 0)
+        return;
+    for(GameObject* &obj : m_removeLaterObjectGroup)
+    {
+        obj->setEventHandler(nullptr);
+        this->removeObjectFromList(m_renderLayer,obj);
+        m_masterGameObjectGroup.removeAllInteractionsWithObj(obj);
+        m_masterGameObjectGroup.remove(obj);
+        removeObjectFromList(m_userGroups,obj);
+
+        obj->markAsTrash(true);
+        obj->unsubscribeAll();
+        m_trashList.add(obj);
+    }
+    m_removeLaterObjectGroup.clear();
+    m_removeLaterObjectGroup.reserve(10);
+
 }
 
 /*void PixelEngine::deleteGameObject(GameObject *obj)
@@ -703,7 +929,7 @@ void PixelEngine::removeGameObject(const vector<GameObject *> &list)
     EASY_FUNCTION(profiler::colors::OrangeA400);
     this->removeGameObject(obj);
 }
-void PixelEngine::deleteGameObject(ManagedGameObjectGroup *group)
+void PixelEngine::deleteGameObject(GameObjectGroup *group)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
     deleteGameObject(group->getVector());
@@ -809,25 +1035,25 @@ void PixelEngine::setCollisionMultiInteraction(const vector<GameObject*> &obj1Li
 }
 
 // Groups
-void PixelEngine::addGroup(ManagedGameObjectGroup *group)
+/*void PixelEngine::addGroup(GameObjectGroup *group)
 {
     EASY_FUNCTION(profiler::colors::OrangeA200);
     for(size_t i=0; i<m_userGroups.size(); i++)
         if(m_userGroups[i] == group)
-            return; // Group already added to list
+            return; // Group already adding to list
     // Add every Element to the engines main list, if it isn't already in there.
     this->addGameObject(group->getVector());
-    group->newObjectsAddedToEngine();
+    group->newObjectsaddingToEngine();
     m_userGroups.push_back(group);
 }
-void PixelEngine::removeGroup(ManagedGameObjectGroup *group)
+void PixelEngine::removeGroup(GameObjectGroup *group)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
     for(size_t i=0; i<m_userGroups.size(); i++)
         if(m_userGroups[i] == group)
             m_userGroups.erase(m_userGroups.begin() + i);
-}
-/*void PixelEngine::deleteGroup(ManagedGameObjectGroup *group)
+}*/
+/*void PixelEngine::deleteGroup(GameObjectGroup *group)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
     for(size_t i=0; i<m_userGroups.size(); i++)
@@ -958,6 +1184,7 @@ void PixelEngine::removeFromEngine(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
     this->removeGameObject(obj);
+    m_removeLaterObjectGroup.push_back(obj);
 }
 /*void PixelEngine::deleteObject(GameObject *obj)
 {
@@ -973,7 +1200,7 @@ void PixelEngine::addDisplayText(DisplayText*text)
     EASY_FUNCTION(profiler::colors::Orange200);
     m_display->addText(text);
 };
-void PixelEngine::removeDisplayText(DisplayText*text)
+void PixelEngine::removingisplayText(DisplayText*text)
 {
     EASY_FUNCTION(profiler::colors::Orange300);
     m_display->removeText(text);
@@ -998,7 +1225,26 @@ float PixelEngine::random(float min, float max)
     std::time_t t = std::time(0);   // get time now
     std::tm* now = std::localtime(&t);
     int seed = now->tm_year + now->tm_mon + now->tm_mday + now->tm_hour + now->tm_min + now->tm_sec;
-    return float((min*1000.0)+((seed*rand())%(int)((max-min)*1000.0)))/1000.0;
+    return float((min*1000.0)+((seed*rand())%(long long)((max-min)*1000.0)))/1000.0;
+}
+long PixelEngine::randomL(long min, long max)
+{
+    EASY_FUNCTION(profiler::colors::Orange400);
+    if(min == max)
+    {
+        return min;
+    }
+    if(min > max)
+    {   float buf=min;
+        min = max;
+        max = buf;
+    }
+
+    // Generating a timedependend seed
+    std::time_t t = std::time(0);   // get time now
+    std::tm* now = std::localtime(&t);
+    int seed = now->tm_year + now->tm_mon + now->tm_mday + now->tm_hour + now->tm_min + now->tm_sec;
+    return min+seed*rand()%((max-min));
 }
 
 const unsigned long long &PixelEngine::getTick() const
@@ -1047,26 +1293,35 @@ void PixelEngine::resetStatistics()
 }
 void PixelEngine::updateStatsText()
 {
+    m_statistics.display_sprites = m_display->stats_getRenderSprites();
+    m_statistics.display_vertexPaths = m_display->stats_getRenderVertexPaths();
+    m_statistics.display_text = m_display->stats_getRenderText();
+
     EASY_FUNCTION(profiler::colors::Orange700);
     std::string text =
-     "framesPerSecond:       \t" + to_string(m_statistics.framesPerSecond) +        "\n"+
-     "ticksPerSecond:        \t" + to_string(m_statistics.ticksPerSecond) +         "\n"+
+     "objectsInEngine:       \t" + to_string(m_statistics.objectsInEngine) +        " stk.\n"+
+     "ticks:                 \t" + to_string(m_statistics.ticksPerSecond) +         " /s\n"+
+     "Display:\n"+
+     "  frames:              \t" + to_string(m_statistics.framesPerSecond) +        " /s\n"+
+     "  draw sprites:        \t" + to_string(m_statistics.display_sprites) +        " stk.\n"+
+     "  draw vertexPaths:    \t" + to_string(m_statistics.display_vertexPaths) +    " stk.\n"+
+     "  draw text:           \t" + to_string(m_statistics.display_text) +           " stk.\n"+
      "Collider:\n"+
-     "  Check Intersections: \t" + to_string(m_statistics.intersectionCheckPerTick)+"/Tick\n"+
-     "  Intersecting:        \t" + to_string(m_statistics.doesIntersectPerTick) +   "/Tick\n"+
-     "  Collision checks:    \t" + to_string(m_statistics.collisionChecksPerTick) + "/Tick\n"+
-     "  Collisions:          \t" + to_string(m_statistics.collisionsPerTick) +      "/Tick\n"+
-     "\n"+
-     "objectsInEngine:       \t" + to_string(m_statistics.objectsInEngine) +        "\n"+
-     "collisionCheckTime:    \t" + to_string(m_statistics.collisionCheckTime) +     " ms\n"+
-     "gameObjectTickTime:    \t" + to_string(m_statistics.gameObjectTickTime) +     " ms\n"+
-     "checkEventTime:        \t" + to_string(m_statistics.checkEventTime) +         " ms\n"+
-     "tickTime:              \t" + to_string(m_statistics.tickTime) +               " ms\n"+
-     "drawTime:              \t" + to_string(m_statistics.drawTime) +               " ms\n"+
-     "displayTime:           \t" + to_string(m_statistics.displayTime) +            " ms\n"+
-     "checkUserEventTime:    \t" + to_string(m_statistics.checkUserEventTime) +     " ms\n"+
-     "userTickTime:          \t" + to_string(m_statistics.userTickTime) +           " ms\n"+
-     "userDisplayTime:       \t" + to_string(m_statistics.userDisplayTime) +        " ms";
+     "  Check Intersections: \t" + to_string(m_statistics.intersectionCheckPerTick)+" /Tick\n"+
+     "  Intersecting:        \t" + to_string(m_statistics.doesIntersectPerTick) +   " /Tick\n"+
+     "  Collision checks:    \t" + to_string(m_statistics.collisionChecksPerTick) + " /Tick\n"+
+     "  Collisions:          \t" + to_string(m_statistics.collisionsPerTick) +      " /Tick\n"+
+     "  collisionCheckTime:  \t" + to_string(m_statistics.collisionCheckTime) +     " ms\n"+
+     "Engine Times:\n"+
+     "  gameObjectTickTime:  \t" + to_string(m_statistics.gameObjectTickTime) +     " ms\n"+
+     "  checkEventTime:      \t" + to_string(m_statistics.checkEventTime) +         " ms\n"+
+     "  tickTime:            \t" + to_string(m_statistics.tickTime) +               " ms\n"+
+     "  drawTime:            \t" + to_string(m_statistics.drawTime) +               " ms\n"+
+     "  displayTime:         \t" + to_string(m_statistics.displayTime) +            " ms\n"+
+     "User Times:\n"+
+     "  checkUserEventTime:  \t" + to_string(m_statistics.checkUserEventTime) +     " ms\n"+
+     "  userTickTime:        \t" + to_string(m_statistics.userTickTime) +           " ms\n"+
+     "  userDisplayTime:     \t" + to_string(m_statistics.userDisplayTime) +        " ms";
     m_stats_text->setString(text);
 }
 void PixelEngine::filter(float &oldValue, float newValue, float filterFactor)

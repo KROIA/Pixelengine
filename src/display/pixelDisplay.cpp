@@ -11,7 +11,6 @@ PixelDisplay::PixelDisplay(const Vector2u &windowSize, const Vector2u &pixelSize
     m_renderWindow = new sf::RenderWindow(sf::VideoMode(m_windowSize.x,m_windowSize.y),
                                           "PixelDisplay",sf::Style::Default, settings);
 
-    m_windowView = m_renderWindow->getView();
     m_clearColor = Color(50,50,50);
 
 
@@ -19,12 +18,17 @@ PixelDisplay::PixelDisplay(const Vector2u &windowSize, const Vector2u &pixelSize
     m_texture.loadFromImage(m_image);
     m_sprite.setTexture(m_texture);
 
-    setRenderFrame(RectF(Vector2f(0,0),Vector2f(m_pixelMapSize)));
+    //setRenderFrame(RectF(Vector2f(0,0),Vector2f(m_pixelMapSize)));
 
     m_localPixlerUsed = true;
     m_spriteListUsed  = true;
     m_vertexPathUsed  = true;
     m_textListUsed    = false;
+    m_stats_renderSprites = 0;
+    m_stats_renderText    = 0;
+    m_stats_renderVertexPaths = 0;
+    m_viewPortZoom = 1;
+    zoomViewAt(Vector2i(0,0),*m_renderWindow,0.2);
     clear();
 }
 PixelDisplay::PixelDisplay(const PixelDisplay &other)
@@ -32,7 +36,6 @@ PixelDisplay::PixelDisplay(const PixelDisplay &other)
      this->m_windowSize   = other.m_windowSize;
      this->m_pixelMapSize    = other.m_pixelMapSize;
      this->m_renderWindow = other.m_renderWindow;
-     this->m_windowView   = other.m_windowView;
      this->m_texture      = other.m_texture;
      this->m_image        = other.m_image;
      this->m_sprite       = other.m_sprite;
@@ -49,18 +52,57 @@ void PixelDisplay::display()
     EASY_FUNCTION("PixelDisplay::display()",profiler::colors::Blue);
 
     m_renderWindow->clear();
+    m_stats_renderVertexPaths = m_vertexPathList.size();
+    m_stats_renderSprites     = m_spriteList.size();
     EASY_BLOCK("draw m_spriteList",profiler::colors::Blue100);
     if(m_spriteListUsed)
     {
-        for(Sprite &object : m_spriteList)
+        for(Sprite* &object : m_spriteList)
         {
-            m_renderWindow->draw(object);
+            m_renderWindow->draw(*object);
+
+        }
+    }
+    EASY_END_BLOCK;
+    /*
+    m_spriteListUsed = true;
+    m_spriteList.push_back(sprite);
+    m_spriteList[m_spriteList.size()-1].setScale(m_renderScale.x,m_renderScale.y);
+    Vector2f point = sprite.getPosition() + m_globalDisplayFrame.getPos();
+    m_spriteList[m_spriteList.size()-1].setPosition(point.x * m_renderScale.x, point.y * m_renderScale.y);
+     */
+    EASY_BLOCK("draw m_spriteSubscriberList",profiler::colors::Blue100);
+    //Vector2f displayFramePos = m_globalDisplayFrame.getPos();
+    for(Sprite* &object : m_spriteSubscriberList)
+    {
+        Vector2f oldPos = object->getPosition();
+        Vector2f oldScale = object->getScale();
+        //object->setScale(m_renderScale);
+
+        //Vector2f newPos(displayFramePos + oldPos);
+        //newPos.x *= m_renderScale.x;
+        //newPos.y *= m_renderScale.y;
+        //object->setPosition(newPos);
+
+        m_renderWindow->draw(*object);
+        object->setScale(oldScale);
+        object->setPosition(oldPos);
+    }
+    EASY_END_BLOCK;
+
+    EASY_BLOCK("draw m_vertexPathList",profiler::colors::Blue100);
+    if(m_vertexPathUsed)
+    {
+        for(size_t i=0; i<m_vertexPathList.size(); i++)
+        {
+            m_renderWindow->draw(m_vertexPathList[i]->line, m_vertexPathList[i]->length, m_vertexPathList[i]->type);
         }
     }
     EASY_END_BLOCK;
     EASY_BLOCK("draw m_textList",profiler::colors::Blue100);
     if(m_textListUsed)
     {
+        m_stats_renderText = 0;
         for(size_t i=0; i<m_textList.size(); i++)
         {
             if(m_textList[i] == nullptr)
@@ -69,23 +111,36 @@ void PixelDisplay::display()
 
             if(text.isVisible())
             {
-                if(!text.getPositionFix())
+                m_stats_renderText++;
+
+                if(text.getPositionFix())
                 {
-                    text.setPixelRatio(m_spriteScale.x);
-                    text.move(m_globalDisplayFrame.getPos());
-                    text.setCharacterSize(text.getCharacterSize()*m_spriteScale.x);
+                    sf::View view = m_renderWindow->getView();
+                    Vector2f textPos = view.getCenter()-view.getSize()/2.f + text.getPos()*m_viewPortZoom;
+                    //textPos.y += m_viewPortZoom;
+
+                    text.setPos(textPos);
+
+                  //  qDebug() << "textPos : "<<textPos.x   <<" "<<textPos.y<< " zoom: "<<m_viewPortZoom;
+                    //text.setCharacterSize(round(text.getCharacterSize()*m_viewPortZoom));
+                    sf::Text t = text.getText();
+                    t.setScale(m_viewPortZoom,m_viewPortZoom);
+                    m_renderWindow->draw(t);
                 }
+                else
+                {
+                   /* sf::Text t = text.getText();
+                    t.setScale(1/m_viewPortZoom,1/m_viewPortZoom);
+                    m_renderWindow->draw(t);*/
                     m_renderWindow->draw(text.getText());
+
+                }
+                //text.setPixelRatio(m_renderScale.x);
+               // text.move(m_globalDisplayFrame.getPos());
+
+
+
             }
-        }
-    }
-    EASY_END_BLOCK;
-    EASY_BLOCK("draw m_vertexPathList",profiler::colors::Blue100);
-    if(m_vertexPathUsed)
-    {
-        for(size_t i=0; i<m_vertexPathList.size(); i++)
-        {
-            m_renderWindow->draw(m_vertexPathList[i].line, m_vertexPathList[i].length, m_vertexPathList[i].type);
         }
     }
     EASY_END_BLOCK;
@@ -113,6 +168,7 @@ void PixelDisplay::clear()
         m_vertexPathUsed = false;
         clearVertexLine();
     }
+
 }
 
 void PixelDisplay::setPixel(const Vector2i &pos, const Color &color)
@@ -151,42 +207,54 @@ void PixelDisplay::setPixel(const vector<Pixel> &pixelList)
 
 void PixelDisplay::clearSprite()
 {
+    size_t lastSize = m_spriteList.size();
     m_spriteList.clear();
-    m_spriteList.reserve(500);
+    m_spriteList.reserve(lastSize);
 }
-void PixelDisplay::addSprite(Sprite &sprite)
+void PixelDisplay::addSprite(Sprite *sprite)
 {
+    EASY_FUNCTION(profiler::colors::Blue400);
     m_spriteListUsed = true;
     m_spriteList.push_back(sprite);
-    m_spriteList[m_spriteList.size()-1].setScale(m_spriteScale.x,m_spriteScale.y);
-    Vector2f point = sprite.getPosition() + m_globalDisplayFrame.getPos();
-    m_spriteList[m_spriteList.size()-1].setPosition(point.x * m_spriteScale.x, point.y * m_spriteScale.y);
+    //m_spriteList[m_spriteList.size()-1].setScale(m_renderScale.x,m_renderScale.y);
+    //Vector2f point = sprite.getPosition() + m_globalDisplayFrame.getPos();
+    //m_spriteList[m_spriteList.size()-1].setPosition(point.x * m_renderScale.x, point.y * m_renderScale.y);
+}
+void PixelDisplay::subscribeSprite(Sprite *sprite)
+{
+    m_spriteSubscriberList.push_back(sprite);
+}
+void PixelDisplay::unsubscribeSprite(Sprite *sprite)
+{
+    for(size_t i=0; i<m_spriteSubscriberList.size(); i++)
+        if(m_spriteSubscriberList[i] == sprite)
+            m_spriteSubscriberList.erase(m_spriteSubscriberList.begin()+i);
 }
 void PixelDisplay::clearVertexLine()
 {
     for(size_t i=0; i<m_vertexPathList.size(); i++)
-        delete m_vertexPathList[i].line;
+        delete m_vertexPathList[i];
     m_vertexPathList.clear();
     m_vertexPathList.reserve(500);
 }
-void PixelDisplay::addVertexLine(const VertexPath &path)
+void PixelDisplay::addVertexLine(VertexPath* path)
 {
     m_vertexPathUsed = true;
-    if(path.line != nullptr && path.length > 0)
+    if(path->line != nullptr && path->length > 0)
         m_vertexPathList.push_back(path);
 
-    m_vertexPathList[m_vertexPathList.size()-1].move(m_globalDisplayFrame.getPos());
-    for(size_t i=0; i<m_vertexPathList[m_vertexPathList.size()-1].length; i++)
+  /*  m_vertexPathList[m_vertexPathList.size()-1]->move(m_globalDisplayFrame.getPos());
+    for(size_t i=0; i<m_vertexPathList[m_vertexPathList.size()-1]->length; i++)
     {
 
-        m_vertexPathList[m_vertexPathList.size()-1].line[i].position.x *= m_spriteScale.x;
-        m_vertexPathList[m_vertexPathList.size()-1].line[i].position.y *= m_spriteScale.y;
-    }
+        m_vertexPathList[m_vertexPathList.size()-1]->line[i].position.x *= m_renderScale.x;
+        m_vertexPathList[m_vertexPathList.size()-1]->line[i].position.y *= m_renderScale.y;
+    }*/
 }
-void PixelDisplay::addVertexLine(const vector<VertexPath> &pathList)
+void PixelDisplay::addVertexLine(const vector<VertexPath*> &pathList)
 {
     m_vertexPathList.reserve(m_vertexPathList.size()+pathList.size());
-    for(const VertexPath &path : pathList)
+    for(VertexPath* path : pathList)
     {
         addVertexLine(path);
     }
@@ -232,9 +300,10 @@ sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
             }
             case sf::Event::Resized:
             {
-                m_windowView.setSize(m_windowSize.x,m_windowSize.y);
+                sf::View view = m_renderWindow->getView();
+                view.setSize(m_windowSize.x,m_windowSize.y);
 
-                m_renderWindow->setView(m_windowView);
+                m_renderWindow->setView(view);
                 sf::Vector2u size(m_windowSize.x,m_windowSize.y);
                 m_renderWindow->setSize(size);
                 break;
@@ -247,22 +316,11 @@ sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
             case sf::Event::MouseWheelMoved:{break;}
             case sf::Event::MouseWheelScrolled:
             {
-                float scaleFactor = -0.1;
-                float scale = 1 + scaleFactor;
-                if(event.mouseWheelScroll.delta<0)
-                    scale = 1 - scaleFactor;
-
-                Vector2f mouse = Vector2f(event.mouseWheelScroll.x/m_spriteScale.x,
-                                          event.mouseWheelScroll.y/m_spriteScale.y);
-
-
-                float widthDelta  = m_globalDisplayFrame.getSize().x * scale - m_globalDisplayFrame.getSize().x;
-                float heightDelta = m_globalDisplayFrame.getSize().y * scale - m_globalDisplayFrame.getSize().y;
-                float xDelta      = widthDelta  * mouse.x / m_globalDisplayFrame.getSize().x;
-                float yDelta      = heightDelta * mouse.y / m_globalDisplayFrame.getSize().y;
-
-                RectF frame(m_globalDisplayFrame.getPos()+Vector2f(xDelta,yDelta),m_globalDisplayFrame.getSize()*scale);
-                setRenderFrame(frame);
+                float zoomFactor = 0.9;
+                if (event.mouseWheelScroll.delta < 0)
+                        zoomViewAt({ event.mouseWheelScroll.x, event.mouseWheelScroll.y }, *m_renderWindow, (1.f / zoomFactor));
+                    else if (event.mouseWheelScroll.delta > 0)
+                        zoomViewAt({ event.mouseWheelScroll.x, event.mouseWheelScroll.y }, *m_renderWindow, zoomFactor);
                 break;
             }
             case sf::Event::MouseButtonPressed:{
@@ -281,10 +339,13 @@ sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
             case sf::Event::MouseMoved:{
                 if(m_dragMap)
                 {
-                    Vector2f movingVec =  Vector2f(event.mouseMove.x,event.mouseMove.y) - m_lastMousePos;
-                    movingVec.x *= m_globalDisplayFrame.getSize().x/m_windowSize.x;
-                    movingVec.y *= m_globalDisplayFrame.getSize().y/m_windowSize.y;
-                    moveRenderFrame(movingVec);
+                    Vector2f movingVec =  m_lastMousePos - Vector2f(event.mouseMove.x,event.mouseMove.y);
+                    movingVec.x *= m_viewPortZoom;
+                    movingVec.y *= m_viewPortZoom;
+                    sf::View view{ m_renderWindow->getView() };
+                    view.move(movingVec);
+                    m_renderWindow->setView(view);
+                    updateRenderFrame();
                 }
                 m_lastMousePos = Vector2f(event.mouseMove.x,event.mouseMove.y);
                 break;}
@@ -319,6 +380,25 @@ sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
     EASY_END_BLOCK;
     return event;
 }
+void PixelDisplay::zoomViewAt(sf::Vector2i pixel, sf::RenderWindow& window, float zoom)
+{
+    const sf::Vector2f beforeCoord{ window.mapPixelToCoords(pixel) };
+    sf::View view{ window.getView() };
+    m_viewPortZoom *= zoom;
+    view.zoom(zoom);
+    window.setView(view);
+    const sf::Vector2f afterCoord{ window.mapPixelToCoords(pixel) };
+    const sf::Vector2f offsetCoords{ beforeCoord - afterCoord };
+    view.move(offsetCoords);
+    window.setView(view);
+    updateRenderFrame();
+}
+void PixelDisplay::updateRenderFrame()
+{
+    sf::View view{ m_renderWindow->getView() };
+    m_renderFrame.setPos(view.getCenter()-view.getSize()/2.f);
+    m_renderFrame.setSize(m_renderWindow->getView().getSize());
+}
 
 bool PixelDisplay::addText(DisplayText *text)       // This function will not own the Text Object!
 {
@@ -331,8 +411,8 @@ bool PixelDisplay::addText(DisplayText *text)       // This function will not ow
             return false;
     }
     //text->setFont(m_font);
-    if(m_pixelMapSize.x != 0)
-        text->setPixelRatio(float(m_windowSize.x) / float(m_pixelMapSize.x));
+    /*if(m_pixelMapSize.x != 0)
+        text->setPixelRatio(float(m_windowSize.x) / float(m_pixelMapSize.x));*/
     m_textList.push_back(text);
     m_textListUsed = true;
     return true;
@@ -370,9 +450,9 @@ RenderWindow *PixelDisplay::getRenderWindow()
 {
     return m_renderWindow;
 }
-Vector2f PixelDisplay::getRenderScale()
+/*Vector2f PixelDisplay::getRenderScale()
 {
-    return m_spriteScale;
+    return m_renderScale;
 }
 void PixelDisplay::setRenderFramePosCenter(const Vector2f &pos)
 {
@@ -386,16 +466,35 @@ void PixelDisplay::setRenderFramePos(const Vector2f &pos)
 void PixelDisplay::moveRenderFrame(const Vector2f &vec)
 {
     m_globalDisplayFrame.move(vec);
-}
-void PixelDisplay::setRenderFrame(const RectF &frame)
+}*/
+/*void PixelDisplay::setRenderFrame(const RectF &frame)
 {
     m_globalDisplayFrame = frame;
-    m_spriteScale.x = (float)m_windowSize.x/m_globalDisplayFrame.getSize().x;
-    m_spriteScale.y = (float)m_windowSize.y/m_globalDisplayFrame.getSize().y;
+    m_renderScale.x = (float)m_windowSize.x/m_globalDisplayFrame.getSize().x;
+    m_renderScale.y = (float)m_windowSize.y/m_globalDisplayFrame.getSize().y;
 
-    m_sprite.setScale(m_spriteScale);
-}
-const RectF &PixelDisplay::getRenderFrame() const
+    m_sprite.setScale(m_renderScale);
+    qDebug() << "getPos       : "<<m_globalDisplayFrame.getPos().x<< " "<<m_globalDisplayFrame.getPos().y;
+    qDebug() << "m_renderScale: "<<m_renderScale.x<< " "<<m_renderScale.y;
+   // m_windowView.setViewport(sf::FloatRect(m_globalDisplayFrame.getPos().x, m_globalDisplayFrame.getPos().y, m_globalDisplayFrame.getSize().x, m_globalDisplayFrame.getSize().y));
+
+}*/
+const RectF PixelDisplay::getRenderFrame() const
 {
-    return m_globalDisplayFrame;
+
+    //rect.setSize(Vector::multiply(viewport.getSize(),Vector2f(m_windowSize)));
+    //qDebug() << viewport.getPosition().x<< " "<<viewport.getPosition().y << " "<<viewport.getSize().x<<" "<<viewport.getSize().y;
+    return m_renderFrame;
+}
+unsigned long long PixelDisplay::stats_getRenderSprites() const
+{
+    return m_stats_renderSprites;
+}
+unsigned long long PixelDisplay::stats_getRenderVertexPaths() const
+{
+    return m_stats_renderVertexPaths;
+}
+unsigned long long PixelDisplay::stats_getRenderText() const
+{
+    return m_stats_renderText;
 }

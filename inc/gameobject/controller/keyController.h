@@ -1,6 +1,7 @@
 #ifndef KEYCONTROLLER_H
 #define KEYCONTROLLER_H
 
+#include "base.h"
 #include "controller.h"
 #include "mathFunctions.h"
 
@@ -36,7 +37,7 @@ class KeyController     :   public Controller
         virtual void setKey_forMove_RIGHT(const int &key);
 
         virtual void setStepSize(const int size);
-        virtual const int &getStepSize() const;
+        virtual int getStepSize() const;
 
 
 

@@ -1,6 +1,8 @@
 #ifndef TEXTUREPAINTER_H
 #define TEXTUREPAINTER_H
 
+#include "base.h"
+
 #include "painter.h"
 #include "texture.h"
 
