@@ -769,12 +769,12 @@ void PixelEngine::display()
         m_renderLayer[i].draw(*m_display);
     }
     EASY_END_BLOCK;
-    EASY_BLOCK("draw_chunks",profiler::colors::OrangeA100)
+    /*EASY_BLOCK("draw_chunks",profiler::colors::OrangeA100)
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
     {
         m_masterGameObjectGroup[i]->draw_chunks(*m_display);
     }
-    EASY_END_BLOCK;
+    EASY_END_BLOCK;*/
 #ifdef STATISTICS
     stats_timePoint_1 = std::chrono::system_clock::now();
     std::chrono::duration<float> m_time_span_draw_time = stats_timePoint_1 - stats_timePoint_2;

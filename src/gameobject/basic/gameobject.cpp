@@ -207,7 +207,12 @@ void GameObject::draw(PixelDisplay &display)
     m_painter->setPos(m_layerItem.getPos());
     m_painter->setRotation(m_layerItem.getRotation());
     RectF frame = display.getRenderFrame();
-    //frame.setPos(frame.getPos());
+
+
+    if(m_thisInteractiveObject != nullptr)
+    {
+        m_thisInteractiveObject->draw_chunks(display);
+    }
 
     if(!frame.intersects_fast(m_painter->getFrame()))
         return;

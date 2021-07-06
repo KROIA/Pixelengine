@@ -179,7 +179,7 @@ void InteractiveGameObject::draw_chunks(PixelDisplay &display)
 {
     if(m_drawingIsDisabled)
        return;
-    m_interactiveObjectsChunkMap->draw_chunks(display);
+    //m_interactiveObjectsChunkMap->draw_chunks(display);
     m_gameObjectChunkMap->draw_chunks(display);
 }
 void InteractiveGameObject::setVisibility_chunk(const ChunkID &id,bool isVisible)
