@@ -17,6 +17,7 @@ ChunkMap::ChunkMap(Vector2u chunkSize,
     m_mapPos    = area.getPos();
     m_chunkSize = chunkSize;
     m_mapSize   = calculateMapSize(chunkSize, area.getSize());
+    m_chunkID = ChunkID(false,Vector2<size_t>(0,0));
     generateMap();
 }
 ChunkMap::ChunkMap(const ChunkMap &other)
@@ -46,11 +47,13 @@ void ChunkMap::add(GameObject *object)
 {
     //qDebug() << "trying to add: "<<object;
     bool outOfMap;
-    Vector2<size_t> chunkPos = findChunk(object,outOfMap);
+    vector<Vector2<size_t> > chunkPosList = findChunk(object,outOfMap);
     if(!outOfMap)
-        m_chunkMap[chunkPos.x][chunkPos.y]->add(object);
-    else
-        GameObjectGroup::add(object);
+        for(const Vector2<size_t> &chunk : chunkPosList)
+            m_chunkMap[chunk.x][chunk.y]->add(object);
+
+    if(intersectsInverse(object))
+        internalAddOutside(object);
 }
 void ChunkMap::add(GameObjectGroup *other)
 {
@@ -58,37 +61,63 @@ void ChunkMap::add(GameObjectGroup *other)
 }
 void ChunkMap::remove(const vector<GameObject*> &list)
 {
-    for(size_t x=0; x<m_chunkSize.x; x++)
+    for(size_t x=0; x<m_mapSize.x; x++)
     {
-        for(size_t y=0; y<m_chunkSize.y; y++)
+        for(size_t y=0; y<m_mapSize.y; y++)
         {
             m_chunkMap[x][y]->remove(list);
         }
     }
+    for(size_t i=0; i<list.size(); i++)
+        internalRemoveOutside(list[i]);
 }
 void ChunkMap::remove(GameObject *object)
 {
-    for(size_t x=0; x<m_chunkSize.x; x++)
+    for(size_t x=0; x<m_mapSize.x; x++)
     {
-        for(size_t y=0; y<m_chunkSize.y; y++)
+        for(size_t y=0; y<m_mapSize.y; y++)
         {
             m_chunkMap[x][y]->remove(object);
         }
     }
+    internalRemoveOutside(object);
 }
 void ChunkMap::remove(GameObjectGroup *other)
 {
-    for(size_t x=0; x<m_chunkSize.x; x++)
+    for(size_t x=0; x<m_mapSize.x; x++)
     {
-        for(size_t y=0; y<m_chunkSize.y; y++)
+        for(size_t y=0; y<m_mapSize.y; y++)
         {
             m_chunkMap[x][y]->remove(other);
         }
     }
+    for(size_t i=0; i<other->size(); i++)
+        internalRemoveOutside((*other)[i]);
 }
-Vector2<size_t> ChunkMap::findChunk(GameObject *obj,bool &outOfMap)
+vector<Vector2<size_t> > ChunkMap::findChunk(GameObject *obj,bool &outOfMap)
 {
-    Vector2i chunkOfObj(0,0);
+    vector<Vector2<size_t> > chunks;
+    outOfMap = true;
+    if(!intersects(obj))
+    {
+        return chunks;
+    }
+    chunks.reserve(9);
+    RectF objBoundingBox = obj->getCollider().getBoundingBox();
+
+    for(size_t x=0; x<m_mapSize.x; x++)
+    {
+        for(size_t y=0; y<m_mapSize.y; y++)
+        {
+            RectF chunkRect = m_chunkMap[x][y]->getRect();
+            if(chunkRect.intersects_fast(objBoundingBox))
+            {
+                outOfMap = false;
+                chunks.push_back(Vector2<size_t>(x,y));
+            }
+        }
+    }
+   /* Vector2i chunkOfObj(0,0);
     Vector2f posOfObj = obj->getCollider().getBoundingBox().getPos();
 
     Vector2f relativeToChunkMapPos = posOfObj - Vector2f(m_mapPos);
@@ -98,31 +127,35 @@ Vector2<size_t> ChunkMap::findChunk(GameObject *obj,bool &outOfMap)
 
 
     chunkOfObj = Vector2i(floor(xScalar),floor(yScalar));
-    /*chunkOfObj.x = relativeToChunkMapPos.x / m_chunkSize.x ;
-    chunkOfObj.y = relativeToChunkMapPos.y / m_chunkSize.y ;
-
-    chunkOfObj.x   += (int(relativeToChunkMapPos.x) % m_chunkSize.x) != 0 ? 0 : -1;
-    chunkOfObj.y   += (int(relativeToChunkMapPos.y) % m_chunkSize.y) != 0 ? 0 : -1;
-    */
-
-
-    /*float floatingX = relativeToChunkMapPos.x - int(relativeToChunkMapPos.x);
-    float floatingY = relativeToChunkMapPos.x - int(relativeToChunkMapPos.x);
-    if(floatingX > 0)
-    {
-
-    }*/
 
     if(chunkOfObj.x < 0 || chunkOfObj.x >= signed(m_mapSize.x) ||
        chunkOfObj.y < 0 || chunkOfObj.y >= signed(m_mapSize.y))
     {
         //qDebug() << "out of map";
         outOfMap = true;
-        return Vector2<size_t>(0,0);
-    }
-    outOfMap = false;
+        return chunks;
+    }*/
+
     //qDebug() << "chunk Found: "<<Vector::toString(chunkOfObj).c_str();
-    return Vector2<size_t>(chunkOfObj);
+    //return Vector2<size_t>(chunkOfObj);
+    return chunks;
+}
+bool ChunkMap::intersects(GameObject *obj)
+{
+    Vector2f size = Vector2f(m_mapSize);
+    size.x *= (float)m_chunkSize.x;
+    size.y *= (float)m_chunkSize.y;
+    RectF allChunksRect(Vector2f(m_mapPos),size);
+    return allChunksRect.intersects_fast(obj->getCollider().getBoundingBox());
+}
+bool ChunkMap::intersectsInverse(GameObject *obj)
+{
+    Vector2f size = Vector2f(m_mapSize);
+    size.x *= (float)m_chunkSize.x;
+    size.y *= (float)m_chunkSize.y;
+    RectF allChunksRect(Vector2f(m_mapPos),size);
+    RectF objBox = obj->getCollider().getBoundingBox();
+    return objBox.intersects_inverse_fast(allChunksRect);
 }
 
 Vector2<size_t> ChunkMap::calculateMapSize(const Vector2u &chunkSize,
@@ -170,8 +203,31 @@ const vector<GameObject*> &ChunkMap::getGameObjectGroup(const ChunkID &id) const
         return m_dummyGroup;
     return m_chunkMap[id.chunk.x][id.chunk.y]->getVector();
 }
+const vector<GameObject*> ChunkMap::getGameObjectGroup(const vector<ChunkID> &idList) const
+{
+    vector<GameObject*> list;
+    for(size_t i=0; i<idList.size(); i++)
+    {
+        vector<GameObject*> tmpList = getGameObjectGroup(idList[i]);
+        list.reserve(list.size() + tmpList.size());
+        for(size_t j=0; j<tmpList.size(); j++)
+        {
+            for(size_t k=0; k<list.size(); k++)
+            {
+                if(list[k] == tmpList[j])
+                    goto overJump;
+            }
+
+            list.push_back(tmpList[j]);
+            overJump:
+            continue;
+        }
+    }
+    return list;
+}
 void ChunkMap::draw_chunks(PixelDisplay &display)
 {
+    EASY_FUNCTION(profiler::colors::Blue);
     for(size_t x=0; x<m_mapSize.x; x++)
     {
         for(size_t y=0; y<m_mapSize.y; y++)
@@ -182,11 +238,18 @@ void ChunkMap::draw_chunks(PixelDisplay &display)
 }
 void ChunkMap::setVisibility_chunk(const ChunkID &id,bool isVisible)
 {
+    if(!id.isInChunkMap)
+        return;
     if(m_chunkMap.size() <= id.chunk.x)
         return;
     if(m_chunkMap[id.chunk.x].size() <= id.chunk.y)
         return;
     m_chunkMap[id.chunk.x][id.chunk.y]->setVisibility_chunk(isVisible);
+}
+void ChunkMap::setVisibility_chunk(const vector<ChunkID> &idList,bool isVisible)
+{
+    for(const ChunkID &id : idList)
+        setVisibility_chunk(id,isVisible);
 }
 void ChunkMap::setVisibility_chunks(bool isVisible)
 {
@@ -212,6 +275,17 @@ bool ChunkMap::isVisible_chunks() const
     return m_isVisible_chunks;
 }
 
+void ChunkMap::internalAddOutside(GameObject *obj)
+{
+    obj->addChunkID(m_chunkID);
+    GameObjectGroup::add(obj);
+}
+void ChunkMap::internalRemoveOutside(GameObject *obj)
+{
+    obj->removeChunkID(m_chunkID);
+    GameObjectGroup::remove(obj);
+}
+
 
 void ChunkMap::objectIsNowInChunk(Chunk *sender,GameObject* obj,const Vector2<size_t> &newChunkIndex)
 {
@@ -228,19 +302,79 @@ void ChunkMap::objectIsNowOutOfBoundry(Chunk *sender,GameObject *obj)
 {
     qDebug()<<"OBJ: "<<obj<<" is out of boundry";
     sender->remove(obj);
-    GameObjectGroup::add(obj);
+    //GameObjectGroup::add(obj);
+    internalAddOutside(obj);
+}
+void ChunkMap::objectIsNowIntersecting(Chunk *sender,GameObject *obj, const Vector2<size_t> &intersectingChunk)
+{
 
 }
+void ChunkMap::objectIsNoLongerIntersecting(Chunk *sender,GameObject *obj, const Vector2<size_t> &intersectingChunk)
+{
+
+}
+void ChunkMap::updateChunkPos(Chunk *sender, GameObject* obj)
+{
+    Vector2<size_t> senderPos = sender->getChunkID().chunk;
+    RectF senderRect =  obj->getCollider().getBoundingBox();
+
+    vector<ChunkID> oldIds = obj->getChunkIDList();
+    for(size_t i=0; i<oldIds.size(); i++)
+    {
+        if(!m_chunkMap[oldIds[i].chunk.x][oldIds[i].chunk.y]->intersects(obj))
+        {
+            m_chunkMap[oldIds[i].chunk.x][oldIds[i].chunk.y]->remove(obj);
+        }
+    }
+
+    for(long x=-2; x<=2; x++)
+    {
+        for(long y=-2; y<=2; y++)
+        {
+            long indexX = senderPos.x + x;
+            long indexY = senderPos.y + y;
+            if(indexX < 0 || indexY < 0)
+                continue;
+            if((size_t)indexX >= m_mapSize.x || (size_t)indexY >= m_mapSize.y)
+                continue;
+
+            if(senderRect.intersects_fast(m_chunkMap[indexX][indexY]->getRect()))
+            {
+                m_chunkMap[indexX][indexY]->add(obj);
+            }
+        }
+    }
+    if(intersectsInverse(obj))
+    {
+        bool add = true;
+        for(size_t i=0; i<GameObjectGroup::size(); i++)
+        {
+            if(GameObjectGroup::operator[](i) == obj)
+            {
+                add = false; // Object already in this chunk
+                break;
+            }
+        }
+        if(add)
+        {
+            internalAddOutside(obj);
+        }
+    }
+}
+
 
 void ChunkMap::moved(GameObject* sender,const Vector2f &move)
 {
     bool outOfMap;
-    Vector2<size_t> chunkPos = findChunk(sender,outOfMap);
-    if(!outOfMap)
+    vector<Vector2<size_t> > chunkPosList = findChunk(sender,outOfMap);
+    for(const Vector2<size_t> &chunk : chunkPosList)
+        m_chunkMap[chunk.x][chunk.y]->add(sender);
+    //qDebug() << intersectsInverse(sender);
+    if(!intersectsInverse(sender))
     {
-        GameObjectGroup::remove(sender);
-        m_chunkMap[chunkPos.x][chunkPos.y]->add(sender);
-        qDebug()<<"OBJ: "<<sender<<" is now in chunk: "<<chunkPos.x<<" "<<chunkPos.y;
+        internalRemoveOutside(sender);
+
+        //qDebug()<<"OBJ: "<<sender<<" is now in chunk: "<<chunkPos.x<<" "<<chunkPos.y;
 
 
     }

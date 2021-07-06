@@ -44,7 +44,12 @@ class GameObject //   :   public ObjSignal
         virtual void setEventHandler(GameObjectEventHandler *handler);
         virtual const GameObjectEventHandler *getEventHandler() const;
         virtual void setChunkID(const ChunkID &chunkID);
+        virtual void setChunkID(const vector<ChunkID> &chunkIDList);
+        virtual void addChunkID(const ChunkID &chunkID);
+        virtual void removeChunkID(const ChunkID &chunkID);
+        virtual void clearChunkList();
         virtual const ChunkID &getChunkID() const;
+        virtual const vector<ChunkID> &getChunkIDList() const;
 
         // Signals
         virtual void subscribe(ObjSignal *subscriber);
@@ -145,10 +150,11 @@ class GameObject //   :   public ObjSignal
         virtual void event_hasCollision(vector<GameObject *> other);
 
         LayerItem m_layerItem;
-        ChunkID   m_chunkID;
+        vector<ChunkID>   m_chunkIDList;
+
         Property::Property m_property;
         GameObjectEventHandler *m_objEventHandler;
-        ObjSubscriberList          m_ObjSubscriberList;
+        ObjSubscriberList          m_objSubscriberList;
 
         vector<Controller*> m_controllerList;
         DynamicCoordinator m_movementCoordinator;
@@ -176,5 +182,7 @@ class GameObject //   :   public ObjSignal
     private:
         bool m_isTrash;
         InteractiveGameObject *m_thisInteractiveObject;
+
+        ChunkID           m_constDummy_chunkID;
 };
 #endif // GAMEOBJECT_H

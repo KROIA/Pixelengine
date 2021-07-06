@@ -234,7 +234,7 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
 
         InteractiveGameObjectGroup  m_masterGameObjectGroup;
         vector<GameObject* >        m_removeLaterObjectGroup;
-        ChunkMap                   *m_chunkMap;
+        //ChunkMap                   *m_chunkMap;
 
         vector<GameObjectGroup> m_renderLayer;
         InteractiveGameObjectGroup         m_trashList;

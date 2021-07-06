@@ -64,6 +64,9 @@ class ChunkSignal
         virtual void movingToRightChunk(GameObject* sender) = 0;*/
         virtual void objectIsNowInChunk(Chunk *sender,GameObject* obj,const Vector2<size_t> &newChunkIndex) = 0;
         virtual void objectIsNowOutOfBoundry(Chunk *sender,GameObject *obj) = 0;
+        virtual void objectIsNowIntersecting(Chunk *sender,GameObject *obj, const Vector2<size_t> &intersectingChunk) = 0;
+        virtual void objectIsNoLongerIntersecting(Chunk *sender,GameObject *obj, const Vector2<size_t> &intersectingChunk) = 0;
+        virtual void updateChunkPos(Chunk *sender, GameObject* obj) = 0;
     protected:
 
 };
@@ -78,6 +81,9 @@ class ChunkSubscriberList    : public vector<ChunkSignal*>
         virtual void movingToRightChunk(GameObject* sender);*/
         virtual void objectIsNowInChunk(Chunk *sender,GameObject* obj,const Vector2<size_t> &newChunkIndex);
         virtual void objectIsNowOutOfBoundry(Chunk *sender,GameObject *obj);
+        virtual void objectIsNowIntersecting(Chunk *sender,GameObject *obj, const Vector2<size_t> &intersectingChunk);
+        virtual void objectIsNoLongerIntersecting(Chunk *sender,GameObject *obj, const Vector2<size_t> &intersectingChunk);
+        virtual void updateChunkPos(Chunk *sender, GameObject* obj);
     protected:
 
 };

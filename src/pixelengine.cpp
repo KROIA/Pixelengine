@@ -445,7 +445,7 @@ void PixelEngine::tickXY(const Vector2i &dirLock)
         m_statistics.gameObjectTickTime += stats_time_span.count()*1000.f*(1.f-m_statsFilterFactor);
         stats_timer_start = std::chrono::system_clock::now();
 #endif
-        m_statistics.collisionsPerTick += obj->checkCollision(interactiveObject->getInteractiveObjects().getVector());
+        m_statistics.collisionsPerTick += obj->checkCollision(interactiveObject->getInteractiveObjects());
 #ifdef STATISTICS
         stats_timer_end = std::chrono::system_clock::now();
         stats_time_span = stats_timer_end - stats_timer_start;
@@ -730,6 +730,8 @@ void PixelEngine::display()
     {        
         m_renderLayer[i].draw(*m_display);
     }
+    EASY_END_BLOCK;
+    EASY_BLOCK("draw_chunks",profiler::colors::OrangeA100)
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
     {
         m_masterGameObjectGroup[i]->draw_chunks(*m_display);
@@ -861,6 +863,8 @@ void PixelEngine::removeGameObject(GameObjectGroup *group)
 void PixelEngine::removeGameObjectsIntern()
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
+    if(m_removeLaterObjectGroup.size() == 0)
+        return;
     for(GameObject* &obj : m_removeLaterObjectGroup)
     {
         obj->setEventHandler(nullptr);

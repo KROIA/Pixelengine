@@ -31,7 +31,7 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         virtual void setInteractionWith(vector<GameObjectGroup*> *groupList, bool doesCollide = true);
 
         virtual const vector<GameObjectGroup*> &getInteractiveObjectsList() const;
-        virtual const vector<GameObject*> &getInteractiveObjects();
+        virtual const vector<GameObject*> getInteractiveObjects();
 
         virtual void draw_chunks(PixelDisplay &display);
         virtual void setVisibility_chunk(const ChunkID &id,bool isVisible);
@@ -48,7 +48,7 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         ChunkMap   *m_interactiveObjectsChunkMap;
         ChunkMap   *m_gameObjectChunkMap;
         vector<GameObjectGroup*> m_interactsWithObjectsList;
-
+        bool        m_drawingIsDisabled;
 
     private:
         // GameObject singals:

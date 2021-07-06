@@ -113,3 +113,24 @@ void ChunkSubscriberList::objectIsNowOutOfBoundry(Chunk *sender,GameObject *obj)
         sub->objectIsNowOutOfBoundry(sender,obj);
     }
 }
+void ChunkSubscriberList::objectIsNowIntersecting(Chunk *sender,GameObject *obj, const Vector2<size_t> &intersectingChunk)
+{
+    for(ChunkSignal* &sub : *this)
+    {
+        sub->objectIsNowIntersecting(sender,obj,intersectingChunk);
+    }
+}
+void ChunkSubscriberList::objectIsNoLongerIntersecting(Chunk *sender,GameObject *obj, const Vector2<size_t> &intersectingChunk)
+{
+    for(ChunkSignal* &sub : *this)
+    {
+        sub->objectIsNoLongerIntersecting(sender,obj,intersectingChunk);
+    }
+}
+void ChunkSubscriberList::updateChunkPos(Chunk *sender, GameObject* obj)
+{
+    for(ChunkSignal* &sub : *this)
+    {
+        sub->updateChunkPos(sender,obj);
+    }
+}

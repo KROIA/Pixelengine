@@ -14,6 +14,8 @@ GameObject::GameObject()
     this->m_visibility_collider_boundingBox     = false;
     this->m_visibility_collider_collisionData   = false;
     this->m_visibility_collider_collidingWith   = false;
+    m_isTrash = false;
+    m_textureIsActiveForCollider = false;
     //this->m_visibility_chunkMap                 = false;
     //m_rotationDeg           = 90; // 90 deg
     m_layerItem.setRotationInitial(0);
@@ -29,6 +31,8 @@ GameObject::GameObject(const GameObject &other)
     this->m_visibility_collider_boundingBox     = false;
     this->m_visibility_collider_collisionData   = false;
     this->m_visibility_collider_collidingWith   = false;
+    m_isTrash = false;
+    m_textureIsActiveForCollider = false;
     //this->m_visibility_chunkMap                 = false;
     m_thisInteractiveObject = other.m_thisInteractiveObject;
 
@@ -48,6 +52,8 @@ GameObject::GameObject(Controller *controller,
     this->m_visibility_collider_boundingBox     = false;
     this->m_visibility_collider_collisionData   = false;
     this->m_visibility_collider_collidingWith   = false;
+    m_isTrash = false;
+    m_textureIsActiveForCollider = false;
     //this->m_visibility_chunkMap                 = false;
     //m_rotationDeg       = 90; // 90 deg
     m_layerItem.setRotationInitial(0);
@@ -74,6 +80,8 @@ const GameObject &GameObject::operator=(const GameObject &other)
     this->m_visibility_collider_boundingBox    = other.m_visibility_collider_boundingBox;
     this->m_visibility_collider_collisionData  = other.m_visibility_collider_collisionData;
     this->m_visibility_collider_collidingWith  = other.m_visibility_collider_collidingWith;
+    this->m_isTrash = other.m_isTrash;
+    this->m_textureIsActiveForCollider = other.m_textureIsActiveForCollider;
     //this->m_visibility_chunkMap                = other.m_visibility_chunkMap;
     //this->m_rotationDeg         = other.m_rotationDeg;
 
@@ -128,9 +136,9 @@ void GameObject::tick(const Vector2i &direction)
         m_layerItem.move(Vector2f(0,m_movementCoordinator.getMovingVector_Y()));
 
         //emit signal
-        if(m_ObjSubscriberList.size() > 0)
+        if(m_objSubscriberList.size() > 0)
             if(Vector::length(m_movementCoordinator.getMovingVector()) != 0)
-                m_ObjSubscriberList.moved(this,m_movementCoordinator.getMovingVector());
+                m_objSubscriberList.moved(this,m_movementCoordinator.getMovingVector());
 
         m_movementCoordinator.tick();
         m_layerItem.swapRotationToLastRotation();
@@ -239,39 +247,71 @@ const GameObjectEventHandler *GameObject::getEventHandler() const
 }
 void GameObject::setChunkID(const ChunkID &chunkID)
 {
-    m_chunkID = chunkID;
+    clearChunkList();
+    m_chunkIDList.push_back(chunkID);
+}
+void GameObject::setChunkID(const vector<ChunkID> &chunkIDList)
+{
+    m_chunkIDList = chunkIDList;
+}
+void GameObject::addChunkID(const ChunkID &chunkID)
+{
+    m_chunkIDList.push_back(chunkID);
+}
+void GameObject::removeChunkID(const ChunkID &chunkID)
+{
+    for(size_t i=0; i<m_chunkIDList.size(); i++)
+    {
+        if(m_chunkIDList[i] == chunkID)
+        {
+            m_chunkIDList.erase(m_chunkIDList.begin() + i);
+            i--;
+        }
+    }
+}
+void GameObject::clearChunkList()
+{
+    m_chunkIDList.clear();
+    m_chunkIDList.reserve(9);
 }
 const ChunkID &GameObject::getChunkID() const
 {
-    return m_chunkID;
+    if(m_chunkIDList.size() > 0)
+        return m_chunkIDList[0];
+    else
+        return m_constDummy_chunkID;
+}
+const vector<ChunkID> &GameObject::getChunkIDList() const
+{
+    return m_chunkIDList;
 }
 void GameObject::subscribe(ObjSignal *subscriber)
 {
     if(subscriber == nullptr)
         return;
-    for(size_t i=0; i<m_ObjSubscriberList.size(); i++)
+    for(size_t i=0; i<m_objSubscriberList.size(); i++)
     {
-        if(m_ObjSubscriberList[i] == subscriber)
+        if(m_objSubscriberList[i] == subscriber)
         {
             return;
         }
     }
-    m_ObjSubscriberList.push_back(subscriber);
+    m_objSubscriberList.push_back(subscriber);
 }
 void GameObject::unsubscribe(ObjSignal *subscriber)
 {
-    for(size_t i=0; i<m_ObjSubscriberList.size(); i++)
+    for(size_t i=0; i<m_objSubscriberList.size(); i++)
     {
-        if(m_ObjSubscriberList[i] == subscriber)
+        if(m_objSubscriberList[i] == subscriber)
         {
-            m_ObjSubscriberList.erase(m_ObjSubscriberList.begin()+i);
+            m_objSubscriberList.erase(m_objSubscriberList.begin()+i);
             return;
         }
     }
 }
 void GameObject::unsubscribeAll()
 {
-    m_ObjSubscriberList.clear();
+    m_objSubscriberList.clear();
 }
 
 void GameObject::addController(Controller *controller)
@@ -677,6 +717,19 @@ const vector<DisplayText*> &GameObject::getTextList()
 void GameObject::markAsTrash(bool isTrash)
 {
     m_isTrash = isTrash;
+    if(!m_isTrash)
+        return;
+    if(m_objSubscriberList.size() != 0)
+    {
+        qDebug() << "GameObject::markAsTrash(bool ["<<isTrash<<"]): Subscriberlist not empty!";
+        qDebug() << m_objSubscriberList.size() << " subscriptions are active.";
+        for(size_t i=0; i<m_objSubscriberList.size(); i++)
+        {
+            qDebug() << "Subscriber: ["<<i<<"] \t: "<<m_objSubscriberList[i];
+        }
+        qDebug() << "Property of this ("<<this<<") Objects is: ";
+        qDebug() << this->getProperty().toString().c_str();
+    }
 }
 bool GameObject::isTrash() const
 {

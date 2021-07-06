@@ -164,6 +164,10 @@ float LayerItem::getRotation() const
 {
     return m_rotation;
 }
+float LayerItem::getLastRotation() const
+{
+    return m_lastRotation;
+}
 
 void LayerItem::setToLastPos()
 {

@@ -31,7 +31,7 @@ vector<GameObject*> Chunk::getFilteredList(const vector<GameObject*> &list)
     resultList.reserve(list.size());
     for(GameObject* obj : list)
     {
-        if(isInChunk(obj))
+        if(intersects(obj))
             resultList.push_back(obj);
     }
     return resultList;
@@ -44,13 +44,17 @@ void Chunk::add(const vector<GameObject*> &list)
 void Chunk::add(GameObject *object)
 {
     EASY_FUNCTION(profiler::colors::Purple50);
-    if(!isInChunk(object))
+    if(!intersects(object))
     {
         qDebug() << "obj: "<<object<< " is not in this chunk: "<<m_chunkRect.getPos().x<<"\t"<<m_chunkRect.getPos().y;
         return; // Not in this area
     }
-    //qDebug() << "adding: "<<object<< " to chunk: \t"<<m_chunkRect.getPos().x<<"\t"<<m_chunkRect.getPos().y;
-    object->setChunkID(m_chunkID);
+    for(size_t i=0; i<GameObjectGroup::size(); i++)
+    {
+        if(GameObjectGroup::operator[](i) == object)
+            return; // Object already in this chunk
+    }
+    object->addChunkID(m_chunkID);
     GameObjectGroup::addInternal(object);
     m_groupSubscriberList.adding(this,object);//emit signal
 }
@@ -67,9 +71,7 @@ void Chunk::remove(const vector<GameObject*> &list)
 }
 void Chunk::remove(GameObject *object)
 {
-    ChunkID id = object->getChunkID();
-    id.isInChunkMap = false;
-    object->setChunkID(id);
+    object->removeChunkID(m_chunkID);
     GameObjectGroup::remove(object);
 }
 void Chunk::remove(GameObjectGroup *other)
@@ -82,9 +84,21 @@ void Chunk::remove(GameObjectGroup *other)
     }
     GameObjectGroup::remove(other);
 }
+
+bool Chunk::intersects(GameObject *object)
+{
+    if(m_chunkRect.intersects_fast(object->getCollider().getBoundingBox()))
+        return true;
+    return false;
+}
+
 const RectF &Chunk::getRect() const
 {
     return m_chunkRect;
+}
+const ChunkID &Chunk::getChunkID() const
+{
+    return m_chunkID;
 }
 
 // Signals
@@ -119,6 +133,7 @@ void Chunk::unsubscribeAllChunks()
 
 void Chunk::draw_chunk(PixelDisplay &display)
 {
+    EASY_FUNCTION(profiler::colors::Blue100);
     if(m_visibility_chunk)
         display.addVertexLine(m_chunkRect.getDrawable());
 }
@@ -130,12 +145,12 @@ bool Chunk::isVisible_chunk() const
 {
     return m_visibility_chunk;
 }
-inline bool Chunk::isInChunk(GameObject *obj)
+/*inline bool Chunk::isInChunk(GameObject *obj)
 {
     if(m_chunkRect.intersects_fast(obj->getCollider().getBoundingBox()))
         return true; // in this area
     return false;
-}
+}*/
 inline ChunkID Chunk::getNewChunkPos(GameObject *obj)
 {
     ChunkID newChunk = m_chunkID;
@@ -169,7 +184,7 @@ inline ChunkID Chunk::getNewChunkPos(GameObject *obj)
 // GameObject singals:
 void Chunk::moved(GameObject* sender,const Vector2f &move)
 {
-    if(!isInChunk(sender))
+    /*if(!intersects(sender))
     {
         //qDebug() << " OBJ: "<< sender << " is out of this chunk";
        ChunkID newChunkID = getNewChunkPos(sender);
@@ -184,5 +199,7 @@ void Chunk::moved(GameObject* sender,const Vector2f &move)
         }
         else
             m_chunkSubscriberList.objectIsNowInChunk(this,sender,newChunkID.chunk);
-    }
+    }*/
+    m_chunkSubscriberList.updateChunkPos(this,sender);
+
 }

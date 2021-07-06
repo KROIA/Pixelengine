@@ -197,8 +197,9 @@ const vector<RectF> &Collider::getHitbox() const
 bool Collider::intersectsBoundingBox(const Collider &other)
 {
     EASY_FUNCTION(profiler::colors::Red200);
-    if(LayerItem::getLastPos() == LayerItem::getPos() && other.LayerItem::getLastPos() == other.LayerItem::getPos())
-        return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben
+    /*if(LayerItem::getLastPos()       == LayerItem::getPos()      && other.LayerItem::getLastPos()      == other.LayerItem::getPos() &&
+       LayerItem::getLastRotation()  == LayerItem::getRotation() && other.LayerItem::getLastRotation() == other.LayerItem::getRotation())
+        return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben*/
 
     bool intersects = this->m_boundingBox.intersects_fast(other.m_boundingBox);
     stats_checkIntersectCounter += this->m_boundingBox.stats_intersectionCheckCounter;
@@ -213,8 +214,9 @@ bool Collider::intersectsBoundingBox(const Collider &other)
 bool Collider::collides(const Collider &other)
 {
     EASY_FUNCTION(profiler::colors::Red300);
-    if(LayerItem::getLastPos() == LayerItem::getPos() && other.LayerItem::getLastPos() == other.LayerItem::getPos())
-        return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben
+    /*if(LayerItem::getLastPos()       == LayerItem::getPos()      && other.LayerItem::getLastPos()      == other.LayerItem::getPos() &&
+       LayerItem::getLastRotation()  == LayerItem::getRotation() && other.LayerItem::getLastRotation() == other.LayerItem::getRotation())
+        return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben*/
 
     EASY_BLOCK("for(size_t x=0; x<this->m_hitboxList.size(); x++)",profiler::colors::Red400);
     for(size_t x=0; x<this->m_hitboxList.size(); x++)

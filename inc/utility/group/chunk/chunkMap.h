@@ -20,20 +20,31 @@ class ChunkMap  :   private ChunkSignal, GameObjectGroup
         virtual void remove(GameObject *object);
         virtual void remove(GameObjectGroup *other);
 
-        virtual Vector2<size_t> findChunk(GameObject *obj,bool &outOfMap);
+        virtual vector<Vector2<size_t> > findChunk(GameObject *obj,bool &outOfMap);
+        virtual bool intersects(GameObject *obj);
+        virtual bool intersectsInverse(GameObject *obj);
+
 
         virtual const vector<GameObject*> &getGameObjectGroup(const ChunkID &id) const;
+        virtual const vector<GameObject*> getGameObjectGroup(const vector<ChunkID> &idList) const;
 
         virtual void draw_chunks(PixelDisplay &display);
         virtual void setVisibility_chunk(const ChunkID &id,bool isVisible);
+        virtual void setVisibility_chunk(const vector<ChunkID> &idList,bool isVisible);
         virtual void setVisibility_chunks(bool isVisible);
         virtual bool isVisible_chunk(const ChunkID &id) const;
         virtual bool isVisible_chunks() const;
 
     protected:
+        virtual void internalAddOutside(GameObject *obj);
+        virtual void internalRemoveOutside(GameObject *obj);
         // Signals from the chunks
         virtual void objectIsNowInChunk(Chunk *sender,GameObject* obj,const Vector2<size_t> &newChunkIndex);
         virtual void objectIsNowOutOfBoundry(Chunk *sender,GameObject *obj);
+        virtual void objectIsNowIntersecting(Chunk *sender,GameObject *obj, const Vector2<size_t> &intersectingChunk);
+        virtual void objectIsNoLongerIntersecting(Chunk *sender,GameObject *obj, const Vector2<size_t> &intersectingChunk);
+        virtual void updateChunkPos(Chunk *sender, GameObject* obj);
+
 
         // GameObject singals:
         virtual void moved(GameObject* sender,const Vector2f &move);
@@ -50,5 +61,6 @@ class ChunkMap  :   private ChunkSignal, GameObjectGroup
         vector<GameObject*>       m_dummyGroup;
 
         bool                      m_isVisible_chunks;
+        ChunkID                   m_chunkID;
 };
 #endif // CHUNKMAP_H

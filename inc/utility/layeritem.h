@@ -50,6 +50,7 @@ class LayerItem
         virtual void setRotationInitial(float deg);
         virtual void setRotation(float deg);
         virtual float getRotation() const;
+        virtual float getLastRotation() const;
 
 
 

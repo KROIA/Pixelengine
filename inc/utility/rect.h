@@ -60,6 +60,7 @@ class GeneralRect
         virtual void clearColliderData();
         virtual bool intersects(const GeneralRect<T> &other); // returns true if this and ohter are intersecting
         virtual bool intersects_fast(const GeneralRect<T> &other); // returns true if this and ohter are intersecting
+        virtual bool intersects_inverse_fast(const GeneralRect<T> &other); // returns true if this is intersecting the inverse of the other
         virtual bool isOnTopOf(const GeneralRect<T> &other);
         virtual bool isBeneathOf(const GeneralRect<T> &other);
         virtual bool isLeftOf(const GeneralRect<T> &other);
@@ -528,6 +529,40 @@ bool GeneralRect<T>::intersects_fast(const GeneralRect<T> &other)
         return false;
     }
     stats_intersectionCheckCounter = 2;
+    return true;
+}
+// returns true if this is intersecting the inverse of the other
+template<class T>
+bool GeneralRect<T>::intersects_inverse_fast(const GeneralRect<T> &other)
+{
+    stats_intersectionCheckCounter = 1;
+    /*if(frame_pos.x > other.frame_pos.x && frame_pos.x + frame_size.x < other.frame_pos.x + other.frame_size.x)
+        return true;
+    if(frame_pos.x < other.frame_pos.x && frame_pos.x + frame_size.x > other.frame_pos.x + other.frame_size.x)
+    {
+        stats_intersectionCheckCounter++;
+        return true;
+    }
+    stats_intersectionCheckCounter++;
+    if(frame_pos.y > other.frame_pos.y && frame_pos.y + frame_size.y < other.frame_pos.y + other.frame_size.y)
+    {
+        stats_intersectionCheckCounter++;
+        return true;
+    }
+    stats_intersectionCheckCounter++;
+    if(frame_pos.y < other.frame_pos.y && frame_pos.y + frame_size.y > other.frame_pos.y)
+    {
+        stats_intersectionCheckCounter++;
+        return true;
+    }*/
+
+    if(frame_pos.x > other.frame_pos.x && frame_pos.x + frame_size.x < other.frame_pos.x + other.frame_size.x &&
+       frame_pos.y > other.frame_pos.y && frame_pos.y + frame_size.y < other.frame_pos.y + other.frame_size.y)
+    {
+        stats_intersectionCheckCounter++;
+        return false;
+    }
+    stats_intersectionCheckCounter++;
     return true;
 }
 

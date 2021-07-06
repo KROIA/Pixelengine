@@ -26,8 +26,11 @@ class Chunk :   public GameObjectGroup
         virtual void remove(GameObject *object);
         virtual void remove(GameObjectGroup *other);
 
+        virtual bool intersects(GameObject *object);
+
 
         virtual const RectF &getRect() const;
+        virtual const ChunkID &getChunkID() const;
 
         // Signals
         virtual void subscribeChunk(ChunkSignal *subscriber);
@@ -39,7 +42,7 @@ class Chunk :   public GameObjectGroup
         virtual bool isVisible_chunk() const;
 
     protected:
-        inline bool isInChunk(GameObject *obj);
+        //inline bool isInChunk(GameObject *obj);
         inline ChunkID getNewChunkPos(GameObject *obj);
 
         // GameObject singals:
