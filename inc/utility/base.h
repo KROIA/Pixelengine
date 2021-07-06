@@ -19,6 +19,7 @@
 #include "stdio.h"
 
 
+
 using std::string;
 using std::vector;
 using sf::Vector2;
@@ -26,6 +27,8 @@ using sf::Vector2f;
 using sf::Vector2i;
 using sf::Vector2u;
 
+
+//const Vector2f globalScale(10,10);
 
 class DisplayText;
 class Pixel;

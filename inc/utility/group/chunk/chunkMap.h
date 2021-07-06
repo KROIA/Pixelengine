@@ -54,7 +54,7 @@ class ChunkMap  :   private ChunkSignal, GameObjectGroup
                                           const Vector2i &area);
         void generateMap();
 
-        vector<vector<Chunk*>    > m_chunkMap;
+        vector<vector<Chunk*>  >  m_chunkMap;
         Vector2u                  m_chunkSize;
         Vector2i                  m_mapPos;
         Vector2<size_t>           m_mapSize;

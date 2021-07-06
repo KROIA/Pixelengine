@@ -49,7 +49,9 @@ class PixelDisplay
         virtual void setPixel(const vector<Pixel> &pixelList);
 
         virtual void clearSprite();
-        virtual void addSprite(Sprite &sprite);
+        virtual void addSprite(Sprite *sprite);
+        virtual void subscribeSprite(Sprite *sprite);
+        virtual void unsubscribeSprite(Sprite *sprite);
 
         virtual void clearVertexLine();
         virtual void addVertexLine(VertexPath* path);
@@ -61,6 +63,8 @@ class PixelDisplay
         virtual sf::Event handleEvents();
         virtual sf::Event handleEvents(const KeyEvent &eventHandler);
         virtual sf::Event handleEvents(const vector<KeyEvent> &eventHandlerList);
+        virtual void zoomViewAt(sf::Vector2i pixel, sf::RenderWindow& window, float zoom);
+        virtual void updateRenderFrame();
 
         virtual bool addText(DisplayText *text);       // This function will not own the Text Object!
         virtual bool removeText(DisplayText *text);
@@ -70,13 +74,13 @@ class PixelDisplay
         virtual Vector2u getMapSize() const;
 
         virtual RenderWindow *getRenderWindow();
-        virtual Vector2f getRenderScale();
+        //virtual Vector2f getRenderScale();
 
-        virtual void setRenderFramePosCenter(const Vector2f &pos);
-        virtual void setRenderFramePos(const Vector2f &pos);
-        virtual void moveRenderFrame(const Vector2f &vec);
-        virtual void setRenderFrame(const RectF &frame);
-        virtual const RectF &getRenderFrame() const;
+        //virtual void setRenderFramePosCenter(const Vector2f &pos);
+        //virtual void setRenderFramePos(const Vector2f &pos);
+        //virtual void moveRenderFrame(const Vector2f &vec);
+        //virtual void setRenderFrame(const RectF &frame);
+        virtual const RectF getRenderFrame() const;
 
         virtual unsigned long long stats_getRenderSprites() const;
         virtual unsigned long long stats_getRenderVertexPaths() const;
@@ -89,7 +93,7 @@ class PixelDisplay
         Vector2u m_pixelMapSize;
 
         RenderWindow *m_renderWindow;
-        View m_windowView;
+        RectF m_renderFrame;
 
         sf::Texture m_texture;
         Image m_image;
@@ -100,17 +104,18 @@ class PixelDisplay
         vector<DisplayText*> m_textList;
         bool                 m_textListUsed;
 
-        vector<Sprite>       m_spriteList;
+        vector<Sprite*>       m_spriteList;
+        vector<Sprite*>      m_spriteSubscriberList;
         bool                 m_spriteListUsed;
         vector<VertexPath*>   m_vertexPathList;
         bool                 m_vertexPathUsed;
-        Vector2f             m_spriteScale;
-        RectF                m_globalDisplayFrame;
+       // Vector2f             m_renderScale;
+       // RectF                m_globalDisplayFrame;
 
     private:
         bool                 m_dragMap;
         Vector2f             m_lastMousePos;
-
+        float                m_viewPortZoom;
 
         unsigned long long m_stats_renderSprites;
         unsigned long long m_stats_renderVertexPaths;

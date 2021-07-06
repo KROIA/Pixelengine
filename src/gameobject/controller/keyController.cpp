@@ -164,7 +164,7 @@ void KeyController::setStepSize(const int size)
 
     this->setRotation();
 }
-const int &KeyController::getStepSize() const
+int KeyController::getStepSize() const
 {
     return m_stepSize;
 }

@@ -20,6 +20,8 @@ class Painter   :   public  LayerItem
         virtual RectF getFrame() const;
 
         virtual void draw(PixelDisplay &display);
+        virtual void subscribeToDisplay(PixelDisplay &display);
+        virtual void unsubscribeToDisplay(PixelDisplay &display);
 
         virtual void setPos(const Vector2f &pos);
 
@@ -64,6 +66,8 @@ class Painter   :   public  LayerItem
 
     private:
 
+        bool m_spriteHasSubscribedToDisplay;
+        //Vector2f m_renderScale;
         Pixel m_const_dummy_pixel;
 };
 #endif

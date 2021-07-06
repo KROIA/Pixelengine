@@ -183,7 +183,7 @@ vector<GameObject*> GameObject::getCollidedObjects(GameObject *owner, Collider *
 {
     EASY_FUNCTION(profiler::colors::Green600);
     vector<GameObject*> collided;
-    collided.reserve(10);
+    //collided.reserve(10);
     for(size_t i=0; i<other.size(); i++)
     {
         if(owner == other[i])
@@ -207,11 +207,10 @@ void GameObject::draw(PixelDisplay &display)
     m_painter->setPos(m_layerItem.getPos());
     m_painter->setRotation(m_layerItem.getRotation());
     RectF frame = display.getRenderFrame();
-    frame.setPos(-frame.getPos());
+    //frame.setPos(frame.getPos());
 
     if(!frame.intersects_fast(m_painter->getFrame()))
         return;
-
 
     m_painter->draw(display);
 
@@ -228,6 +227,14 @@ void GameObject::draw(PixelDisplay &display)
 
 
 
+}
+void GameObject::subscribeToDisplay(PixelDisplay &display)
+{
+    m_painter->subscribeToDisplay(display);
+}
+void GameObject::unsubscribeToDisplay(PixelDisplay &display)
+{
+    m_painter->unsubscribeToDisplay(display);
 }
 void GameObject::setEventHandler(GameObjectEventHandler *handler)
 {
@@ -719,7 +726,7 @@ void GameObject::markAsTrash(bool isTrash)
     m_isTrash = isTrash;
     if(!m_isTrash)
         return;
-    if(m_objSubscriberList.size() != 0)
+  /*  if(m_objSubscriberList.size() != 0)
     {
         qDebug() << "GameObject::markAsTrash(bool ["<<isTrash<<"]): Subscriberlist not empty!";
         qDebug() << m_objSubscriberList.size() << " subscriptions are active.";
@@ -729,7 +736,7 @@ void GameObject::markAsTrash(bool isTrash)
         }
         qDebug() << "Property of this ("<<this<<") Objects is: ";
         qDebug() << this->getProperty().toString().c_str();
-    }
+    }*/
 }
 bool GameObject::isTrash() const
 {

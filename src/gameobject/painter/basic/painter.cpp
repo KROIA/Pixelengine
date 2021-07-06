@@ -14,6 +14,7 @@ Painter::Painter()
 
 
     m_originType = Origin::middle;
+    m_spriteHasSubscribedToDisplay = false;
 }
 Painter::Painter(const Painter &other)
     :   LayerItem()
@@ -30,10 +31,12 @@ const Painter &Painter::operator=(const Painter &other)
     LayerItem::operator=(other);
     this->m_isVisible       = other.m_isVisible;
     *this->m_sprite         = *other.m_sprite;
-    *this->m_texture        = *other.m_texture;
+    this->m_texture         = other.m_texture;
     *this->m_image          = *other.m_image;
     this->m_originType      = other.m_originType;
     this->m_frame           = other.m_frame;
+    this->m_spriteHasSubscribedToDisplay = other.m_spriteHasSubscribedToDisplay;
+    //this->m_renderScale     = other.m_renderScale;
     return *this;
 }
 
@@ -44,10 +47,24 @@ RectF Painter::getFrame() const
 void Painter::draw(PixelDisplay &display)
 {
     EASY_FUNCTION(profiler::colors::Cyan200);
-    if(m_isVisible)
+    if(m_isVisible && !m_spriteHasSubscribedToDisplay)
     {
-        display.addSprite(*m_sprite);
+        display.addSprite(m_sprite);
     }
+}
+void Painter::subscribeToDisplay(PixelDisplay &display)
+{
+    if(m_sprite != nullptr)
+    {
+        display.subscribeSprite(m_sprite);
+        //m_renderScale = display.getRenderScale();
+        m_spriteHasSubscribedToDisplay = true;
+    }
+}
+void Painter::unsubscribeToDisplay(PixelDisplay &display)
+{
+    display.unsubscribeSprite(m_sprite);
+    m_spriteHasSubscribedToDisplay = false;
 }
 
 void Painter::setPos(const Vector2f & pos)
@@ -171,6 +188,8 @@ const Vector2f Painter::getOrigin() const
 void Painter::internalUpdateOrigin()
 {
     EASY_FUNCTION(profiler::colors::Cyan700);
+    if(m_texture == nullptr)
+        return;
     switch(m_originType)
     {
         case Origin::topLeft:

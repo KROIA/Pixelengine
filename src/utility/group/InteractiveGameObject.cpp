@@ -2,10 +2,13 @@
 
 InteractiveGameObject::InteractiveGameObject()
 {
+    EASY_FUNCTION("new InteractiveGameObject()",profiler::colors::Purple50);
     m_gameObject = nullptr;
     Vector2i blockSize(16,16);
-    m_interactiveObjectsChunkMap   = new ChunkMap(Vector2u(blockSize*8),RectI(blockSize*(0),blockSize*50));
-    m_gameObjectChunkMap           = new ChunkMap(Vector2u(blockSize*8),RectI(blockSize*(0),blockSize*50));
+    float blocksPerChunk = 16;
+    Vector2u chunkSize(blockSize.x*blocksPerChunk,blockSize.y*blocksPerChunk);
+    m_interactiveObjectsChunkMap   = new ChunkMap(chunkSize,RectI(blockSize*(-8),blockSize*64));
+    m_gameObjectChunkMap           = new ChunkMap(chunkSize,RectI(blockSize*(-8),blockSize*64));
 
     m_interactsWithObjectsList.push_back(new GameObjectGroup());
     m_drawingIsDisabled = true;

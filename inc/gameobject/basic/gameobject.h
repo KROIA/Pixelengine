@@ -41,6 +41,8 @@ class GameObject //   :   public ObjSignal
         virtual unsigned int checkCollision(const vector<vector<GameObject*> >&other);
         static vector<GameObject*> getCollidedObjects(GameObject *owner, Collider *collider,const vector<GameObject*> &other);
         virtual void draw(PixelDisplay &display);
+        virtual void subscribeToDisplay(PixelDisplay &display);
+        virtual void unsubscribeToDisplay(PixelDisplay &display);
         virtual void setEventHandler(GameObjectEventHandler *handler);
         virtual const GameObjectEventHandler *getEventHandler() const;
         virtual void setChunkID(const ChunkID &chunkID);

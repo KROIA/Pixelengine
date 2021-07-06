@@ -32,7 +32,8 @@ GameObjectGroup &GameObjectGroup::operator=(const GameObjectGroup &other)
 void GameObjectGroup::draw(PixelDisplay &display)
 {
     EASY_FUNCTION(profiler::colors::Purple);
-    for(size_t i=0; i<m_isInList.size(); i++)
+    size_t size = m_isInList.size();
+    for(size_t i=0; i<size; i++)
         m_isInList[i]->draw(display);
 }
 void GameObjectGroup::add(GameObject *object)

@@ -53,6 +53,8 @@ const Color __color_minimalAlphaColor(255,255,255);
 #define USE_THREADS
 #define USE_STD_THREADS
 
+//#define DBUG_THREAD
+
 #ifdef BUILD_WITH_EASY_PROFILER
     #define NO_TIMED_LOOPS
 #endif
@@ -106,15 +108,17 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         virtual void setUserDisplayLoop(p_func func);
         virtual void setUserTickLoop(p_func func);
 
+        virtual void setup();
+
         virtual void checkEvent();
         virtual void tick();
         virtual void display();
 
-        virtual void display_setRenderFramePosCenter(const Vector2f &pos);
-        virtual void display_moveRenderFrame(const Vector2f &vec);
-        virtual void display_setRenderFramePos(const Vector2f &pos);
-        virtual void display_setRenderFrame(const RectF &frame);
-        virtual const RectF &display_getRenderFrame() const;
+       // virtual void display_setRenderFramePosCenter(const Vector2f &pos);
+       // virtual void display_moveRenderFrame(const Vector2f &vec);
+       // virtual void display_setRenderFramePos(const Vector2f &pos);
+       // virtual void display_setRenderFrame(const RectF &frame);
+       // virtual const RectF &display_getRenderFrame() const;
 
 
         virtual void set_setting_checkEventInterval(const float &seconds);
@@ -246,6 +250,7 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         p_func m_p_func_userTickLoop;
 
         unsigned long long m_tick;
+        bool m_setupDone;
 
         // Statistics
         Statistics m_statistics;

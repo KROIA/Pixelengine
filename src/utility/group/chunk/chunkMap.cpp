@@ -3,6 +3,7 @@
 ChunkMap::ChunkMap(Vector2u chunkSize,
                    RectI area)
 {
+    EASY_BLOCK("new ChunkMap()",profiler::colors::Blue);
     if(chunkSize.x == 0)
         chunkSize.x =128;
     if(chunkSize.y == 0)
@@ -26,6 +27,7 @@ ChunkMap::ChunkMap(const ChunkMap &other)
 }
 ChunkMap::~ChunkMap()
 {
+    EASY_FUNCTION(profiler::colors::Blue);
     for(size_t x=0; x<m_mapSize.x; x++)
     {
         for(size_t y=0; y<m_mapSize.y; y++)
@@ -40,11 +42,13 @@ ChunkMap::~ChunkMap()
 
 void ChunkMap::add(const vector<GameObject*> &list)
 {
+    EASY_FUNCTION(profiler::colors::Blue100);
     for(GameObject* obj : list)
         this->add(obj);
 }
 void ChunkMap::add(GameObject *object)
 {
+    EASY_FUNCTION(profiler::colors::Blue100);
     //qDebug() << "trying to add: "<<object;
     bool outOfMap;
     vector<Vector2<size_t> > chunkPosList = findChunk(object,outOfMap);
@@ -57,10 +61,12 @@ void ChunkMap::add(GameObject *object)
 }
 void ChunkMap::add(GameObjectGroup *other)
 {
+    EASY_FUNCTION(profiler::colors::Blue100);
     this->add(other->getVector());
 }
 void ChunkMap::remove(const vector<GameObject*> &list)
 {
+    EASY_FUNCTION(profiler::colors::Blue200);
     for(size_t x=0; x<m_mapSize.x; x++)
     {
         for(size_t y=0; y<m_mapSize.y; y++)
@@ -73,6 +79,7 @@ void ChunkMap::remove(const vector<GameObject*> &list)
 }
 void ChunkMap::remove(GameObject *object)
 {
+    EASY_FUNCTION(profiler::colors::Blue200);
     for(size_t x=0; x<m_mapSize.x; x++)
     {
         for(size_t y=0; y<m_mapSize.y; y++)
@@ -84,6 +91,7 @@ void ChunkMap::remove(GameObject *object)
 }
 void ChunkMap::remove(GameObjectGroup *other)
 {
+    EASY_FUNCTION(profiler::colors::Blue200);
     for(size_t x=0; x<m_mapSize.x; x++)
     {
         for(size_t y=0; y<m_mapSize.y; y++)
@@ -96,6 +104,7 @@ void ChunkMap::remove(GameObjectGroup *other)
 }
 vector<Vector2<size_t> > ChunkMap::findChunk(GameObject *obj,bool &outOfMap)
 {
+    EASY_FUNCTION(profiler::colors::Blue400);
     vector<Vector2<size_t> > chunks;
     outOfMap = true;
     if(!intersects(obj))
@@ -142,6 +151,7 @@ vector<Vector2<size_t> > ChunkMap::findChunk(GameObject *obj,bool &outOfMap)
 }
 bool ChunkMap::intersects(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Blue500);
     Vector2f size = Vector2f(m_mapSize);
     size.x *= (float)m_chunkSize.x;
     size.y *= (float)m_chunkSize.y;
@@ -150,6 +160,7 @@ bool ChunkMap::intersects(GameObject *obj)
 }
 bool ChunkMap::intersectsInverse(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Blue500);
     Vector2f size = Vector2f(m_mapSize);
     size.x *= (float)m_chunkSize.x;
     size.y *= (float)m_chunkSize.y;
@@ -161,6 +172,7 @@ bool ChunkMap::intersectsInverse(GameObject *obj)
 Vector2<size_t> ChunkMap::calculateMapSize(const Vector2u &chunkSize,
                                            const Vector2i &area)
 {
+    EASY_FUNCTION(profiler::colors::Blue50);
     Vector2<size_t> size;
 
     size.x = area.x / chunkSize.x;
@@ -177,15 +189,18 @@ Vector2<size_t> ChunkMap::calculateMapSize(const Vector2u &chunkSize,
 }
 void ChunkMap::generateMap()
 {
+    EASY_FUNCTION(profiler::colors::Blue100);
     Vector2i movingPos;
     m_chunkMap.reserve(m_mapSize.x);
     for(size_t x=0; x<m_mapSize.x; x++)
     {
+        EASY_BLOCK("for(size_t x=0; x<m_mapSize.x; x++)",profiler::colors::Blue200);
         m_chunkMap.push_back(vector<Chunk*>());
         m_chunkMap[x].reserve(m_mapSize.y);
         movingPos = m_mapPos  + Vector2i(int(m_chunkSize.x)*int(x),0);
         for(size_t y=0; y<m_mapSize.y; y++)
         {
+            EASY_BLOCK("for(size_t y=0; y<m_mapSize.y; y++)",profiler::colors::Blue300);
             Chunk* chunk = new Chunk(m_chunkSize,Vector2f(movingPos),ChunkID(true,Vector2<size_t>(x,y)));
             chunk->subscribeChunk(this);
             m_chunkMap[x].push_back(chunk);
@@ -195,6 +210,7 @@ void ChunkMap::generateMap()
 }
 const vector<GameObject*> &ChunkMap::getGameObjectGroup(const ChunkID &id) const
 {
+    EASY_FUNCTION(profiler::colors::Blue700);
     if(!id.isInChunkMap)
         return this->getVector(); // Get the objects which are outside of any chunk
     if(m_chunkMap.size() <= id.chunk.x)
@@ -205,6 +221,7 @@ const vector<GameObject*> &ChunkMap::getGameObjectGroup(const ChunkID &id) const
 }
 const vector<GameObject*> ChunkMap::getGameObjectGroup(const vector<ChunkID> &idList) const
 {
+    EASY_FUNCTION(profiler::colors::Blue700);
     vector<GameObject*> list;
     for(size_t i=0; i<idList.size(); i++)
     {
@@ -238,6 +255,7 @@ void ChunkMap::draw_chunks(PixelDisplay &display)
 }
 void ChunkMap::setVisibility_chunk(const ChunkID &id,bool isVisible)
 {
+    EASY_FUNCTION(profiler::colors::Blue800);
     if(!id.isInChunkMap)
         return;
     if(m_chunkMap.size() <= id.chunk.x)
@@ -248,11 +266,13 @@ void ChunkMap::setVisibility_chunk(const ChunkID &id,bool isVisible)
 }
 void ChunkMap::setVisibility_chunk(const vector<ChunkID> &idList,bool isVisible)
 {
+    EASY_FUNCTION(profiler::colors::Blue800);
     for(const ChunkID &id : idList)
         setVisibility_chunk(id,isVisible);
 }
 void ChunkMap::setVisibility_chunks(bool isVisible)
 {
+    EASY_FUNCTION(profiler::colors::Blue800);
     m_isVisible_chunks = isVisible;
     for(size_t x=0; x<m_mapSize.x; x++)
     {
@@ -277,11 +297,13 @@ bool ChunkMap::isVisible_chunks() const
 
 void ChunkMap::internalAddOutside(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Blue100);
     obj->addChunkID(m_chunkID);
     GameObjectGroup::add(obj);
 }
 void ChunkMap::internalRemoveOutside(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Blue300);
     obj->removeChunkID(m_chunkID);
     GameObjectGroup::remove(obj);
 }
@@ -289,6 +311,7 @@ void ChunkMap::internalRemoveOutside(GameObject *obj)
 
 void ChunkMap::objectIsNowInChunk(Chunk *sender,GameObject* obj,const Vector2<size_t> &newChunkIndex)
 {
+    EASY_FUNCTION(profiler::colors::Blue800);
     if(newChunkIndex.x < m_chunkSize.x &&
        newChunkIndex.y < m_chunkSize.y)
     {
@@ -300,7 +323,7 @@ void ChunkMap::objectIsNowInChunk(Chunk *sender,GameObject* obj,const Vector2<si
 }
 void ChunkMap::objectIsNowOutOfBoundry(Chunk *sender,GameObject *obj)
 {
-    qDebug()<<"OBJ: "<<obj<<" is out of boundry";
+    //qDebug()<<"OBJ: "<<obj<<" is out of boundry";
     sender->remove(obj);
     //GameObjectGroup::add(obj);
     internalAddOutside(obj);
@@ -315,6 +338,7 @@ void ChunkMap::objectIsNoLongerIntersecting(Chunk *sender,GameObject *obj, const
 }
 void ChunkMap::updateChunkPos(Chunk *sender, GameObject* obj)
 {
+    EASY_FUNCTION(profiler::colors::Blue900);
     Vector2<size_t> senderPos = sender->getChunkID().chunk;
     RectF senderRect =  obj->getCollider().getBoundingBox();
 
@@ -365,6 +389,7 @@ void ChunkMap::updateChunkPos(Chunk *sender, GameObject* obj)
 
 void ChunkMap::moved(GameObject* sender,const Vector2f &move)
 {
+    EASY_FUNCTION(profiler::colors::BlueA100);
     bool outOfMap;
     vector<Vector2<size_t> > chunkPosList = findChunk(sender,outOfMap);
     for(const Vector2<size_t> &chunk : chunkPosList)

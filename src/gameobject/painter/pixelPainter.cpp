@@ -6,6 +6,7 @@ PixelPainter::PixelPainter()
     m_sprite    = new sf::Sprite;
     m_texture   = new sf::Texture;
     m_image     = new sf::Image;
+    //m_sprite->setScale(globalScale);
 }
 PixelPainter::~PixelPainter()
 {

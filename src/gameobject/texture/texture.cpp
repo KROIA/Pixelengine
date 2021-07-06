@@ -12,6 +12,7 @@ Texture::Texture()
 }
 Texture::Texture(const Texture &other)
 {
+    EASY_FUNCTION(profiler::colors::Brown);
     this->m_textureFileName = other.m_textureFileName;
     this->m_image           = other.m_image;
     this->m_alphaThreshold  = other.m_alphaThreshold;
@@ -28,14 +29,18 @@ Texture::~Texture()
 }
 Texture &Texture::operator=(const Texture &other)
 {
+    EASY_FUNCTION(profiler::colors::Brown);
     this->m_textureFileName = other.m_textureFileName;
     this->m_image           = other.m_image;
     this->m_alphaThreshold  = other.m_alphaThreshold;
     this->m_pixelRectList   = other.m_pixelRectList;
     this->m_changesAvailable= other.m_changesAvailable;
     this->m_origin          = other.m_origin;
+
     this->m_originType      = other.m_originType;
+    EASY_BLOCK("m_texture",profiler::colors::Brown);
     this->m_texture         = other.m_texture;
+    EASY_END_BLOCK;
     this->m_rotation        = other.m_rotation;
     return *this;
 }

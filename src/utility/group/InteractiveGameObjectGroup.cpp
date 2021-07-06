@@ -23,7 +23,9 @@ InteractiveGameObject* InteractiveGameObjectGroup::operator[](size_t index)
 }
 void InteractiveGameObjectGroup::reserve(size_t size)
 {
-    m_interactiveObjectsList.reserve(size);
+    m_interactiveObjectsList.reserve(m_interactiveObjectsList.size()+size);
+    m_cacheObjectsList.reserve(m_cacheObjectsList.size()+size);
+    m_cacheInteractiveObjectsList.reserve(m_cacheInteractiveObjectsList.size()+size);
 }
 void InteractiveGameObjectGroup::add(InteractiveGameObject *obj)
 {
@@ -32,9 +34,28 @@ void InteractiveGameObjectGroup::add(InteractiveGameObject *obj)
 }
 void InteractiveGameObjectGroup::add(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Purple50);
     InteractiveGameObject *j = new InteractiveGameObject();
     j->setGameObject(obj);
     this->add(j);
+}
+void InteractiveGameObjectGroup::addToCache(GameObject *obj)
+{
+    EASY_FUNCTION(profiler::colors::Purple50);
+    m_cacheObjectsList.push_back(obj);
+    m_cacheInteractiveObjectsList.push_back(nullptr);
+}
+void InteractiveGameObjectGroup::buildCache()
+{
+    EASY_FUNCTION(profiler::colors::Purple100);
+    m_interactiveObjectsList.reserve(m_interactiveObjectsList.size()+m_cacheInteractiveObjectsList.size());
+    generateInteractiveObjects(m_cacheInteractiveObjectsList,m_cacheObjectsList);
+
+    for(size_t i=0; i<m_cacheInteractiveObjectsList.size(); i++)
+        m_interactiveObjectsList.push_back(m_cacheInteractiveObjectsList[i]);
+
+    m_cacheInteractiveObjectsList.clear();
+    m_cacheObjectsList.clear();
 }
 
 void InteractiveGameObjectGroup::remove(InteractiveGameObject *obj)
@@ -134,7 +155,7 @@ const vector<GameObjectGroup*> &InteractiveGameObjectGroup::getInteractiveObject
      return m_interactiveObjectsList[index]->getInteractiveObjectsList();
 }
 
-const vector<GameObject*> &InteractiveGameObjectGroup::getInteractiveObjects(const GameObject *obj) const
+const vector<GameObject*> InteractiveGameObjectGroup::getInteractiveObjects(const GameObject *obj) const
 {
     EASY_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_interactiveObjectsList.size(); i++)
@@ -144,7 +165,7 @@ const vector<GameObject*> &InteractiveGameObjectGroup::getInteractiveObjects(con
     }
     return m_const_dummy_list_2;
 }
-const vector<GameObject*> &InteractiveGameObjectGroup::getInteractiveObjects(size_t index) const
+const vector<GameObject*> InteractiveGameObjectGroup::getInteractiveObjects(size_t index) const
 {
     EASY_FUNCTION(profiler::colors::Purple400);
     if(index<=m_interactiveObjectsList.size())
@@ -249,3 +270,73 @@ const GameObjectGroup InteractiveGameObjectGroup::getInteractiveObjects() const
     }
     return list;
 }*/
+
+vector<InteractiveGameObjectGroup::InteractiveGameObject_ThreadParam*> InteractiveGameObjectGroup::m_threadParamList;
+vector<pthread_t*> InteractiveGameObjectGroup::m_threadList;
+
+void InteractiveGameObjectGroup::generateInteractiveObjects(vector<InteractiveGameObject*>   &list,
+                                                            vector<GameObject*> &objList)
+{
+    //pthread_cond_t cv                   = PTHREAD_COND_INITIALIZER;
+    //pthread_mutex_t m_threadGlobalMutex = PTHREAD_MUTEX_INITIALIZER;
+
+    // Create Threads
+    if(m_threadList.size() == 0)
+    {
+        size_t threadAmount = 20;
+        m_threadList.reserve(threadAmount);
+        m_threadParamList.reserve(threadAmount);
+        for(size_t i=0; i<threadAmount; i++)
+        {
+            m_threadParamList.push_back(new InteractiveGameObject_ThreadParam());
+            m_threadList.push_back(new pthread_t());
+            //pthread_create(m_threadList[i], nullptr, &InteractiveGameObjectGroup::thread_generateInteractiveObject, static_cast<void *>(m_threadParamList[i]));
+        }
+    }
+
+    // Set parameter
+    size_t chunks = list.size()/m_threadList.size();
+    size_t rest = list.size()%m_threadList.size();
+    for(size_t i=0; i<m_threadList.size(); i++)
+    {
+        m_threadParamList[i]->list    = &list;
+        m_threadParamList[i]->objList = &objList;
+        m_threadParamList[i]->begin   = i*chunks;
+        m_threadParamList[i]->end     = (i+1)*chunks-1;
+        if(i==m_threadList.size()-1)
+            m_threadParamList[i]->end+= rest;
+        pthread_create(m_threadList[i], nullptr, &InteractiveGameObjectGroup::thread_generateInteractiveObject, static_cast<void *>(m_threadParamList[i]));
+    }
+
+
+    for(size_t i=0; i<m_threadList.size(); i++)
+    {
+        //thread_generateInteractiveObject(static_cast<void *>(m_threadParamList[i]));
+        pthread_join(*m_threadList[i], (void **)&i);
+    }
+
+    for(size_t i=0; i<m_threadList.size(); i++)
+    {
+        delete m_threadParamList[i];
+        delete m_threadList[i];
+        m_threadParamList.clear();
+        m_threadList.clear();
+
+    }
+}
+void *InteractiveGameObjectGroup::thread_generateInteractiveObject(void *p)
+{
+    struct InteractiveGameObject_ThreadParam *param = static_cast<struct InteractiveGameObject_ThreadParam *>(p);
+    //qDebug() << "Thread: "<<param->begin<< " - "<<param->end;
+
+    for(size_t i=param->begin; i<=param->end; i++)
+    {
+        if((*param->list)[i] == nullptr)
+        {
+            (*param->list)[i] = new InteractiveGameObject();
+            (*param->list)[i]->setGameObject((*param->objList)[i]);
+        }
+    }
+    //qDebug() << "Thread: "<<param->begin<< " - "<<param->end << "  finished";
+    pthread_exit(NULL);
+}

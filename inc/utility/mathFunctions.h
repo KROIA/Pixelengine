@@ -54,7 +54,8 @@ namespace Vector{
     inline VertexPath* getDrawableVectorFunc(const Vector2<T> &ref,const Func2<T> &vecFunc,const T &scalar,const sf::Color &color = sf::Color(255,255,255));
     template <typename T>
     inline VertexPath* getDrawableVector(const Vector2<T> &begin,const Vector2<T> &end,const sf::Color &color = sf::Color(255,255,255));
-
+    template <typename T>
+    inline Vector2<T>  multiply(const Vector2<T> &a,const Vector2<T> &b);
 
     template <typename T>
     inline float length(const Vector2<T> &vec)
@@ -245,6 +246,15 @@ namespace Vector{
         for(std::size_t i=0; i<path->length; i++)
             path->line[i].color = color;
         return path;
+    }
+
+    template <typename T>
+    inline Vector2<T>  multiply(const Vector2<T> &a,const Vector2<T> &b)
+    {
+        Vector2<T> res = a;
+        res.x *= b.x;
+        res.y *= b.y;
+        return res;
     }
 }
 

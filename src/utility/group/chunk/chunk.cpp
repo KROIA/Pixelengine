@@ -6,6 +6,7 @@ Chunk::Chunk(const Vector2u &size,
              const ChunkID  &chunkID)
     :   GameObjectGroup()
 {
+    EASY_BLOCK("new Chunk()",profiler::colors::Cyan);
     if(size.x != 0 && size.y != 0)
         m_chunkRect.setSize(Vector2f(size));
     else
@@ -17,6 +18,7 @@ Chunk::Chunk(const Vector2u &size,
 }
 Chunk::Chunk(const Chunk &other)
 {
+    EASY_BLOCK("new Chunk(const Chunk &other)",profiler::colors::Cyan);
     this->m_chunkRect = other.m_chunkRect;
     GameObjectGroup::operator=(other);
 }
@@ -38,12 +40,13 @@ vector<GameObject*> Chunk::getFilteredList(const vector<GameObject*> &list)
 }
 void Chunk::add(const vector<GameObject*> &list)
 {
+    EASY_FUNCTION(profiler::colors::Cyan50);
     for(GameObject* obj : list)
         this->add(obj);
 }
 void Chunk::add(GameObject *object)
 {
-    EASY_FUNCTION(profiler::colors::Purple50);
+    EASY_FUNCTION(profiler::colors::Cyan50);
     if(!intersects(object))
     {
         qDebug() << "obj: "<<object<< " is not in this chunk: "<<m_chunkRect.getPos().x<<"\t"<<m_chunkRect.getPos().y;
@@ -60,10 +63,12 @@ void Chunk::add(GameObject *object)
 }
 void Chunk::add(GameObjectGroup *other)
 {
+    EASY_FUNCTION(profiler::colors::Cyan50);
     this->add(other->getVector());
 }
 void Chunk::remove(const vector<GameObject*> &list)
 {
+    EASY_FUNCTION(profiler::colors::Cyan100);
     for(size_t i=0; i<list.size(); i++)
     {
         this->remove(list[i]);
@@ -71,11 +76,13 @@ void Chunk::remove(const vector<GameObject*> &list)
 }
 void Chunk::remove(GameObject *object)
 {
+    EASY_FUNCTION(profiler::colors::Cyan100);
     object->removeChunkID(m_chunkID);
     GameObjectGroup::remove(object);
 }
 void Chunk::remove(GameObjectGroup *other)
 {
+    EASY_FUNCTION(profiler::colors::Cyan100);
     for(size_t i=0; i<other->size(); i++)
     {
         ChunkID id = (*other)[i]->getChunkID();
@@ -87,6 +94,7 @@ void Chunk::remove(GameObjectGroup *other)
 
 bool Chunk::intersects(GameObject *object)
 {
+    EASY_FUNCTION(profiler::colors::Cyan200);
     if(m_chunkRect.intersects_fast(object->getCollider().getBoundingBox()))
         return true;
     return false;
@@ -104,6 +112,7 @@ const ChunkID &Chunk::getChunkID() const
 // Signals
 void Chunk::subscribeChunk(ChunkSignal *subscriber)
 {
+    EASY_FUNCTION(profiler::colors::Cyan300);
     if(subscriber == nullptr)
         return;
     for(size_t i=0; i<m_chunkSubscriberList.size(); i++)
@@ -117,6 +126,7 @@ void Chunk::subscribeChunk(ChunkSignal *subscriber)
 }
 void Chunk::unsubscribeChunk(ChunkSignal *subscriber)
 {
+    EASY_FUNCTION(profiler::colors::Cyan300);
     for(size_t i=0; i<m_chunkSubscriberList.size(); i++)
     {
         if(m_chunkSubscriberList[i] == subscriber)
@@ -128,12 +138,13 @@ void Chunk::unsubscribeChunk(ChunkSignal *subscriber)
 }
 void Chunk::unsubscribeAllChunks()
 {
+    EASY_FUNCTION(profiler::colors::Cyan300);
     m_chunkSubscriberList.clear();
 }
 
 void Chunk::draw_chunk(PixelDisplay &display)
 {
-    EASY_FUNCTION(profiler::colors::Blue100);
+    EASY_FUNCTION(profiler::colors::Cyan300);
     if(m_visibility_chunk)
         display.addVertexLine(m_chunkRect.getDrawable());
 }
@@ -153,6 +164,7 @@ bool Chunk::isVisible_chunk() const
 }*/
 inline ChunkID Chunk::getNewChunkPos(GameObject *obj)
 {
+    EASY_FUNCTION(profiler::colors::Cyan400);
     ChunkID newChunk = m_chunkID;
     RectF objBox = obj->getCollider().getBoundingBox();
     if(objBox.isBeneathOf(m_chunkRect))
@@ -200,6 +212,7 @@ void Chunk::moved(GameObject* sender,const Vector2f &move)
         else
             m_chunkSubscriberList.objectIsNowInChunk(this,sender,newChunkID.chunk);
     }*/
+    EASY_FUNCTION(profiler::colors::Cyan600);
     m_chunkSubscriberList.updateChunkPos(this,sender);
 
 }
