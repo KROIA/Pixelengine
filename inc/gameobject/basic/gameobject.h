@@ -7,7 +7,7 @@
 #include "controller.h"
 #include "collider.h"
 #include "painter.h"
-#include "hitboxPainter.h"
+#include "pixelPainter.h"
 #include "dynamicCoordinator.h"
 #include "texture.h"
 #include "displayText.h"
@@ -166,6 +166,7 @@ class GameObject //   :   public ObjSignal
 
         //Painter
         Painter       *m_painter;
+        PixelPainter  *m_originalPainter;
         bool          m_visibility_collider_hitbox;
         bool          m_visibility_collider_boundingBox;
         bool          m_visibility_collider_collisionData;

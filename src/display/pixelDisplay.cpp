@@ -126,8 +126,8 @@ void PixelDisplay::display()
 
                 if(text.getPositionFix())
                 {
-                    sf::View view = m_renderWindow->getView();
-                    Vector2f textPos = view.getCenter()-view.getSize()/2.f + text.getPos()*m_viewPortZoom;
+                    m_view = m_renderWindow->getView();
+                    Vector2f textPos = m_view.getCenter()-m_view.getSize()/2.f + text.getPos()*m_viewPortZoom;
                     //textPos.y += m_viewPortZoom;
 
                     text.setPos(textPos);
@@ -299,12 +299,15 @@ void PixelDisplay::handleEvents()
             }
             case sf::Event::Resized:
             {
-                sf::View view = m_renderWindow->getView();
+               /* sf::View view = m_renderWindow->getView();
                 view.setSize(m_windowSize.x,m_windowSize.y);
 
-                m_renderWindow->setView(view);
-                sf::Vector2u size(m_windowSize.x,m_windowSize.y);
-                m_renderWindow->setSize(size);
+                m_renderWindow->setView(view);*/
+                m_renderWindow->setSize(m_windowSize);
+                m_renderWindow->setView(m_view);
+                /*RectF oldFrame = m_renderFrame;
+                updateRenderFrame();
+                setView(oldFrame);*/
                 break;
             }
             case sf::Event::LostFocus:{break;}
@@ -341,9 +344,9 @@ void PixelDisplay::handleEvents()
                     Vector2f movingVec =  m_lastMousePos - Vector2f(event.mouseMove.x,event.mouseMove.y);
                     movingVec.x *= m_viewPortZoom;
                     movingVec.y *= m_viewPortZoom;
-                    sf::View view{ m_renderWindow->getView() };
-                    view.move(movingVec);
-                    m_renderWindow->setView(view);
+                    m_view = m_renderWindow->getView() ;
+                    m_view.move(movingVec);
+                    m_renderWindow->setView(m_view);
                     updateRenderFrame();
                 }
                 m_lastMousePos = Vector2f(event.mouseMove.x,event.mouseMove.y);
@@ -400,28 +403,28 @@ const vector<sf::Event> &PixelDisplay::getLastEvents() const
 void PixelDisplay::zoomViewAt(sf::Vector2i pixel, float zoom)
 {
     const sf::Vector2f beforeCoord{ m_renderWindow->mapPixelToCoords(pixel) };
-    sf::View view{ m_renderWindow->getView() };
+    m_view = m_renderWindow->getView();
     m_viewPortZoom *= zoom;
-    view.zoom(zoom);
-    m_renderWindow->setView(view);
+    m_view.zoom(zoom);
+    m_renderWindow->setView(m_view);
     const sf::Vector2f afterCoord{ m_renderWindow->mapPixelToCoords(pixel) };
     const sf::Vector2f offsetCoords{ beforeCoord - afterCoord };
-    view.move(offsetCoords);
-    m_renderWindow->setView(view);
+    m_view.move(offsetCoords);
+    m_renderWindow->setView(m_view);
     updateRenderFrame();
 }
 void PixelDisplay::updateRenderFrame()
 {
-    sf::View view{ m_renderWindow->getView() };
-    m_renderFrame.setPos(view.getCenter()-view.getSize()/2.f);
-    m_renderFrame.setSize(m_renderWindow->getView().getSize());
+    m_view = m_renderWindow->getView();
+    m_renderFrame.setPos(m_view.getCenter()-m_view.getSize()/2.f);
+    m_renderFrame.setSize(m_view.getSize());
 }
 void PixelDisplay::setView(const RectF &frame)
 {
-    sf::View view{ m_renderWindow->getView() };
-    view.setViewport(sf::FloatRect(frame.getPos(),frame.getSize()));
+    m_view = m_renderWindow->getView();
+    m_view.setViewport(sf::FloatRect(frame.getPos(),frame.getSize()));
     m_viewPortZoom = frame.getSize().x / m_renderFrame.getSize().x;
-    m_renderWindow->setView(view);
+    m_renderWindow->setView(m_view);
     updateRenderFrame();
 }
 

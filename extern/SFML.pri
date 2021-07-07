@@ -34,16 +34,22 @@ CONFIG(debug, debug|release) {
     }
 SFML_DEBUG_DLL_BASE ~= s,/,\\,g # Replace "/" with "\\"
 message( "  Copy debug dll\'s: $$SFML_DEBUG_DLL_BASE" )
-QMAKE_PRE_LINK = copy "$$SFML_DEBUG_DLL_BASE\sfml*.dll" "debug\sfml*.dll"
+!isEmpty(QMAKE_POST_LINK){
+QMAKE_POST_LINK += " & "
+}
+QMAKE_POST_LINK += copy "$$SFML_DEBUG_DLL_BASE\sfml*.dll" "debug\sfml*.dll"
 }else{
     isEmpty(SFML_RELEASE_DLL_BASE) {
         SFML_RELEASE_DLL_BASE = $$SFML_PATH\bin\Release\lib
     }
 SFML_RELEASE_DLL_BASE ~= s,/,\\,g # Replace "/" with "\\"
 message( "  Copy release dll\'s $$SFML_RELEASE_DLL_BASE" )
-QMAKE_PRE_LINK = copy "$$SFML_RELEASE_DLL_BASE\sfml*.dll" "release\sfml*.dll"
+!isEmpty(QMAKE_POST_LINK){
+QMAKE_POST_LINK += " & "
 }
-message("  $$QMAKE_PRE_LINK")
+QMAKE_POST_LINK += copy "$$SFML_RELEASE_DLL_BASE\sfml*.dll" "release\sfml*.dll"
+}
+message("  $$QMAKE_POST_LINK")
 
 
 CONFIG(release, debug|release): sfml_libs = $$sfml_libs_release
