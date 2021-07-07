@@ -14,6 +14,6 @@ class GameObjectEventHandler
         virtual void collisionOccured(GameObject *obj1,vector<GameObject *> obj2) = 0;
 
         virtual void addDisplayText(DisplayText *text) = 0;
-        virtual void removingisplayText(DisplayText *text) = 0;
+        virtual void removeDisplayText(DisplayText *text) = 0;
 };
 #endif // GAMEOBJECTEVENTHANDLER_H

@@ -34,8 +34,17 @@
 
 #define KEYBOARD_KEY_SPACE 0x20
 
+#define KEYBOARD_KEY_1 0x31
+#define KEYBOARD_KEY_2 0x32
+#define KEYBOARD_KEY_3 0x33
+#define KEYBOARD_KEY_4 0x34
+#define KEYBOARD_KEY_5 0x35
+#define KEYBOARD_KEY_6 0x36
+#define KEYBOARD_KEY_7 0x37
+#define KEYBOARD_KEY_8 0x38
+#define KEYBOARD_KEY_9 0x39
 
-
+#define KEYBOARD_KEY_ENTER 0x0D
 
 
 #endif // KEYBOARD_H

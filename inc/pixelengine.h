@@ -181,7 +181,7 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         //virtual void deleteObject(GameObject *obj);
         virtual void collisionOccured(GameObject *obj1,vector<GameObject *> obj2);
         virtual void addDisplayText(DisplayText *text);
-        virtual void removingisplayText(DisplayText *text);
+        virtual void removeDisplayText(DisplayText *text);
 
         // General functions
         static float random(float min, float max);

@@ -692,7 +692,7 @@ void GameObject::removeText(DisplayText *text)
         if(m_displayTextList[i] == text)
         {
             if(m_objEventHandler != nullptr)
-                m_objEventHandler->removingisplayText(text);
+                m_objEventHandler->removeDisplayText(text);
             m_displayTextList.erase(m_displayTextList.begin() + i);
         }
     }
@@ -711,7 +711,7 @@ void GameObject::deleteText(DisplayText *text)
         if(m_displayTextList[i] == text)
         {
             if(m_objEventHandler != nullptr)
-                m_objEventHandler->removingisplayText(text);
+                m_objEventHandler->removeDisplayText(text);
             delete m_displayTextList[i];
             m_displayTextList.erase(m_displayTextList.begin() + i);
         }
@@ -723,7 +723,7 @@ void GameObject::deleteText()
     for(size_t i=0; i<m_displayTextList.size(); i++)
     {
         if(m_objEventHandler != nullptr)
-            m_objEventHandler->removingisplayText(m_displayTextList[i]);
+            m_objEventHandler->removeDisplayText(m_displayTextList[i]);
         delete m_displayTextList[i];
     }
     m_displayTextList.clear();

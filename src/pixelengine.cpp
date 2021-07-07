@@ -1219,7 +1219,7 @@ void PixelEngine::addDisplayText(DisplayText*text)
     EASY_FUNCTION(profiler::colors::Orange200);
     m_display->addText(text);
 };
-void PixelEngine::removingisplayText(DisplayText*text)
+void PixelEngine::removeDisplayText(DisplayText*text)
 {
     EASY_FUNCTION(profiler::colors::Orange300);
     m_display->removeText(text);
