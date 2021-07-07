@@ -60,7 +60,9 @@ const Color __color_minimalAlphaColor(255,255,255);
 #endif
 
 
-typedef  void (*p_func)(float,unsigned long long);
+typedef  void (*p_tickFunc)(float,unsigned long long);
+typedef  void (*p_eventFunc)(float,unsigned long long,const vector<sf::Event>&);
+typedef  void (*p_displayFunc)(float,unsigned long long,PixelDisplay&);
 
 
 class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
@@ -100,19 +102,22 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         virtual bool running(); // this returns false, if the window is closed.
         virtual void stop();
 
-        virtual const Vector2u  &getWindwoSize() const;
+        virtual const Vector2u  &getWindowSize() const;
         virtual const Vector2u  &getMapSize() const;
+        virtual const RectF getRenderFrame() const;
 
         // Userloops
-        virtual void setUserCheckEventLoop(p_func func);
-        virtual void setUserDisplayLoop(p_func func);
-        virtual void setUserTickLoop(p_func func);
+        virtual void setUserCheckEventLoop(p_eventFunc func);
+        virtual void setUserDisplayLoop(p_displayFunc func);
+        virtual void setUserTickLoop(p_tickFunc func);
 
         virtual void setup();
 
         virtual void checkEvent();
         virtual void tick();
         virtual void display();
+
+        virtual const vector<sf::Event> &getLastEvents() const;
 
        // virtual void display_setRenderFramePosCenter(const Vector2f &pos);
        // virtual void display_moveRenderFrame(const Vector2f &vec);
@@ -159,6 +164,7 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         //virtual void deleteGroup(ManagedGameObjectGroup *group); // Removes the Group from the engine and deletes the pointer to the Group.
 
         // Rendering
+        virtual void display_zoomView(const Vector2i &zoomAt, float zoom);
         virtual void moveRenderLayer_UP(GameObject *obj);
         virtual void moveRenderLayer_UP(GameObjectGroup *objGroup);
         virtual void moveRenderLayer_DOWN(GameObject *obj);
@@ -245,9 +251,9 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
 
         vector<GameObjectGroup*> m_userGroups;
 
-        p_func m_p_func_userCheckEventLoop;
-        p_func m_p_func_userDisplayLoop;
-        p_func m_p_func_userTickLoop;
+        p_eventFunc m_p_func_userCheckEventLoop;
+        p_displayFunc m_p_func_userDisplayLoop;
+        p_tickFunc m_p_func_userTickLoop;
 
         unsigned long long m_tick;
         bool m_setupDone;

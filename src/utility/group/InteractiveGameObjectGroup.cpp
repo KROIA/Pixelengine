@@ -284,6 +284,8 @@ void InteractiveGameObjectGroup::generateInteractiveObjects(vector<InteractiveGa
     if(m_threadList.size() == 0)
     {
         size_t threadAmount = 20;
+        if(list.size() < threadAmount)
+            threadAmount = 1;
         m_threadList.reserve(threadAmount);
         m_threadParamList.reserve(threadAmount);
         for(size_t i=0; i<threadAmount; i++)

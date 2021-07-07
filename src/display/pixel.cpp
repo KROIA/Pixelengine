@@ -31,4 +31,7 @@ void Pixel::setColor(const Color &color)
 {
     Color::operator=(color);
 }
-
+const Color &Pixel::getColor()
+{
+    return *this;
+}

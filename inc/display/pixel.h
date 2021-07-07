@@ -25,6 +25,7 @@ class Pixel : public Color, public LayerItem
         virtual const Pixel &operator=(const Pixel &other);
 
         virtual void setColor(const Color &color);
+        virtual const Color &getColor();
 
     protected:
 

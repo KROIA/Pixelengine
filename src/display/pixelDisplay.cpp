@@ -28,7 +28,10 @@ PixelDisplay::PixelDisplay(const Vector2u &windowSize, const Vector2u &pixelSize
     m_stats_renderText    = 0;
     m_stats_renderVertexPaths = 0;
     m_viewPortZoom = 1;
-    zoomViewAt(Vector2i(0,0),*m_renderWindow,0.2);
+
+    float zoomFac = (float)pixelSize.x / (float)windowSize.x;
+    zoomViewAt(Vector2i(0,0),zoomFac);
+    //this->setView(RectF(0,0,float(m_pixelMapSize.x),float(m_pixelMapSize.y)));
     clear();
 }
 PixelDisplay::PixelDisplay(const PixelDisplay &other)
@@ -54,6 +57,14 @@ void PixelDisplay::display()
     m_renderWindow->clear();
     m_stats_renderVertexPaths = m_vertexPathList.size();
     m_stats_renderSprites     = m_spriteList.size();
+
+    EASY_BLOCK("local pixler",profiler::colors::Blue100);
+    if(m_localPixlerUsed)
+    {
+        m_texture.loadFromImage(m_image);
+        m_renderWindow->draw(m_sprite);
+    }
+    EASY_END_BLOCK;
     EASY_BLOCK("draw m_spriteList",profiler::colors::Blue100);
     if(m_spriteListUsed)
     {
@@ -265,32 +276,20 @@ bool PixelDisplay::isOpen() const
     return m_renderWindow->isOpen();
 }
 
-sf::Event PixelDisplay::handleEvents()
+void PixelDisplay::handleEvents()
 {
     EASY_FUNCTION(profiler::colors::Blue500);
-    KeyEvent e;
-    e.callbackFunction = nullptr;
-   return this->handleEvents(e);
-}
-sf::Event PixelDisplay::handleEvents(const KeyEvent &eventHandler)
-{
-    EASY_FUNCTION(profiler::colors::Blue600);
-    vector<KeyEvent> eh{eventHandler};
-    return this->handleEvents(eh);
-}
-sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
-{
-    EASY_FUNCTION(profiler::colors::Blue700);
-    sf::Event event;
-    event.type = sf::Event::EventType::Count;
     if(!m_renderWindow->isOpen())
     {
-        return event;
+        return;
     }
+    sf::Event event;
+    event.type = sf::Event::EventType::Count;
 
+    m_lastEventList.clear();
     while(m_renderWindow->pollEvent(event))
     {
-
+        m_lastEventList.push_back(event);
         switch(event.type)
         {
             case sf::Event::Closed:
@@ -318,9 +317,9 @@ sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
             {
                 float zoomFactor = 0.9;
                 if (event.mouseWheelScroll.delta < 0)
-                        zoomViewAt({ event.mouseWheelScroll.x, event.mouseWheelScroll.y }, *m_renderWindow, (1.f / zoomFactor));
+                        zoomViewAt({ event.mouseWheelScroll.x, event.mouseWheelScroll.y }, (1.f / zoomFactor));
                     else if (event.mouseWheelScroll.delta > 0)
-                        zoomViewAt({ event.mouseWheelScroll.x, event.mouseWheelScroll.y }, *m_renderWindow, zoomFactor);
+                        zoomViewAt({ event.mouseWheelScroll.x, event.mouseWheelScroll.y }, zoomFactor);
                 break;
             }
             case sf::Event::MouseButtonPressed:{
@@ -367,6 +366,20 @@ sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
         }
 
     }
+}
+void PixelDisplay::handleEvents(const KeyEvent &eventHandler)
+{
+    EASY_FUNCTION(profiler::colors::Blue600);
+    if(eventHandler.callbackFunction == nullptr)
+        return;
+    if(sf::Keyboard::isKeyPressed(eventHandler.key))
+    {
+        (eventHandler.callbackFunction)();
+    }
+}
+void PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
+{
+    EASY_FUNCTION(profiler::colors::Blue700);
     EASY_BLOCK("for(size_t i=0; i<eventHandlerList.size(); i++)",profiler::colors::Blue700);
     for(size_t i=0; i<eventHandlerList.size(); i++)
     {
@@ -378,19 +391,23 @@ sf::Event PixelDisplay::handleEvents(const vector<KeyEvent> &eventHandlerList)
         }
     }
     EASY_END_BLOCK;
-    return event;
+   // return event;
 }
-void PixelDisplay::zoomViewAt(sf::Vector2i pixel, sf::RenderWindow& window, float zoom)
+const vector<sf::Event> &PixelDisplay::getLastEvents() const
 {
-    const sf::Vector2f beforeCoord{ window.mapPixelToCoords(pixel) };
-    sf::View view{ window.getView() };
+    return m_lastEventList;
+}
+void PixelDisplay::zoomViewAt(sf::Vector2i pixel, float zoom)
+{
+    const sf::Vector2f beforeCoord{ m_renderWindow->mapPixelToCoords(pixel) };
+    sf::View view{ m_renderWindow->getView() };
     m_viewPortZoom *= zoom;
     view.zoom(zoom);
-    window.setView(view);
-    const sf::Vector2f afterCoord{ window.mapPixelToCoords(pixel) };
+    m_renderWindow->setView(view);
+    const sf::Vector2f afterCoord{ m_renderWindow->mapPixelToCoords(pixel) };
     const sf::Vector2f offsetCoords{ beforeCoord - afterCoord };
     view.move(offsetCoords);
-    window.setView(view);
+    m_renderWindow->setView(view);
     updateRenderFrame();
 }
 void PixelDisplay::updateRenderFrame()
@@ -398,6 +415,14 @@ void PixelDisplay::updateRenderFrame()
     sf::View view{ m_renderWindow->getView() };
     m_renderFrame.setPos(view.getCenter()-view.getSize()/2.f);
     m_renderFrame.setSize(m_renderWindow->getView().getSize());
+}
+void PixelDisplay::setView(const RectF &frame)
+{
+    sf::View view{ m_renderWindow->getView() };
+    view.setViewport(sf::FloatRect(frame.getPos(),frame.getSize()));
+    m_viewPortZoom = frame.getSize().x / m_renderFrame.getSize().x;
+    m_renderWindow->setView(view);
+    updateRenderFrame();
 }
 
 bool PixelDisplay::addText(DisplayText *text)       // This function will not own the Text Object!
