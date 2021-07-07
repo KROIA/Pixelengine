@@ -1,3 +1,0 @@
-[submodule "extern/easy_profiler"]
-	path = extern/easy_profiler
-	url = https://github.com/yse/easy_profiler
