@@ -4,14 +4,12 @@ AnimatedTexture::AnimatedTexture()
     :   Texture()
 {
     m_selectedTexture = 0;
-   // m_textureList.push_back(this);
     m_const_dummy_str = "";
 }
 AnimatedTexture::AnimatedTexture(const AnimatedTexture &other)
     :   Texture(other)
 {
     m_selectedTexture = 0;
-   // m_textureList.push_back(this);
     m_const_dummy_str = "";
     this->operator=(other);
 }
@@ -40,7 +38,7 @@ void AnimatedTexture::setFilePath(unsigned int textureIndex, const string &fileP
 {
     if(m_textureList.size() == 0)
     {
-        qDebug() << "No textures added, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
+        qDebug() << "No textures adding, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
         return;
     }
     if(m_textureList.size() < textureIndex)
@@ -66,7 +64,7 @@ const string &AnimatedTexture::getFilePath(unsigned int textureIndex) const
 {
     if(m_textureList.size() == 0)
     {
-        qDebug() << "No textures added, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
+        qDebug() << "No textures adding, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
         return m_const_dummy_str;
     }
     if(m_textureList.size() < textureIndex)
@@ -74,9 +72,6 @@ const string &AnimatedTexture::getFilePath(unsigned int textureIndex) const
         qDebug() << "ERROR: string &AnimatedTexture::getFilePath(unsigned int ["<<textureIndex<<"]): Param 1 is out of Range. Max is: "<<m_textureList.size()-1;
         return m_const_dummy_str;
     }
-    /*if(textureIndex == m_selectedTexture)
-        return Texture::getFilePath();
-    else*/
     return m_textureList[textureIndex]->getFilePath();
 }
 vector<string> AnimatedTexture::getFilePathList() const
@@ -117,7 +112,7 @@ bool AnimatedTexture::loadTexture(unsigned int textureIndex)
 {
     if(m_textureList.size() == 0)
     {
-        qDebug() << "No textures added, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
+        qDebug() << "No textures adding, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
         return false;
     }
     if(m_textureList.size() < textureIndex)
@@ -139,7 +134,7 @@ bool AnimatedTexture::loadTexture(unsigned int textureIndex, const string &fileP
 {
     if(m_textureList.size() == 0)
     {
-        qDebug() << "No textures added, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
+        qDebug() << "No textures adding, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
         return false;
     }
     if(m_textureList.size() < textureIndex)
@@ -166,6 +161,7 @@ bool AnimatedTexture::loadTexture(unsigned int textureIndex, const string &fileP
 bool AnimatedTexture::addTexture(const string &filePath)
 {
     Texture *texture = new Texture();
+    *texture = *this;
     bool success = texture->loadTexture(filePath);
     m_textureList.push_back(texture);
 
@@ -174,33 +170,31 @@ bool AnimatedTexture::addTexture(const string &filePath)
     return success;
 }
 
-vector< vector<Pixel>  > AnimatedTexture::getPixelsList() const
+void AnimatedTexture::setOriginType(Origin origin)
 {
-    vector< vector<Pixel>   > list;
-    list.reserve(m_textureList.size());
+    Texture::setOriginType(origin);
     for(size_t i=0; i<m_textureList.size(); i++)
-    {
-        list.push_back(m_textureList[i]->getPixels());
-    }
-    return list;
+        m_textureList[i]->setOriginType(origin);
 }
-const vector<Pixel> &AnimatedTexture::getPixels(unsigned int textureIndex) const
+Origin AnimatedTexture::getOriginType() const
 {
-    if(m_textureList.size() == 0)
-    {
-        qDebug() << "No textures added, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
-        return m_const_dummy_pixelList;
-    }
-    if(m_textureList.size() < textureIndex)
-    {
-        qDebug() << "ERROR: vector<Pixel> &AnimatedTexture::getPixels(unsigned int ["<<textureIndex<<"]): Param 1 is out of Range. Max is: "<<m_textureList.size()-1;
-        return m_const_dummy_pixelList;
-    }
-    return m_textureList[textureIndex]->getPixels();
+    return Texture::getOriginType();
 }
-vector< vector<Rect>  > AnimatedTexture::getRectsList() const
+void AnimatedTexture::setOrigin(const Vector2f &origin)
 {
-    vector<vector<Rect>   > list;
+    Texture::setOrigin(origin);
+    for(size_t i=0; i<m_textureList.size(); i++)
+        m_textureList[i]->setOrigin(origin);
+}
+const Vector2f &AnimatedTexture::getOrigin() const
+{
+    return Texture::getOrigin();
+}
+
+
+vector< vector<RectI>  > AnimatedTexture::getRectsList() const
+{
+    vector<vector<RectI>   > list;
     list.reserve(m_textureList.size());
     for(size_t i=0; i<m_textureList.size(); i++)
     {
@@ -208,16 +202,16 @@ vector< vector<Rect>  > AnimatedTexture::getRectsList() const
     }
     return list;
 }
-const vector<Rect>  &AnimatedTexture::getRects(unsigned int textureIndex) const
+const vector<RectI>  &AnimatedTexture::getRects(unsigned int textureIndex) const
 {
     if(m_textureList.size() == 0)
     {
-        qDebug() << "No textures added, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
+        qDebug() << "No textures adding, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
         return m_const_dummy_rectList;
     }
     if(m_textureList.size() < textureIndex)
     {
-        qDebug() << "ERROR: vector<Rect>  &AnimatedTexture::getRects(unsigned int ["<<textureIndex<<"]): Param 1 is out of Range. Max is: "<<m_textureList.size()-1;
+        qDebug() << "ERROR: vector<RectI>  &AnimatedTexture::getRects(unsigned int ["<<textureIndex<<"]): Param 1 is out of Range. Max is: "<<m_textureList.size()-1;
         return m_const_dummy_rectList;
     }
     return m_textureList[textureIndex]->getRects();
@@ -233,7 +227,7 @@ void AnimatedTexture::select(unsigned int textureIndex)
         return;
     if(m_textureList.size() == 0)
     {
-        qDebug() << "No textures added, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
+        qDebug() << "No textures adding, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
         return;
     }
     if(m_textureList.size() < textureIndex)
@@ -250,7 +244,7 @@ void AnimatedTexture::selectForward(bool goAround)
 {
     if(m_textureList.size() == 0)
     {
-        qDebug() << "No textures added, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
+        qDebug() << "No textures adding, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
         return;
     }
     if(m_selectedTexture >= m_textureList.size()-1)
@@ -269,7 +263,7 @@ void AnimatedTexture::selectBackward(bool goAround)
 {
     if(m_textureList.size() == 0)
     {
-        qDebug() << "No textures added, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
+        qDebug() << "No textures adding, first add by calling func: AnimatedTexture::addTexture(const string &filePath)";
         return;
     }
     if(m_selectedTexture == 0)

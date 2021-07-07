@@ -14,65 +14,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+
 isEmpty(ENGINE_PATH) {
-    message( 'ENGINE_PATH is empty. use default value.' )
+    #message( 'ENGINE_PATH is empty. use default value.' )
     ENGINE_PATH = $$PWD
 } else {
-    message( 'ENGINE_PATH is not empty.' )
-    message( $${ENGINE_PATH} )
+    #message( 'ENGINE_PATH is not empty.' )
+    #message( $${ENGINE_PATH} )
 }
 
-
-#SFML include
-SFML_PATH               = "$$ENGINE_PATH/extern/SFML"
-SFML_DEBUG_DLL_BASE     = $$SFML_PATH\bin\Debug\lib    # Path to the dll's from SFML
-SFML_RELEASE_DLL_BASE   = $$SFML_PATH\bin\Release\lib  # Path to the dll's from SFML
-isEmpty(SFML_PATH) {
-    SFML_PATH = $$PWD/extern/SFML
-} else {
-    message( 'SFML_PATH is not empty: \"$${SFML_PATH}\"' )
-}
-
-sfml_includePath  = "$$SFML_PATH/include"
-sfml_binPath      = "$$SFML_PATH/bin"
-sfml_libs_debug   = "$$sfml_binPath/Debug/lib/libsfml-audio-d.a" \
-                    "$$sfml_binPath/Debug/lib/libsfml-graphics-d.a" \
-                    "$$sfml_binPath/Debug/lib/libsfml-main-d.a" \
-                    "$$sfml_binPath/Debug/lib/libsfml-network-d.a" \
-                    "$$sfml_binPath/Debug/lib/libsfml-system-d.a" \
-                    "$$sfml_binPath/Debug/lib/libsfml-window-d.a"
-
-sfml_libs_release = "$$sfml_binPath/Release/lib/libsfml-audio.a" \
-                    "$$sfml_binPath/Release/lib/libsfml-graphics.a" \
-                    "$$sfml_binPath/Release/lib/libsfml-main.a" \
-                    "$$sfml_binPath/Release/lib/libsfml-network.a" \
-                    "$$sfml_binPath/Release/lib/libsfml-system.a" \
-                    "$$sfml_binPath/Release/lib/libsfml-window.a"
-
-# Copy dll's from SFML to the bin dir
-CONFIG(debug, debug|release) {
-    isEmpty(SFML_DEBUG_DLL_BASE) {
-        SFML_DEBUG_DLL_BASE = $$SFML_PATH\bin\Debug\lib
-    }
-SFML_DEBUG_DLL_BASE ~= s,/,\\,g # Replace "/" with "\\"
-message( "Copy debug dll\'s: $$SFML_DEBUG_DLL_BASE" )
-QMAKE_PRE_LINK = copy "$$SFML_DEBUG_DLL_BASE\sfml*.dll" "debug\sfml*.dll"
-}else{
-    isEmpty(SFML_RELEASE_DLL_BASE) {
-        SFML_RELEASE_DLL_BASE = $$SFML_PATH\bin\Release\lib
-    }
-SFML_RELEASE_DLL_BASE ~= s,/,\\,g # Replace "/" with "\\"
-message( "Copy release dll\'s $$SFML_RELEASE_DLL_BASE" )
-QMAKE_PRE_LINK = copy "$$SFML_RELEASE_DLL_BASE\sfml*.dll" "release\sfml*.dll"
-}
+message( "----- PixelEngine.pri ------- " )
+message( "  Path: $$ENGINE_PATH " )
 
 
-CONFIG(release, debug|release): sfml_libs = $$sfml_libs_release
-CONFIG(debug, debug|release):   sfml_libs = $$sfml_libs_debug
-LIBS        += $$sfml_libs
-INCLUDEPATH += $$sfml_includePath
-DEPENDPATH  += $$sfml_includePath
-# End SFML stuff
+
+
+include(extern/easy_profiler.pri)
+include(extern/SFML.pri)
+
 
 PixelEngine_incPath = $$ENGINE_PATH/inc
 PixelEngine_srcPath = $$ENGINE_PATH/src
@@ -81,6 +40,7 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath \
                $$PixelEngine_incPath/utility \
                $$PixelEngine_incPath/utility/group \
+               $$PixelEngine_incPath/utility/group/chunk \
                $$PixelEngine_incPath/gameobject \
                $$PixelEngine_incPath/gameobject/basic \
                $$PixelEngine_incPath/gameobject/collider \
@@ -96,7 +56,16 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/display
 
 SOURCES += \
+        $$PWD/src/utility/group/chunk/chunk.cpp \
+        $$PWD/src/utility/group/chunk/chunkMap.cpp \
+        $$PWD/src/utility/signalSubscriber.cpp \
+        $$PixelEngine_srcPath/display/drawUtilities.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/texturePainter.cpp \
+        $$PixelEngine_srcPath/display/displayText.cpp \
+        $$PixelEngine_srcPath/utility/group/InteractiveGameObject.cpp \
+        $$PixelEngine_srcPath/utility/group/InteractiveGameObjectGroup.cpp \
         $$PixelEngine_srcPath/gameobject/controller/basic/dynamicCoordinator.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/pixelpainter.cpp \
         $$PixelEngine_srcPath/pixelengine.cpp \
         $$PixelEngine_srcPath/display/pixelDisplay.cpp \
         $$PixelEngine_srcPath/display/pixel.cpp \
@@ -112,12 +81,27 @@ SOURCES += \
         $$PixelEngine_srcPath/gameobject/texture/texture.cpp \
         $$PixelEngine_srcPath/gameobject/texture/animatedTexture.cpp \
         $$PixelEngine_srcPath/utility/group/gameObjectGroup.cpp \
+        $$PixelEngine_srcPath/utility/group/managedGameObjectGroup.cpp \
         $$PixelEngine_srcPath/utility/event.cpp \
         $$PixelEngine_srcPath/utility/userEventHandler.cpp \
         $$PixelEngine_srcPath/utility/timer.cpp \
         $$PixelEngine_srcPath/utility/layeritem.cpp
 
 HEADERS += \
+        $$PWD/inc/utility/base.h \
+        $$PWD/inc/utility/group/chunk/chunk.h \
+        $$PWD/inc/utility/group/chunk/chunkID.h \
+        $$PWD/inc/utility/group/chunk/chunkMap.h \
+        $$PWD/inc/utility/signalSubscriber.h \
+        $$PixelEngine_incPath/display/drawUtilities.h \
+        $$PixelEngine_incPath/gameobject/painter/texturePainter.h \
+        $$PixelEngine_incPath/utility/mathFunctions.h \
+        $$PixelEngine_incPath/display/displayText.h \
+        $$PixelEngine_incPath/utility/group/InteractiveGameObject.h \
+        $$PixelEngine_incPath/utility/group/InteractiveGameObjectGroup.h \
+        $$PixelEngine_incPath/utility/group/groupManagerInterface.h \
+        $$PixelEngine_incPath/utility/profiler.h \
+        $$PixelEngine_incPath/gameobject/painter/pixelPainter.h \
         $$PixelEngine_incPath/gameobject/controller/basic/dynamicCoordinator.h \
         $$PixelEngine_incPath/gameobject/property/body.h \
         $$PixelEngine_incPath/gameobject/property/food.h \
@@ -141,9 +125,11 @@ HEADERS += \
         $$PixelEngine_incPath/utility/event.h \
         $$PixelEngine_incPath/utility/userEventHandler.h \
         $$PixelEngine_incPath/utility/group/gameObjectGroup.h \
+        $$PixelEngine_incPath/utility/group/managedGameObjectGroup.h \
         $$PixelEngine_incPath/utility/point.h \
-        $$PixelEngine_incPath/utility/vector.h \
         $$PixelEngine_incPath/utility/timer.h \
         $$PixelEngine_incPath/utility/rect.h \
         $$PixelEngine_incPath/utility/keyboard.h \
         $$PixelEngine_incPath/utility/layeritem.h
+
+message( "----------------------------- " )

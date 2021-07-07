@@ -1,64 +1,67 @@
 #ifndef LAYERITEM_H
 #define LAYERITEM_H
 
-#include "vector"
-#include "point.h"
-#include "vector.h"
-
-#include <QDebug>
-
-using std::vector;
+#include "base.h"
 
 class LayerItem
 {
     public:
         LayerItem();
         LayerItem(const LayerItem &other);
-        LayerItem(const Point &pos);
-        LayerItem(const PointF &pos);
+        LayerItem(int x, int y);
+        LayerItem(float x, float y);
+        LayerItem(const Vector2f &pos);
+        LayerItem(const Vector2i &pos);
         virtual ~LayerItem();
 
         virtual LayerItem &operator=(const LayerItem &other);
 
         virtual void swapPosToLastPos();
+        virtual void swapRotationToLastRotation();
 
-        virtual void setPosInitial(const PointU &pos);
-        virtual void setPosInitial(const Point &pos);
-        virtual void setPosInitial(const PointF &pos);
+        virtual void setPosInitial(const Vector2f &pos);
+        virtual void setPosInitial(const Vector2i &pos);
         virtual void setPosInitial(int x, int y);
-        virtual void setPosInitial_F(const double &x, const double &y);
+        virtual void setPosInitial(float x, float y);
 
-        virtual void setPos(const PointU &pos);
-        virtual void setPos(const Point &pos);
-        virtual void setPos(const PointF &pos);
-        virtual void setPos(int x, int y);
-        virtual void setPos_F(const double &x, const double &y);
-        virtual Point getPos() const;
-        virtual Point getLastPos() const;
+
+        virtual void setPos(const Vector2f &pos);
+        virtual void setPos(const Vector2i &pos);
+        virtual const Vector2f &getPos() const;
+        virtual const Vector2f &getLastPos() const;
+        virtual Vector2i getPosI() const;
+        virtual Vector2i getLastPosI() const;
 
         virtual void setX(int x);
-        virtual void setX_F(const double &x);
         virtual void setY(int y);
-        virtual void setY_F(const double &y);
+        virtual void setX(float x);
+        virtual void setY(float y);
 
-        virtual int getX() const;
-        virtual int getY() const;
+        virtual float getX() const;
+        virtual float getY() const;
+        virtual int getXI() const;
+        virtual int getYI() const;
 
-        virtual void move(const VectorU &vec);
-        virtual void move(const Vector &vec);
-        virtual void move(const VectorF &vec);
-        virtual void move(int deltaX, int deltaY);
-        virtual void move_F(const double &deltaX, const double &deltaY);
-        virtual void moveX(int delta);
-        virtual void moveX_F(const double &delta);
-        virtual void moveY(int delta);
-        virtual void moveY_F(const double &delta);
+        virtual void move(const Vector2f &vec);
+        virtual void move(const Vector2i &vec);
+
+
+        virtual void rotate(float deg);
+        virtual void setRotationInitial(float deg);
+        virtual void setRotation(float deg);
+        virtual float getRotation() const;
+        virtual float getLastRotation() const;
+
+
 
         virtual void setToLastPos();
+        virtual void setToLastRotation();
 
     protected:
-        PointF  m_floatingPos;
-        PointF  m_lastPos;
+        Vector2f  m_pos;
+        Vector2f  m_lastPos;
+        float     m_rotation;
+        float     m_lastRotation;
     private:
 
 

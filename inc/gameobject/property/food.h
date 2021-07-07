@@ -19,9 +19,9 @@ namespace Property
 
         };
         bool isEatable;
-        double foodAmount;
+        float foodAmount;
         std::vector<Taste> taste;   // List of tastes this food has
-        double healthyLevel;        // how halthy this food is
+        float healthyLevel;        // how halthy this food is
 
     };
     inline string taste_toString(const Food::Taste &taste)

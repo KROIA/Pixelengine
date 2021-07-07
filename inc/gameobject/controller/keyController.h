@@ -1,8 +1,9 @@
 #ifndef KEYCONTROLLER_H
 #define KEYCONTROLLER_H
 
+#include "base.h"
 #include "controller.h"
-#include "vector.h"
+#include "mathFunctions.h"
 
 class KeyController     :   public Controller
 {
@@ -16,8 +17,9 @@ class KeyController     :   public Controller
         // From Controller
         virtual void checkEvent();
         virtual void tick();
-        virtual void setRotation(const double &deg);
-        virtual double getRotation() const;
+        virtual void rotate(const float &deg);
+        virtual void setRotation(const float &deg);
+        virtual float getRotation() const;
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
@@ -34,8 +36,8 @@ class KeyController     :   public Controller
         virtual void setKey_forMove_DOWN(const int &key);
         virtual void setKey_forMove_RIGHT(const int &key);
 
-        virtual void setStepSize(const unsigned int size);
-        virtual const unsigned int &getStepSize() const;
+        virtual void setStepSize(const int size);
+        virtual int getStepSize() const;
 
 
 
@@ -49,13 +51,13 @@ class KeyController     :   public Controller
         int m_key_forMove_RIGHT;
         Event* m_key_forMove_RIGHT_event;
 
-        Vector m_currentMovingVec;
+        Vector2f m_currentMovingVec;
 
-        unsigned int m_stepSize;
-        Point m_stepUp;
-        Point m_stepLeft;
-        Point m_stepDown;
-        Point m_stepRight;
+        int m_stepSize;
+        Vector2f m_stepUp;
+        Vector2f m_stepLeft;
+        Vector2f m_stepDown;
+        Vector2f m_stepRight;
     private:
 
         void setRotation();

@@ -44,37 +44,50 @@ const KeyController &KeyController::operator=(const KeyController &other)
 // From Controller
 void KeyController::checkEvent()
 {
+    EASY_FUNCTION(profiler::colors::Pink);
     // KeyController::tick gets called 2 times per GameTick,
     // so only handle events once per GameTick
-    m_currentMovingVec.set(0,0);
+    m_currentMovingVec.x = 0;
+    m_currentMovingVec.y = 0;
     Controller::checkEvent();
     this->move(m_currentMovingVec);
 }
 void KeyController::tick()
 {
+    EASY_FUNCTION(profiler::colors::Pink100);
     Controller::tick();
 }
-void KeyController::setRotation(const double &deg)
+void KeyController::rotate(const float &deg)
 {
+    EASY_FUNCTION(profiler::colors::Pink200);
+    Controller::rotate(deg);
+    this->setRotation();
+}
+void KeyController::setRotation(const float &deg)
+{
+    EASY_FUNCTION(profiler::colors::Pink200);
     Controller::setRotation(deg);
     this->setRotation();
 }
-double KeyController::getRotation() const
+float KeyController::getRotation() const
 {
     return Controller::getRotation();
 }
 void KeyController::rotate_90()
 {
+    EASY_FUNCTION(profiler::colors::Pink200);
     Controller::rotate_90();
     this->setRotation();
 }
 void KeyController::rotate_180()
 {
+    EASY_FUNCTION(profiler::colors::Pink200);
     Controller::rotate_180();
     this->setRotation();
 }
 void KeyController::rotate_270()
 {
+    EASY_FUNCTION(profiler::colors::Pink200);
     Controller::rotate_270();
     this->setRotation();
 }
@@ -82,23 +95,27 @@ void KeyController::rotate_270()
 // Receiver Signal from Eventhandler
 void KeyController::receive_key_isPressed(const int &key)
 {
+    EASY_FUNCTION(profiler::colors::Pink300);
    if(key == m_key_forMove_UP)
-        m_currentMovingVec.move(m_stepUp);
+        m_currentMovingVec += m_stepUp;
     else if(key == m_key_forMove_DOWN)
-        m_currentMovingVec.move(m_stepDown);
+        m_currentMovingVec += m_stepDown;
     else if(key == m_key_forMove_LEFT)
-        m_currentMovingVec.move(m_stepLeft);
+        m_currentMovingVec += m_stepLeft;
     else if(key == m_key_forMove_RIGHT)
-        m_currentMovingVec.move(m_stepRight);
+        m_currentMovingVec += m_stepRight;
 }
 void KeyController::receive_key_toggle(const int &key)
 {
+    EASY_FUNCTION(profiler::colors::Pink300);
 }
 void KeyController::reveive_key_goesDown(const int &key)
 {
+    EASY_FUNCTION(profiler::colors::Pink300);
 }
 void KeyController::reveive_key_goesUp(const int &key)
 {
+    EASY_FUNCTION(profiler::colors::Pink300);
 }
 
 
@@ -106,6 +123,7 @@ void KeyController::reveive_key_goesUp(const int &key)
 // From KeyController
 void KeyController::setKey_forMove_UP(const int &key)
 {
+    EASY_FUNCTION(profiler::colors::Pink400);
     if(m_key_forMove_UP != -1)
         removeEvent(m_key_forMove_UP_event);
     m_key_forMove_UP = key;
@@ -114,6 +132,7 @@ void KeyController::setKey_forMove_UP(const int &key)
 }
 void KeyController::setKey_forMove_LEFT(const int &key)
 {
+    EASY_FUNCTION(profiler::colors::Pink400);
     if(m_key_forMove_LEFT != -1)
         removeEvent(m_key_forMove_LEFT_event);
     m_key_forMove_LEFT = key;
@@ -122,6 +141,7 @@ void KeyController::setKey_forMove_LEFT(const int &key)
 }
 void KeyController::setKey_forMove_DOWN(const int &key)
 {
+    EASY_FUNCTION(profiler::colors::Pink400);
     if(m_key_forMove_DOWN != -1)
         removeEvent(m_key_forMove_DOWN_event);
     m_key_forMove_DOWN = key;
@@ -130,19 +150,21 @@ void KeyController::setKey_forMove_DOWN(const int &key)
 }
 void KeyController::setKey_forMove_RIGHT(const int &key)
 {
+    EASY_FUNCTION(profiler::colors::Pink400);
     if(m_key_forMove_RIGHT != -1)
         removeEvent(m_key_forMove_RIGHT_event);
     m_key_forMove_RIGHT = key;
     m_key_forMove_RIGHT_event = new Event(m_key_forMove_RIGHT);
     this->addEvent(m_key_forMove_RIGHT_event);
 }
-void KeyController::setStepSize(const unsigned int size)
+void KeyController::setStepSize(const int size)
 {
+    EASY_FUNCTION(profiler::colors::Pink500);
     m_stepSize = size;
 
     this->setRotation();
 }
-const unsigned int &KeyController::getStepSize() const
+int KeyController::getStepSize() const
 {
     return m_stepSize;
 }
@@ -150,18 +172,18 @@ const unsigned int &KeyController::getStepSize() const
 
 void KeyController::setRotation()
 {
-    double rotRad = double(m_rotationDeg)*M_PI/180;
-    m_stepUp.set(0,-m_stepSize);
-    m_stepDown.set(0,m_stepSize);
-    m_stepLeft.set(-m_stepSize,0);
-    m_stepRight.set(m_stepSize,0);
-    VectorF up    = VectorF::rotate(VectorF(m_stepUp.getX(),m_stepUp.getY()),rotRad);
-    VectorF left  = VectorF::rotate(VectorF(m_stepLeft.getX(),m_stepLeft.getY()),rotRad);
-    VectorF down  = VectorF::rotate(VectorF(m_stepDown.getX(),m_stepDown.getY()),rotRad);
-    VectorF right = VectorF::rotate(VectorF(m_stepRight.getX(),m_stepRight.getY()),rotRad);
+    EASY_FUNCTION(profiler::colors::Pink600);
+    m_stepUp        = Vector2f(0,-m_stepSize);
+    m_stepDown      = Vector2f(0,m_stepSize);
+    m_stepLeft      = Vector2f(-m_stepSize,0);
+    m_stepRight     = Vector2f(m_stepSize,0);
+    Vector2f up     = Vector::getRotated(m_stepUp,m_rotationDeg);
+    Vector2f left   = Vector::getRotated(m_stepLeft,m_rotationDeg);
+    Vector2f down   = Vector::getRotated(m_stepDown,m_rotationDeg);
+    Vector2f right  = Vector::getRotated(m_stepRight,m_rotationDeg);
 
-    m_stepUp.set(round(up.getX()),round(up.getY()));
-    m_stepLeft.set(round(left.getX()),round(left.getY()));
-    m_stepDown.set(round(down.getX()),round(down.getY()));
-    m_stepRight.set(round(right.getX()),round(right.getY()));
+    m_stepUp        = up;
+    m_stepLeft      = left;
+    m_stepDown      = down;
+    m_stepRight     = right;
 }

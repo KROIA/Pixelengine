@@ -1,10 +1,11 @@
 #ifndef SENSOR_H
 #define SENSOR_H
 
+#include "base.h"
+
 #include "gameobject.h"
-#include "point.h"
 #include "rect.h"
-#include "hitboxPainter.h"
+#include "pixelPainter.h"
 
 class Sensor
 {
@@ -23,18 +24,24 @@ class Sensor
 
         virtual const vector<GameObject*> &getDetectedObjects() const;
 
-        virtual double getRotation() const;
-        virtual void setRotation(const double &deg);
+        virtual float getRotation() const;
+        virtual void rotate(const float &deg);
+        virtual void setRotation(const float &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
 
+        virtual void setVisibility_collider_boundingBox(bool isVisible);
+        virtual bool isVisible_collider_boundingBox() const;
+
 
     protected:
         Collider *m_sensorCollider;
-        Painter  *m_sensorPainter;
+        //PixelPainter  *m_sensorPainter;
         vector<GameObject*> m_detected;
         GameObject *m_owner;
+
+        bool m_visibility_collider_boundingBox;
     private:
 };
 

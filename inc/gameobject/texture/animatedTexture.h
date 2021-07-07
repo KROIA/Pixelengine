@@ -1,8 +1,8 @@
 #ifndef ANIMATEDTEXTURE_H
 #define ANIMATEDTEXTURE_H
+
 #include "texture.h"
-#include "vector.h"
-#include "QDebug"
+
 
 using std::vector;
 
@@ -26,11 +26,14 @@ class AnimatedTexture   :   public Texture
 
         virtual bool addTexture(const string &filePath);
 
+        virtual void setOriginType(Origin origin);
+        virtual Origin getOriginType() const;
+        virtual void setOrigin(const Vector2f &origin);
+        virtual const Vector2f &getOrigin() const;
 
-        virtual vector< vector<Pixel>  > getPixelsList() const;
-        virtual const vector<Pixel> &getPixels(unsigned int textureIndex) const; // Returns all Pixel's of the Texture
-        virtual vector< vector<Rect>  > getRectsList() const;
-        virtual const vector<Rect>  &getRects(unsigned int textureIndex) const;  // Returns all Rects which cover the Texture (for collider)
+
+        virtual vector< vector<RectI>  > getRectsList() const;
+        virtual const vector<RectI>  &getRects(unsigned int textureIndex) const;  // Returns all Rects which cover the Texture (for collider)
 
         virtual unsigned int getTextureAmount() const;
         virtual void select(unsigned int textureIndex);
@@ -48,6 +51,6 @@ class AnimatedTexture   :   public Texture
 
         string m_const_dummy_str;
         vector<Pixel> m_const_dummy_pixelList;
-        vector<Rect>  m_const_dummy_rectList;
+        vector<RectI>  m_const_dummy_rectList;
 };
 #endif // ANIMATEDTEXTURE_H

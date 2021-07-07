@@ -1,15 +1,17 @@
 #ifndef POINT_H
 #define POINT_H
-
+/*
 #include <QDebug>
 #include <math.h>
+
+#include "profiler.h"
 
 template<class T>
 class GeneralPoint;
 
 typedef GeneralPoint<unsigned int> PointU;
 typedef GeneralPoint<int> Point;
-typedef GeneralPoint<double> PointF;
+typedef GeneralPoint<float> PointF;
 
 
 template<class T>
@@ -163,11 +165,11 @@ T GeneralPoint<T>::getDistance(const GeneralPoint<T> &other) const
 template<class T>
 T GeneralPoint<T>::getDistance(const GeneralPoint<T> &p1,const GeneralPoint<T> &p2)
 {
-    GeneralPoint<double> _p1(p1.getX(),p1.getY());
-    GeneralPoint<double> _p2(p2.getX(),p2.getY());
+    GeneralPoint<float> _p1(p1.getX(),p1.getY());
+    GeneralPoint<float> _p2(p2.getX(),p2.getY());
 
     return static_cast<T>(sqrt(pow(_p2.getX() - _p1.getX(),2) + pow(_p2.getY() - p1.getY(),2)));
 }
 
-
+*/
 #endif // POINT_H

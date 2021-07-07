@@ -1,13 +1,12 @@
 #ifndef GAMEOBJECTGROUP_H
 #define GAMEOBJECTGROUP_H
+#include "base.h"
 
-#include <vector.h>
 #include "gameobject.h"
 #include "painter.h"
 
-using std::vector;
-
-class GameObjectGroup
+//                         Will receive GameObject Signals
+class GameObjectGroup  :   private ObjSignal//, GroupSignal
 {
     public:
         GameObjectGroup();
@@ -24,47 +23,71 @@ class GameObjectGroup
         virtual void remove(GameObjectGroup *other);
         virtual void remove(const size_t index);
         virtual void clear();
+        virtual void reserve(size_t size);
         virtual size_t size() const;
         virtual GameObject *operator[](const size_t &index) const;
         virtual const vector<GameObject*> &getVector() const;
 
         // GameObject stuff
-       // virtual void setPosInitial(const Point &pos);
-       // virtual void setPosInitial(const int &x, const int &y);
-
         virtual void setPos(const int &x,const int &y);
-        virtual void setPos(const Point &pos);
+        virtual void setPos(const Vector2i&pos);
 
         virtual void setX(const int &x);
         virtual void setY(const int &y);
 
-        virtual void moveToPos(const Point &destination);
-        virtual void moveToPos(const int &x,const int &y);
-        virtual void move(const Point &directionVector);
-        virtual void move(int x,int y);
+        virtual void moveToPos(const Vector2i&destination,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveToPos(const int &x,const int &y,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void move(const Vector2i&vec,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void move(const Vector2f &vec,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void move(const float &deltaX, const float &deltaY,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveX(const float &delta,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveY(const float &delta,Controller::MovingMode mode = Controller::MovingMode::add);
 
-        virtual void setRotation(const double &deg);
+        virtual void setRotation(const float &deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
-        virtual void setRotation(const PointF &rotationPoint,const double &deg);
-        virtual void rotate_90(const PointF &rotationPoint);
-        virtual void rotate_180(const PointF &rotationPoint);
-        virtual void rotate_270(const PointF &rotationPoint);
+        virtual void setRotation(const Vector2f &rotationPoint,const float &deg);
+        virtual void rotate_90(const Vector2f &rotationPoint);
+        virtual void rotate_180(const Vector2f &rotationPoint);
+        virtual void rotate_270(const Vector2f &rotationPoint);
 
-        virtual void setVisibility(const bool &isVisible);
-        virtual const bool &isVisible() const;
-        virtual void setHitboxVisibility(const bool &isVisible);
-        virtual const bool &isHitboxVisible() const;
+        virtual void setVisibility(bool isVisible);
+        virtual bool isVisible() const;
+        virtual void setVisibility_collider_hitbox(bool isVisible);
+        virtual bool isVisible_collider_hitbox() const;
 
+        virtual long long indexOf(const GameObject* obj);
+        static  long long indexOf(const vector<GameObject *> list,const GameObject* obj);
 
+        static void removinguplicates(vector<GameObject *> *list);
+        static void removinguplicates(GameObjectGroup *list);
+
+        // Signals
+        virtual void subscribe(GroupSignal   *subscriber);
+        virtual void unsubscribe(GroupSignal *subscriber);
+        virtual void unsubscribeAll();
 
     protected:
-        bool m_isVisible;
-        bool m_hitboxIsVisible;
+        void addInternal(GameObject *object);
+        void removeInternal(GameObject *object);
+        void removeInternal(size_t index);
 
-        vector<GameObject *> m_list;
+        // GameObject singals:
+        virtual void moved(GameObject* sender,const Vector2f &move);
+
+        bool m_isVisible;
+        bool m_visibility_collider_hitbox;
+
+        vector<GameObject *> m_isInList;
+        GroupSubscriberList m_groupSubscriberList;
     private:
+
+
+
+
+        // GameObjectGroup signals:
+        // virtual void adding(GameObjectGroup* group,GameObject* obj);
 
 };
 #endif // GAMEOBJECTGROUP_H

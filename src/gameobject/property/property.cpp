@@ -73,31 +73,31 @@ void Property::setBody(const Body &body)
 {
     m_body = body;
 }
-void Property::setBody_fat(const double &fat)
+void Property::setBody_fat(const float &fat)
 {
     m_body.fat = fat;
 }
-void Property::setBody_nutritionalValue(const double &value)
+void Property::setBody_nutritionalValue(const float &value)
 {
     m_body.nutritionalValue = value;
 }
-void Property::setBody_stamina(const double &stamina)
+void Property::setBody_stamina(const float &stamina)
 {
     m_body.stamina = stamina;
 }
-void Property::setBody_health(const double &health)
+void Property::setBody_health(const float &health)
 {
     m_body.health = health;
 }
-void Property::setBody_strength(const double &strength)
+void Property::setBody_strength(const float &strength)
 {
     m_body.strength = strength;
 }
-void Property::setBody_weight(const double &weight)
+void Property::setBody_weight(const float &weight)
 {
     m_body.weight = weight;
 }
-void Property::setBody_density(const double &density)
+void Property::setBody_density(const float &density)
 {
     m_body.density = density;
 }
@@ -133,7 +133,7 @@ void Property::setFood_isEatable(const bool &isEatable)
 {
     m_food.isEatable = isEatable;
 }
-void Property::setFood_foodAmout(const double &amount)
+void Property::setFood_foodAmout(const float &amount)
 {
     m_food.foodAmount = amount;
 }
@@ -158,7 +158,7 @@ void Property::removeFood_taste(const Food::Taste &taste)
                 i--;
         }
 }
-void Property::setFood_healthyLevel(const double &level)
+void Property::setFood_healthyLevel(const float &level)
 {
     m_food.healthyLevel = level;
 }
@@ -183,19 +183,19 @@ void Property::setMood(const Mood &mood)
 {
     m_mood = mood;
 }
-void Property::setMood_stresslevel(const double &level)
+void Property::setMood_stresslevel(const float &level)
 {
     m_mood.stresslevel = level;
 }
-void Property::setMood_angrylevel(const double &level)
+void Property::setMood_angrylevel(const float &level)
 {
     m_mood.angrylevel = level;
 }
-void Property::setMood_inLove(const double &inLove)
+void Property::setMood_inLove(const float &inLove)
 {
     m_mood.inLove = inLove;
 }
-void Property::setMood_druglevel(const double &druglevel)
+void Property::setMood_druglevel(const float &druglevel)
 {
     m_mood.druglevel = druglevel;
 }

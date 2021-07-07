@@ -15,22 +15,23 @@ namespace Property
         Grass,
         Wood,
         Stone,
+        Sand,
         Metal,
         Flesh
     };
 
     struct Body
     {
-        double fat;
-        double nutritionalValue;
+        float fat;
+        float nutritionalValue;
 
-        double stamina;
-        double health;
-        double strength;
+        float stamina;
+        float health;
+        float strength;
 
 
-        double weight;
-        double density;
+        float weight;
+        float density;
         Material material;
     };
     inline string material_toString(const Material &mat)
@@ -49,6 +50,8 @@ namespace Property
                  return "Wood";
              case Material::Stone:
                  return "Stone";
+             case Material::Sand:
+                 return "Sand";
              case Material::Metal:
                  return "Metal";
              case Material::Flesh:
