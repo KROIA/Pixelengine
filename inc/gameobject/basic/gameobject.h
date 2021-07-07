@@ -161,6 +161,7 @@ class GameObject //   :   public ObjSignal
         vector<Controller*> m_controllerList;
         DynamicCoordinator m_movementCoordinator;
         Collider      *m_collider;
+        Collider      *m_originalCollider;
 
 
         //Painter

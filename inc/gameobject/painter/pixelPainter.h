@@ -13,6 +13,7 @@ class PixelPainter  : public Painter
 
         virtual void draw(PixelDisplay &display);
 
+        virtual void setPixel(const Pixel &pixel);
         virtual void setPixel(const vector<Pixel> &pixelList);
         virtual void addPixel(unsigned int x, unsigned int y, Color color);
         virtual void addPixel(const Pixel &pixel);

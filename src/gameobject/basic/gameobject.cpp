@@ -6,6 +6,7 @@ GameObject::GameObject()
 {
     this->addController(new Controller());
     m_collider              = new Collider();
+    m_originalCollider      = m_collider;
     m_painter               = nullptr;
     m_objEventHandler       = nullptr;
     m_thisInteractiveObject = nullptr;
@@ -63,9 +64,9 @@ GameObject::~GameObject()
 {
     removeText();
     clearController();
-    delete m_collider;
-    if(m_painter != nullptr)
-        delete m_painter;
+    delete m_originalCollider;
+   // if(m_painter != nullptr)
+   //     delete m_painter;
 }
 const GameObject &GameObject::operator=(const GameObject &other)
 {
@@ -351,8 +352,8 @@ void GameObject::setCollider(Collider *collider)
     EASY_FUNCTION(profiler::colors::GreenA100);
     if(m_collider == collider || collider == nullptr)
         return;
-    if(m_collider != nullptr)
-        delete m_collider;
+    //if(m_collider != nullptr)
+    //    delete m_collider;
     m_collider = collider;
 }
 const Collider &GameObject::getCollider() const
@@ -364,8 +365,8 @@ void GameObject::setPainter(Painter *painter)
     EASY_FUNCTION(profiler::colors::GreenA200);
     if(m_painter == painter || painter == nullptr)
         return;
-    if(m_painter != nullptr)
-        delete m_painter;
+   // if(m_painter != nullptr)
+   //     delete m_painter;
     m_painter = painter;
 }
 const Painter &GameObject::getPainter() const

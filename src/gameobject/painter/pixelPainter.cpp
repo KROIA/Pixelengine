@@ -26,6 +26,15 @@ void PixelPainter::draw(PixelDisplay &display)
 
     Painter::draw(display);
 }
+void PixelPainter::setPixel(const Pixel &pixel)
+{
+    EASY_FUNCTION(profiler::colors::Cyan100);
+    if(pixel.getPos().x < 0 || pixel.getPos().y < 0)
+        return;
+    if(unsigned(pixel.getPos().x) >= m_image->getSize().x || unsigned(pixel.getPos().y) >= m_image->getSize().y)
+        return;
+    m_image->setPixel(pixel.getPos().x,pixel.getPos().y,pixel);
+}
 void PixelPainter::setPixel(const vector<Pixel> &pixelList)
 {
     EASY_FUNCTION(profiler::colors::Cyan);

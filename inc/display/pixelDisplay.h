@@ -60,11 +60,13 @@ class PixelDisplay
         virtual bool isOpen() const;
 
 
-        virtual sf::Event handleEvents();
-        virtual sf::Event handleEvents(const KeyEvent &eventHandler);
-        virtual sf::Event handleEvents(const vector<KeyEvent> &eventHandlerList);
-        virtual void zoomViewAt(sf::Vector2i pixel, sf::RenderWindow& window, float zoom);
+        virtual void handleEvents();
+        virtual void handleEvents(const KeyEvent &eventHandler);
+        virtual void handleEvents(const vector<KeyEvent> &eventHandlerList);
+        virtual const vector<sf::Event> &getLastEvents() const;
+        virtual void zoomViewAt(sf::Vector2i pixel, float zoom);
         virtual void updateRenderFrame();
+        virtual void setView(const RectF &frame);
 
         virtual bool addText(DisplayText *text);       // This function will not own the Text Object!
         virtual bool removeText(DisplayText *text);
@@ -111,6 +113,8 @@ class PixelDisplay
         bool                 m_vertexPathUsed;
        // Vector2f             m_renderScale;
        // RectF                m_globalDisplayFrame;
+
+        vector<sf::Event>    m_lastEventList;
 
     private:
         bool                 m_dragMap;

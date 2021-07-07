@@ -161,7 +161,7 @@ void PixelEngine::stop()
     m_engineIsRunning = false;
 
 }
-const Vector2u  &PixelEngine::getWindwoSize() const
+const Vector2u  &PixelEngine::getWindowSize() const
 {
     return m_windowSize;
 }
@@ -169,17 +169,21 @@ const Vector2u  &PixelEngine::getMapSize() const
 {
     return m_mapSize;
 }
+const RectF PixelEngine::getRenderFrame() const
+{
+    return m_display->getRenderFrame();
+}
 
 // Userloops
-void PixelEngine::setUserCheckEventLoop(p_func func)
+void PixelEngine::setUserCheckEventLoop(p_eventFunc func)
 {
     m_p_func_userCheckEventLoop = func;
 }
-void PixelEngine::setUserDisplayLoop(p_func func)
+void PixelEngine::setUserDisplayLoop(p_displayFunc func)
 {
     m_p_func_userDisplayLoop = func;
 }
-void PixelEngine::setUserTickLoop(p_func func)
+void PixelEngine::setUserTickLoop(p_tickFunc func)
 {
     m_p_func_userTickLoop = func;
 }
@@ -204,9 +208,11 @@ void PixelEngine::checkEvent()
     auto stats_checkUserEvent_timer_start = std::chrono::system_clock::now();
 #endif
     removeGameObjectsIntern();
+    m_display->handleEvents();
+    vector<sf::Event> eventList = m_display->getLastEvents();
     EASY_BLOCK("userCheckEventLoop",profiler::colors::Orange50);
     if(m_p_func_userCheckEventLoop != nullptr)
-        (*m_p_func_userCheckEventLoop)(m_eventInterval,m_tick);
+        (*m_p_func_userCheckEventLoop)(m_eventInterval,m_tick,eventList);
     EASY_END_BLOCK;
 #ifdef STATISTICS
     auto stats_checkEvent_timer_start = std::chrono::system_clock::now();
@@ -217,18 +223,21 @@ void PixelEngine::checkEvent()
     //checkForUserGroupChanges();
 
     // Handle display Events
-    switch(m_display->handleEvents().type)
+    for(size_t i=0;i<eventList.size(); i++)
     {
-        case sf::Event::Closed:
+        switch(eventList[i].type)
         {
-            EASY_BLOCK("sf::Event::Closed",profiler::colors::Orange);
-            stop();
+            case sf::Event::Closed:
+            {
+                EASY_BLOCK("sf::Event::Closed",profiler::colors::Orange);
+                stop();
 
-            return;
-        }
-        default:
-        {
+                return;
+            }
+            default:
+            {
 
+            }
         }
     }
     EASY_BLOCK("getGameObject->checkEvent",profiler::colors::Orange50);
@@ -755,7 +764,7 @@ void PixelEngine::display()
 #endif
     EASY_BLOCK("userDisplayLoop",profiler::colors::OrangeA100)
     if(m_p_func_userDisplayLoop != nullptr)
-        (*m_p_func_userDisplayLoop)(m_displayInterval,m_tick);
+        (*m_p_func_userDisplayLoop)(m_displayInterval,m_tick,*m_display);
     EASY_END_BLOCK;
 #ifdef STATISTICS
     auto stats_timePoint_2 = std::chrono::system_clock::now();
@@ -796,7 +805,10 @@ void PixelEngine::display()
 
 #endif
 }
-
+const vector<sf::Event> &PixelEngine::getLastEvents() const
+{
+    return m_display->getLastEvents();
+}
 /*void PixelEngine::display_setRenderFramePosCenter(const Vector2f &pos)
 {
     m_display->setRenderFramePosCenter(pos);
@@ -1064,7 +1076,13 @@ void PixelEngine::removeGroup(GameObjectGroup *group)
         }
 }*/
 
+
+
 // Rendering
+void PixelEngine::display_zoomView(const Vector2i &zoomAt, float zoom)
+{
+    m_display->zoomViewAt(zoomAt,zoom);
+}
 void PixelEngine::moveRenderLayer_UP(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::OrangeA700);
