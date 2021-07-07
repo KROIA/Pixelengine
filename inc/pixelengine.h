@@ -243,6 +243,7 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         float m_displayInterval; // sec.
 
         InteractiveGameObjectGroup  m_masterGameObjectGroup;
+        GameObjectGroup             m_masterNoInteractionGameObjectList;
         vector<GameObject* >        m_removeLaterObjectGroup;
         //ChunkMap                   *m_chunkMap;
 

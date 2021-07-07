@@ -42,7 +42,7 @@ PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
 
 
     m_stats_text = new DisplayText();
-    m_stats_text->setCharacterSize(m_windowSize.x/40); // in pixels, not points!
+    m_stats_text->setCharacterSize(25); // in pixels, not points!
     m_stats_text->setLineSpacing(0.8);
     sf::Color col(255,255,255,100); // Transparent white
     display_stats(false,col);
@@ -865,6 +865,7 @@ void PixelEngine::addGameObject(GameObject *obj)
     obj->setEventHandler(this);
     //obj->subscribeToDisplay(*m_display);
     obj->preRun();
+  //  m_masterNoInteractionGameObjectList.add(obj);
     if(!m_setupDone)
         m_masterGameObjectGroup.addToCache(obj);
     else

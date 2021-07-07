@@ -96,6 +96,7 @@ class PixelDisplay
 
         RenderWindow *m_renderWindow;
         RectF m_renderFrame;
+        sf::View m_view;
 
         sf::Texture m_texture;
         Image m_image;

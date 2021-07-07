@@ -32,7 +32,6 @@ message( "  Path: $$ENGINE_PATH " )
 include(extern/easy_profiler.pri)
 include(extern/SFML.pri)
 
-
 PixelEngine_incPath = $$ENGINE_PATH/inc
 PixelEngine_srcPath = $$ENGINE_PATH/src
 

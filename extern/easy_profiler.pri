@@ -33,16 +33,25 @@ profilerLib_debug   = "$$profilerBuildPath_debug/libeasy_profiler.dll.a"
 
 # Copy dll from the Profiler to the bin dir
 CONFIG(debug, debug|release){
+    profilerBuildPath_debug ~= s,/,\\,g # Replace "/" with "\\"
     message( "  Copy debug dll: $$profilerBuildPath_debug " )
-    QMAKE_PRE_LINK = copy "\"$$profilerBuildPath_debug\libeasy_profiler.dll\"" "\"debug\libeasy_profiler.dll\""
+    !isEmpty(QMAKE_POST_LINK){
+    QMAKE_POST_LINK += " & "
+    }
+    QMAKE_POST_LINK += copy "\"$$profilerBuildPath_debug\libeasy_profiler.dll\"" "\"debug\libeasy_profiler.dll\""
 }else{
+    profilerBuildPath_release ~= s,/,\\,g # Replace "/" with "\\"
     message( "  Copy release dll: $$profilerBuildPath_release " )
-    QMAKE_PRE_LINK = copy "\"$$profilerBuildPath_release\libeasy_profiler.dll\"" "\"release\libeasy_profiler.dll\""
+    !isEmpty(QMAKE_POST_LINK){
+    QMAKE_POST_LINK += " & "
+    }
+    QMAKE_POST_LINK += copy "\"$$profilerBuildPath_release\libeasy_profiler.dll\"" "\"release\libeasy_profiler.dll\""
 }
-
+message("  $$QMAKE_POST_LINK")
 
 CONFIG(release, debug|release): profilerLib = $$profilerLib_release
 CONFIG(debug, debug|release):   profilerLib = $$profilerLib_debug
+
 
 
 LIBS        += $$profilerLib

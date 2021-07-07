@@ -7,7 +7,9 @@ GameObject::GameObject()
     this->addController(new Controller());
     m_collider              = new Collider();
     m_originalCollider      = m_collider;
-    m_painter               = nullptr;
+
+    m_originalPainter       = new PixelPainter();
+    m_painter               = m_originalPainter;
     m_objEventHandler       = nullptr;
     m_thisInteractiveObject = nullptr;
     this->m_visibility                          = true;
@@ -25,7 +27,9 @@ GameObject::GameObject(const GameObject &other)
 {
     this->addController(new Controller());
     m_collider              = new Collider();
-    m_painter               = nullptr;
+    m_originalCollider      = m_collider;
+    m_originalPainter       = new PixelPainter();
+    m_painter               = m_originalPainter;
     m_objEventHandler       = nullptr;
     this->m_visibility                          = true;
     this->m_visibility_collider_hitbox          = false;
@@ -65,6 +69,7 @@ GameObject::~GameObject()
     removeText();
     clearController();
     delete m_originalCollider;
+    delete m_originalPainter;
    // if(m_painter != nullptr)
    //     delete m_painter;
 }
@@ -205,20 +210,22 @@ void GameObject::draw(PixelDisplay &display)
     EASY_FUNCTION(profiler::colors::Green700);
     if(!m_visibility)
         return;
-    m_painter->setPos(m_layerItem.getPos());
-    m_painter->setRotation(m_layerItem.getRotation());
-    RectF frame = display.getRenderFrame();
-
-
     if(m_thisInteractiveObject != nullptr)
     {
         m_thisInteractiveObject->draw_chunks(display);
     }
 
-    if(!frame.intersects_fast(m_painter->getFrame()))
-        return;
+    if(m_painter != m_originalPainter)
+    {
+        m_painter->setPos(m_layerItem.getPos());
+        m_painter->setRotation(m_layerItem.getRotation());
+        RectF frame = display.getRenderFrame();
+        if(!frame.intersects_fast(m_painter->getFrame()))
+            return;
+        m_painter->draw(display);
+    }
 
-    m_painter->draw(display);
+
 
     if(m_visibility_collider_boundingBox)
         display.addVertexLine(m_collider->getDrawableBoundingBox());
