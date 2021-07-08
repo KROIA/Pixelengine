@@ -36,8 +36,8 @@ class KeyController     :   public Controller
         virtual void setKey_forMove_DOWN(const int &key);
         virtual void setKey_forMove_RIGHT(const int &key);
 
-        virtual void setStepSize(const int size);
-        virtual int getStepSize() const;
+        virtual void setStepSize(float size);
+        virtual float getStepSize() const;
 
 
 
@@ -53,7 +53,7 @@ class KeyController     :   public Controller
 
         Vector2f m_currentMovingVec;
 
-        int m_stepSize;
+        float m_stepSize;
         Vector2f m_stepUp;
         Vector2f m_stepLeft;
         Vector2f m_stepDown;

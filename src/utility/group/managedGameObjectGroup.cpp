@@ -1,4 +1,4 @@
-#include "managedGameObjectGroup.h"
+/*#include "managedGameObjectGroup.h"
 
 ManagedGameObjectGroup::ManagedGameObjectGroup()
     :   GameObjectGroup(),
@@ -92,3 +92,4 @@ const vector<GameObject*> &ManagedGameObjectGroup::getVector() const
     return m_isInList;
 }
 
+*/

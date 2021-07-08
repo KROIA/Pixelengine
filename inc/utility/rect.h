@@ -485,8 +485,8 @@ bool GeneralRect<T>::intersects(const GeneralRect<T> &other)
             {
                 intersectionFac = Vector::getIntersection(*frameVecList[i].s,        *frameVecList[i].d,
                                                           *other_frameVecList[j].s,  *other_frameVecList[j].d);
-                if(intersectionFac.x > 0 && intersectionFac.x < 1.f &&
-                   intersectionFac.y > 0 && intersectionFac.y < 1.f)
+                if(intersectionFac.x >= 0 && intersectionFac.x <= 1.f &&
+                   intersectionFac.y >= 0 && intersectionFac.y <= 1.f)
                 {
                     stats_intersectionCheckCounter =  i * j;
                     if(colliderDataEnabled)

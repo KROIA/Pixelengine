@@ -55,7 +55,7 @@ class AnimatedTexture;
 class GameObjectGroup;
 class InteractiveGameObject;
 class InteractiveGameObjectGroup;
-class ManagedGameObjectGroup;
+//class ManagedGameObjectGroup;
 
 struct ChunkID;
 class Chunk;

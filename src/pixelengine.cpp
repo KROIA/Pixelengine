@@ -44,6 +44,7 @@ PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
     m_statistics.checkEventTime         = 0;
     m_statistics.tickTime               = 0;
     m_statistics.displayTime            = 0;
+    m_statistics.drawTime               = 0;
     m_statistics.checkUserEventTime     = 0;
     m_statistics.userTickTime           = 0;
     m_statistics.userDisplayTime        = 0;

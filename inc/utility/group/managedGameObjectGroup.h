@@ -1,6 +1,6 @@
 #ifndef MANAGEDGAMEOBJECTGROUP_H
 #define MANAGEDGAMEOBJECTGROUP_H
-
+/*
 #include "gameObjectGroup.h"
 #include "groupManagerInterface.h"
 
@@ -37,5 +37,5 @@ class ManagedGameObjectGroup    :   public GameObjectGroup,  GroupManagerInterfa
     private:
 
 
-};
+};*/
 #endif // ManagedGameObjectGroup_H
