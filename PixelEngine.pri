@@ -70,7 +70,6 @@ SOURCES += \
         $$PixelEngine_srcPath/display/pixel.cpp \
         $$PixelEngine_srcPath/gameobject/collider/basic/collider.cpp \
         $$PixelEngine_srcPath/gameobject/painter/basic/painter.cpp \
-        $$PixelEngine_srcPath/gameobject/painter/hitboxPainter.cpp \
         $$PixelEngine_srcPath/gameobject/controller/basic/controller.cpp \
         $$PixelEngine_srcPath/gameobject/controller/keyController.cpp \
         $$PixelEngine_srcPath/gameobject/basic/gameobject.cpp \

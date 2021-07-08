@@ -17,6 +17,11 @@ PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
     m_eventTimer    = new Timer;
     m_mainTickTimer = new Timer;
     m_displayTimer  = new Timer;
+    m_syncTimer->setAutorestart(true);
+    m_eventTimer->setAutorestart(true);
+    m_mainTickTimer->setAutorestart(true);
+    m_displayTimer->setAutorestart(true);
+
     this->set_setting_runInSync(false);
     this->set_setting_syncEngineInterval(0.01);
     this->set_setting_checkEventInterval(0.01);
@@ -796,6 +801,7 @@ void PixelEngine::display()
     {
         if(!m_nextSyncLoopActive)
             return;
+        m_nextSyncLoopActive = false;
     }else if(!m_displayTimer->start(m_displayInterval))
         return;
 #endif
@@ -881,7 +887,7 @@ bool PixelEngine::get_setting_runInSync() const
 }
 void PixelEngine::set_setting_syncEngineInterval(const float &seconds)
 {
-    m_syncInterval = seconds;
+    m_syncInterval = abs(seconds);
 }
 const float &PixelEngine::get_setting_syncEngineInterval() const
 {
