@@ -10,7 +10,7 @@
 using std::vector;
 using sf::Vector2f;
 
-class Controller    :   public UserEventHandler//, public LayerItem
+class Controller    :   public UserEventHandler
 {
     public:
         enum MovingMode

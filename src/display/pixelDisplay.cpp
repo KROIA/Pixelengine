@@ -11,7 +11,7 @@ PixelDisplay::PixelDisplay(const Vector2u &windowSize, const Vector2u &pixelSize
     m_renderWindow = new sf::RenderWindow(sf::VideoMode(m_windowSize.x,m_windowSize.y),
                                           "PixelDisplay",sf::Style::Default, settings);
 
-    m_clearColor = Color(50,50,50);
+    m_clearColor = Color(0,0,0);
 
 
     m_image.create(m_pixelMapSize.x,m_pixelMapSize.y,m_clearColor);

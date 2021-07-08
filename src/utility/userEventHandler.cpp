@@ -2,7 +2,7 @@
 
 UserEventHandler::UserEventHandler()
 {
-
+    m_hasEventsToCheck = false;
 }
 UserEventHandler::UserEventHandler(const UserEventHandler &other)
 {
@@ -14,7 +14,8 @@ UserEventHandler::~UserEventHandler()
 }
 UserEventHandler &UserEventHandler::operator=(const UserEventHandler &other)
 {
-    this->m_eventList   = other.m_eventList;
+    this->m_eventList           = other.m_eventList;
+    this->m_hasEventsToCheck    = other.m_hasEventsToCheck;
     return *this;
 }
 
@@ -39,10 +40,16 @@ void UserEventHandler::checkEvent()
             this->reveive_key_goesUp(m_eventList[i]->getKey());
     }
 }
+bool UserEventHandler::hasEventsToCheck() const
+{
+    return m_hasEventsToCheck;
+}
 
 size_t UserEventHandler::addEvent(Event *e)
 {
     m_eventList.push_back(e);
+    m_hasEventsToCheck = true;
+    m_userEventSubscriberList.eventAdded(this,e);
     return m_eventList.size()-1;
 }
 Event *UserEventHandler::getEvent(const size_t &index) const
@@ -64,6 +71,10 @@ void UserEventHandler::removeEvent(Event* e)
             m_eventList.erase(m_eventList.begin()+i);
         }
     }
+
+    if(m_eventList.size() == 0)
+        m_hasEventsToCheck = false;
+    m_userEventSubscriberList.eventRemoved(this,e);
 }
 
 void UserEventHandler::receive_key_isPressed(const int &key)
@@ -81,4 +92,33 @@ void UserEventHandler::reveive_key_goesDown(const int &key)
 void UserEventHandler::reveive_key_goesUp(const int &key)
 {
     qDebug() << "Key: "<<key<<"\reveive_key_goesUp";
+}
+// Signals
+void UserEventHandler::subscribe(UserEventSignal *subscriber)
+{
+    if(subscriber == nullptr)
+        return;
+    for(size_t i=0; i<m_userEventSubscriberList.size(); i++)
+    {
+        if(m_userEventSubscriberList[i] == subscriber)
+        {
+            return;
+        }
+    }
+    m_userEventSubscriberList.push_back(subscriber);
+}
+void UserEventHandler::unsubscribe(UserEventSignal *subscriber)
+{
+    for(size_t i=0; i<m_userEventSubscriberList.size(); i++)
+    {
+        if(m_userEventSubscriberList[i] == subscriber)
+        {
+            m_userEventSubscriberList.erase(m_userEventSubscriberList.begin()+i);
+            return;
+        }
+    }
+}
+void UserEventHandler::unsubscribeAll()
+{
+    m_userEventSubscriberList.clear();
 }

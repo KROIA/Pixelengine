@@ -12,6 +12,7 @@ InteractiveGameObject::InteractiveGameObject()
 
     m_interactsWithObjectsList.push_back(new GameObjectGroup());
     m_drawingIsDisabled = true;
+    m_interactsWithOthers = false;
     //m_interactsWithObjectsList[0]->subscribe(this);
 }
 InteractiveGameObject::InteractiveGameObject(const InteractiveGameObject &other)
@@ -21,6 +22,7 @@ InteractiveGameObject::InteractiveGameObject(const InteractiveGameObject &other)
     this->m_interactiveObjectsChunkMap  = new ChunkMap(*other.m_interactiveObjectsChunkMap);
     this->m_gameObjectChunkMap          = new ChunkMap(*other.m_gameObjectChunkMap);
     this->m_drawingIsDisabled           = other.m_drawingIsDisabled;
+    this->m_interactsWithOthers         = other.m_interactsWithOthers;
 }
 InteractiveGameObject::~InteractiveGameObject()
 {
@@ -69,7 +71,7 @@ void InteractiveGameObject::addInteractionWith(GameObject *obj)
             return;
     }
 #endif
-
+    m_interactsWithOthers = true;
     m_interactsWithObjectsList[0]->add(obj);
     m_interactiveObjectsChunkMap->add(obj);
 
@@ -86,6 +88,7 @@ void InteractiveGameObject::addInteractionWith(GameObjectGroup *group)
             return;
     }
 #endif
+    m_interactsWithOthers = true;
     m_interactsWithObjectsList.push_back(group);
     m_interactiveObjectsChunkMap->add(group);
     //m_interactiveObjectsChunkMap->add(group);
@@ -115,6 +118,8 @@ void InteractiveGameObject::removeInteractionWith(GameObject *obj)
         m_interactsWithObjectsList[i]->remove(obj);
     }
 #endif
+    if(m_interactsWithObjectsList.size() == 1 && m_interactsWithObjectsList[0]->size() == 0)
+        m_interactsWithOthers = false;
     //m_interactiveObjectsChunkMap->remove(obj);
 }
 void InteractiveGameObject::removeInteractionWith(GameObjectGroup *group)
@@ -129,6 +134,8 @@ void InteractiveGameObject::removeInteractionWith(GameObjectGroup *group)
             m_interactsWithObjectsList.erase(m_interactsWithObjectsList.begin()+i);
         }
     }
+    if(m_interactsWithObjectsList.size() == 1 && m_interactsWithObjectsList[0]->size() == 0)
+        m_interactsWithOthers = false;
     //m_interactiveObjectsChunkMap->remove(group);
 }
 void InteractiveGameObject::removeInteractionWith(vector<GameObjectGroup*> *groupList)
@@ -165,6 +172,10 @@ void InteractiveGameObject::setInteractionWith(vector<GameObjectGroup*> *groupLi
         removeInteractionWith(groupList);
 }
 
+bool InteractiveGameObject::doesInteractWithOther() const
+{
+    return m_interactsWithOthers;
+}
 const vector<GameObjectGroup*> &InteractiveGameObject::getInteractiveObjectsList() const
 {
     return m_interactsWithObjectsList;

@@ -89,4 +89,25 @@ class ChunkSubscriberList    : public vector<ChunkSignal*>
 };
 
 
+// Signals for GameObjects
+class UserEventSignal
+{
+    public:
+        UserEventSignal(){}
+
+        virtual void eventAdded(UserEventHandler *sender,  Event *e) = 0;
+        virtual void eventRemoved(UserEventHandler *sender,  Event *e) = 0;
+    protected:
+
+};
+// Vector of Signals
+class UserEventSubscriberList    : public vector<UserEventSignal*>
+{
+    public:
+        UserEventSubscriberList();
+        virtual void eventAdded(UserEventHandler *sender,  Event *e);
+        virtual void eventRemoved(UserEventHandler *sender,  Event *e);
+    protected:
+
+};
 #endif // SIGNAL_H

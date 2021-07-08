@@ -7,9 +7,14 @@ PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
     m_windowSize = displaySize;
     m_display       = new PixelDisplay(m_windowSize,m_mapSize);
     m_engineIsRunning = true;
+
+    m_nextSyncLoopActive = false;
+    m_syncTimer     = new Timer;
     m_eventTimer    = new Timer;
     m_mainTickTimer = new Timer;
     m_displayTimer  = new Timer;
+    this->set_setting_runInSync(false);
+    this->set_setting_syncEngineInterval(0.01);
     this->set_setting_checkEventInterval(0.01);
     this->set_setting_gameTickInterval(0.01);
     this->set_setting_displayInterval(0.01);
@@ -38,7 +43,7 @@ PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
     m_statistics.checkUserEventTime     = 0;
     m_statistics.userTickTime           = 0;
     m_statistics.userDisplayTime        = 0;
-    m_statsFilterFactor                 = 0.5;
+    m_statsFilterFactor                 = 0.9;
 
 
     m_stats_text = new DisplayText();
@@ -196,12 +201,26 @@ void PixelEngine::setup()
     m_masterGameObjectGroup.buildCache();
     m_setupDone = true;
 }
-
+void PixelEngine::loop()
+{
+    this->checkEvent();
+    this->tick();
+    this->display();
+}
 void PixelEngine::checkEvent()
 {
 #ifndef NO_TIMED_LOOPS
-    if(!m_eventTimer->start(m_eventInterval))
-       return;// Time not finished
+    if(m_runInSync)
+    {
+        if(!m_syncTimer->start(m_syncInterval))
+           return;// Time not finished
+        m_nextSyncLoopActive = true;
+    }
+    else
+    {
+        if(!m_eventTimer->start(m_eventInterval))
+           return;// Time not finished
+    }
 #endif
     EASY_FUNCTION(profiler::colors::Orange);
 #ifdef STATISTICS
@@ -241,9 +260,12 @@ void PixelEngine::checkEvent()
         }
     }
     EASY_BLOCK("getGameObject->checkEvent",profiler::colors::Orange50);
+    GameObject *obj;
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
     {
-        m_masterGameObjectGroup[i]->getGameObject()->checkEvent();
+        obj = m_masterGameObjectGroup[i]->getGameObject();
+        if(obj->hasEventsToCheck())
+            obj->checkEvent();
     }
     EASY_END_BLOCK;
 #ifdef STATISTICS
@@ -256,7 +278,11 @@ void PixelEngine::checkEvent()
 void PixelEngine::tick()
 {
 #ifndef NO_TIMED_LOOPS
-    if(!m_mainTickTimer->start(m_mainTickInterval))
+    if(m_runInSync)
+    {
+        if(!m_nextSyncLoopActive)
+            return;
+    }else if(!m_mainTickTimer->start(m_mainTickInterval))
         return; // Time not finished
 #endif
      EASY_FUNCTION(profiler::colors::Orange100);
@@ -560,11 +586,14 @@ void *PixelEngine::thread_tick(void *p)
     #ifdef STATISTICS
             auto stats_timer_end = std::chrono::system_clock::now();
             std::chrono::duration<float> stats_time_span = stats_timer_end - stats_timer_start;
-            gameObjectTickTime += stats_time_span.count()*500.f;
+            gameObjectTickTime += stats_time_span.count();
 
             stats_timer_start = std::chrono::system_clock::now();
-            vector<GameObject*> other = interactiveObject->getInteractiveObjects();
-            collisionsPerTick += obj->checkCollision(other);
+            if(interactiveObject->doesInteractWithOther())
+            {
+                vector<GameObject*> other = interactiveObject->getInteractiveObjects();
+                collisionsPerTick += obj->checkCollision(other);
+            }
     #else
             obj->checkCollision(interactiveObject->getInteractiveObjects().getVector());
     #endif
@@ -572,7 +601,7 @@ void *PixelEngine::thread_tick(void *p)
     #ifdef STATISTICS
             stats_timer_end = std::chrono::system_clock::now();
             stats_time_span = stats_timer_end - stats_timer_start;
-            collisionCheckTime += stats_time_span.count()*500.f;
+            collisionCheckTime += stats_time_span.count();
 
 
     #endif
@@ -585,8 +614,8 @@ void *PixelEngine::thread_tick(void *p)
         param->globalMutex->lock();
 #endif
         param->stats->collisionsPerTick  += collisionsPerTick;
-        param->stats->collisionCheckTime += collisionCheckTime;
-        param->stats->gameObjectTickTime += gameObjectTickTime;
+        param->stats->collisionCheckTime += collisionCheckTime*500.f;
+        param->stats->gameObjectTickTime += gameObjectTickTime*500.f;
 #ifdef USE_STD_THREADS
         pthread_mutex_unlock(param->globalMutex);
 #else
@@ -754,7 +783,11 @@ void PixelEngine::display()
 {
 
 #ifndef NO_TIMED_LOOPS
-    if(!m_displayTimer->start(m_displayInterval))
+    if(m_runInSync)
+    {
+        if(!m_nextSyncLoopActive)
+            return;
+    }else if(!m_displayTimer->start(m_displayInterval))
         return;
 #endif
     EASY_FUNCTION(profiler::colors::Orange900);
@@ -829,6 +862,22 @@ const RectF &PixelEngine::display_getRenderFrame() const
 {
     return m_display->getRenderFrame();
 }*/
+void PixelEngine::set_setting_runInSync(bool enable)
+{
+    m_runInSync = enable;
+}
+bool PixelEngine::get_setting_runInSync() const
+{
+    return m_runInSync;
+}
+void PixelEngine::set_setting_syncEngineInterval(const float &seconds)
+{
+    m_syncInterval = seconds;
+}
+const float &PixelEngine::get_setting_syncEngineInterval() const
+{
+    return m_syncInterval;
+}
 void PixelEngine::set_setting_checkEventInterval(const float &seconds)
 {
     m_eventInterval = abs(seconds);

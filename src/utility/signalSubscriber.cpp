@@ -69,36 +69,7 @@ ChunkSubscriberList::ChunkSubscriberList()
     :   vector<ChunkSignal *>()
 {
 
-}/*
-void ChunkSubscriberList::movingToUpperChunk(GameObject* sender)
-{
-    for(ChunkSignal* &sub : *this)
-    {
-        sub->movingToUpperChunk(sender);
-    }
 }
-void ChunkSubscriberList::movingToLowerChunk(GameObject* sender)
-{
-    for(ChunkSignal* &sub : *this)
-    {
-        sub->movingToLowerChunk(sender);
-    }
-}
-void ChunkSubscriberList::movingToLeftChunk(GameObject* sender)
-{
-    for(ChunkSignal* &sub : *this)
-    {
-        sub->movingToLeftChunk(sender);
-    }
-}
-void ChunkSubscriberList::movingToRightChunk(GameObject* sender)
-{
-    for(ChunkSignal* &sub : *this)
-    {
-        sub->movingToRightChunk(sender);
-    }
-}
-*/
 void ChunkSubscriberList::objectIsNowInChunk(Chunk *sender,GameObject* obj,const Vector2<size_t> &newChunkIndex)
 {
     for(ChunkSignal* &sub : *this)
@@ -132,5 +103,26 @@ void ChunkSubscriberList::updateChunkPos(Chunk *sender, GameObject* obj)
     for(ChunkSignal* &sub : *this)
     {
         sub->updateChunkPos(sender,obj);
+    }
+}
+
+
+UserEventSubscriberList::UserEventSubscriberList()
+    :   vector<UserEventSignal *>()
+{
+
+}
+void UserEventSubscriberList::eventAdded(UserEventHandler *sender,  Event *e)
+{
+    for(UserEventSignal* &sub : *this)
+    {
+        sub->eventAdded(sender,e);
+    }
+}
+void UserEventSubscriberList::eventRemoved(UserEventHandler *sender,  Event *e)
+{
+    for(UserEventSignal* &sub : *this)
+    {
+        sub->eventRemoved(sender,e);
     }
 }

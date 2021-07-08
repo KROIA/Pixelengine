@@ -78,4 +78,8 @@ class GroupSubscriberList;
 
 class ChunkSignal;
 class ChunkSubscriberList;
+
+class UserEventSignal;
+class UserEventSubscriberList;
+
 #endif // BASE_H

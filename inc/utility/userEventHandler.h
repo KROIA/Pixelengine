@@ -4,6 +4,7 @@
 #include "base.h"
 
 #include "event.h"
+#include "signalSubscriber.h"
 
 using std::vector;
 
@@ -16,6 +17,7 @@ class UserEventHandler
         virtual UserEventHandler &operator=(const UserEventHandler &other);
 
         virtual void checkEvent();
+        virtual bool hasEventsToCheck() const;
 
         virtual size_t addEvent(Event *e);            // Adds a Event and returns the index in the list.
         virtual Event *getEvent(const size_t &index) const; // returns the Event at the index of the list.
@@ -26,11 +28,17 @@ class UserEventHandler
         virtual void receive_key_toggle(const int &key);
         virtual void reveive_key_goesDown(const int &key);
         virtual void reveive_key_goesUp(const int &key);
+
+        // Signals
+        virtual void subscribe(UserEventSignal *subscriber);
+        virtual void unsubscribe(UserEventSignal *subscriber);
+        virtual void unsubscribeAll();
     protected:
 
     private:
       vector<Event*>  m_eventList;
       Event m_dummyEvent;
-
+      bool  m_hasEventsToCheck;
+      UserEventSubscriberList m_userEventSubscriberList;
 };
 #endif // EVENTHANDLER_H

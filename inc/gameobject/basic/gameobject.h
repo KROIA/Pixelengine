@@ -16,7 +16,7 @@
 
 
 
-class GameObject //   :   public ObjSignal
+class GameObject : private UserEventSignal
 {
     public:
         GameObject();
@@ -30,6 +30,7 @@ class GameObject //   :   public ObjSignal
 
         // Events
         virtual void checkEvent();
+        virtual bool hasEventsToCheck() const;
         virtual void killMe();             // Not defined jet in the engine class
         virtual void removeMeFromEngine(); // Removes this obj from the engine, but the obj won't get destroyed
 
@@ -151,6 +152,10 @@ class GameObject //   :   public ObjSignal
     protected:
         virtual void event_hasCollision(vector<GameObject *> other);
 
+        // Signals from UserEventSignal
+        virtual void eventAdded(UserEventHandler *sender,  Event *e);
+        virtual void eventRemoved(UserEventHandler *sender,  Event *e);
+
         LayerItem m_layerItem;
         vector<ChunkID>   m_chunkIDList;
 
@@ -159,6 +164,7 @@ class GameObject //   :   public ObjSignal
         ObjSubscriberList          m_objSubscriberList;
 
         vector<Controller*> m_controllerList;
+        bool           m_hasEventsToCheck;
         DynamicCoordinator m_movementCoordinator;
         Collider      *m_collider;
         Collider      *m_originalCollider;

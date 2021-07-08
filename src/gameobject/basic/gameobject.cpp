@@ -17,6 +17,8 @@ GameObject::GameObject()
     this->m_visibility_collider_boundingBox     = false;
     this->m_visibility_collider_collisionData   = false;
     this->m_visibility_collider_collidingWith   = false;
+
+    m_hasEventsToCheck = false;
     m_isTrash = false;
     m_textureIsActiveForCollider = false;
     //this->m_visibility_chunkMap                 = false;
@@ -36,6 +38,7 @@ GameObject::GameObject(const GameObject &other)
     this->m_visibility_collider_boundingBox     = false;
     this->m_visibility_collider_collisionData   = false;
     this->m_visibility_collider_collidingWith   = false;
+    m_hasEventsToCheck = false;
     m_isTrash = false;
     m_textureIsActiveForCollider = false;
     //this->m_visibility_chunkMap                 = false;
@@ -57,6 +60,7 @@ GameObject::GameObject(Controller *controller,
     this->m_visibility_collider_boundingBox     = false;
     this->m_visibility_collider_collisionData   = false;
     this->m_visibility_collider_collidingWith   = false;
+    m_hasEventsToCheck = false;
     m_isTrash = false;
     m_textureIsActiveForCollider = false;
     //this->m_visibility_chunkMap                 = false;
@@ -97,7 +101,12 @@ void GameObject::checkEvent()
 {
     EASY_FUNCTION(profiler::colors::Green);
     for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->checkEvent();
+        if(m_controllerList[i]->hasEventsToCheck())
+            m_controllerList[i]->checkEvent();
+}
+bool GameObject::hasEventsToCheck() const
+{
+    return m_hasEventsToCheck;
 }
 void GameObject::killMe()
 {
@@ -345,13 +354,20 @@ void GameObject::addController(Controller *controller)
             return;
 
     m_controllerList.push_back(controller);
+    if(controller->hasEventsToCheck())
+        m_hasEventsToCheck = true;
+    controller->subscribe(this);
 }
 void GameObject::clearController()
 {
     EASY_FUNCTION(profiler::colors::Green900);
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        delete m_controllerList[i];
-    m_controllerList.clear();
+    size_t size = m_controllerList.size();
+    for(size_t i=1; i<size; i++)
+    {
+        m_controllerList[1]->unsubscribe(this);
+        delete m_controllerList[1];
+        m_controllerList.erase(m_controllerList.begin()+1);
+    }
 }
 
 void GameObject::setCollider(Collider *collider)
@@ -779,4 +795,15 @@ void GameObject::event_hasCollision(vector<GameObject *> other)
 
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->setRotation(m_layerItem.getRotation());
+}
+
+void GameObject::eventAdded(UserEventHandler *sender,  Event *e)
+{
+    m_hasEventsToCheck = true;
+}
+void GameObject::eventRemoved(UserEventHandler *sender,  Event *e)
+{
+    m_hasEventsToCheck = false;
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_hasEventsToCheck |= m_controllerList[i]->hasEventsToCheck();
 }

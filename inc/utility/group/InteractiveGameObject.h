@@ -30,6 +30,7 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         virtual void setInteractionWith(GameObjectGroup *group, bool doesCollide = true);
         virtual void setInteractionWith(vector<GameObjectGroup*> *groupList, bool doesCollide = true);
 
+        virtual bool doesInteractWithOther() const;
         virtual const vector<GameObjectGroup*> &getInteractiveObjectsList() const;
         virtual const vector<GameObject*> getInteractiveObjects();
 
@@ -49,6 +50,7 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         ChunkMap   *m_gameObjectChunkMap;
         vector<GameObjectGroup*> m_interactsWithObjectsList;
         bool        m_drawingIsDisabled;
+        bool        m_interactsWithOthers;
 
     private:
         // GameObject singals:

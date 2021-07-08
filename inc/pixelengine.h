@@ -113,6 +113,7 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
 
         virtual void setup();
 
+        virtual void loop();
         virtual void checkEvent();
         virtual void tick();
         virtual void display();
@@ -125,7 +126,10 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
        // virtual void display_setRenderFrame(const RectF &frame);
        // virtual const RectF &display_getRenderFrame() const;
 
-
+        virtual void set_setting_runInSync(bool enable);
+        virtual bool get_setting_runInSync() const;
+        virtual void set_setting_syncEngineInterval(const float &seconds);
+        virtual const float &get_setting_syncEngineInterval() const;
         virtual void set_setting_checkEventInterval(const float &seconds);
         virtual const float &get_setting_eventHandleInterval() const;
         virtual void set_setting_gameTickInterval(const float &seconds);
@@ -235,6 +239,10 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         Vector2u m_windowSize;
         Vector2u  m_mapSize;
 
+        bool m_runInSync;
+        bool m_nextSyncLoopActive;
+        Timer *m_syncTimer;
+        float m_syncInterval; // sec.
         Timer *m_eventTimer;
         float m_eventInterval; // sec.
         Timer *m_mainTickTimer;
