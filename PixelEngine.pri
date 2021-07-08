@@ -112,7 +112,6 @@ HEADERS += \
         $$PixelEngine_incPath/display/pixel.h \
         $$PixelEngine_incPath/gameobject/collider/basic/collider.h \
         $$PixelEngine_incPath/gameobject/painter/basic/painter.h \
-        $$PixelEngine_incPath/gameobject/painter/hitboxPainter.h \
         $$PixelEngine_incPath/gameobject/controller/basic/controller.h \
         $$PixelEngine_incPath/gameobject/controller/keyController.h \
         $$PixelEngine_incPath/gameobject/basic/gameobject.h \
