@@ -3,6 +3,10 @@
 PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
     :   GameObjectEventHandler()
 {
+#ifdef BUILD_WITH_EASY_PROFILER
+    EASY_PROFILER_ENABLE;
+    EASY_MAIN_THREAD;
+#endif
     m_mapSize = mapsize;
     m_windowSize = displaySize;
     m_display       = new PixelDisplay(m_windowSize,m_mapSize);
@@ -130,6 +134,10 @@ PixelEngine::~PixelEngine()
     delete m_displayTimer;
 
     delete m_stats_text;
+#ifdef BUILD_WITH_EASY_PROFILER
+    auto blocks_count = profiler::dumpBlocksToFile("profiler.prof");
+    std::cout << "Profiler blocks count: " << blocks_count << std::endl;
+#endif
 }
 bool PixelEngine::running()
 {
