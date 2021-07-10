@@ -27,8 +27,8 @@ class KeyController     :   public Controller
         // Receiver Signal from Eventhandler
         virtual void receive_key_isPressed(const int &key);
         virtual void receive_key_toggle(const int &key);
-        virtual void reveive_key_goesDown(const int &key);
-        virtual void reveive_key_goesUp(const int &key);
+        virtual void receive_key_goesDown(const int &key);
+        virtual void receive_key_goesUp(const int &key);
 
         // From KeyController
         virtual void setKey_forMove_UP(const int &key);

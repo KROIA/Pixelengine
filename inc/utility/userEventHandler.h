@@ -26,8 +26,8 @@ class UserEventHandler
         // Receiver Signal
         virtual void receive_key_isPressed(const int &key);
         virtual void receive_key_toggle(const int &key);
-        virtual void reveive_key_goesDown(const int &key);
-        virtual void reveive_key_goesUp(const int &key);
+        virtual void receive_key_goesDown(const int &key);
+        virtual void receive_key_goesUp(const int &key);
 
         // Signals
         virtual void subscribe(UserEventSignal *subscriber);

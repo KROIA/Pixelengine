@@ -97,16 +97,45 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
             float  userTickTime;
             float  userDisplayTime;
         };
+        struct EngineSettings
+        {
+
+            bool  runInSync;
+            float time_syncInterval;
+            float time_eventInterval;
+            float time_tickInterval;
+            float time_displayInterval;
+
+            float statsDisplayFilter;
+
+        };
+
+        struct Settings
+        {
+            EngineSettings                      engine;
+            InteractiveGameObject::Settings     gameObject;
+            PixelDisplay::Settings              display;
+            DisplayText::Settings               text;
+        };
+        static EngineSettings __defaultEngineSettings;
+        static Settings       __defaultSettings;
+
+        PixelEngine();
+        PixelEngine(const Settings &settings);
         PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize);
         PixelEngine(const PixelEngine &other);
         virtual ~PixelEngine();
+
+        static Settings getSettings();
+        static void setSettings(const Settings &settings);
+        //static Settings getDefaultSettings();
 
         virtual bool running(); // this returns false, if the window is closed.
         virtual void stop();
 
         virtual const Vector2u  &getWindowSize() const;
         virtual const Vector2u  &getMapSize() const;
-        virtual const RectF getRenderFrame() const;
+        virtual const RectF &getRenderFrame() const;
 
         // Userloops
         virtual void setUserCheckEventLoop(p_eventFunc func);
@@ -209,6 +238,7 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         //virtual void checkForUserGroupChanges(); // Check if any Object of a adding List was removing or adding
 
     private:
+        void constructor(const Settings &settings);
 
         //virtual void addGameObject(GameObjectGroup *group); // won't add the list to de m_userGroups
         virtual void addGameObjectIntern(const vector<GameObject *> &list);
@@ -236,10 +266,11 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         virtual void resetStatistics();
         virtual void updateStatsText();
 
+       // Settings m_settings;
         PixelDisplay *m_display;
         bool   m_engineIsRunning;
-        Vector2u m_windowSize;
-        Vector2u  m_mapSize;
+       // Vector2u m_windowSize;
+       // Vector2u  m_mapSize;
 
         bool m_runInSync;
         bool m_nextSyncLoopActive;
@@ -253,7 +284,7 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         float m_displayInterval; // sec.
 
         InteractiveGameObjectGroup  m_masterGameObjectGroup;
-        GameObjectGroup             m_masterNoInteractionGameObjectList;
+        //GameObjectGroup             m_masterNoInteractionGameObjectList;
         vector<GameObject* >        m_removeLaterObjectGroup;
         //ChunkMap                   *m_chunkMap;
 

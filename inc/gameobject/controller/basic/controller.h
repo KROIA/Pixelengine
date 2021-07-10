@@ -51,8 +51,8 @@ class Controller    :   public UserEventHandler
         // Receiver Signal from Eventhandler
         virtual void receive_key_isPressed(const int &key);
         virtual void receive_key_toggle(const int &key);
-        virtual void reveive_key_goesDown(const int &key);
-        virtual void reveive_key_goesUp(const int &key);
+        virtual void receive_key_goesDown(const int &key);
+        virtual void receive_key_goesUp(const int &key);
 
         Vector2f m_currentDeltaMove;
         int m_rotationDeg;

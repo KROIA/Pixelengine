@@ -29,6 +29,7 @@ using sf::Vector2u;
 
 
 //const Vector2f globalScale(10,10);
+class PixelEngine;
 
 class DisplayText;
 class Pixel;

@@ -9,7 +9,7 @@ class ObjSignal
         ObjSignal(){}
 
         virtual void moved(GameObject* sender,const Vector2f &move) = 0;
-
+        virtual void rotated(GameObject* sender,const float deltaAngle) = 0;
     protected:
 
 };
@@ -19,6 +19,7 @@ class ObjSubscriberList    : public vector<ObjSignal*>
     public:
         ObjSubscriberList();
         virtual void moved(GameObject* sender,const Vector2f &move);
+        virtual void rotated(GameObject* sender,const float deltaAngle);
     protected:
 
 };

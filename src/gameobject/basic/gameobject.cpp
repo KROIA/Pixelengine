@@ -503,9 +503,13 @@ void GameObject::rotate(const float &deg)
 
     //m_painter->rotate(deg);
     //m_collider->rotate(deg);
+    if((int)(deg*1000) % 360000 == 0)
+        return;
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->rotate(deg);
     m_layerItem.rotate(deg);
+    if(m_objSubscriberList.size() > 0)
+        m_objSubscriberList.rotated(this,deg);
 }
 
 float GameObject::getRotation() const
@@ -515,9 +519,15 @@ float GameObject::getRotation() const
 void GameObject::setRotation(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Green);
+    if(m_layerItem.getRotation() == deg)
+        return;
+    float deltaAngle = deg - m_layerItem.getRotation();
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->setRotation(deg);
     m_layerItem.setRotation(deg);
+
+    if(m_objSubscriberList.size() > 0)
+        m_objSubscriberList.rotated(this,deltaAngle);
 }
 void GameObject::rotate_90()
 {
@@ -684,6 +694,14 @@ const Property::Property &GameObject::getProperty() const
 
 
 // Text visualisation
+/*void GameObject::setTextSettings(const DisplayText::Settings &settings)
+{
+    m_textSettings = settings;
+}
+const DisplayText::Settings &GameObject::getTextSettings() const
+{
+    return m_textSettings;
+}*/
 void GameObject::addText(DisplayText *text)
 {
     EASY_FUNCTION(profiler::colors::GreenA400);

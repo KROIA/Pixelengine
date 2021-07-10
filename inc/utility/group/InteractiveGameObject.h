@@ -11,9 +11,18 @@
 class InteractiveGameObject : private GroupSignal, ObjSignal
 {
     public:
+        struct Settings
+        {
+            ChunkMap::Settings chunkMap;
+        };
+        static Settings __defaultSettings;
         InteractiveGameObject();
+        InteractiveGameObject(const Settings &settings);
         InteractiveGameObject(const InteractiveGameObject &other);
         virtual ~InteractiveGameObject();
+
+        virtual const InteractiveGameObject &operator=(const InteractiveGameObject &other);
+        virtual Settings getSettings() const;
 
         virtual void setGameObject(GameObject *obj);
         virtual GameObject *getGameObject() const;
@@ -43,18 +52,9 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
 
 
     protected:
-
-
-        GameObject *m_gameObject;
-        ChunkMap   *m_interactiveObjectsChunkMap;
-        ChunkMap   *m_gameObjectChunkMap;
-        vector<GameObjectGroup*> m_interactsWithObjectsList;
-        bool        m_drawingIsDisabled;
-        bool        m_interactsWithOthers;
-
-    private:
         // GameObject singals:
         virtual void moved(GameObject* sender,const Vector2f &move);
+        virtual void rotated(GameObject* sender,const float deltaAngle);
 
         // Signals from GameObjectGroup
         virtual void adding(GameObjectGroup* sender,GameObject* obj);
@@ -63,5 +63,15 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         virtual void removing(GameObjectGroup* sender,GameObjectGroup* group);
         virtual void willBeCleared(GameObjectGroup* sender);
         virtual void cleared(GameObjectGroup* sender);
+
+        GameObject *m_gameObject;
+        ChunkMap   *m_interactiveObjectsChunkMap;
+        ChunkMap   *m_gameObjectChunkMap;
+        vector<GameObjectGroup*> m_interactsWithObjectsList;
+        bool        m_drawingIsDisabled;
+        bool        m_interactsWithOthers;
+    private:
+        void constructor(const Settings &settings);
+
 };
 #endif // INTERACTIVEGAMEOBJECT_H

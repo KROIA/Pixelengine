@@ -9,10 +9,12 @@ class InteractiveGameObjectGroup
 {
     public:
         InteractiveGameObjectGroup();
+        InteractiveGameObjectGroup(const InteractiveGameObject::Settings &settings);
         InteractiveGameObjectGroup(const InteractiveGameObjectGroup &other);
         virtual ~InteractiveGameObjectGroup();
 
         InteractiveGameObject* operator[](size_t index);
+        const InteractiveGameObjectGroup &operator=(const InteractiveGameObjectGroup &other);
 
         virtual void reserve(size_t size);
         virtual void add(InteractiveGameObject *obj);
@@ -54,6 +56,7 @@ class InteractiveGameObjectGroup
         vector<InteractiveGameObject*> m_interactiveObjectsList;
         vector<GameObjectGroup*>       m_const_dummy_list;
         vector<GameObject*>            m_const_dummy_list_2;
+        InteractiveGameObject::Settings m_settings;
 
     private:
         struct InteractiveGameObject_ThreadParam

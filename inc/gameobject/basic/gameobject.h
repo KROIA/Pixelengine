@@ -135,6 +135,8 @@ class GameObject : private UserEventSignal
         virtual const Property::Property &getProperty() const;
 
         // Text visualisation
+        //virtual void setTextSettings(const DisplayText::Settings &settings);
+        //virtual const DisplayText::Settings &getTextSettings() const;
         virtual void addText(DisplayText *text);
         virtual void removeText(DisplayText *text);
         virtual void removeText();
@@ -182,6 +184,7 @@ class GameObject : private UserEventSignal
 
         bool          m_textureIsActiveForCollider;
 
+        //DisplayText::Settings   m_textSettings;
         vector<DisplayText* > m_displayTextList;
         vector<GameObject*>   m_collidedObjects;
 

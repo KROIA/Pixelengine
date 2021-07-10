@@ -356,6 +356,10 @@ void GameObjectGroup::moved(GameObject* sender,const Vector2f &move)
     //receive signal
     //qDebug() << "sender: "<<sender << " moved: "<<Vector::toString(move).c_str();
 }
+void GameObjectGroup::rotated(GameObject* sender,const float deltaAngle)
+{
+
+}
 
 // GameObjectGroup signals:
 /*void GameObjectGroup::adding(GameObjectGroup* group,GameObject* obj)

@@ -57,6 +57,7 @@ INCLUDEPATH += $$incPath \
 SOURCES += \
         $$PWD/src/utility/group/chunk/chunk.cpp \
         $$PWD/src/utility/group/chunk/chunkMap.cpp \
+        $$PWD/src/utility/settings.cpp \
         $$PWD/src/utility/signalSubscriber.cpp \
         $$PixelEngine_srcPath/display/drawUtilities.cpp \
         $$PixelEngine_srcPath/gameobject/painter/texturePainter.cpp \

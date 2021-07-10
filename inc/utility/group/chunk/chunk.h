@@ -11,11 +11,23 @@
 class Chunk :   public GameObjectGroup
 {
     public:
+        struct Settings{
+                Vector2u size;
+                Vector2f position;
+                ChunkID  chunkID;
+                bool isVisible;
+        };
+        static Settings __defaultSettings;
+
+        Chunk(const Settings &settings);
         Chunk(const Vector2u &size,
               const Vector2f &pos,
               const ChunkID  &chunkID);
         Chunk(const Chunk &other);
         ~Chunk();
+
+        virtual const Chunk &operator=(const Chunk &other);
+        virtual Settings getSettings() const;
 
         vector<GameObject*> getFilteredList(const vector<GameObject*> &list);
         virtual void add(const vector<GameObject*> &list);
@@ -47,8 +59,10 @@ class Chunk :   public GameObjectGroup
 
         // GameObject singals:
         virtual void moved(GameObject* sender,const Vector2f &move);
+        virtual void rotated(GameObject* sender,const float deltaAngle);
 
     private:
+        void constructor(const Settings &settings);
         ChunkSubscriberList m_chunkSubscriberList;
         RectF       m_chunkRect;
         ChunkID     m_chunkID;

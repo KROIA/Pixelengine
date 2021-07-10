@@ -75,6 +75,7 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
 
         // GameObject singals:
         virtual void moved(GameObject* sender,const Vector2f &move);
+        virtual void rotated(GameObject* sender,const float deltaAngle);
 
         bool m_isVisible;
         bool m_visibility_collider_hitbox;
