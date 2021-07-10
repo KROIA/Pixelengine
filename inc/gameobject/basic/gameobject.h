@@ -135,8 +135,6 @@ class GameObject : private UserEventSignal
         virtual const Property::Property &getProperty() const;
 
         // Text visualisation
-        //virtual void setTextSettings(const DisplayText::Settings &settings);
-        //virtual const DisplayText::Settings &getTextSettings() const;
         virtual void addText(DisplayText *text);
         virtual void removeText(DisplayText *text);
         virtual void removeText();
@@ -179,18 +177,12 @@ class GameObject : private UserEventSignal
         bool          m_visibility_collider_boundingBox;
         bool          m_visibility_collider_collisionData;
         bool          m_visibility_collider_collidingWith;
-        //bool          m_visibility_chunkMap;
         bool          m_visibility;
 
         bool          m_textureIsActiveForCollider;
 
-        //DisplayText::Settings   m_textSettings;
         vector<DisplayText* > m_displayTextList;
         vector<GameObject*>   m_collidedObjects;
-
-
-
-        //float m_rotationDeg;
 
     private:
         bool m_isTrash;
