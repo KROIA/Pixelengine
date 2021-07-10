@@ -1,13 +1,10 @@
 #ifndef GROUPMANAGERINTERFACE_H
 #define GROUPMANAGERINTERFACE_H
-//#include "base.h"
 #include "gameobject.h"
 
 class GroupManagerInterface
 {
     public:
-
-   // protected:
         GroupManagerInterface(){};
 
         virtual bool newObjectsAvailable() = 0;

@@ -54,7 +54,7 @@ Chunk::Settings Chunk::getSettings() const
     settings.chunkID    = m_chunkID;
     settings.position   = m_chunkRect.getPos();
     settings.size       = Vector2u(m_chunkRect.getSize());
-    settings.isVisible  = m_isVisible;
+    settings.isVisible  = m_visibility;
     return settings;
 }
 

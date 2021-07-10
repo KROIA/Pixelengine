@@ -80,7 +80,6 @@ SOURCES += \
         $$PixelEngine_srcPath/gameobject/texture/texture.cpp \
         $$PixelEngine_srcPath/gameobject/texture/animatedTexture.cpp \
         $$PixelEngine_srcPath/utility/group/gameObjectGroup.cpp \
-        $$PixelEngine_srcPath/utility/group/managedGameObjectGroup.cpp \
         $$PixelEngine_srcPath/utility/event.cpp \
         $$PixelEngine_srcPath/utility/userEventHandler.cpp \
         $$PixelEngine_srcPath/utility/timer.cpp \
@@ -123,7 +122,6 @@ HEADERS += \
         $$PixelEngine_incPath/utility/event.h \
         $$PixelEngine_incPath/utility/userEventHandler.h \
         $$PixelEngine_incPath/utility/group/gameObjectGroup.h \
-        $$PixelEngine_incPath/utility/group/managedGameObjectGroup.h \
         $$PixelEngine_incPath/utility/point.h \
         $$PixelEngine_incPath/utility/timer.h \
         $$PixelEngine_incPath/utility/rect.h \
