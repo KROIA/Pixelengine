@@ -29,6 +29,7 @@ using sf::Vector2u;
 
 
 //const Vector2f globalScale(10,10);
+class PixelEngine;
 
 class DisplayText;
 class Pixel;
@@ -55,7 +56,7 @@ class AnimatedTexture;
 class GameObjectGroup;
 class InteractiveGameObject;
 class InteractiveGameObjectGroup;
-class ManagedGameObjectGroup;
+//class ManagedGameObjectGroup;
 
 struct ChunkID;
 class Chunk;

@@ -56,14 +56,14 @@ void Painter::subscribeToDisplay(PixelDisplay &display)
 {
     if(m_sprite != nullptr)
     {
-        display.subscribeSprite(m_sprite);
+        display.subscribeSprite(this);
         //m_renderScale = display.getRenderScale();
         m_spriteHasSubscribedToDisplay = true;
     }
 }
 void Painter::unsubscribeToDisplay(PixelDisplay &display)
 {
-    display.unsubscribeSprite(m_sprite);
+    display.unsubscribeSprite(this);
     m_spriteHasSubscribedToDisplay = false;
 }
 
@@ -184,6 +184,10 @@ Origin Painter::getOriginType() const
 const Vector2f Painter::getOrigin() const
 {
     return m_sprite->getOrigin();
+}
+sf::Sprite *Painter::getSprite() const
+{
+    return m_sprite;
 }
 void Painter::internalUpdateOrigin()
 {

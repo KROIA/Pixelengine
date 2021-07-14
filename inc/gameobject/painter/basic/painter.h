@@ -48,6 +48,8 @@ class Painter   :   public  LayerItem
         virtual Origin getOriginType() const;
         virtual const Vector2f getOrigin() const;
 
+        virtual sf::Sprite *getSprite() const;
+
     protected:
         virtual void internal_rotate(const Vector2f &rotPoint,float deg);
         virtual void internal_rotate(const float &deg);

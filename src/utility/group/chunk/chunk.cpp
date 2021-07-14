@@ -1,30 +1,61 @@
 #include "chunk.h"
 
 
+Chunk::Chunk(const Settings &settings)
+    :   GameObjectGroup()
+{
+    constructor(settings);
+}
 Chunk::Chunk(const Vector2u &size,
              const Vector2f &pos,
              const ChunkID  &chunkID)
     :   GameObjectGroup()
 {
+    Settings settings = __defaultSettings;
+    settings.chunkID  = chunkID;
+    settings.position = pos;
+    settings.size     = size;
+
+    constructor(settings);
+}
+void Chunk::constructor(const Settings &settings)
+{
     EASY_BLOCK("new Chunk()",profiler::colors::Cyan);
-    if(size.x != 0 && size.y != 0)
-        m_chunkRect.setSize(Vector2f(size));
+    if(settings.size.x != 0 && settings.size.y != 0)
+        m_chunkRect.setSize(Vector2f(settings.size));
     else
-        m_chunkRect.setSize(Vector2f(128,128));
-    m_chunkRect.setPos(pos);
-    m_chunkID = chunkID;
-    m_chunkID.isInChunkMap = true;
-    m_visibility_chunk = false;
+        m_chunkRect.setSize(Vector2f(__defaultSettings.size));
+    m_chunkRect.setPos(settings.position);
+    m_chunkID               = settings.chunkID;
+    m_chunkID.isInChunkMap  = true;
+    m_visibility_chunk      = settings.isVisible;
 }
 Chunk::Chunk(const Chunk &other)
 {
     EASY_BLOCK("new Chunk(const Chunk &other)",profiler::colors::Cyan);
-    this->m_chunkRect = other.m_chunkRect;
-    GameObjectGroup::operator=(other);
+    this->operator=(other);
 }
+
 Chunk::~Chunk()
 {
 
+}
+const Chunk &Chunk::operator=(const Chunk &other)
+{
+    GameObjectGroup::operator=(other);
+    m_chunkRect         = other.m_chunkRect;
+    m_chunkID           = other.m_chunkID;
+    m_visibility_chunk  = other.m_visibility_chunk;
+    return *this;
+}
+Chunk::Settings Chunk::getSettings() const
+{
+    Settings settings;
+    settings.chunkID    = m_chunkID;
+    settings.position   = m_chunkRect.getPos();
+    settings.size       = Vector2u(m_chunkRect.getSize());
+    settings.isVisible  = m_visibility;
+    return settings;
 }
 
 vector<GameObject*> Chunk::getFilteredList(const vector<GameObject*> &list)
@@ -196,23 +227,12 @@ inline ChunkID Chunk::getNewChunkPos(GameObject *obj)
 // GameObject singals:
 void Chunk::moved(GameObject* sender,const Vector2f &move)
 {
-    /*if(!intersects(sender))
-    {
-        //qDebug() << " OBJ: "<< sender << " is out of this chunk";
-       ChunkID newChunkID = getNewChunkPos(sender);
-
-        if(!newChunkID.isInChunkMap)
-        {
-            //qDebug() << "OBJ is now out of bourdy";
-            ChunkID id = sender->getChunkID();
-            id.isInChunkMap = false;
-            sender->setChunkID(id);
-            m_chunkSubscriberList.objectIsNowOutOfBoundry(this,sender);
-        }
-        else
-            m_chunkSubscriberList.objectIsNowInChunk(this,sender,newChunkID.chunk);
-    }*/
     EASY_FUNCTION(profiler::colors::Cyan600);
     m_chunkSubscriberList.updateChunkPos(this,sender);
 
+}
+void Chunk::rotated(GameObject* sender,const float deltaAngle)
+{
+    EASY_FUNCTION(profiler::colors::Cyan600);
+    m_chunkSubscriberList.updateChunkPos(this,sender);
 }

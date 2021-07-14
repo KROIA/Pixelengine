@@ -58,6 +58,7 @@ SOURCES += \
         $$PWD/src/utility/group/chunk/chunk.cpp \
         $$PWD/src/utility/group/chunk/chunkMap.cpp \
         $$PWD/src/utility/signalSubscriber.cpp \
+        $$PWD/src/utility/settings.cpp \
         $$PixelEngine_srcPath/display/drawUtilities.cpp \
         $$PixelEngine_srcPath/gameobject/painter/texturePainter.cpp \
         $$PixelEngine_srcPath/display/displayText.cpp \

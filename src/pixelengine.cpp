@@ -1,32 +1,51 @@
 #include "pixelengine.h"
 
+PixelEngine::PixelEngine()
+{
+    constructor(__defaultSettings);
+}
+PixelEngine::PixelEngine(const Settings &settings)
+{
+    constructor(settings);
+}
 PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
     :   GameObjectEventHandler()
+{
+    Settings settings               = __defaultSettings;
+    settings.display.windowSize     =  displaySize;
+    settings.display.pixelMapSize   = mapsize;
+    constructor(settings);
+}
+void PixelEngine::constructor(const Settings &settings)
 {
 #ifdef BUILD_WITH_EASY_PROFILER
     EASY_PROFILER_ENABLE;
     EASY_MAIN_THREAD;
 #endif
-    m_mapSize = mapsize;
-    m_windowSize = displaySize;
-    m_display       = new PixelDisplay(m_windowSize,m_mapSize);
-    m_engineIsRunning = true;
+    setSettings(settings);
+    m_display            = new PixelDisplay(__defaultSettings.display);
+    m_engineIsRunning    = true;
 
     m_nextSyncLoopActive = false;
-    m_syncTimer     = new Timer;
-    m_eventTimer    = new Timer;
-    m_mainTickTimer = new Timer;
-    m_displayTimer  = new Timer;
-    this->set_setting_runInSync(false);
-    this->set_setting_syncEngineInterval(0.01);
-    this->set_setting_checkEventInterval(0.01);
-    this->set_setting_gameTickInterval(0.01);
-    this->set_setting_displayInterval(0.01);
+    m_syncTimer          = new Timer;
+    m_eventTimer         = new Timer;
+    m_mainTickTimer      = new Timer;
+    m_displayTimer       = new Timer;
+    m_syncTimer->setAutorestart(true);
+    m_eventTimer->setAutorestart(true);
+    m_mainTickTimer->setAutorestart(true);
+    m_displayTimer->setAutorestart(true);
+
+    this->set_setting_runInSync(__defaultSettings.engine.runInSync);
+    this->set_setting_syncEngineInterval(__defaultSettings.engine.time_syncInterval);
+    this->set_setting_checkEventInterval(__defaultSettings.engine.time_eventInterval);
+    this->set_setting_gameTickInterval(__defaultSettings.engine.time_tickInterval);
+    this->set_setting_displayInterval(__defaultSettings.engine.time_displayInterval);
 
     m_p_func_userCheckEventLoop  = nullptr;
     m_p_func_userDisplayLoop     = nullptr;
     m_p_func_userTickLoop        = nullptr;
-    m_setupDone = false;
+    m_setupDone                  = false;
 
     m_renderLayer.push_back(GameObjectGroup());
     m_renderLayer.push_back(GameObjectGroup());
@@ -44,10 +63,11 @@ PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
     m_statistics.checkEventTime         = 0;
     m_statistics.tickTime               = 0;
     m_statistics.displayTime            = 0;
+    m_statistics.drawTime               = 0;
     m_statistics.checkUserEventTime     = 0;
     m_statistics.userTickTime           = 0;
     m_statistics.userDisplayTime        = 0;
-    m_statsFilterFactor                 = 0.9;
+    m_statsFilterFactor                 = __defaultSettings.engine.statsDisplayFilter;
 
 
     m_stats_text = new DisplayText();
@@ -60,8 +80,9 @@ PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
 
     m_display->addText(m_stats_text);
 
-    RectI rect(0,0,2000,2000);
+    //RectI rect(0,0,2000,2000);
     //m_chunkMap = new ChunkMap(Vector2u(128,128),rect);
+   // m_masterGameObjectGroup     =   InteractiveGameObjectGroup(__defaultSettings.gameObject);
     resetTick();
 }
 
@@ -69,8 +90,6 @@ PixelEngine::PixelEngine(const PixelEngine &other)
     :   GameObjectEventHandler(other)//, GroupManagerInterface(other)
 {
     *this->m_display               = *other.m_display;
-    this->m_windowSize             = other.m_windowSize;
-    this->m_mapSize                = other.m_mapSize;
 
     *this->m_eventTimer            = *other.m_eventTimer;
     this->m_eventInterval          = other.m_eventInterval;
@@ -101,6 +120,10 @@ PixelEngine::PixelEngine(const PixelEngine &other)
 
 PixelEngine::~PixelEngine()
 {
+#ifdef BUILD_WITH_EASY_PROFILER
+    auto blocks_count = profiler::dumpBlocksToFile("profiler.prof");
+    std::cout << "Profiler blocks count: " << blocks_count << std::endl;
+#endif
     for(size_t i=0; i<m_userGroups.size(); i++)
     {
         delete m_userGroups[i];
@@ -134,11 +157,28 @@ PixelEngine::~PixelEngine()
     delete m_displayTimer;
 
     delete m_stats_text;
-#ifdef BUILD_WITH_EASY_PROFILER
-    auto blocks_count = profiler::dumpBlocksToFile("profiler.prof");
-    std::cout << "Profiler blocks count: " << blocks_count << std::endl;
-#endif
+
 }
+PixelEngine::Settings PixelEngine::getSettings()
+{
+    return __defaultSettings;
+}
+void PixelEngine::setSettings(const Settings &settings)
+{
+    __defaultSettings                           = settings;
+    Chunk::__defaultSettings                    = settings.gameObject.chunkMap.chunk;
+    ChunkMap::__defaultSettings                 = settings.gameObject.chunkMap;
+    InteractiveGameObject::__defaultSettings    = settings.gameObject;
+    DisplayText::__defaultSettings              = settings.text;
+    PixelDisplay::__defaultSettings             = settings.display;
+    PixelEngine::__defaultEngineSettings        = settings.engine;
+
+}
+/*PixelEngine::Settings PixelEngine::getDefaultSettings()
+{
+    return PixelEngine::__defaultSettings;
+}*/
+
 bool PixelEngine::running()
 {
     return m_engineIsRunning;
@@ -176,13 +216,13 @@ void PixelEngine::stop()
 }
 const Vector2u  &PixelEngine::getWindowSize() const
 {
-    return m_windowSize;
+    return m_display->getWindowSize();
 }
 const Vector2u  &PixelEngine::getMapSize() const
 {
-    return m_mapSize;
+    return m_display->getMapSize();
 }
-const RectF PixelEngine::getRenderFrame() const
+const RectF &PixelEngine::getRenderFrame() const
 {
     return m_display->getRenderFrame();
 }
@@ -795,6 +835,7 @@ void PixelEngine::display()
     {
         if(!m_nextSyncLoopActive)
             return;
+        m_nextSyncLoopActive = false;
     }else if(!m_displayTimer->start(m_displayInterval))
         return;
 #endif
@@ -814,10 +855,10 @@ void PixelEngine::display()
 #endif
 
     EASY_BLOCK("m_renderLayer->display",profiler::colors::OrangeA100)
-    for(size_t i=0; i<m_renderLayer.size(); i++)
+   /* for(size_t i=0; i<m_renderLayer.size(); i++)
     {        
         m_renderLayer[i].draw(*m_display);
-    }
+    }*/
     EASY_END_BLOCK;
     /*EASY_BLOCK("draw_chunks",profiler::colors::OrangeA100)
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
@@ -880,7 +921,7 @@ bool PixelEngine::get_setting_runInSync() const
 }
 void PixelEngine::set_setting_syncEngineInterval(const float &seconds)
 {
-    m_syncInterval = seconds;
+    m_syncInterval = abs(seconds);
 }
 const float &PixelEngine::get_setting_syncEngineInterval() const
 {
@@ -920,7 +961,8 @@ void PixelEngine::addGameObject(GameObject *obj)
     if(!obj->isBoundingBoxUpdated())
         obj->updateBoundingBox();
     obj->setEventHandler(this);
-    //obj->subscribeToDisplay(*m_display);
+    //obj->setTextSettings(m_settings.text);
+    obj->subscribeToDisplay(*m_display);
     obj->preRun();
   //  m_masterNoInteractionGameObjectList.add(obj);
     if(!m_setupDone)
@@ -984,6 +1026,8 @@ void PixelEngine::removeGameObjectsIntern()
         m_masterGameObjectGroup.removeAllInteractionsWithObj(obj);
         m_masterGameObjectGroup.remove(obj);
         removeObjectFromList(m_userGroups,obj);
+
+        obj->unsubscribeToDisplay(*m_display);
 
         obj->markAsTrash(true);
         obj->unsubscribeAll();
@@ -1354,7 +1398,7 @@ void PixelEngine::display_stats(bool enable,const Color &color, const Vector2i &
     if(size > 0)
         m_stats_text->setCharacterSize(size);
     else
-        m_stats_text->setCharacterSize(m_windowSize.x/80);
+        m_stats_text->setCharacterSize(m_display->getWindowSize().x/80);
     display_stats(enable,color);
 }
 bool PixelEngine::display_stats()

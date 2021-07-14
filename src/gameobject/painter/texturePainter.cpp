@@ -15,14 +15,15 @@ TexturePainter::~TexturePainter()
 
 void TexturePainter::draw(PixelDisplay &display)
 {
-    Painter::internalUpdateOrigin();
-    m_sprite->setTexture(*m_texture);
+    //Painter::internalUpdateOrigin();
+
     Painter::draw(display);
 }
 void TexturePainter::setTexture(Texture *texture)
 {
     m_textureObj = texture;
     m_texture = &m_textureObj->getTexture();
+    m_sprite->setTexture(*m_texture);
     Painter::setOrigin(texture->getOrigin());
 }
 Texture *TexturePainter::getTexture()

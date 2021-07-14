@@ -14,7 +14,14 @@ void ObjSubscriberList::moved(GameObject* sender,const Vector2f &move)
         (*this)[i]->moved(sender,move);
     }
 }
-
+void ObjSubscriberList::rotated(GameObject* sender,const float deltaAngle)
+{
+    for(size_t i=0; i<this->size(); i++)
+    //for(ObjSignal* &sub : *this)
+    {
+        (*this)[i]->rotated(sender,deltaAngle);
+    }
+}
 
 
 GroupSubscriberList::GroupSubscriberList()

@@ -177,17 +177,12 @@ class GameObject : private UserEventSignal
         bool          m_visibility_collider_boundingBox;
         bool          m_visibility_collider_collisionData;
         bool          m_visibility_collider_collidingWith;
-        //bool          m_visibility_chunkMap;
         bool          m_visibility;
 
         bool          m_textureIsActiveForCollider;
 
         vector<DisplayText* > m_displayTextList;
         vector<GameObject*>   m_collidedObjects;
-
-
-
-        //float m_rotationDeg;
 
     private:
         bool m_isTrash;

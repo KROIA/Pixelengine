@@ -6,11 +6,21 @@
 class ChunkMap  :   private ChunkSignal, GameObjectGroup
 {
     public:
+        struct Settings{
+                Chunk::Settings chunk;
+                Vector2u chunkMapSize;
+                Vector2i position;
+        };
+        static Settings __defaultSettings;
+
+        ChunkMap();
+        ChunkMap(const Settings &settings);
         ChunkMap(Vector2u chunkSize,
                  RectI area);
         ChunkMap(const ChunkMap &other);
         ~ChunkMap();
-
+        virtual const ChunkMap &operator=(const ChunkMap &other);
+        virtual Settings getSettings() const;
 
         virtual void add(const vector<GameObject*> &list);
         virtual void add(GameObject *object);
@@ -48,10 +58,13 @@ class ChunkMap  :   private ChunkSignal, GameObjectGroup
 
         // GameObject singals:
         virtual void moved(GameObject* sender,const Vector2f &move);
+        virtual void rotated(GameObject* sender,const float deltaAngle);
+
     private:
+        void constructor(const Settings &settings);
 
         Vector2<size_t>  calculateMapSize(const Vector2u &chunkSize,
-                                          const Vector2i &area);
+                                          const Vector2u &area);
         void generateMap();
 
         vector<vector<Chunk*>  >  m_chunkMap;
@@ -62,5 +75,7 @@ class ChunkMap  :   private ChunkSignal, GameObjectGroup
 
         bool                      m_isVisible_chunks;
         ChunkID                   m_chunkID;
+
+        Settings                  m_settings;
 };
 #endif // CHUNKMAP_H

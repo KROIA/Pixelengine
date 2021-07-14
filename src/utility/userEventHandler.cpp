@@ -31,13 +31,13 @@ void UserEventHandler::checkEvent()
     for(size_t i=0; i<m_eventList.size(); i++)
     {
         if(m_eventList[i]->isSinking())
-            this->reveive_key_goesDown(m_eventList[i]->getKey());
+            this->receive_key_goesDown(m_eventList[i]->getKey());
         if(m_eventList[i]->isPressed())
             this->receive_key_isPressed(m_eventList[i]->getKey());
         if(m_eventList[i]->isToggled())
             this->receive_key_toggle(m_eventList[i]->getKey());
         if(m_eventList[i]->isRising())
-            this->reveive_key_goesUp(m_eventList[i]->getKey());
+            this->receive_key_goesUp(m_eventList[i]->getKey());
     }
 }
 bool UserEventHandler::hasEventsToCheck() const
@@ -85,13 +85,13 @@ void UserEventHandler::receive_key_toggle(const int &key)
 {
     qDebug() << "Key: "<<key<<"\receive_key_toggle";
 }
-void UserEventHandler::reveive_key_goesDown(const int &key)
+void UserEventHandler::receive_key_goesDown(const int &key)
 {
-    qDebug() << "Key: "<<key<<"\reveive_key_goesDown";
+    qDebug() << "Key: "<<key<<"\receive_key_goesDown";
 }
-void UserEventHandler::reveive_key_goesUp(const int &key)
+void UserEventHandler::receive_key_goesUp(const int &key)
 {
-    qDebug() << "Key: "<<key<<"\reveive_key_goesUp";
+    qDebug() << "Key: "<<key<<"\receive_key_goesUp";
 }
 // Signals
 void UserEventHandler::subscribe(UserEventSignal *subscriber)

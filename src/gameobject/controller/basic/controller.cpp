@@ -136,13 +136,13 @@ void Controller::receive_key_toggle(const int &key)
     EASY_FUNCTION(profiler::colors::Pink400);
     qDebug() << "Key: "<<key<<"\tController::receive_key_toggle";
 }
-void Controller::reveive_key_goesDown(const int &key)
+void Controller::receive_key_goesDown(const int &key)
 {
     EASY_FUNCTION(profiler::colors::Pink400);
-    qDebug() << "Key: "<<key<<"\tController::reveive_key_goesDown";
+    qDebug() << "Key: "<<key<<"\tController::receive_key_goesDown";
 }
-void Controller::reveive_key_goesUp(const int &key)
+void Controller::receive_key_goesUp(const int &key)
 {
     EASY_FUNCTION(profiler::colors::Pink400);
-    qDebug() << "Key: "<<key<<"\tController::reveive_key_goesUp";
+    qDebug() << "Key: "<<key<<"\tController::receive_key_goesUp";
 }

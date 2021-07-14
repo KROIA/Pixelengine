@@ -1,37 +1,52 @@
 #include "pixelDisplay.h"
 
-PixelDisplay::PixelDisplay(const Vector2u &windowSize, const Vector2u &pixelSize)
+PixelDisplay::PixelDisplay()
 {
-    m_windowSize    = windowSize;
-    m_pixelMapSize  = pixelSize;
-    m_dragMap = false;
+    constructor(__defaultSettings);
+}
+PixelDisplay::PixelDisplay(const Settings &settings)
+{
+    constructor(settings);
+}
+PixelDisplay::PixelDisplay(const Vector2u &windowSize,
+                           const Vector2u &pixelMapSize,
+                           const Color &backgroundColor)
+{
+    Settings settings           = __defaultSettings;
+    settings.windowSize         = windowSize;
+    settings.pixelMapSize       = pixelMapSize;
+    settings.backgroundColor    = backgroundColor;
 
-    sf::ContextSettings settings;
-    settings.antialiasingLevel = 8;
+    constructor(settings);
+}
+void PixelDisplay::constructor(const Settings &settings)
+{
+    m_windowSize    = settings.windowSize;
+    m_pixelMapSize  = settings.pixelMapSize;
+    m_dragMap       = false;
+
+   /* sf::ContextSettings settings;
+    settings.antialiasingLevel = 8;*/
     m_renderWindow = new sf::RenderWindow(sf::VideoMode(m_windowSize.x,m_windowSize.y),
-                                          "PixelDisplay",sf::Style::Default, settings);
+                                          "PixelDisplay",sf::Style::Default, settings.sf_contextSettings);
+    m_backgroundColor = settings.backgroundColor;
 
-    m_clearColor = Color(0,0,0);
-
-
-    m_image.create(m_pixelMapSize.x,m_pixelMapSize.y,m_clearColor);
+    m_image.create(m_pixelMapSize.x,m_pixelMapSize.y,m_backgroundColor);
     m_texture.loadFromImage(m_image);
     m_sprite.setTexture(m_texture);
 
-    //setRenderFrame(RectF(Vector2f(0,0),Vector2f(m_pixelMapSize)));
 
-    m_localPixlerUsed = true;
-    m_spriteListUsed  = true;
-    m_vertexPathUsed  = true;
-    m_textListUsed    = false;
-    m_stats_renderSprites = 0;
-    m_stats_renderText    = 0;
-    m_stats_renderVertexPaths = 0;
-    m_viewPortZoom = 1;
+    m_localPixlerUsed           = true;
+    m_spriteListUsed            = true;
+    m_vertexPathUsed            = true;
+    m_textListUsed              = false;
+    m_stats_renderSprites       = 0;
+    m_stats_renderText          = 0;
+    m_stats_renderVertexPaths   = 0;
+    m_viewPortZoom              = 1;
 
-    float zoomFac = (float)pixelSize.x / (float)windowSize.x;
+    float zoomFac               = (float)m_pixelMapSize.x / (float)m_windowSize.x;
     zoomViewAt(Vector2i(0,0),zoomFac);
-    //this->setView(RectF(0,0,float(m_pixelMapSize.x),float(m_pixelMapSize.y)));
     clear();
 }
 PixelDisplay::PixelDisplay(const PixelDisplay &other)
@@ -42,12 +57,20 @@ PixelDisplay::PixelDisplay(const PixelDisplay &other)
      this->m_texture      = other.m_texture;
      this->m_image        = other.m_image;
      this->m_sprite       = other.m_sprite;
-     this->m_clearColor   = other.m_clearColor;
+     this->m_backgroundColor   = other.m_backgroundColor;
 }
 PixelDisplay::~PixelDisplay()
 {
     m_renderWindow->close();
     delete m_renderWindow;
+}
+PixelDisplay::Settings PixelDisplay::getSettings() const
+{
+    Settings settings;
+    settings.backgroundColor    = m_backgroundColor;
+    settings.pixelMapSize       = m_pixelMapSize;
+    settings.windowSize         = m_windowSize;
+    return settings;
 }
 
 void PixelDisplay::display()
@@ -84,10 +107,10 @@ void PixelDisplay::display()
      */
     EASY_BLOCK("draw m_spriteSubscriberList",profiler::colors::Blue100);
     //Vector2f displayFramePos = m_globalDisplayFrame.getPos();
-    for(Sprite* &object : m_spriteSubscriberList)
+    for(Painter* object : m_spriteSubscriberList)
     {
-        Vector2f oldPos = object->getPosition();
-        Vector2f oldScale = object->getScale();
+        //Vector2f oldPos = object->getPosition();
+        //Vector2f oldScale = object->getScale();
         //object->setScale(m_renderScale);
 
         //Vector2f newPos(displayFramePos + oldPos);
@@ -95,9 +118,11 @@ void PixelDisplay::display()
         //newPos.y *= m_renderScale.y;
         //object->setPosition(newPos);
 
-        m_renderWindow->draw(*object);
-        object->setScale(oldScale);
-        object->setPosition(oldPos);
+       // RectF frame = this->getRenderFrame();
+        if(m_renderFrame.intersects_fast(object->getFrame()))
+            m_renderWindow->draw(*object->getSprite());
+        //object->setScale(oldScale);
+        //object->setPosition(oldPos);
     }
     EASY_END_BLOCK;
 
@@ -166,7 +191,7 @@ void PixelDisplay::clear()
     if(m_localPixlerUsed)
     {
         auto px1 = reinterpret_cast<sf::Color*>(const_cast<sf::Uint8*>(m_image.getPixelsPtr()));
-        std::fill(px1, px1 + m_image.getSize().x * m_image.getSize().y, m_clearColor);
+        std::fill(px1, px1 + m_image.getSize().x * m_image.getSize().y, m_backgroundColor);
         m_localPixlerUsed = false;
     }
     if(m_spriteListUsed)
@@ -231,11 +256,11 @@ void PixelDisplay::addSprite(Sprite *sprite)
     //Vector2f point = sprite.getPosition() + m_globalDisplayFrame.getPos();
     //m_spriteList[m_spriteList.size()-1].setPosition(point.x * m_renderScale.x, point.y * m_renderScale.y);
 }
-void PixelDisplay::subscribeSprite(Sprite *sprite)
+void PixelDisplay::subscribeSprite(Painter *sprite)
 {
     m_spriteSubscriberList.push_back(sprite);
 }
-void PixelDisplay::unsubscribeSprite(Sprite *sprite)
+void PixelDisplay::unsubscribeSprite(Painter *sprite)
 {
     for(size_t i=0; i<m_spriteSubscriberList.size(); i++)
         if(m_spriteSubscriberList[i] == sprite)
@@ -466,11 +491,11 @@ void PixelDisplay::clearText()
     m_textList.clear();
     m_textListUsed = false;
 }
-Vector2u PixelDisplay::getWindowSize() const
+const Vector2u &PixelDisplay::getWindowSize() const
 {
     return m_windowSize;
 }
-Vector2u PixelDisplay::getMapSize() const
+const Vector2u &PixelDisplay::getMapSize() const
 {
     return m_pixelMapSize;
 }
@@ -507,7 +532,7 @@ void PixelDisplay::moveRenderFrame(const Vector2f &vec)
    // m_windowView.setViewport(sf::FloatRect(m_globalDisplayFrame.getPos().x, m_globalDisplayFrame.getPos().y, m_globalDisplayFrame.getSize().x, m_globalDisplayFrame.getSize().y));
 
 }*/
-const RectF PixelDisplay::getRenderFrame() const
+const RectF &PixelDisplay::getRenderFrame() const
 {
 
     //rect.setSize(Vector::multiply(viewport.getSize(),Vector2f(m_windowSize)));

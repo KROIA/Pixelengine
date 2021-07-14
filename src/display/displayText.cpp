@@ -1,14 +1,34 @@
 #include "displayText.h"
 
+
+
 DisplayText::DisplayText()
 {
-    setFont("C:\\Windows\\Fonts\\consolab.ttf");
+   /* setFont("C:\\Windows\\Fonts\\consolab.ttf");
     setCharacterSize(20);
     setColor(Color(255,255,255,255));
     setText("");
     setVisibility(false);
-    setPixelRatio(1);
+    //setPixelRatio(1);
     setPositionFix(false);
+    m_text.setScale(0.1,0.1);
+    m_text.setOrigin(0,0);
+*/
+
+    constructor(__defaultSettings);
+}
+DisplayText::DisplayText(const Settings &settings)
+{
+    constructor(settings);
+}
+void DisplayText::constructor(const Settings &settings)
+{
+    setVisibility(settings.isVisible);
+    setPositionFix(settings.positionFix);
+    setPos(settings.position);
+    setFont(settings.fontPath);
+    setColor(settings.color);
+    setCharacterSize(settings.characterSize);
     m_text.setScale(0.1,0.1);
     m_text.setOrigin(0,0);
 }
@@ -22,9 +42,20 @@ DisplayText &DisplayText::operator=(const DisplayText &other)
     this->m_position    = other.m_position;
     this->m_text        = other.m_text;
     this->m_font        = other.m_font;
-    this->m_pixelRatio  = other.m_pixelRatio;
+    //this->m_pixelRatio  = other.m_pixelRatio;
     this->m_positionFix = other.m_positionFix;
     return *this;
+}
+DisplayText::Settings  DisplayText::getSettings()const
+{
+    Settings settings;
+    settings.fontPath       = m_fontPath;
+    settings.isVisible      = m_isVisible;
+    settings.position       = m_position;
+    settings.positionFix    = m_positionFix;
+    settings.color          = m_text.getFillColor();
+    settings.characterSize  = m_text.getCharacterSize();
+    return settings;
 }
 void DisplayText::setVisibility(bool isVisible)
 {
@@ -47,11 +78,11 @@ const Text &DisplayText::getText() const
 {
     return m_text;
 }
-void DisplayText::setPixelRatio(float ratio)
+/*void DisplayText::setPixelRatio(float ratio)
 {
     m_pixelRatio = ratio;
     m_text.setPosition(m_position * m_pixelRatio);
-}
+}*/
 
 void DisplayText::setFont(const string &fontPath)
 {
@@ -101,7 +132,7 @@ const Color &DisplayText::getColor() const
 void DisplayText::setPos(const Vector2f &position)
 {
     m_position = position;
-    m_text.setPosition(m_position * m_pixelRatio);
+    m_text.setPosition(m_position /** m_pixelRatio*/);
 }
 const Vector2f &DisplayText::getPos() const
 {
@@ -110,7 +141,7 @@ const Vector2f &DisplayText::getPos() const
 void DisplayText::move(const Vector2f &vec)
 {
     m_position += vec;
-    m_text.setPosition(m_position * m_pixelRatio);
+    m_text.setPosition(m_position /** m_pixelRatio*/);
 }
 void DisplayText::setPositionFix(bool fix)
 {

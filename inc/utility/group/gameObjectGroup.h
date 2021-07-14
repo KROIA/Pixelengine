@@ -29,11 +29,16 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         virtual const vector<GameObject*> &getVector() const;
 
         // GameObject stuff
-        virtual void setPos(const int &x,const int &y);
-        virtual void setPos(const Vector2i&pos);
+        virtual void setPosInital(const Vector2f &pos);
+        virtual void setPos(int x, int y);
+        virtual void setPos(const Vector2i &pos);
+        virtual void setPos(float x, float y);
+        virtual void setPos(const Vector2f &pos);
 
-        virtual void setX(const int &x);
-        virtual void setY(const int &y);
+        virtual void setX(int x);
+        virtual void setY(int y);
+        virtual void setX(float x);
+        virtual void setY(float y);
 
         virtual void moveToPos(const Vector2i&destination,Controller::MovingMode mode = Controller::MovingMode::add);
         virtual void moveToPos(const int &x,const int &y,Controller::MovingMode mode = Controller::MovingMode::add);
@@ -43,6 +48,7 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         virtual void moveX(const float &delta,Controller::MovingMode mode = Controller::MovingMode::add);
         virtual void moveY(const float &delta,Controller::MovingMode mode = Controller::MovingMode::add);
 
+        virtual void rotate(const float &deg);
         virtual void setRotation(const float &deg);
         virtual void rotate_90();
         virtual void rotate_180();
@@ -53,9 +59,19 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         virtual void rotate_270(const Vector2f &rotationPoint);
 
         virtual void setVisibility(bool isVisible);
-        virtual bool isVisible() const;
+        virtual void setVisibility_chunks(bool isVisible);
+        virtual void setVisibility_chunk(const ChunkID &id, bool isVisible);
         virtual void setVisibility_collider_hitbox(bool isVisible);
+        virtual void setVisibility_collider_boundingBox(bool isVisible);
+        virtual void setVisibility_collider_collisionData(bool isVisible);
+        virtual void setVisibility_collider_isCollidingWith(bool isVisible);
+
+        virtual bool isVisible() const;
+        virtual bool isVisible_chunks() const;
         virtual bool isVisible_collider_hitbox() const;
+        virtual bool isVisible_collider_boundingBox() const;
+        virtual bool isVisible_collider_collisionData() const;
+        virtual bool isVisible_collider_isCollidingWith() const;
 
         virtual long long indexOf(const GameObject* obj);
         static  long long indexOf(const vector<GameObject *> list,const GameObject* obj);
@@ -75,9 +91,14 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
 
         // GameObject singals:
         virtual void moved(GameObject* sender,const Vector2f &move);
+        virtual void rotated(GameObject* sender,const float deltaAngle);
 
-        bool m_isVisible;
-        bool m_visibility_collider_hitbox;
+        bool          m_visibility;
+        bool          m_visibility_collider_hitbox;
+        bool          m_visibility_collider_boundingBox;
+        bool          m_visibility_collider_collisionData;
+        bool          m_visibility_collider_collidingWith;
+        bool          m_visibility_chunks;
 
         vector<GameObject *> m_isInList;
         GroupSubscriberList m_groupSubscriberList;

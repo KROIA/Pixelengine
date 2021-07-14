@@ -2,11 +2,15 @@
 
 InteractiveGameObjectGroup::InteractiveGameObjectGroup()
 {
-
+    m_settings  = InteractiveGameObject::__defaultSettings;
+}
+InteractiveGameObjectGroup::InteractiveGameObjectGroup(const InteractiveGameObject::Settings &settings)
+{
+    m_settings  = settings;
 }
 InteractiveGameObjectGroup::InteractiveGameObjectGroup(const InteractiveGameObjectGroup &other)
 {
-
+    this->operator=(other);
 }
 InteractiveGameObjectGroup::~InteractiveGameObjectGroup()
 {
@@ -20,6 +24,14 @@ InteractiveGameObject* InteractiveGameObjectGroup::operator[](size_t index)
     if(m_interactiveObjectsList.size() <= index)
         return nullptr;
     return m_interactiveObjectsList[index];
+}
+const InteractiveGameObjectGroup &InteractiveGameObjectGroup::operator=(const InteractiveGameObjectGroup &other)
+{
+    m_settings                      = other.m_settings;
+    m_cacheObjectsList              = other.m_cacheObjectsList;
+    m_cacheInteractiveObjectsList   = other.m_cacheInteractiveObjectsList;
+    m_interactiveObjectsList        = other.m_interactiveObjectsList;
+    return *this;
 }
 void InteractiveGameObjectGroup::reserve(size_t size)
 {

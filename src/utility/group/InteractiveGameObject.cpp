@@ -2,23 +2,31 @@
 
 InteractiveGameObject::InteractiveGameObject()
 {
+/*    setting.chunkSize    = Vector2u(128,128); // Pixels
+    setting.chunkMapSize = setting.chunkSize * 4u;
+    setting.position     = -Vector2i(setting.chunkSize);
+*/
+    constructor(__defaultSettings);
+}
+InteractiveGameObject::InteractiveGameObject(const Settings &settings)
+{
+    constructor(settings);
+}
+void InteractiveGameObject::constructor(const Settings &settings)
+{
     EASY_FUNCTION("new InteractiveGameObject()",profiler::colors::Purple50);
-    m_gameObject = nullptr;
-    Vector2i blockSize(16,16);
-    float blocksPerChunk = 16;
-    Vector2u chunkSize(blockSize.x*blocksPerChunk,blockSize.y*blocksPerChunk);
-    m_interactiveObjectsChunkMap   = new ChunkMap(chunkSize,RectI(blockSize*(-8),blockSize*64));
-    m_gameObjectChunkMap           = new ChunkMap(chunkSize,RectI(blockSize*(-8),blockSize*64));
+    m_gameObject                    = nullptr;
+    m_drawingIsDisabled             = true;
+    m_interactsWithOthers           = false;
+    m_interactiveObjectsChunkMap    = new ChunkMap(settings.chunkMap);
+    m_gameObjectChunkMap            = new ChunkMap(settings.chunkMap);
 
     m_interactsWithObjectsList.push_back(new GameObjectGroup());
-    m_drawingIsDisabled = true;
-    m_interactsWithOthers = false;
-    //m_interactsWithObjectsList[0]->subscribe(this);
 }
 InteractiveGameObject::InteractiveGameObject(const InteractiveGameObject &other)
 {
-    this->m_interactsWithObjectsList = other.m_interactsWithObjectsList;
     this->setGameObject(other.m_gameObject);
+    this->m_interactsWithObjectsList    = other.m_interactsWithObjectsList;
     this->m_interactiveObjectsChunkMap  = new ChunkMap(*other.m_interactiveObjectsChunkMap);
     this->m_gameObjectChunkMap          = new ChunkMap(*other.m_gameObjectChunkMap);
     this->m_drawingIsDisabled           = other.m_drawingIsDisabled;
@@ -33,9 +41,33 @@ InteractiveGameObject::~InteractiveGameObject()
     delete m_interactsWithObjectsList[0];
     delete m_interactiveObjectsChunkMap;
     delete m_gameObjectChunkMap;
-    //delete m_gameObject;
 }
+const InteractiveGameObject &InteractiveGameObject::operator=(const InteractiveGameObject &other)
+{
+    setGameObject(other.m_gameObject);
+    *m_interactiveObjectsChunkMap   = *other.m_interactiveObjectsChunkMap;
+    *m_gameObjectChunkMap           = *other.m_gameObjectChunkMap;
+    m_drawingIsDisabled             = other.m_drawingIsDisabled;
+    m_interactsWithOthers           = other.m_interactsWithOthers;
 
+    for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
+    {
+        m_interactsWithObjectsList[i]->unsubscribe(this);
+    }
+    m_interactsWithObjectsList = other.m_interactsWithObjectsList;
+    for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
+    {
+        m_interactsWithObjectsList[i]->subscribe(this);
+    }
+    return *this;
+}
+InteractiveGameObject::Settings InteractiveGameObject::getSettings() const
+{
+    Settings settings;
+    settings.chunkMap = m_interactiveObjectsChunkMap->getSettings();
+
+    return settings;
+}
 void InteractiveGameObject::setGameObject(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::Purple50);
@@ -45,6 +77,7 @@ void InteractiveGameObject::setGameObject(GameObject *obj)
     if(m_gameObject != nullptr)
     {
         m_gameObject->unsubscribe(this);
+        m_gameObject->setThisInteractiveGameObject(nullptr);
         m_gameObjectChunkMap->remove(m_gameObject);
     }
     m_gameObject = obj;
@@ -218,6 +251,10 @@ bool InteractiveGameObject::isVisible_chunks() const
 void InteractiveGameObject::moved(GameObject* sender,const Vector2f &move)
 {
     //qDebug() << "sender: "<<sender << " moved: "<<Vector::toString(move).c_str();
+}
+void InteractiveGameObject::rotated(GameObject* sender,const float deltaAngle)
+{
+
 }
 
 // Signals from GameObjectGroup

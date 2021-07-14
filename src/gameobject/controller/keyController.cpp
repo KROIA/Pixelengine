@@ -109,11 +109,11 @@ void KeyController::receive_key_toggle(const int &key)
 {
     EASY_FUNCTION(profiler::colors::Pink300);
 }
-void KeyController::reveive_key_goesDown(const int &key)
+void KeyController::receive_key_goesDown(const int &key)
 {
     EASY_FUNCTION(profiler::colors::Pink300);
 }
-void KeyController::reveive_key_goesUp(const int &key)
+void KeyController::receive_key_goesUp(const int &key)
 {
     EASY_FUNCTION(profiler::colors::Pink300);
 }
@@ -157,14 +157,14 @@ void KeyController::setKey_forMove_RIGHT(const int &key)
     m_key_forMove_RIGHT_event = new Event(m_key_forMove_RIGHT);
     this->addEvent(m_key_forMove_RIGHT_event);
 }
-void KeyController::setStepSize(const int size)
+void KeyController::setStepSize(float size)
 {
     EASY_FUNCTION(profiler::colors::Pink500);
     m_stepSize = size;
 
     this->setRotation();
 }
-int KeyController::getStepSize() const
+float KeyController::getStepSize() const
 {
     return m_stepSize;
 }

@@ -12,10 +12,23 @@ using std::string;
 class DisplayText
 {
     public:
+        struct Settings
+        {
+            bool isVisible;
+            bool positionFix;
+            Vector2f position;
+            string fontPath;
+            Color color;
+            unsigned int characterSize;
+        };
+        static Settings __defaultSettings;
+
         DisplayText();
+        DisplayText(const Settings &settings);
         virtual ~DisplayText();
 
         virtual DisplayText &operator=(const DisplayText &other);
+        virtual Settings  getSettings()const;
 
         virtual void setVisibility(bool isVisible);
         virtual bool isVisible() const;
@@ -23,7 +36,7 @@ class DisplayText
         virtual void setString(const string &text);
         virtual void setText(const string &text);
         virtual const Text &getText() const;
-        virtual void setPixelRatio(float ratio);
+        //virtual void setPixelRatio(float ratio);
 
         virtual void setFont(const string &fontPath);
         virtual const Font *getFont() const;
@@ -50,9 +63,13 @@ class DisplayText
         Vector2f        m_position;
         Text            m_text;
         Font            m_font;
-        float           m_pixelRatio;
+        //float           m_pixelRatio;
         bool            m_positionFix;
+        string          m_fontPath;
     private:
+        void constructor(const Settings &settings);
+
+
 
 };
 

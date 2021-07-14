@@ -7,6 +7,7 @@
 #include "pixel.h"
 #include "displayText.h"
 #include "drawUtilities.h"
+#include "painter.h"
 
 using sf::Color;
 using sf::RenderWindow;
@@ -30,16 +31,25 @@ class PixelDisplay
 {
     public:
 
-       /* struct Text
+        struct Settings
         {
-                sf::Text text;
-                bool     isVisible;
-        };*/
+            Vector2u windowSize;
+            Vector2u pixelMapSize;
+            Color    backgroundColor;
+            sf::ContextSettings sf_contextSettings;
+        };
+        static Settings __defaultSettings;
 
 
-        PixelDisplay(const Vector2u &windowSize, const Vector2u &pixelSize);
+        PixelDisplay();
+        PixelDisplay(const Settings &settings);
+        PixelDisplay(const Vector2u &windowSize,
+                     const Vector2u &pixelMapSize,
+                     const Color &backgroundColor = Color(0,0,0));
         PixelDisplay(const PixelDisplay &other);
         virtual ~PixelDisplay();
+
+        virtual Settings getSettings() const;
 
         virtual void display();
         virtual void clear();
@@ -50,8 +60,8 @@ class PixelDisplay
 
         virtual void clearSprite();
         virtual void addSprite(Sprite *sprite);
-        virtual void subscribeSprite(Sprite *sprite);
-        virtual void unsubscribeSprite(Sprite *sprite);
+        virtual void subscribeSprite(Painter *sprite);
+        virtual void unsubscribeSprite(Painter *sprite);
 
         virtual void clearVertexLine();
         virtual void addVertexLine(VertexPath* path);
@@ -72,8 +82,8 @@ class PixelDisplay
         virtual bool removeText(DisplayText *text);
         virtual void clearText();
 
-        virtual Vector2u getWindowSize() const;
-        virtual Vector2u getMapSize() const;
+        virtual const Vector2u &getWindowSize() const;
+        virtual const Vector2u &getMapSize() const;
 
         virtual RenderWindow *getRenderWindow();
         //virtual Vector2f getRenderScale();
@@ -82,7 +92,7 @@ class PixelDisplay
         //virtual void setRenderFramePos(const Vector2f &pos);
         //virtual void moveRenderFrame(const Vector2f &vec);
         //virtual void setRenderFrame(const RectF &frame);
-        virtual const RectF getRenderFrame() const;
+        virtual const RectF &getRenderFrame() const;
 
         virtual unsigned long long stats_getRenderSprites() const;
         virtual unsigned long long stats_getRenderVertexPaths() const;
@@ -103,12 +113,12 @@ class PixelDisplay
         Sprite m_sprite;
         bool m_localPixlerUsed;
 
-        Color m_clearColor;
+        Color m_backgroundColor;
         vector<DisplayText*> m_textList;
         bool                 m_textListUsed;
 
         vector<Sprite*>       m_spriteList;
-        vector<Sprite*>      m_spriteSubscriberList;
+        vector<Painter*>      m_spriteSubscriberList;
         bool                 m_spriteListUsed;
         vector<VertexPath*>   m_vertexPathList;
         bool                 m_vertexPathUsed;
@@ -118,6 +128,7 @@ class PixelDisplay
         vector<sf::Event>    m_lastEventList;
 
     private:
+        void constructor(const Settings &settings);
         bool                 m_dragMap;
         Vector2f             m_lastMousePos;
         float                m_viewPortZoom;

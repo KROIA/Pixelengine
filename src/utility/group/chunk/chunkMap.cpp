@@ -1,29 +1,53 @@
 #include "chunkMap.h"
 
+ChunkMap::ChunkMap()
+{
+    constructor(__defaultSettings);
+}
+ChunkMap::ChunkMap(const Settings &settings)
+    :   GameObjectGroup()
+{
+    constructor(settings);
+}
 ChunkMap::ChunkMap(Vector2u chunkSize,
                    RectI area)
+    :   GameObjectGroup()
+{
+    Settings settings     = __defaultSettings;
+    settings.chunkMapSize = Vector2u(area.getSize());
+    settings.chunk.size    = chunkSize;
+    settings.position     = area.getPos();
+
+    constructor(settings);
+}
+void ChunkMap::constructor(const Settings &settings)
 {
     EASY_BLOCK("new ChunkMap()",profiler::colors::Blue);
-    if(chunkSize.x == 0)
-        chunkSize.x =128;
-    if(chunkSize.y == 0)
-        chunkSize.y =128;
+    m_settings  = settings;
 
-    if(area.getSize().x == 0)
-        area.setWidth(1);
-    if(area.getSize().y == 0)
-        area.setHeight(1);
 
+    if(m_settings.chunk.size.x == 0)
+        m_settings.chunk.size.x = __defaultSettings.chunk.size.x;
+    if(m_settings.chunk.size.y == 0)
+        m_settings.chunk.size.y = __defaultSettings.chunk.size.y;
+
+    if(m_settings.chunkMapSize.x == 0)
+        m_settings.chunkMapSize.x = __defaultSettings.chunkMapSize.x;
+    if(m_settings.chunkMapSize.y == 0)
+        m_settings.chunkMapSize.y = __defaultSettings.chunkMapSize.y;
+
+    Vector2u    area(m_settings.chunkMapSize);
     m_isVisible_chunks = false;
-    m_mapPos    = area.getPos();
-    m_chunkSize = chunkSize;
-    m_mapSize   = calculateMapSize(chunkSize, area.getSize());
-    m_chunkID = ChunkID(false,Vector2<size_t>(0,0));
+    m_chunkSize = m_settings.chunk.size;
+    m_mapPos    = m_settings.position;
+
+    m_mapSize   = calculateMapSize(m_chunkSize, area);
+    m_chunkID   = ChunkID(false,Vector2<size_t>(0,0));
     generateMap();
 }
 ChunkMap::ChunkMap(const ChunkMap &other)
 {
-
+    this->operator=(other);
 }
 ChunkMap::~ChunkMap()
 {
@@ -38,6 +62,36 @@ ChunkMap::~ChunkMap()
         m_chunkMap[x].clear();
     }
     m_chunkMap.clear();
+}
+
+const ChunkMap &ChunkMap::operator=(const ChunkMap &other)
+{
+    m_chunkSize         = other.m_chunkSize;
+    m_mapPos            = other.m_mapPos;
+    m_mapSize           = other.m_mapSize;
+    m_mapSize           = other.m_mapSize;
+    m_isVisible_chunks  = other.m_isVisible_chunks;
+    m_chunkID           = other.m_chunkID;
+
+    for(size_t x=0; x<other.m_chunkMap.size(); x++)
+    {
+        m_chunkMap.push_back(vector<Chunk*>());
+        for(size_t y=0; y<other.m_chunkMap[x].size(); y++)
+        {
+            m_chunkMap[x].push_back(new Chunk(*other.m_chunkMap[x][y]));
+            m_chunkMap[x][y]->subscribeChunk(this);
+        }
+    }
+    GameObjectGroup::operator=(other);
+    return *this;
+}
+ChunkMap::Settings ChunkMap::getSettings() const
+{
+    Settings settings;
+    settings.chunkMapSize   = Vector2u(m_chunkMap.size(),m_chunkMap[0].size());
+    settings.chunk          = m_chunkMap[0][0]->getSettings();
+    settings.position       = m_mapPos;
+    return settings;
 }
 
 void ChunkMap::add(const vector<GameObject*> &list)
@@ -126,27 +180,6 @@ vector<Vector2<size_t> > ChunkMap::findChunk(GameObject *obj,bool &outOfMap)
             }
         }
     }
-   /* Vector2i chunkOfObj(0,0);
-    Vector2f posOfObj = obj->getCollider().getBoundingBox().getPos();
-
-    Vector2f relativeToChunkMapPos = posOfObj - Vector2f(m_mapPos);
-
-    float xScalar = relativeToChunkMapPos.x / float(m_chunkSize.x);
-    float yScalar = relativeToChunkMapPos.y / float(m_chunkSize.y);
-
-
-    chunkOfObj = Vector2i(floor(xScalar),floor(yScalar));
-
-    if(chunkOfObj.x < 0 || chunkOfObj.x >= signed(m_mapSize.x) ||
-       chunkOfObj.y < 0 || chunkOfObj.y >= signed(m_mapSize.y))
-    {
-        //qDebug() << "out of map";
-        outOfMap = true;
-        return chunks;
-    }*/
-
-    //qDebug() << "chunk Found: "<<Vector::toString(chunkOfObj).c_str();
-    //return Vector2<size_t>(chunkOfObj);
     return chunks;
 }
 bool ChunkMap::intersects(GameObject *obj)
@@ -170,7 +203,7 @@ bool ChunkMap::intersectsInverse(GameObject *obj)
 }
 
 Vector2<size_t> ChunkMap::calculateMapSize(const Vector2u &chunkSize,
-                                           const Vector2i &area)
+                                           const Vector2u &area)
 {
     EASY_FUNCTION(profiler::colors::Blue50);
     Vector2<size_t> size;
@@ -192,6 +225,8 @@ void ChunkMap::generateMap()
     EASY_FUNCTION(profiler::colors::Blue100);
     Vector2i movingPos;
     m_chunkMap.reserve(m_mapSize.x);
+    Chunk::Settings chunkSetting = m_settings.chunk;
+    chunkSetting.size = m_chunkSize;
     for(size_t x=0; x<m_mapSize.x; x++)
     {
         EASY_BLOCK("for(size_t x=0; x<m_mapSize.x; x++)",profiler::colors::Blue200);
@@ -201,7 +236,9 @@ void ChunkMap::generateMap()
         for(size_t y=0; y<m_mapSize.y; y++)
         {
             EASY_BLOCK("for(size_t y=0; y<m_mapSize.y; y++)",profiler::colors::Blue300);
-            Chunk* chunk = new Chunk(m_chunkSize,Vector2f(movingPos),ChunkID(true,Vector2<size_t>(x,y)));
+            chunkSetting.position = Vector2f(movingPos);
+            chunkSetting.chunkID  = ChunkID(true,Vector2<size_t>(x,y));
+            Chunk* chunk = new Chunk(chunkSetting);
             chunk->subscribeChunk(this);
             m_chunkMap[x].push_back(chunk);
             movingPos += Vector2i(0,int(m_chunkSize.y));
@@ -394,13 +431,20 @@ void ChunkMap::moved(GameObject* sender,const Vector2f &move)
     vector<Vector2<size_t> > chunkPosList = findChunk(sender,outOfMap);
     for(const Vector2<size_t> &chunk : chunkPosList)
         m_chunkMap[chunk.x][chunk.y]->add(sender);
-    //qDebug() << intersectsInverse(sender);
     if(!intersectsInverse(sender))
     {
         internalRemoveOutside(sender);
-
-        //qDebug()<<"OBJ: "<<sender<<" is now in chunk: "<<chunkPos.x<<" "<<chunkPos.y;
-
-
+    }
+}
+void ChunkMap::rotated(GameObject* sender,const float deltaAngle)
+{
+    EASY_FUNCTION(profiler::colors::BlueA100);
+    bool outOfMap;
+    vector<Vector2<size_t> > chunkPosList = findChunk(sender,outOfMap);
+    for(const Vector2<size_t> &chunk : chunkPosList)
+        m_chunkMap[chunk.x][chunk.y]->add(sender);
+    if(!intersectsInverse(sender))
+    {
+        internalRemoveOutside(sender);
     }
 }
