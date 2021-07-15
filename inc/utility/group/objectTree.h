@@ -4,23 +4,31 @@
 #include "base.h"
 #include "gameobject.h"
 #include "pixelDisplay.h"
+#include "signalSubscriber.h"
 
-class ObjectTree
+class ObjectTree    :   private ObjSignal
 {
     public:
         ObjectTree(const RectF &boundry, unsigned int maxAmount,size_t depth = 0);
-        ~ObjectTree();
+        virtual ~ObjectTree();
 
-        bool insert(GameObject *obj);
+        virtual bool insert(GameObject *obj);
 
-        void query(const RectF &region,vector<GameObject*> &buffer);
+        virtual void query(const RectF &region,vector<GameObject*> &buffer);
         //void query(RectF &region,std::unordered_map<GameObject*, GameObject*> &buffer);
-        void draw(PixelDisplay &display);
-        void clear();
+        virtual void draw(PixelDisplay &display);
+        virtual void clear();
+        virtual void removeInLeaf(GameObject *obj);
+        virtual void removeRecursive(GameObject *obj);
 
 
     private:
         void subdivide();
+
+
+        // Signals from obj's
+        virtual void moved(GameObject* sender,const Vector2f &move);
+        virtual void rotated(GameObject* sender,const float deltaAngle);
 
 
         RectF m_boundry;

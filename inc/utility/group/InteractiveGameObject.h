@@ -75,6 +75,7 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         ObjectTree   *m_objectTree;
 
         vector<GameObjectGroup*> m_interactsWithObjectsList;
+        size_t      m_interactorAmount;
         bool        m_drawingIsDisabled;
         bool        m_interactsWithOthers;
     private:

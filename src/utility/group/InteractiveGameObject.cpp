@@ -15,6 +15,7 @@ InteractiveGameObject::InteractiveGameObject(const Settings &settings)
 void InteractiveGameObject::constructor(const Settings &settings)
 {
     EASY_FUNCTION("new InteractiveGameObject()",profiler::colors::Purple50);
+    m_interactorAmount              = 0;
     m_gameObject                    = nullptr;
     m_drawingIsDisabled             = true;
     m_interactsWithOthers           = false;
@@ -50,8 +51,10 @@ const InteractiveGameObject &InteractiveGameObject::operator=(const InteractiveG
     //*m_interactiveObjectsChunkMap   = *other.m_interactiveObjectsChunkMap;
     //*m_gameObjectChunkMap           = *other.m_gameObjectChunkMap;
 
+    m_interactorAmount              = other.m_interactorAmount;
     m_drawingIsDisabled             = other.m_drawingIsDisabled;
     m_interactsWithOthers           = other.m_interactsWithOthers;
+    *m_objectTree                   = *other.m_objectTree;
 
     for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
     {
@@ -109,6 +112,10 @@ void InteractiveGameObject::addInteractionWith(GameObject *obj)
 #endif
     m_interactsWithOthers = true;
     m_interactsWithObjectsList[0]->add(obj);
+    m_objectTree->insert(obj);
+    obj->subscribe(this);
+    m_interactorAmount++;
+
   //  m_interactiveObjectsChunkMap->add(obj);
 
 }
@@ -129,6 +136,12 @@ void InteractiveGameObject::addInteractionWith(GameObjectGroup *group)
     //m_interactiveObjectsChunkMap->add(group);
     //m_interactiveObjectsChunkMap->add(group);
     group->subscribe(this);
+    for(size_t i=0; i<group->size(); i++)
+    {
+        m_objectTree->insert((*group)[i]);
+        (*group)[i]->subscribe(this);
+    }
+    m_interactorAmount+=group->size();
     //updateAllList();
 }
 void InteractiveGameObject::addInteractionWith(vector<GameObjectGroup*> *groupList)
@@ -147,6 +160,12 @@ void InteractiveGameObject::removeInteractionWith(GameObject *obj)
         return;
 
    m_interactsWithObjectsList[0]->remove(obj);
+   obj->unsubscribe(this);
+   m_objectTree->removeRecursive(obj);
+   if(m_interactorAmount == 0)
+       qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
+   else
+    m_interactorAmount--;
    //m_interactiveObjectsChunkMap->remove(obj);
 #ifdef CHECK_FOR_DOUBLE_OBJ
     for(size_t i=1; i<m_interactsWithObjectsList.size(); i++)
@@ -156,6 +175,8 @@ void InteractiveGameObject::removeInteractionWith(GameObject *obj)
 #endif
     if(m_interactsWithObjectsList.size() == 1 && m_interactsWithObjectsList[0]->size() == 0)
         m_interactsWithOthers = false;
+
+
     //m_interactiveObjectsChunkMap->remove(obj);
 }
 void InteractiveGameObject::removeInteractionWith(GameObjectGroup *group)
@@ -168,10 +189,21 @@ void InteractiveGameObject::removeInteractionWith(GameObjectGroup *group)
             m_interactsWithObjectsList[i]->unsubscribe(this);
         //    m_interactiveObjectsChunkMap->remove(group);
             m_interactsWithObjectsList.erase(m_interactsWithObjectsList.begin()+i);
+
+            for(size_t i=0; i<group->size(); i++)
+            {
+                m_objectTree->removeRecursive((*group)[i]);
+                (*group)[i]->unsubscribe(this);
+            }
+            if(m_interactorAmount < group->size())
+                qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
+            else
+                m_interactorAmount -= group->size();
+            if(m_interactsWithObjectsList.size() == 1 && m_interactsWithObjectsList[0]->size() == 0)
+                m_interactsWithOthers = false;
         }
     }
-    if(m_interactsWithObjectsList.size() == 1 && m_interactsWithObjectsList[0]->size() == 0)
-        m_interactsWithOthers = false;
+
     //m_interactiveObjectsChunkMap->remove(group);
 }
 void InteractiveGameObject::removeInteractionWith(vector<GameObjectGroup*> *groupList)
@@ -219,7 +251,7 @@ const vector<GameObjectGroup*> &InteractiveGameObject::getInteractiveObjectsList
 const vector<GameObject*> InteractiveGameObject::getInteractiveObjects()
 {
     EASY_FUNCTION(profiler::colors::Purple400);
-    m_objectTree->clear();
+    /*m_objectTree->clear();
     size_t maxPossibleSize = 0;
     for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
     {
@@ -228,9 +260,9 @@ const vector<GameObject*> InteractiveGameObject::getInteractiveObjects()
         {
             m_objectTree->insert((*m_interactsWithObjectsList[i])[j]);
         }
-    }
+    }*/
     vector<GameObject*> possibleInteractionList;
-    possibleInteractionList.reserve(maxPossibleSize);
+    possibleInteractionList.reserve(m_interactorAmount);
     m_objectTree->query(m_gameObject->getBoundingBox(),possibleInteractionList);
 
     return possibleInteractionList;
@@ -284,10 +316,11 @@ bool InteractiveGameObject::isVisible_chunks() const
 void InteractiveGameObject::moved(GameObject* sender,const Vector2f &move)
 {
     //qDebug() << "sender: "<<sender << " moved: "<<Vector::toString(move).c_str();
+    m_objectTree->insert(sender);
 }
 void InteractiveGameObject::rotated(GameObject* sender,const float deltaAngle)
 {
-
+    m_objectTree->insert(sender);
 }
 
 // Signals from GameObjectGroup
@@ -296,29 +329,59 @@ void InteractiveGameObject::adding(GameObjectGroup* sender,GameObject* obj)
     //qDebug() << "sender: "<<sender << " adding: "<<obj;
     //updateAllList();
     //m_interactiveObjectsChunkMap->add(obj);
+    m_objectTree->insert(obj);
+    obj->subscribe(this);
+    m_interactorAmount++;
 }
 void InteractiveGameObject::adding(GameObjectGroup* sender,GameObjectGroup* group)
 {
     //updateAllList();
     //m_interactiveObjectsChunkMap->add(group);
+    for(size_t i=0; i<group->size(); i++)
+    {
+        m_objectTree->insert((*group)[i]);
+        (*group)[i]->subscribe(this);
+    }
+    m_interactorAmount+=group->size();
 }
 void InteractiveGameObject::removing(GameObjectGroup* sender,GameObject* obj)
 {
     //qDebug() << "sender: "<<sender << " removing: "<<obj;
     //updateAllList();
     //m_interactiveObjectsChunkMap->remove(obj);
+    m_objectTree->removeRecursive(obj);
     obj->unsubscribe(this);
+    if(m_interactorAmount == 0)
+        qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
+    else
+        m_interactorAmount --;
 }
 void InteractiveGameObject::removing(GameObjectGroup* sender,GameObjectGroup* group)
 {
     //updateAllList();
     //m_interactiveObjectsChunkMap->remove(group);
-
+    for(size_t i=0; i<group->size(); i++)
+    {
+        m_objectTree->removeRecursive((*group)[i]);
+        (*group)[i]->unsubscribe(this);
+    }
+    if(m_interactorAmount < group->size())
+        qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
+    else
+        m_interactorAmount -= group->size();
 }
 void InteractiveGameObject::willBeCleared(GameObjectGroup* sender)
 {
     //m_interactiveObjectsChunkMap->remove(sender);
-
+    for(size_t i=0; i<sender->size(); i++)
+    {
+        m_objectTree->removeRecursive((*sender)[i]);
+        (*sender)[i]->unsubscribe(this);
+    }
+    if(m_interactorAmount < sender->size())
+        qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
+    else
+        m_interactorAmount -= sender->size();
 }
 void InteractiveGameObject::cleared(GameObjectGroup* sender)
 {

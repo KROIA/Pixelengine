@@ -11,6 +11,7 @@ ObjectTree::ObjectTree(const RectF &boundry, unsigned int maxAmount,size_t depth
 }
 ObjectTree::~ObjectTree()
 {
+    clear();
     if(!m_divided)
         return;
     delete TL;
@@ -26,6 +27,7 @@ bool ObjectTree::insert(GameObject *obj)
     EASY_FUNCTION(profiler::colors::Green);
     if(m_objectList.size()  < m_capacity)
     {
+        obj->subscribe(this);
         m_objectList.push_back(obj);
         return true;
     }
@@ -96,6 +98,10 @@ void ObjectTree::draw(PixelDisplay &display)
 void ObjectTree::clear()
 {
     EASY_FUNCTION(profiler::colors::Green400);
+    for(size_t i=0; i<m_objectList.size(); i++)
+    {
+        m_objectList[i]->unsubscribe(this);
+    }
     m_objectList.clear();
     if(m_divided)
     {
@@ -108,6 +114,29 @@ void ObjectTree::clear()
         delete BL;
         delete BR;
         m_divided = false;
+    }
+}
+void ObjectTree::removeInLeaf(GameObject *obj)
+{
+    for(size_t i=0; i<m_objectList.size(); i++)
+    {
+        if(m_objectList[i] == obj)
+        {
+            obj->unsubscribe(this);
+            m_objectList.erase(m_objectList.begin() + i);
+            i--;
+        }
+    }
+}
+void ObjectTree::removeRecursive(GameObject *obj)
+{
+    removeInLeaf(obj);
+    if(m_divided)
+    {
+        TL->removeRecursive(obj);
+        TR->removeRecursive(obj);
+        BL->removeRecursive(obj);
+        BR->removeRecursive(obj);
     }
 }
 
@@ -128,4 +157,14 @@ void ObjectTree::subdivide()
     newRect.setPos(newRect.getPos() + Vector2f(offsetPos,0));
     BR = new ObjectTree(newRect,m_capacity,m_depth);
     m_divided = true;
+}
+
+
+void ObjectTree::moved(GameObject* sender,const Vector2f &move)
+{
+    removeInLeaf(sender);
+}
+void ObjectTree::rotated(GameObject* sender,const float deltaAngle)
+{
+    removeInLeaf(sender);
 }
