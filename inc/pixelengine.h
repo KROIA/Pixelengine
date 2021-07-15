@@ -8,12 +8,10 @@
 
 #include "gameobject.h"
 #include "gameObjectGroup.h"
-//#include "managedGameObjectGroup.h"
 #include "InteractiveGameObject.h"
 #include "InteractiveGameObjectGroup.h"
 #include "groupManagerInterface.h"
 #include "gameObjectEventHandler.h"
-#include "chunkMap.h"
 
 #include "collider.h"
 #include "controller.h"
@@ -50,7 +48,7 @@
 const Color __color_minimalAlphaColor(255,255,255);
 #endif
 
-//#define NO_TIMED_LOOPS
+#define NO_TIMED_LOOPS
 #define STATISTICS
 #define USE_THREADS
 #define USE_STD_THREADS
@@ -284,6 +282,7 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         float m_displayInterval; // sec.
 
         InteractiveGameObjectGroup  m_masterGameObjectGroup;
+
         //GameObjectGroup             m_masterNoInteractionGameObjectList;
         vector<GameObject* >        m_removeLaterObjectGroup;
         //ChunkMap                   *m_chunkMap;

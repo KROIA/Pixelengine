@@ -54,15 +54,10 @@ class GroupSubscriberList    : public vector<GroupSignal*>
 
 
 // Signals for Chunks
-class ChunkSignal
+/*class ChunkSignal
 {
     public:
         ChunkSignal(){}
-
-        /*virtual void movingToUpperChunk(GameObject* sender) = 0;
-        virtual void movingToLowerChunk(GameObject* sender) = 0;
-        virtual void movingToLeftChunk(GameObject* sender)  = 0;
-        virtual void movingToRightChunk(GameObject* sender) = 0;*/
         virtual void objectIsNowInChunk(Chunk *sender,GameObject* obj,const Vector2<size_t> &newChunkIndex) = 0;
         virtual void objectIsNowOutOfBoundry(Chunk *sender,GameObject *obj) = 0;
         virtual void objectIsNowIntersecting(Chunk *sender,GameObject *obj, const Vector2<size_t> &intersectingChunk) = 0;
@@ -76,10 +71,6 @@ class ChunkSubscriberList    : public vector<ChunkSignal*>
 {
     public:
         ChunkSubscriberList();
-       /* virtual void movingToUpperChunk(GameObject* sender);
-        virtual void movingToLowerChunk(GameObject* sender);
-        virtual void movingToLeftChunk(GameObject* sender);
-        virtual void movingToRightChunk(GameObject* sender);*/
         virtual void objectIsNowInChunk(Chunk *sender,GameObject* obj,const Vector2<size_t> &newChunkIndex);
         virtual void objectIsNowOutOfBoundry(Chunk *sender,GameObject *obj);
         virtual void objectIsNowIntersecting(Chunk *sender,GameObject *obj, const Vector2<size_t> &intersectingChunk);
@@ -87,10 +78,27 @@ class ChunkSubscriberList    : public vector<ChunkSignal*>
         virtual void updateChunkPos(Chunk *sender, GameObject* obj);
     protected:
 
+};*/
+
+
+// Signals for Controller
+class ControllerSignal
+{
+    public:
+        ControllerSignal(){}
+
+        virtual void moveAvailable(Controller *sender) = 0;
+};
+// Vector of Signals
+class ControllerSubscriberList: public vector<ControllerSignal*>
+{
+    public:
+        ControllerSubscriberList();
+
+        virtual void moveAvailable(Controller *sender);
 };
 
-
-// Signals for GameObjects
+// Signals for User Events
 class UserEventSignal
 {
     public:

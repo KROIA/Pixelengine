@@ -12,11 +12,9 @@
 #include "texture.h"
 #include "displayText.h"
 #include "signalSubscriber.h"
-#include "chunkID.h"
 
 
-
-class GameObject : private UserEventSignal
+class GameObject : private UserEventSignal, ControllerSignal
 {
     public:
         GameObject();
@@ -46,18 +44,18 @@ class GameObject : private UserEventSignal
         virtual void unsubscribeToDisplay(PixelDisplay &display);
         virtual void setEventHandler(GameObjectEventHandler *handler);
         virtual const GameObjectEventHandler *getEventHandler() const;
-        virtual void setChunkID(const ChunkID &chunkID);
-        virtual void setChunkID(const vector<ChunkID> &chunkIDList);
-        virtual void addChunkID(const ChunkID &chunkID);
-        virtual void removeChunkID(const ChunkID &chunkID);
-        virtual void clearChunkList();
-        virtual const ChunkID &getChunkID() const;
-        virtual const vector<ChunkID> &getChunkIDList() const;
+        //virtual void setChunkID(const ChunkID &chunkID);
+        //virtual void setChunkID(const vector<ChunkID> &chunkIDList);
+        //virtual void addChunkID(const ChunkID &chunkID);
+        //virtual void removeChunkID(const ChunkID &chunkID);
+        //virtual void clearChunkList();
+        //virtual const ChunkID &getChunkID() const;
+        //virtual const vector<ChunkID> &getChunkIDList() const;
 
         // Signals
-        virtual void subscribe(ObjSignal *subscriber);
-        virtual void unsubscribe(ObjSignal *subscriber);
-        virtual void unsubscribeAll();
+        virtual void subscribeObjSignal(ObjSignal *subscriber);
+        virtual void unsubscribeObjSignal(ObjSignal *subscriber);
+        virtual void unsubscribeAllObjSignal();
 
 
         // For user call
@@ -159,8 +157,11 @@ class GameObject : private UserEventSignal
         virtual void eventAdded(UserEventHandler *sender,  Event *e);
         virtual void eventRemoved(UserEventHandler *sender,  Event *e);
 
+        // Signals from Controller
+        virtual void moveAvailable(Controller *sender);
+
         LayerItem m_layerItem;
-        vector<ChunkID>   m_chunkIDList;
+        //vector<ChunkID>   m_chunkIDList;
 
         Property::Property m_property;
         GameObjectEventHandler *m_objEventHandler;
@@ -168,6 +169,7 @@ class GameObject : private UserEventSignal
 
         vector<Controller*> m_controllerList;
         bool           m_hasEventsToCheck;
+        bool           m_hasMoveToMake;
         DynamicCoordinator m_movementCoordinator;
         Collider      *m_collider;
         Collider      *m_originalCollider;
@@ -186,11 +188,12 @@ class GameObject : private UserEventSignal
 
         vector<DisplayText* > m_displayTextList;
         vector<GameObject*>   m_collidedObjects;
+        InteractiveGameObject *m_thisInteractiveObject;
 
     private:
         bool m_isTrash;
-        InteractiveGameObject *m_thisInteractiveObject;
 
-        ChunkID           m_constDummy_chunkID;
+
+        //ChunkID           m_constDummy_chunkID;
 };
 #endif // GAMEOBJECT_H

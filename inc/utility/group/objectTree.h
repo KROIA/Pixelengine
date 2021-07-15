@@ -9,13 +9,22 @@
 class ObjectTree    :   private ObjSignal
 {
     public:
-        ObjectTree(const RectF &boundry, unsigned int maxAmount,size_t depth = 0);
+        struct Settings
+        {
+            RectF boundry;
+            size_t maxObjects;
+            size_t maxDepth;
+            size_t parentDepth;
+        };
+        static Settings __defaultSettings;
+        ObjectTree(const Settings &settings);
+        ObjectTree(const RectF &boundry, size_t maxObjects,size_t maxDepth, size_t parentDepth = 0);
+        ObjectTree(const ObjectTree &other);
         virtual ~ObjectTree();
 
         virtual bool insert(GameObject *obj);
 
         virtual void query(const RectF &region,vector<GameObject*> &buffer);
-        //void query(RectF &region,std::unordered_map<GameObject*, GameObject*> &buffer);
         virtual void draw(PixelDisplay &display);
         virtual void clear();
         virtual void removeInLeaf(GameObject *obj);
@@ -23,6 +32,7 @@ class ObjectTree    :   private ObjSignal
 
 
     private:
+        void constructor(const Settings &settings);
         void subdivide();
 
 
@@ -32,10 +42,12 @@ class ObjectTree    :   private ObjSignal
 
 
         RectF m_boundry;
-        unsigned int m_capacity;
+        size_t m_capacity;
         vector<GameObject*> m_objectList;
         bool m_divided;
+        bool m_disableDivider;
         size_t m_depth;
+        size_t m_maxDepth;
 
 
         ObjectTree *TL;

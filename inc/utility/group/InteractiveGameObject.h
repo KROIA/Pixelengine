@@ -4,7 +4,6 @@
 #include "base.h"
 #include "gameobject.h"
 #include "gameObjectGroup.h"
-//#include "chunkMap.h"
 #include "objectTree.h"
 
 #define CHECK_FOR_DOUBLE_OBJ
@@ -15,6 +14,7 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         struct Settings
         {
            // ChunkMap::Settings chunkMap;
+            ObjectTree::Settings    objectTree;
         };
         static Settings __defaultSettings;
         InteractiveGameObject();
@@ -70,8 +70,6 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         virtual void cleared(GameObjectGroup* sender);
 
         GameObject *m_gameObject;
-        //ChunkMap   *m_interactiveObjectsChunkMap;
-        //ChunkMap   *m_gameObjectChunkMap;
         ObjectTree   *m_objectTree;
 
         vector<GameObjectGroup*> m_interactsWithObjectsList;

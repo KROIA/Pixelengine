@@ -51,7 +51,9 @@ class InteractiveGameObjectGroup
 
     protected:
 
-        vector<GameObject*>            m_cacheObjectsList;
+        std::unordered_map<GameObject*,GameObject*> m_cacheObjectsList;
+        std::unordered_map<GameObject*,GameObject*> m_objectsList;
+        vector<GameObject*>            m_cacheObjectsList_vector;
         vector<InteractiveGameObject*> m_cacheInteractiveObjectsList;
         vector<InteractiveGameObject*> m_interactiveObjectsList;
         vector<GameObjectGroup*>       m_const_dummy_list;

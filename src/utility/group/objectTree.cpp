@@ -1,13 +1,52 @@
 #include "objectTree.h"
 
-
-ObjectTree::ObjectTree(const RectF &boundry, unsigned int maxAmount,size_t depth)
+ObjectTree::ObjectTree(const Settings &settings)
 {
-    m_boundry = boundry;
-    m_capacity = maxAmount;
+    constructor(settings);
+}
+ObjectTree::ObjectTree(const RectF &boundry, size_t maxObjects, size_t maxDepth, size_t parentDepth)
+{
+    Settings s;
+    s.boundry       = boundry;
+    s.maxDepth      = maxDepth;
+    s.maxObjects    = maxObjects;
+    s.parentDepth   = parentDepth;
+    constructor(s);
+}
+ObjectTree::ObjectTree(const ObjectTree &other)
+{
+    this->m_boundry         = other.m_boundry;
+    this->m_capacity        = other.m_capacity;
+    this->m_objectList      = other.m_objectList;
+    this->m_divided         = other.m_divided;
+    this->m_disableDivider  = other.m_disableDivider;
+    this->m_depth           = other.m_depth;
+    this->m_maxDepth        = other.m_maxDepth;
+
+    for(size_t i=0; i<m_objectList.size(); i++)
+    {
+        m_objectList[i]->subscribeObjSignal(this);
+    }
+
+    if(m_divided)
+    {
+        TL = new ObjectTree(*other.TL);
+        TR = new ObjectTree(*other.TR);
+        BL = new ObjectTree(*other.BL);
+        BR = new ObjectTree(*other.BR);
+    }
+}
+
+void ObjectTree::constructor(const Settings &settings)
+{
+    m_boundry           = settings.boundry;
+    m_capacity          = settings.maxObjects;
+    m_depth             = settings.parentDepth+1;
+    m_maxDepth          = settings.maxDepth;
     m_objectList.reserve(m_capacity);
-    m_divided  = false;
-    m_depth = depth+1;
+    m_divided           = false;
+    m_disableDivider    = m_depth >= m_maxDepth;
+
 }
 ObjectTree::~ObjectTree()
 {
@@ -25,9 +64,9 @@ bool ObjectTree::insert(GameObject *obj)
     if(!RectF::intersects_fast(obj->getBoundingBox(),m_boundry))
         return false;
     EASY_FUNCTION(profiler::colors::Green);
-    if(m_objectList.size()  < m_capacity)
+    if(m_objectList.size()  < m_capacity || m_disableDivider)
     {
-        obj->subscribe(this);
+        obj->subscribeObjSignal(this);
         m_objectList.push_back(obj);
         return true;
     }
@@ -35,14 +74,6 @@ bool ObjectTree::insert(GameObject *obj)
     {
         if(!m_divided)
             subdivide();
-        /*if(TL->insert(obj))
-            return true;
-        if(TR->insert(obj))
-            return true;
-        if(BL->insert(obj))
-            return true;
-        if(BR->insert(obj))
-            return true;*/
         TL->insert(obj);
         TR->insert(obj);
         BL->insert(obj);
@@ -52,7 +83,6 @@ bool ObjectTree::insert(GameObject *obj)
     return false;
 }
 void ObjectTree::query(const RectF &region,vector<GameObject*> &buffer)
-//void ObjectTree::query(objF &region,std::unordered_map<objF*, objF*> &buffer)
 {
     if(!RectF::intersects_fast(region,m_boundry))
         return;
@@ -100,7 +130,7 @@ void ObjectTree::clear()
     EASY_FUNCTION(profiler::colors::Green400);
     for(size_t i=0; i<m_objectList.size(); i++)
     {
-        m_objectList[i]->unsubscribe(this);
+        m_objectList[i]->unsubscribeObjSignal(this);
     }
     m_objectList.clear();
     if(m_divided)
@@ -122,7 +152,7 @@ void ObjectTree::removeInLeaf(GameObject *obj)
     {
         if(m_objectList[i] == obj)
         {
-            obj->unsubscribe(this);
+            obj->unsubscribeObjSignal(this);
             m_objectList.erase(m_objectList.begin() + i);
             i--;
         }
@@ -147,15 +177,16 @@ void ObjectTree::subdivide()
     RectF newRect = m_boundry;
     newRect.setWidth(m_boundry.getSize().x/2.f);
     newRect.setHeight(m_boundry.getSize().y/2.f);
-    float offsetPos = newRect.getSize().x;
+    float offsetPosX = newRect.getSize().x;
+    float offsetPosY = newRect.getSize().y;
 
-    TL = new ObjectTree(newRect,m_capacity,m_depth);
-    newRect.setPos(newRect.getPos() + Vector2f(offsetPos,0));
-    TR = new ObjectTree(newRect,m_capacity,m_depth);
-    newRect.setPos(newRect.getPos() + Vector2f(-offsetPos,offsetPos));
-    BL = new ObjectTree(newRect,m_capacity,m_depth);
-    newRect.setPos(newRect.getPos() + Vector2f(offsetPos,0));
-    BR = new ObjectTree(newRect,m_capacity,m_depth);
+    TL = new ObjectTree(newRect,m_capacity,m_maxDepth,m_depth);
+    newRect.setPos(newRect.getPos() + Vector2f(offsetPosX,0));
+    TR = new ObjectTree(newRect,m_capacity,m_maxDepth,m_depth);
+    newRect.setPos(newRect.getPos() + Vector2f(-offsetPosX,offsetPosY));
+    BL = new ObjectTree(newRect,m_capacity,m_maxDepth,m_depth);
+    newRect.setPos(newRect.getPos() + Vector2f(offsetPosX,0));
+    BR = new ObjectTree(newRect,m_capacity,m_maxDepth,m_depth);
     m_divided = true;
 }
 

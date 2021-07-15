@@ -15,17 +15,17 @@ GameObjectGroup::GameObjectGroup(const GameObjectGroup &other)
 GameObjectGroup::~GameObjectGroup()
 {
     for(GameObject* &obj : m_isInList)
-        obj->unsubscribe(this);
+        obj->unsubscribeObjSignal(this);
 }
 GameObjectGroup &GameObjectGroup::operator=(const GameObjectGroup &other)
 {
     for(GameObject* &obj : m_isInList)
-        obj->unsubscribe(this);
+        obj->unsubscribeObjSignal(this);
     this->m_visibility        = other.m_visibility;
     this->m_visibility_collider_hitbox  = other.m_visibility_collider_hitbox;
     this->m_isInList         = other.m_isInList;
     for(GameObject* &obj : m_isInList)
-        obj->subscribe(this);
+        obj->subscribeObjSignal(this);
     //this->m_groupSubscriberList = other.m_groupSubscriberList;
     return *this;
 }
@@ -53,7 +53,7 @@ void GameObjectGroup::add(GameObjectGroup *other)
 void GameObjectGroup::addInternal(GameObject *object)
 {
     m_isInList.push_back(object);
-    object->subscribe(this);
+    object->subscribeObjSignal(this);
 }
 
 void GameObjectGroup::remove(GameObject *toRemove)
@@ -100,7 +100,7 @@ void GameObjectGroup::removeInternal(GameObject *object)
 }
 void GameObjectGroup::removeInternal(size_t index)
 {
-    m_isInList[index]->unsubscribe(this);
+    m_isInList[index]->unsubscribeObjSignal(this);
     m_isInList.erase(m_isInList.begin()+index);
 }
 void GameObjectGroup::clear()
@@ -108,7 +108,7 @@ void GameObjectGroup::clear()
     EASY_FUNCTION(profiler::colors::Purple200);
     m_groupSubscriberList.willBeCleared(this);
     for(GameObject* &obj : m_isInList)
-        obj->unsubscribe(this);
+        obj->unsubscribeObjSignal(this);
     m_isInList.clear();
 }
 void GameObjectGroup::reserve(size_t size)
@@ -457,7 +457,7 @@ void GameObjectGroup::removinguplicates(GameObjectGroup *list)
     EASY_FUNCTION(profiler::colors::Purple700);
     removinguplicates(&list->m_isInList);
 }
-void GameObjectGroup::subscribe(GroupSignal *subscriber)
+void GameObjectGroup::subscribeGroupSignal(GroupSignal *subscriber)
 {
     if(subscriber == nullptr)
         return;
@@ -470,7 +470,7 @@ void GameObjectGroup::subscribe(GroupSignal *subscriber)
     }
     m_groupSubscriberList.push_back(subscriber);
 }
-void GameObjectGroup::unsubscribe(GroupSignal *subscriber)
+void GameObjectGroup::unsubscribeGroupSignal(GroupSignal *subscriber)
 {
     for(size_t i=0; i<m_groupSubscriberList.size(); i++)
     {
@@ -481,7 +481,7 @@ void GameObjectGroup::unsubscribe(GroupSignal *subscriber)
         }
     }
 }
-void GameObjectGroup::unsubscribeAll()
+void GameObjectGroup::unsubscribeAllGroupSignal()
 {
     m_groupSubscriberList.clear();
 }

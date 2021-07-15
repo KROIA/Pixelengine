@@ -8,6 +8,15 @@ KeyController::KeyController()
     m_key_forMove_DOWN      = -1;
     m_key_forMove_RIGHT     = -1;
 
+    m_currentMovingVec.x = 0;
+    m_currentMovingVec.y = 0;
+
+    m_key_forMove_UP_event      = nullptr;
+    m_key_forMove_LEFT_event    = nullptr;
+    m_key_forMove_DOWN_event    = nullptr;
+    m_key_forMove_RIGHT_event   = nullptr;
+
+
     this->setStepSize(1);
 }
 KeyController::KeyController(const KeyController &other)
@@ -50,7 +59,8 @@ void KeyController::checkEvent()
     m_currentMovingVec.x = 0;
     m_currentMovingVec.y = 0;
     Controller::checkEvent();
-    this->move(m_currentMovingVec);
+    if(Vector::length(m_currentMovingVec) > 0)
+        this->move(m_currentMovingVec);
 }
 void KeyController::tick()
 {

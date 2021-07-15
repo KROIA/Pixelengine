@@ -19,6 +19,7 @@ GameObject::GameObject()
     this->m_visibility_collider_collidingWith   = false;
 
     m_hasEventsToCheck = false;
+    m_hasMoveToMake    = false;
     m_isTrash = false;
     m_textureIsActiveForCollider = false;
     //this->m_visibility_chunkMap                 = false;
@@ -39,6 +40,7 @@ GameObject::GameObject(const GameObject &other)
     this->m_visibility_collider_collisionData   = false;
     this->m_visibility_collider_collidingWith   = false;
     m_hasEventsToCheck = false;
+    m_hasMoveToMake    = false;
     m_isTrash = false;
     m_textureIsActiveForCollider = false;
     //this->m_visibility_chunkMap                 = false;
@@ -61,6 +63,7 @@ GameObject::GameObject(Controller *controller,
     this->m_visibility_collider_collisionData   = false;
     this->m_visibility_collider_collidingWith   = false;
     m_hasEventsToCheck = false;
+    m_hasMoveToMake    = false;
     m_isTrash = false;
     m_textureIsActiveForCollider = false;
     //this->m_visibility_chunkMap                 = false;
@@ -129,16 +132,21 @@ void GameObject::tick(const Vector2i &direction)
 {
     EASY_FUNCTION(profiler::colors::Green300);
     m_layerItem.swapPosToLastPos();
+    if(!m_hasMoveToMake)
+        return;
 
     if(direction.x > 0)
     {
         m_collider->tick();
+        m_movementCoordinator.clearMovement();
         EASY_BLOCK("for(size_t i=0; i<m_controllerList.size(); i++)",profiler::colors::Green300);
         for(size_t i=0; i<m_controllerList.size(); i++)
         {
             if(m_controllerList[i]->getMovingMode() == Controller::MovingMode::override)
                 m_movementCoordinator.clearMovement();
             m_movementCoordinator.addMovement(m_controllerList[i]->getMovingVector());
+           /* if(i>0)
+                qDebug() << "";*/
             m_controllerList[i]->tick(); // Clears the movingVector
         }
         m_movementCoordinator.calculateMovement();
@@ -159,6 +167,7 @@ void GameObject::tick(const Vector2i &direction)
         m_layerItem.swapRotationToLastRotation();
         m_painter->setPos(m_layerItem.getPos());
         m_painter->setRotation(m_layerItem.getRotation());
+        m_hasMoveToMake    = false;
     }
 
     m_collider->setPos(m_layerItem.getPos());
@@ -276,7 +285,7 @@ const GameObjectEventHandler *GameObject::getEventHandler() const
 {
     return m_objEventHandler;
 }
-void GameObject::setChunkID(const ChunkID &chunkID)
+/*void GameObject::setChunkID(const ChunkID &chunkID)
 {
     clearChunkList();
     m_chunkIDList.push_back(chunkID);
@@ -315,8 +324,8 @@ const ChunkID &GameObject::getChunkID() const
 const vector<ChunkID> &GameObject::getChunkIDList() const
 {
     return m_chunkIDList;
-}
-void GameObject::subscribe(ObjSignal *subscriber)
+}*/
+void GameObject::subscribeObjSignal(ObjSignal *subscriber)
 {
     if(subscriber == nullptr)
         return;
@@ -329,7 +338,7 @@ void GameObject::subscribe(ObjSignal *subscriber)
     }
     m_objSubscriberList.push_back(subscriber);
 }
-void GameObject::unsubscribe(ObjSignal *subscriber)
+void GameObject::unsubscribeObjSignal(ObjSignal *subscriber)
 {
     for(size_t i=0; i<m_objSubscriberList.size(); i++)
     {
@@ -340,7 +349,7 @@ void GameObject::unsubscribe(ObjSignal *subscriber)
         }
     }
 }
-void GameObject::unsubscribeAll()
+void GameObject::unsubscribeAllObjSignal()
 {
     m_objSubscriberList.clear();
 }
@@ -358,7 +367,8 @@ void GameObject::addController(Controller *controller)
     m_controllerList.push_back(controller);
     if(controller->hasEventsToCheck())
         m_hasEventsToCheck = true;
-    controller->subscribe(this);
+    controller->subscribeUserEventSignal(this);
+    controller->subscribeControllerSignal(this);
 }
 void GameObject::clearController()
 {
@@ -366,7 +376,8 @@ void GameObject::clearController()
     size_t size = m_controllerList.size();
     for(size_t i=1; i<size; i++)
     {
-        m_controllerList[1]->unsubscribe(this);
+        m_controllerList[1]->unsubscribeUserEventSignal(this);
+        m_controllerList[1]->unsubscribeControllerSignal(this);
         delete m_controllerList[1];
         m_controllerList.erase(m_controllerList.begin()+1);
     }
@@ -808,6 +819,13 @@ bool GameObject::isTrash() const
 }
 void GameObject::setThisInteractiveGameObject(InteractiveGameObject *parent)
 {
+    if(m_thisInteractiveObject != nullptr && parent != nullptr)
+    {
+        qDebug() << "WARNING: GameObject::setThisInteractiveGameObject(InteractiveGameObject *parent): InteractiveGameObject was already set";
+        qDebug() << "  Last InteractiveGameObject: "<<m_thisInteractiveObject;
+        qDebug() << "  New InteractiveGameObject:  "<<parent;
+        qDebug() << "  This shuld be used only once!";
+    }
     m_thisInteractiveObject = parent;
 }
 InteractiveGameObject* GameObject::getThisInteractiveGameObject()
@@ -841,4 +859,8 @@ void GameObject::eventRemoved(UserEventHandler *sender,  Event *e)
     m_hasEventsToCheck = false;
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_hasEventsToCheck |= m_controllerList[i]->hasEventsToCheck();
+}
+void GameObject::moveAvailable(Controller *sender)
+{
+    m_hasMoveToMake = true;
 }

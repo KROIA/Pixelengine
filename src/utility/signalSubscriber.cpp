@@ -71,7 +71,7 @@ void GroupSubscriberList::cleared(GameObjectGroup* sender)
         sub->cleared(sender);
     }
 }
-
+/*
 ChunkSubscriberList::ChunkSubscriberList()
     :   vector<ChunkSignal *>()
 {
@@ -111,8 +111,18 @@ void ChunkSubscriberList::updateChunkPos(Chunk *sender, GameObject* obj)
     {
         sub->updateChunkPos(sender,obj);
     }
-}
+}*/
+ControllerSubscriberList::ControllerSubscriberList()
+    :   vector<ControllerSignal *>()
+{}
 
+void ControllerSubscriberList::moveAvailable(Controller *sender)
+{
+    for(ControllerSignal* &sub : *this)
+    {
+        sub->moveAvailable(sender);
+    }
+}
 
 UserEventSubscriberList::UserEventSubscriberList()
     :   vector<UserEventSignal *>()

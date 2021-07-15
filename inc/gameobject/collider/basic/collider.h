@@ -101,7 +101,7 @@ class Collider  :   public LayerItem
 
         RectF m_dummy;
 
-        Color m_boundingBox_color;
+        Color *m_boundingBox_color;
         Color m_boundingBox_standardColor;
         Color m_boundingBox_intersectingColor;
 

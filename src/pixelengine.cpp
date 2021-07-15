@@ -166,9 +166,15 @@ PixelEngine::Settings PixelEngine::getSettings()
 void PixelEngine::setSettings(const Settings &settings)
 {
     __defaultSettings                           = settings;
-    //Chunk::__defaultSettings                    = settings.gameObject.chunkMap.chunk;
-    //ChunkMap::__defaultSettings                 = settings.gameObject.chunkMap;
-    InteractiveGameObject::__defaultSettings    = settings.gameObject;
+    if(settings.gameObject.objectTree.boundry == ObjectTree::__defaultSettings.boundry)
+    {
+        InteractiveGameObject::__defaultSettings    = settings.gameObject;
+        InteractiveGameObject::__defaultSettings.objectTree.boundry  = RectF(0.f,0.f,(float)settings.display.pixelMapSize.x,(float)settings.display.pixelMapSize.y);
+    }
+    else
+    {
+        InteractiveGameObject::__defaultSettings    = settings.gameObject;
+    }
     DisplayText::__defaultSettings              = settings.text;
     PixelDisplay::__defaultSettings             = settings.display;
     PixelEngine::__defaultEngineSettings        = settings.engine;
@@ -247,6 +253,12 @@ void PixelEngine::setup()
         return;
     EASY_BLOCK("PixelEngine::setup()",profiler::colors::Orange);
     m_masterGameObjectGroup.buildCache();
+
+    for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
+    {
+        m_masterGameObjectGroup[i]->getGameObject()->preRun();
+    }
+
     m_setupDone = true;
 }
 void PixelEngine::loop()
@@ -629,8 +641,17 @@ void *PixelEngine::thread_tick(void *p)
     #ifdef STATISTICS
             auto stats_timer_start = std::chrono::system_clock::now();
     #endif
+/*#ifdef USE_STD_THREADS
+        pthread_mutex_lock(param->globalMutex);
+#else
+        param->globalMutex->lock();
+#endif*/
             obj->tick(param->dirLock);
-
+/*#ifdef USE_STD_THREADS
+        pthread_mutex_unlock(param->globalMutex);
+#else
+        param->globalMutex->unlock();
+#endif*/
     #ifdef STATISTICS
             auto stats_timer_end = std::chrono::system_clock::now();
             std::chrono::duration<float> stats_time_span = stats_timer_end - stats_timer_start;
@@ -962,8 +983,8 @@ void PixelEngine::addGameObject(GameObject *obj)
         obj->updateBoundingBox();
     obj->setEventHandler(this);
     //obj->setTextSettings(m_settings.text);
-   // obj->subscribeToDisplay(*m_display);
-    obj->preRun();
+    //obj->subscribeToDisplay(*m_display);
+    //obj->preRun();
   //  m_masterNoInteractionGameObjectList.add(obj);
     if(!m_setupDone)
         m_masterGameObjectGroup.addToCache(obj);
@@ -982,7 +1003,7 @@ void PixelEngine::addGameObject(GameObjectGroup *group)
     EASY_FUNCTION(profiler::colors::OrangeA200);
     //GameObjectGroup::removinguplicates(group);
     addGameObjectIntern(group->getVector());
-    group->subscribe(this);
+    group->subscribeGroupSignal(this);
 }
 void PixelEngine::addGameObjectIntern(const vector<GameObject *> &list)
 {
@@ -1011,7 +1032,7 @@ void PixelEngine::removeGameObject(GameObjectGroup *group)
         if(m_userGroups[i] == group)
             m_userGroups.erase(m_userGroups.begin() + i);
     }
-    group->unsubscribe(this);
+    group->unsubscribeGroupSignal(this);
 }
 
 void PixelEngine::removeGameObjectsIntern()
@@ -1030,7 +1051,7 @@ void PixelEngine::removeGameObjectsIntern()
         obj->unsubscribeToDisplay(*m_display);
 
         obj->markAsTrash(true);
-        obj->unsubscribeAll();
+        obj->unsubscribeAllObjSignal();
         m_trashList.add(obj);
     }
     m_removeLaterObjectGroup.clear();

@@ -21,7 +21,7 @@ void InteractiveGameObject::constructor(const Settings &settings)
     m_interactsWithOthers           = false;
     //m_interactiveObjectsChunkMap    = new ChunkMap(settings.chunkMap);
     //m_gameObjectChunkMap            = new ChunkMap(settings.chunkMap);
-    m_objectTree                    = new ObjectTree(RectF(0,0,1000,1000),128);
+    m_objectTree                    = new ObjectTree(settings.objectTree);
 
     m_interactsWithObjectsList.push_back(new GameObjectGroup());
 }
@@ -36,10 +36,10 @@ InteractiveGameObject::InteractiveGameObject(const InteractiveGameObject &other)
 }
 InteractiveGameObject::~InteractiveGameObject()
 {
-    m_gameObject->unsubscribe(this);
+    m_gameObject->unsubscribeObjSignal(this);
     m_gameObject->setThisInteractiveGameObject(nullptr);
     for(GameObjectGroup* &group : m_interactsWithObjectsList)
-        group->unsubscribe(this);
+        group->unsubscribeGroupSignal(this);
     delete m_interactsWithObjectsList[0];
     //delete m_interactiveObjectsChunkMap;
     //delete m_gameObjectChunkMap;
@@ -58,12 +58,12 @@ const InteractiveGameObject &InteractiveGameObject::operator=(const InteractiveG
 
     for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
     {
-        m_interactsWithObjectsList[i]->unsubscribe(this);
+        m_interactsWithObjectsList[i]->unsubscribeGroupSignal(this);
     }
     m_interactsWithObjectsList = other.m_interactsWithObjectsList;
     for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
     {
-        m_interactsWithObjectsList[i]->subscribe(this);
+        m_interactsWithObjectsList[i]->subscribeGroupSignal(this);
     }
     return *this;
 }
@@ -82,12 +82,12 @@ void InteractiveGameObject::setGameObject(GameObject *obj)
 
     if(m_gameObject != nullptr)
     {
-        m_gameObject->unsubscribe(this);
+        m_gameObject->unsubscribeObjSignal(this);
         m_gameObject->setThisInteractiveGameObject(nullptr);
        // m_gameObjectChunkMap->remove(m_gameObject);
     }
     m_gameObject = obj;
-    m_gameObject->subscribe(this);
+    //m_gameObject->subscribe(this);
     m_gameObject->setThisInteractiveGameObject(this);
   //  m_gameObjectChunkMap->add(m_gameObject);
     //m_interactiveObjectsChunkMap->add(m_gameObject);
@@ -113,7 +113,7 @@ void InteractiveGameObject::addInteractionWith(GameObject *obj)
     m_interactsWithOthers = true;
     m_interactsWithObjectsList[0]->add(obj);
     m_objectTree->insert(obj);
-    obj->subscribe(this);
+    obj->subscribeObjSignal(this);
     m_interactorAmount++;
 
   //  m_interactiveObjectsChunkMap->add(obj);
@@ -135,11 +135,11 @@ void InteractiveGameObject::addInteractionWith(GameObjectGroup *group)
     m_interactsWithObjectsList.push_back(group);
     //m_interactiveObjectsChunkMap->add(group);
     //m_interactiveObjectsChunkMap->add(group);
-    group->subscribe(this);
+    group->subscribeGroupSignal(this);
     for(size_t i=0; i<group->size(); i++)
     {
         m_objectTree->insert((*group)[i]);
-        (*group)[i]->subscribe(this);
+        (*group)[i]->subscribeObjSignal(this);
     }
     m_interactorAmount+=group->size();
     //updateAllList();
@@ -160,7 +160,7 @@ void InteractiveGameObject::removeInteractionWith(GameObject *obj)
         return;
 
    m_interactsWithObjectsList[0]->remove(obj);
-   obj->unsubscribe(this);
+   obj->unsubscribeObjSignal(this);
    m_objectTree->removeRecursive(obj);
    if(m_interactorAmount == 0)
        qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
@@ -186,14 +186,14 @@ void InteractiveGameObject::removeInteractionWith(GameObjectGroup *group)
     {
         if(m_interactsWithObjectsList[i] == group)
         {
-            m_interactsWithObjectsList[i]->unsubscribe(this);
+            m_interactsWithObjectsList[i]->unsubscribeGroupSignal(this);
         //    m_interactiveObjectsChunkMap->remove(group);
             m_interactsWithObjectsList.erase(m_interactsWithObjectsList.begin()+i);
 
             for(size_t i=0; i<group->size(); i++)
             {
                 m_objectTree->removeRecursive((*group)[i]);
-                (*group)[i]->unsubscribe(this);
+                (*group)[i]->unsubscribeObjSignal(this);
             }
             if(m_interactorAmount < group->size())
                 qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
@@ -330,7 +330,7 @@ void InteractiveGameObject::adding(GameObjectGroup* sender,GameObject* obj)
     //updateAllList();
     //m_interactiveObjectsChunkMap->add(obj);
     m_objectTree->insert(obj);
-    obj->subscribe(this);
+    obj->subscribeObjSignal(this);
     m_interactorAmount++;
 }
 void InteractiveGameObject::adding(GameObjectGroup* sender,GameObjectGroup* group)
@@ -340,7 +340,7 @@ void InteractiveGameObject::adding(GameObjectGroup* sender,GameObjectGroup* grou
     for(size_t i=0; i<group->size(); i++)
     {
         m_objectTree->insert((*group)[i]);
-        (*group)[i]->subscribe(this);
+        (*group)[i]->subscribeObjSignal(this);
     }
     m_interactorAmount+=group->size();
 }
@@ -350,7 +350,7 @@ void InteractiveGameObject::removing(GameObjectGroup* sender,GameObject* obj)
     //updateAllList();
     //m_interactiveObjectsChunkMap->remove(obj);
     m_objectTree->removeRecursive(obj);
-    obj->unsubscribe(this);
+    obj->unsubscribeObjSignal(this);
     if(m_interactorAmount == 0)
         qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
     else
@@ -363,7 +363,7 @@ void InteractiveGameObject::removing(GameObjectGroup* sender,GameObjectGroup* gr
     for(size_t i=0; i<group->size(); i++)
     {
         m_objectTree->removeRecursive((*group)[i]);
-        (*group)[i]->unsubscribe(this);
+        (*group)[i]->unsubscribeObjSignal(this);
     }
     if(m_interactorAmount < group->size())
         qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
@@ -376,7 +376,7 @@ void InteractiveGameObject::willBeCleared(GameObjectGroup* sender)
     for(size_t i=0; i<sender->size(); i++)
     {
         m_objectTree->removeRecursive((*sender)[i]);
-        (*sender)[i]->unsubscribe(this);
+        (*sender)[i]->unsubscribeObjSignal(this);
     }
     if(m_interactorAmount < sender->size())
         qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";

@@ -57,11 +57,6 @@ class ObjectTree;
 class GameObjectGroup;
 class InteractiveGameObject;
 class InteractiveGameObjectGroup;
-//class ManagedGameObjectGroup;
-
-struct ChunkID;
-class Chunk;
-class ChunkMap;
 
 class Event;
 class LayerItem;
@@ -71,15 +66,12 @@ class GameObjectEventHandler;
 class Timer;
 class UserEventHandler;
 
-//template<class T>
+
 class ObjSignal;
 class ObjSubscriberList;
 
 class GroupSignal;
 class GroupSubscriberList;
-
-class ChunkSignal;
-class ChunkSubscriberList;
 
 class UserEventSignal;
 class UserEventSubscriberList;

@@ -67,10 +67,10 @@ class GeneralRect
         virtual bool isBeneathOf(const GeneralRect<T> &other);
         virtual bool isLeftOf(const GeneralRect<T> &other);
         virtual bool isRightOf(const GeneralRect<T> &other);
-        virtual bool contains(const Vector2<T> &point);
+        virtual bool contains(const Vector2<T> &point) const;
 
-        bool operator==(const GeneralRect<T> &other);
-        bool operator!=(const GeneralRect<T> &other);
+        bool operator==(const GeneralRect<T> &other) const;
+        bool operator!=(const GeneralRect<T> &other) const;
 
         VertexPath *getDrawable(const sf::Color &color = sf::Color(255,255,255,255)) const;
         VertexPath *getDrawableMesh(const sf::Color &color = sf::Color(255,255,255,255)) const;
@@ -134,6 +134,7 @@ class GeneralRect
         bool colliderDataEnabled;
         vector<VertexPath*> collisionData;
         float rotation;
+        bool axisAlligned; // True if the rect has a rotation of 0 deg
 };
 
 template<class T>
@@ -217,6 +218,7 @@ GeneralRect<T> &GeneralRect<T>::operator=(const GeneralRect<T> &other)
     this->frame_size= other.frame_size;
     this->colliderDataEnabled = other.colliderDataEnabled;
     this->rotation  = other.rotation;
+    this->axisAlligned  = other.axisAlligned;
     return *this;
 }
 template<class T>
@@ -344,6 +346,7 @@ void GeneralRect<T>::setSize(const Vector2<T> &size)
     BL = TL + Vector2<T>(0,size.y);
     BR = TL + size;
     this->rotate(TL,oldRot);
+    axisAlligned = rotation == 0;
     this->update();
 }
 template<class T>
@@ -424,6 +427,17 @@ void GeneralRect<T>::clearColliderData()
 template<class T>
 bool GeneralRect<T>::intersects(const GeneralRect<T> &other)
 {
+
+    if(this->axisAlligned && other.axisAlligned)
+        return intersects_fast(other);
+    if(this->axisAlligned)
+    {
+        return contains(other.TL) | contains(other.TR) | contains(other.BL) | contains(other.BR);
+    }
+    if(other.axisAlligned)
+    {
+        return other.contains(TL) | other.contains(TR) | other.contains(BL) | other.contains(BR);
+    }
     /*
 
         TL            top           TR
@@ -598,8 +612,15 @@ bool GeneralRect<T>::isLeftOf(const GeneralRect<T> &other)
     return false;
 }
 template<class T>
-bool GeneralRect<T>::contains(const Vector2<T> &point)
+bool GeneralRect<T>::contains(const Vector2<T> &point) const
 {
+    if(axisAlligned)
+    {
+        if(TL.x < point.x && TR.x > point.x &&
+           TL.y < point.y && BL.y > point.y)
+            return true;
+        return false;
+    }
     T divisor = left.x * bottom.y - left.y * bottom.x;
     if(divisor == 0)
         return false;
@@ -613,7 +634,7 @@ bool GeneralRect<T>::contains(const Vector2<T> &point)
 }
 
 template<class T>
-bool GeneralRect<T>::operator==(const GeneralRect<T> &other)
+bool GeneralRect<T>::operator==(const GeneralRect<T> &other) const
 {
     if(this->TL != other.TL)
         return false;
@@ -626,7 +647,7 @@ bool GeneralRect<T>::operator==(const GeneralRect<T> &other)
     return true;
 }
 template<class T>
-bool GeneralRect<T>::operator!=(const GeneralRect<T> &other)
+bool GeneralRect<T>::operator!=(const GeneralRect<T> &other) const
 {
     if(this->TL != other.TL)
         return true;
@@ -736,6 +757,7 @@ void GeneralRect<T>::rotate(const Vector2<T> &rotationPoint,const float &deg)
     BL = Vector2<T>(transform.transformPoint(Vector2f(BL)));
     BR = Vector2<T>(transform.transformPoint(Vector2f(BR)));
     rotation += deg;
+    axisAlligned = rotation == 0;
     this->update();
     /*sf::Rect<float> rect(m_pos.x,m_pos.y,m_size.x,m_size.y);
     sf::Transform transform;

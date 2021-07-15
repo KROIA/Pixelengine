@@ -10,6 +10,7 @@ DynamicCoordinator::DynamicCoordinator()
     m_xStepCounter      = 1;
     m_yStepInterval     = 0;
     m_yStepCounter      = 1;
+    m_neededSteps       = 0;
 }
 DynamicCoordinator::DynamicCoordinator(const DynamicCoordinator &other)
 {
@@ -52,14 +53,23 @@ void DynamicCoordinator::tick()
 void DynamicCoordinator::addMovement(const Vector2f &vec)
 {
     m_vecList.push_back(vec);
+    /*if(m_vecList.size() >= 2)
+    {
+        qDebug()<<m_vecList.size();
+        qDebug() << "";
+    }*/
 }
 
 void DynamicCoordinator::calculateMovement()
 {
     EASY_FUNCTION(profiler::colors::Pink600);
     Vector2f sum = Vector::sum(m_vecList);
-    this->clearMovement();
+    /*if(Vector::length(sum) != 0)
+        qDebug() << "";*/
+   // vector<Vector2f> b_m_vecList = m_vecList;
 
+
+   // bool b_m_neededSteps = m_neededSteps;
     if(m_neededSteps > 0)
     {
         sum += m_movingVector * float(m_neededSteps);
@@ -67,13 +77,19 @@ void DynamicCoordinator::calculateMovement()
     float length = Vector::length(sum);
     m_neededSteps = (unsigned int)length;
     if(length == 0)
+    {
+        this->clearMovement();
         return;
+    }
 
     m_xStepInterval = float(m_neededSteps)/abs(sum.x);
     m_yStepInterval = float(m_neededSteps)/abs(sum.y);
 
     m_movingVector.x = sum.x/length;
     m_movingVector.y = sum.y/length;
+    /*if(Vector::length(m_movingVector) != 0)
+        qDebug() << "";*/
+    this->clearMovement();
 }
 
 const unsigned int &DynamicCoordinator::getNeededSteps() const
@@ -96,5 +112,5 @@ const float       &DynamicCoordinator::getMovingVector_Y() const
 void DynamicCoordinator::clearMovement()
 {
     m_vecList.clear();
-    m_vecList.reserve(10);
+    //m_vecList.reserve(10);
 }

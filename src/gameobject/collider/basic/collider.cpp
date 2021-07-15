@@ -15,7 +15,7 @@ Collider::Collider()
 
     m_boundingBox_standardColor = Color(255,255,255,255);
     m_boundingBox_intersectingColor = Color(255,100,0,255);
-    m_boundingBox_color = m_boundingBox_standardColor;
+    m_boundingBox_color = &m_boundingBox_standardColor;
 
 
     m_hitbox_standardColor = Color(100,100,255,255);
@@ -205,7 +205,7 @@ bool Collider::intersectsBoundingBox(const Collider &other)
     stats_checkIntersectCounter += this->m_boundingBox.stats_intersectionCheckCounter;
     if(intersects)
     {
-        m_boundingBox_color = m_boundingBox_intersectingColor;
+        m_boundingBox_color = &m_boundingBox_intersectingColor;
         stats_doesIntersectCounter++;
     }
     return intersects;
@@ -246,7 +246,7 @@ bool Collider::collides(const Collider &other)
 }
 void Collider::tick()
 {
-    m_boundingBox_color = m_boundingBox_standardColor;
+    m_boundingBox_color = &m_boundingBox_standardColor;
     for(size_t i=0; i<m_hitBoxListDoesIntersect.size(); i++)
     {
         m_hitBoxListDoesIntersect[i] = false;
@@ -377,7 +377,7 @@ void Collider::setHitboxFromTexture(const Texture *texture)
 }
 VertexPath* Collider::getDrawableBoundingBox()
 {
-    return m_boundingBox.getDrawable(m_boundingBox_color);
+    return m_boundingBox.getDrawable(*m_boundingBox_color);
 }
 
 void Collider::generateCollisionData(bool enable)

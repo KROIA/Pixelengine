@@ -82,9 +82,9 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         static void removinguplicates(GameObjectGroup *list);
 
         // Signals
-        virtual void subscribe(GroupSignal   *subscriber);
-        virtual void unsubscribe(GroupSignal *subscriber);
-        virtual void unsubscribeAll();
+        virtual void subscribeGroupSignal(GroupSignal   *subscriber);
+        virtual void unsubscribeGroupSignal(GroupSignal *subscriber);
+        virtual void unsubscribeAllGroupSignal();
 
     protected:
         void addInternal(GameObject *object);
