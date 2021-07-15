@@ -57,6 +57,7 @@ INCLUDEPATH += $$incPath \
 SOURCES += \
         $$PWD/src/utility/group/chunk/chunk.cpp \
         $$PWD/src/utility/group/chunk/chunkMap.cpp \
+        $$PWD/src/utility/group/objectTree.cpp \
         $$PWD/src/utility/signalSubscriber.cpp \
         $$PWD/src/utility/settings.cpp \
         $$PixelEngine_srcPath/display/drawUtilities.cpp \
@@ -92,6 +93,7 @@ HEADERS += \
         $$PWD/inc/utility/group/chunk/chunk.h \
         $$PWD/inc/utility/group/chunk/chunkID.h \
         $$PWD/inc/utility/group/chunk/chunkMap.h \
+        $$PWD/inc/utility/group/objectTree.h \
         $$PWD/inc/utility/signalSubscriber.h \
         $$PixelEngine_incPath/display/drawUtilities.h \
         $$PixelEngine_incPath/gameobject/painter/texturePainter.h \

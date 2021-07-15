@@ -319,7 +319,16 @@ void GameObjectGroup::setVisibility(bool isVisible)
         m_isInList[i]->setVisibility(m_visibility);
     }
 }
-void GameObjectGroup::setVisibility_chunks(bool isVisible)
+void GameObjectGroup::setVisibility_objectTree(bool isVisible)
+{
+    EASY_FUNCTION(profiler::colors::Purple500);
+    for(size_t i=0; i<m_isInList.size(); i++)
+    {
+        m_isInList[i]->setVisibility_objectTree(isVisible);
+    }
+    m_visibility_objectTree = isVisible;
+}
+/*void GameObjectGroup::setVisibility_chunks(bool isVisible)
 {
     EASY_FUNCTION(profiler::colors::Purple500);
     m_visibility_chunks = isVisible;
@@ -335,7 +344,7 @@ void GameObjectGroup::setVisibility_chunk(const ChunkID &id, bool isVisible)
     {
         m_isInList[i]->setVisibility_chunk(id,isVisible);
     }
-}
+}*/
 void GameObjectGroup::setVisibility_collider_hitbox(bool isVisible)
 {
     EASY_FUNCTION(profiler::colors::Purple500);
@@ -376,14 +385,18 @@ bool GameObjectGroup::isVisible() const
 {
     return m_visibility;
 }
-bool GameObjectGroup::isVisible_chunks() const
+bool GameObjectGroup::isVisible_objectTree() const
+{
+    return m_visibility_objectTree;
+}
+/*bool GameObjectGroup::isVisible_chunks() const
 {
     return m_visibility_chunks;
 }
 bool GameObjectGroup::isVisible_collider_hitbox() const
 {
     return m_visibility_collider_hitbox;
-}
+}*/
 bool GameObjectGroup::isVisible_collider_boundingBox() const
 {
     return m_visibility_collider_boundingBox;

@@ -223,7 +223,7 @@ void GameObject::draw(PixelDisplay &display)
         return;
     if(m_thisInteractiveObject != nullptr)
     {
-        m_thisInteractiveObject->draw_chunks(display);
+        m_thisInteractiveObject->drawObjectTree(display);
     }
 
     if(m_painter != m_originalPainter)
@@ -611,6 +611,10 @@ void GameObject::setHitboxFromTexture(const Texture &texture)
     m_textureIsActiveForCollider = true;
     m_collider->setHitboxFromTexture(&texture);
 }
+const RectF &GameObject::getBoundingBox() const
+{
+    return m_collider->getBoundingBox();
+}
 
 
 
@@ -620,7 +624,12 @@ void GameObject::setVisibility(bool isVisible)
     m_visibility = isVisible;
     m_painter->setVisibility(isVisible);
 }
-void GameObject::setVisibility_chunks(bool isVisible)
+void GameObject::setVisibility_objectTree(bool isVisible)
+{
+    if(m_thisInteractiveObject != nullptr)
+        m_thisInteractiveObject->setVisibility_objectTree(isVisible);
+}
+/*void GameObject::setVisibility_chunks(bool isVisible)
 {
     //m_visibility_chunkMap = isVisible;
     if(m_thisInteractiveObject != nullptr)
@@ -630,7 +639,7 @@ void GameObject::setVisibility_chunk(const ChunkID &id, bool isVisible)
 {
     if(m_thisInteractiveObject != nullptr)
         m_thisInteractiveObject->setVisibility_chunk(id,isVisible);
-}
+}*/
 
 void GameObject::setVisibility_collider_hitbox(bool isVisible)
 {
@@ -654,7 +663,13 @@ bool GameObject::isVisible() const
 {
     return m_visibility;
 }
-bool GameObject::isVisible_chunks() const
+bool GameObject::isVisible_objectTree() const
+{
+    if(m_thisInteractiveObject != nullptr)
+        return m_thisInteractiveObject->isVisible_objectTree();
+    return false;
+}
+/*bool GameObject::isVisible_chunks() const
 {
    // return m_visibility_chunkMap;
     if(m_thisInteractiveObject != nullptr)
@@ -666,7 +681,7 @@ bool GameObject::isVisible_chunk(const ChunkID &id) const
     if(m_thisInteractiveObject != nullptr)
         return m_thisInteractiveObject->isVisible_chunk(id);
     return false;
-}
+}*/
 bool GameObject::isVisible_collider_hitbox() const
 {
     return m_visibility_collider_hitbox;

@@ -166,8 +166,8 @@ PixelEngine::Settings PixelEngine::getSettings()
 void PixelEngine::setSettings(const Settings &settings)
 {
     __defaultSettings                           = settings;
-    Chunk::__defaultSettings                    = settings.gameObject.chunkMap.chunk;
-    ChunkMap::__defaultSettings                 = settings.gameObject.chunkMap;
+    //Chunk::__defaultSettings                    = settings.gameObject.chunkMap.chunk;
+    //ChunkMap::__defaultSettings                 = settings.gameObject.chunkMap;
     InteractiveGameObject::__defaultSettings    = settings.gameObject;
     DisplayText::__defaultSettings              = settings.text;
     PixelDisplay::__defaultSettings             = settings.display;
@@ -855,10 +855,10 @@ void PixelEngine::display()
 #endif
 
     EASY_BLOCK("m_renderLayer->display",profiler::colors::OrangeA100)
-   /* for(size_t i=0; i<m_renderLayer.size(); i++)
+    for(size_t i=0; i<m_renderLayer.size(); i++)
     {        
         m_renderLayer[i].draw(*m_display);
-    }*/
+    }
     EASY_END_BLOCK;
     /*EASY_BLOCK("draw_chunks",profiler::colors::OrangeA100)
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
@@ -962,7 +962,7 @@ void PixelEngine::addGameObject(GameObject *obj)
         obj->updateBoundingBox();
     obj->setEventHandler(this);
     //obj->setTextSettings(m_settings.text);
-    obj->subscribeToDisplay(*m_display);
+   // obj->subscribeToDisplay(*m_display);
     obj->preRun();
   //  m_masterNoInteractionGameObjectList.add(obj);
     if(!m_setupDone)

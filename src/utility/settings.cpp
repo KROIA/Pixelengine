@@ -16,7 +16,7 @@ ChunkMap::Settings ChunkMap::__defaultSettings
 };
 InteractiveGameObject::Settings InteractiveGameObject::__defaultSettings
 {
-    .chunkMap       = ChunkMap::__defaultSettings
+    //.chunkMap       = ChunkMap::__defaultSettings
 };
 DisplayText::Settings DisplayText::__defaultSettings
 {

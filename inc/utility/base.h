@@ -53,6 +53,7 @@ class Sensor;
 class Texture;
 class AnimatedTexture;
 
+class ObjectTree;
 class GameObjectGroup;
 class InteractiveGameObject;
 class InteractiveGameObjectGroup;

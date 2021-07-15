@@ -60,7 +60,9 @@ class GeneralRect
         virtual void clearColliderData();
         virtual bool intersects(const GeneralRect<T> &other); // returns true if this and ohter are intersecting
         virtual bool intersects_fast(const GeneralRect<T> &other); // returns true if this and ohter are intersecting
+        static  bool intersects_fast(const GeneralRect<T> &first,const GeneralRect<T> &second);
         virtual bool intersects_inverse_fast(const GeneralRect<T> &other); // returns true if this is intersecting the inverse of the other
+        static  bool intersects_inverse_fast(const GeneralRect<T> &first,const GeneralRect<T> &second);
         virtual bool isOnTopOf(const GeneralRect<T> &other);
         virtual bool isBeneathOf(const GeneralRect<T> &other);
         virtual bool isLeftOf(const GeneralRect<T> &other);
@@ -514,55 +516,44 @@ bool GeneralRect<T>::intersects_fast(const GeneralRect<T> &other)
     // It will check the collision on the Frame of the Rect
 
     // If one rectangle is on left side of other
-    if(frame_pos.x >  other.frame_pos.x + other.frame_size.x ||
-       other.frame_pos.x > frame_pos.x + frame_size.x)
+    stats_intersectionCheckCounter = 2;
+    return intersects_fast(*this,other);
+}
+
+template<class T>
+bool GeneralRect<T>::intersects_fast(const GeneralRect<T> &first,const GeneralRect<T> &second)
+{
+    if(first.frame_pos.x >  second.frame_pos.x + second.frame_size.x ||
+       second.frame_pos.x > first.frame_pos.x + first.frame_size.x)
     {
-        stats_intersectionCheckCounter = 1;
         return false;
     }
 
-    // If one rectangle is above other
-    if(frame_pos.y >  other.frame_pos.y + other.frame_size.y ||
-       other.frame_pos.y > frame_pos.y + frame_size.y)
+    // If one rectangle is above second
+    if(first.frame_pos.y >  second.frame_pos.y + second.frame_size.y ||
+       second.frame_pos.y > first.frame_pos.y + first.frame_size.y)
     {
-        stats_intersectionCheckCounter = 1;
         return false;
     }
-    stats_intersectionCheckCounter = 2;
     return true;
 }
+
 // returns true if this is intersecting the inverse of the other
 template<class T>
 bool GeneralRect<T>::intersects_inverse_fast(const GeneralRect<T> &other)
 {
-    stats_intersectionCheckCounter = 1;
-    /*if(frame_pos.x > other.frame_pos.x && frame_pos.x + frame_size.x < other.frame_pos.x + other.frame_size.x)
-        return true;
-    if(frame_pos.x < other.frame_pos.x && frame_pos.x + frame_size.x > other.frame_pos.x + other.frame_size.x)
-    {
-        stats_intersectionCheckCounter++;
-        return true;
-    }
-    stats_intersectionCheckCounter++;
-    if(frame_pos.y > other.frame_pos.y && frame_pos.y + frame_size.y < other.frame_pos.y + other.frame_size.y)
-    {
-        stats_intersectionCheckCounter++;
-        return true;
-    }
-    stats_intersectionCheckCounter++;
-    if(frame_pos.y < other.frame_pos.y && frame_pos.y + frame_size.y > other.frame_pos.y)
-    {
-        stats_intersectionCheckCounter++;
-        return true;
-    }*/
+    stats_intersectionCheckCounter = 2;
+    return intersects_inverse_fast(*this,other);
+}
 
-    if(frame_pos.x > other.frame_pos.x && frame_pos.x + frame_size.x < other.frame_pos.x + other.frame_size.x &&
-       frame_pos.y > other.frame_pos.y && frame_pos.y + frame_size.y < other.frame_pos.y + other.frame_size.y)
+template<class T>
+bool GeneralRect<T>::intersects_inverse_fast(const GeneralRect<T> &first,const GeneralRect<T> &second)
+{
+    if(first.frame_pos.x > second.frame_pos.x && first.frame_pos.x + first.frame_size.x < second.frame_pos.x + second.frame_size.x &&
+       first.frame_pos.y > second.frame_pos.y && first.frame_pos.y + first.frame_size.y < second.frame_pos.y + second.frame_size.y)
     {
-        stats_intersectionCheckCounter++;
         return false;
     }
-    stats_intersectionCheckCounter++;
     return true;
 }
 

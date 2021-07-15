@@ -18,8 +18,9 @@ void InteractiveGameObject::constructor(const Settings &settings)
     m_gameObject                    = nullptr;
     m_drawingIsDisabled             = true;
     m_interactsWithOthers           = false;
-    m_interactiveObjectsChunkMap    = new ChunkMap(settings.chunkMap);
-    m_gameObjectChunkMap            = new ChunkMap(settings.chunkMap);
+    //m_interactiveObjectsChunkMap    = new ChunkMap(settings.chunkMap);
+    //m_gameObjectChunkMap            = new ChunkMap(settings.chunkMap);
+    m_objectTree                    = new ObjectTree(RectF(0,0,1000,1000),128);
 
     m_interactsWithObjectsList.push_back(new GameObjectGroup());
 }
@@ -27,8 +28,8 @@ InteractiveGameObject::InteractiveGameObject(const InteractiveGameObject &other)
 {
     this->setGameObject(other.m_gameObject);
     this->m_interactsWithObjectsList    = other.m_interactsWithObjectsList;
-    this->m_interactiveObjectsChunkMap  = new ChunkMap(*other.m_interactiveObjectsChunkMap);
-    this->m_gameObjectChunkMap          = new ChunkMap(*other.m_gameObjectChunkMap);
+   // this->m_interactiveObjectsChunkMap  = new ChunkMap(*other.m_interactiveObjectsChunkMap);
+   // this->m_gameObjectChunkMap          = new ChunkMap(*other.m_gameObjectChunkMap);
     this->m_drawingIsDisabled           = other.m_drawingIsDisabled;
     this->m_interactsWithOthers         = other.m_interactsWithOthers;
 }
@@ -39,14 +40,16 @@ InteractiveGameObject::~InteractiveGameObject()
     for(GameObjectGroup* &group : m_interactsWithObjectsList)
         group->unsubscribe(this);
     delete m_interactsWithObjectsList[0];
-    delete m_interactiveObjectsChunkMap;
-    delete m_gameObjectChunkMap;
+    //delete m_interactiveObjectsChunkMap;
+    //delete m_gameObjectChunkMap;
+    delete m_objectTree;
 }
 const InteractiveGameObject &InteractiveGameObject::operator=(const InteractiveGameObject &other)
 {
     setGameObject(other.m_gameObject);
-    *m_interactiveObjectsChunkMap   = *other.m_interactiveObjectsChunkMap;
-    *m_gameObjectChunkMap           = *other.m_gameObjectChunkMap;
+    //*m_interactiveObjectsChunkMap   = *other.m_interactiveObjectsChunkMap;
+    //*m_gameObjectChunkMap           = *other.m_gameObjectChunkMap;
+
     m_drawingIsDisabled             = other.m_drawingIsDisabled;
     m_interactsWithOthers           = other.m_interactsWithOthers;
 
@@ -64,7 +67,7 @@ const InteractiveGameObject &InteractiveGameObject::operator=(const InteractiveG
 InteractiveGameObject::Settings InteractiveGameObject::getSettings() const
 {
     Settings settings;
-    settings.chunkMap = m_interactiveObjectsChunkMap->getSettings();
+   // settings.chunkMap = m_interactiveObjectsChunkMap->getSettings();
 
     return settings;
 }
@@ -78,12 +81,12 @@ void InteractiveGameObject::setGameObject(GameObject *obj)
     {
         m_gameObject->unsubscribe(this);
         m_gameObject->setThisInteractiveGameObject(nullptr);
-        m_gameObjectChunkMap->remove(m_gameObject);
+       // m_gameObjectChunkMap->remove(m_gameObject);
     }
     m_gameObject = obj;
     m_gameObject->subscribe(this);
     m_gameObject->setThisInteractiveGameObject(this);
-    m_gameObjectChunkMap->add(m_gameObject);
+  //  m_gameObjectChunkMap->add(m_gameObject);
     //m_interactiveObjectsChunkMap->add(m_gameObject);
 }
 GameObject *InteractiveGameObject::getGameObject() const
@@ -106,7 +109,7 @@ void InteractiveGameObject::addInteractionWith(GameObject *obj)
 #endif
     m_interactsWithOthers = true;
     m_interactsWithObjectsList[0]->add(obj);
-    m_interactiveObjectsChunkMap->add(obj);
+  //  m_interactiveObjectsChunkMap->add(obj);
 
 }
 void InteractiveGameObject::addInteractionWith(GameObjectGroup *group)
@@ -123,7 +126,7 @@ void InteractiveGameObject::addInteractionWith(GameObjectGroup *group)
 #endif
     m_interactsWithOthers = true;
     m_interactsWithObjectsList.push_back(group);
-    m_interactiveObjectsChunkMap->add(group);
+    //m_interactiveObjectsChunkMap->add(group);
     //m_interactiveObjectsChunkMap->add(group);
     group->subscribe(this);
     //updateAllList();
@@ -144,7 +147,7 @@ void InteractiveGameObject::removeInteractionWith(GameObject *obj)
         return;
 
    m_interactsWithObjectsList[0]->remove(obj);
-   m_interactiveObjectsChunkMap->remove(obj);
+   //m_interactiveObjectsChunkMap->remove(obj);
 #ifdef CHECK_FOR_DOUBLE_OBJ
     for(size_t i=1; i<m_interactsWithObjectsList.size(); i++)
     {
@@ -163,7 +166,7 @@ void InteractiveGameObject::removeInteractionWith(GameObjectGroup *group)
         if(m_interactsWithObjectsList[i] == group)
         {
             m_interactsWithObjectsList[i]->unsubscribe(this);
-            m_interactiveObjectsChunkMap->remove(group);
+        //    m_interactiveObjectsChunkMap->remove(group);
             m_interactsWithObjectsList.erase(m_interactsWithObjectsList.begin()+i);
         }
     }
@@ -216,9 +219,39 @@ const vector<GameObjectGroup*> &InteractiveGameObject::getInteractiveObjectsList
 const vector<GameObject*> InteractiveGameObject::getInteractiveObjects()
 {
     EASY_FUNCTION(profiler::colors::Purple400);
-    return m_interactiveObjectsChunkMap->getGameObjectGroup(m_gameObject->getChunkIDList());
+    m_objectTree->clear();
+    size_t maxPossibleSize = 0;
+    for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
+    {
+        maxPossibleSize += m_interactsWithObjectsList[i]->size();
+        for(size_t j=0; j<m_interactsWithObjectsList[i]->size(); j++)
+        {
+            m_objectTree->insert((*m_interactsWithObjectsList[i])[j]);
+        }
+    }
+    vector<GameObject*> possibleInteractionList;
+    possibleInteractionList.reserve(maxPossibleSize);
+    m_objectTree->query(m_gameObject->getBoundingBox(),possibleInteractionList);
+
+    return possibleInteractionList;
+    //return m_interactiveObjectsChunkMap->getGameObjectGroup(m_gameObject->getChunkIDList());
     //return m_allList;
 }
+void InteractiveGameObject::drawObjectTree(PixelDisplay &display)
+{
+    if(m_drawingIsDisabled)
+       return;
+    m_objectTree->draw(display);
+}
+void InteractiveGameObject::setVisibility_objectTree(bool isVisible)
+{
+    m_drawingIsDisabled = !isVisible;
+}
+bool InteractiveGameObject::isVisible_objectTree() const
+{
+    return !m_drawingIsDisabled;
+}
+/*
 void InteractiveGameObject::draw_chunks(PixelDisplay &display)
 {
     if(m_drawingIsDisabled)
@@ -246,7 +279,7 @@ bool InteractiveGameObject::isVisible_chunks() const
 {
     return m_gameObjectChunkMap->isVisible_chunks();
 }
-
+*/
 // GameObject singals:
 void InteractiveGameObject::moved(GameObject* sender,const Vector2f &move)
 {
@@ -262,29 +295,29 @@ void InteractiveGameObject::adding(GameObjectGroup* sender,GameObject* obj)
 {
     //qDebug() << "sender: "<<sender << " adding: "<<obj;
     //updateAllList();
-    m_interactiveObjectsChunkMap->add(obj);
+    //m_interactiveObjectsChunkMap->add(obj);
 }
 void InteractiveGameObject::adding(GameObjectGroup* sender,GameObjectGroup* group)
 {
     //updateAllList();
-    m_interactiveObjectsChunkMap->add(group);
+    //m_interactiveObjectsChunkMap->add(group);
 }
 void InteractiveGameObject::removing(GameObjectGroup* sender,GameObject* obj)
 {
     //qDebug() << "sender: "<<sender << " removing: "<<obj;
     //updateAllList();
-    m_interactiveObjectsChunkMap->remove(obj);
+    //m_interactiveObjectsChunkMap->remove(obj);
     obj->unsubscribe(this);
 }
 void InteractiveGameObject::removing(GameObjectGroup* sender,GameObjectGroup* group)
 {
     //updateAllList();
-    m_interactiveObjectsChunkMap->remove(group);
+    //m_interactiveObjectsChunkMap->remove(group);
 
 }
 void InteractiveGameObject::willBeCleared(GameObjectGroup* sender)
 {
-    m_interactiveObjectsChunkMap->remove(sender);
+    //m_interactiveObjectsChunkMap->remove(sender);
 
 }
 void InteractiveGameObject::cleared(GameObjectGroup* sender)

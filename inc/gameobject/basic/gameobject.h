@@ -111,20 +111,23 @@ class GameObject : private UserEventSignal
         virtual const bool &isBoundingBoxUpdated() const;
         virtual void updateBoundingBox();
         virtual void setHitboxFromTexture(const Texture &texture);
+        virtual const RectF &getBoundingBox() const;
 
 
         // Painter
         virtual void setVisibility(bool isVisible);
-        virtual void setVisibility_chunks(bool isVisible);
-        virtual void setVisibility_chunk(const ChunkID &id, bool isVisible);
+        virtual void setVisibility_objectTree(bool isVisible);
+        //virtual void setVisibility_chunks(bool isVisible);
+        //virtual void setVisibility_chunk(const ChunkID &id, bool isVisible);
         virtual void setVisibility_collider_hitbox(bool isVisible);
         virtual void setVisibility_collider_boundingBox(bool isVisible);
         virtual void setVisibility_collider_collisionData(bool isVisible);
         virtual void setVisibility_collider_isCollidingWith(bool isVisible);
 
         virtual bool isVisible() const;
-        virtual bool isVisible_chunks() const;
-        virtual bool isVisible_chunk(const ChunkID &id) const;
+        virtual bool isVisible_objectTree() const;
+        //virtual bool isVisible_chunks() const;
+        //virtual bool isVisible_chunk(const ChunkID &id) const;
         virtual bool isVisible_collider_hitbox() const;
         virtual bool isVisible_collider_boundingBox() const;
         virtual bool isVisible_collider_collisionData() const;
