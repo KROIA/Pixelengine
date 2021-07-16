@@ -5,7 +5,6 @@
 
 #include "rect.h"
 #include "pixel.h"
-#include "displayText.h"
 #include "drawUtilities.h"
 #include "painter.h"
 #include "signalSubscriber.h"
