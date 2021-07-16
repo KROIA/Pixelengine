@@ -68,8 +68,8 @@ class GameObject : private UserEventSignal, ControllerSignal
         virtual void clearController();
         virtual void setCollider(Collider *collider);
         virtual const Collider &getCollider() const;
-        virtual void setPainter(SpritePainter *painter);
-        virtual const SpritePainter &getPainter() const;
+        virtual void setPainter(Painter *painter);
+        virtual const Painter &getPainter() const;
 
 
         virtual void setPosInital(const Vector2f &pos);
@@ -183,7 +183,7 @@ class GameObject : private UserEventSignal, ControllerSignal
 
 
         // Painter
-        SpritePainter       *m_painter;
+        Painter       *m_painter;
         //VertexPathPainter   *m_vertexPathPainter;
         ColliderPainter     *m_colliderPainter;
         PixelPainter  *m_originalPainter;

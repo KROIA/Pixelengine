@@ -437,7 +437,7 @@ const Collider &GameObject::getCollider() const
 {
     return *m_collider;
 }
-void GameObject::setPainter(SpritePainter *painter)
+void GameObject::setPainter(Painter *painter)
 {
     EASY_FUNCTION(profiler::colors::GreenA200);
     if(m_painter == painter || painter == nullptr)
@@ -446,7 +446,7 @@ void GameObject::setPainter(SpritePainter *painter)
    //     delete m_painter;
     m_painter = painter;
 }
-const SpritePainter &GameObject::getPainter() const
+const Painter &GameObject::getPainter() const
 {
     return *m_painter;
 }

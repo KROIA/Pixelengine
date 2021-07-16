@@ -29,6 +29,8 @@ void PixelDisplay::constructor(const Settings &settings)
     settings.antialiasingLevel = 8;*/
     m_renderWindow = new sf::RenderWindow(sf::VideoMode(m_windowSize.x,m_windowSize.y),
                                           "PixelDisplay",sf::Style::Default, settings.sf_contextSettings);
+    m_renderWindow->setVerticalSyncEnabled(true);
+    m_renderWindow->setActive(true);
     m_backgroundColor = settings.backgroundColor;
 
     m_image.create(m_pixelMapSize.x,m_pixelMapSize.y,m_backgroundColor);
@@ -106,10 +108,14 @@ void PixelDisplay::display()
             continue;
         for(auto pair : m_renderLayerList[i].table)
         {
-            if(pair.second->needsRendering(m_renderFrame)/* && pair.second->getFrame().intersects_fast(m_renderFrame)*/)
+            if(pair.second->needsRendering(m_renderFrame))
                 pair.second->render(m_renderWindow,m_viewPortZoom,m_stats);
         }
     }
+
+
+
+
    /* VertexPath *frame = m_renderFrame.getDrawableMesh();
     m_renderWindow->draw(frame->line, frame->length, frame->type);
     delete frame;*/

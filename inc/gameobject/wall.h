@@ -32,7 +32,7 @@ class Wall  :   public GameObject
 
         Collider    *m_collider;
         Controller  *m_controller;
-        SpritePainter     *m_painter;
+        Painter     *m_painter;
 
     private:
 

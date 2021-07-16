@@ -25,6 +25,7 @@ void PixelEngine::constructor(const Settings &settings)
     setSettings(settings);
     m_display            = new PixelDisplay(__defaultSettings.display);
     m_engineIsRunning    = true;
+    m_drawingEnabled     = true;
 
     m_drawingEnabled     = true;
     m_nextSyncLoopActive = false;
