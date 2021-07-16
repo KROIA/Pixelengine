@@ -55,15 +55,14 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/display
 
 SOURCES += \
-        $$PWD/src/gameobject/painter/colliderPainter.cpp \
-        $$PWD/src/gameobject/painter/textPainter.cpp \
-        $$PWD/src/gameobject/painter/vertexPathPainter.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/colliderPainter.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/textPainter.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/vertexPathPainter.cpp \
         $$PixelEngine_srcPath/utility/group/objectTree.cpp \
         $$PixelEngine_srcPath/utility/signalSubscriber.cpp \
         $$PixelEngine_srcPath/utility/settings.cpp \
         $$PixelEngine_srcPath/display/drawUtilities.cpp \
         $$PixelEngine_srcPath/gameobject/painter/texturePainter.cpp \
-        $$PixelEngine_srcPath/display/displayText.cpp \
         $$PixelEngine_srcPath/utility/group/InteractiveGameObject.cpp \
         $$PixelEngine_srcPath/utility/group/InteractiveGameObjectGroup.cpp \
         $$PixelEngine_srcPath/gameobject/controller/basic/dynamicCoordinator.cpp \
@@ -90,16 +89,15 @@ SOURCES += \
         $$PixelEngine_srcPath/utility/layeritem.cpp
 
 HEADERS += \
-        $$PWD/inc/gameobject/painter/colliderPainter.h \
-        $$PWD/inc/gameobject/painter/textPainter.h \
-        $$PWD/inc/gameobject/painter/vertexPathPainter.h \
+        $$PixelEngine_incPath/gameobject/painter/colliderPainter.h \
+        $$PixelEngine_incPath/gameobject/painter/textPainter.h \
+        $$PixelEngine_incPath/gameobject/painter/vertexPathPainter.h \
         $$PixelEngine_incPath/utility/base.h \
         $$PixelEngine_incPath/utility/group/objectTree.h \
         $$PixelEngine_incPath/utility/signalSubscriber.h \
         $$PixelEngine_incPath/display/drawUtilities.h \
         $$PixelEngine_incPath/gameobject/painter/texturePainter.h \
         $$PixelEngine_incPath/utility/mathFunctions.h \
-        $$PixelEngine_incPath/display/displayText.h \
         $$PixelEngine_incPath/utility/group/InteractiveGameObject.h \
         $$PixelEngine_incPath/utility/group/InteractiveGameObjectGroup.h \
         $$PixelEngine_incPath/utility/group/groupManagerInterface.h \
