@@ -12,6 +12,7 @@ Collider::Collider()
     m_dummy.setSize(0,0);
     m_boundingBoxUpdated = false;
     m_generate_collisionData = false;
+    m_stateChanged      = false;
 
     m_boundingBox_standardColor = Color(255,255,255,255);
     m_boundingBox_intersectingColor = Color(255,100,0,255);
@@ -49,6 +50,7 @@ void Collider::setPosInitial(const Vector2f &pos)
     if(LayerItem::getX() == pos.x && LayerItem::getY() == pos.y)
         return;
     LayerItem::setPosInitial(pos);
+    m_stateChanged = true;
 }
 void Collider::setPosInitial(const Vector2i &pos)
 {
@@ -56,6 +58,7 @@ void Collider::setPosInitial(const Vector2i &pos)
     if(LayerItem::getX() == pos.x && LayerItem::getY() == pos.y)
         return;
     LayerItem::setPosInitial(pos);
+    m_stateChanged = true;
 }
 void Collider::setPosInitial(int x, int y)
 {
@@ -63,6 +66,7 @@ void Collider::setPosInitial(int x, int y)
     if(LayerItem::getX() == x && LayerItem::getY() == y)
         return;
     LayerItem::setPosInitial(x,y);
+    m_stateChanged = true;
 }
 void Collider::setPosInitial(float x, float y)
 {
@@ -70,6 +74,7 @@ void Collider::setPosInitial(float x, float y)
     if(LayerItem::getX() == x && LayerItem::getY() == y)
         return;
     LayerItem::setPosInitial(x,y);
+    m_stateChanged = true;
 }
 void Collider::setPos(const Vector2f &pos)
 {
@@ -83,6 +88,7 @@ void Collider::setPos(const Vector2f &pos)
         m_hitboxList[i].setPos(m_hitboxList[i].getPos() + deltaPos);
     }
     LayerItem::setPos(pos);
+    m_stateChanged = true;
 }
 void Collider::setPos(const Vector2i &pos)
 {
@@ -109,6 +115,7 @@ void Collider::setX(float x)
         m_hitboxList[i].setX(m_hitboxList[i].getPos().x + deltaX);
     }
     LayerItem::setX(x);
+    m_stateChanged = true;
 }
 void Collider::setY(float y)
 {
@@ -122,6 +129,7 @@ void Collider::setY(float y)
         m_hitboxList[i].setY(m_hitboxList[i].getPos().y + deltaY);
     }
     LayerItem::setY(y);
+    m_stateChanged = true;
 }
 
 
@@ -294,6 +302,7 @@ void Collider::setBoundingBox(const RectF &box)
     EASY_FUNCTION(profiler::colors::RedA100);
     m_boundingBox = box;
     m_boundingBoxUpdated = true;
+    m_stateChanged = true;
 }
 
 void Collider::setBoundingBox(const int &x,const int &y,
@@ -303,6 +312,7 @@ void Collider::setBoundingBox(const int &x,const int &y,
     m_boundingBox.setPos(x,y);
     m_boundingBox.setSize(width,height);
     m_boundingBoxUpdated = true;
+    m_stateChanged = true;
 }
 
 
@@ -379,7 +389,38 @@ VertexPath* Collider::getDrawableBoundingBox()
 {
     return m_boundingBox.getDrawable(*m_boundingBox_color);
 }
-
+void Collider::setColor_boundingBox_noIntersection(const Color &color)
+{
+    m_boundingBox_standardColor = color;
+}
+void Collider::setColor_boundingBox_intersecting(const Color &color)
+{
+    m_boundingBox_intersectingColor = color;
+}
+void Collider::setColor_hitBox_noCollision(const Color &color)
+{
+    m_hitbox_standardColor = color;
+}
+void Collider::setColor_hitBox_colliding(const Color &color)
+{
+    m_hitbox_intersectingColor = color;
+}
+const Color &Collider::getColor_boundingBox_noIntersection() const
+{
+    return m_boundingBox_standardColor;
+}
+const Color &Collider::getColor_boundingBox_intersecting() const
+{
+    return m_boundingBox_intersectingColor;
+}
+const Color &Collider::getColor_hitBox_noCollision() const
+{
+    return m_hitbox_standardColor;
+}
+const Color &Collider::getColor_hitBox_colliding() const
+{
+    return m_hitbox_intersectingColor;
+}
 void Collider::generateCollisionData(bool enable)
 {
     m_generate_collisionData = enable;
@@ -408,6 +449,14 @@ vector<VertexPath*> Collider::getDrawableColliderVector()
         //list.push_back(Vector::getDrawableVectorFunc(Vector2f(0,0),m_colliderVector[i],m_colliderVector[i].scalar));
     }*/
     return m_collisionData;
+}
+void Collider::resetStateChanged()
+{
+    m_stateChanged = false;
+}
+bool Collider::stateChanged() const
+{
+    return m_stateChanged;
 }
 void Collider::stats_reset()
 {

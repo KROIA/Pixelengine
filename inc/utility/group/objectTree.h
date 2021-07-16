@@ -5,6 +5,8 @@
 #include "gameobject.h"
 #include "pixelDisplay.h"
 #include "signalSubscriber.h"
+#include "drawUtilities.h"
+//#include "vertexPathPainter.h"
 
 class ObjectTree    :   private ObjSignal
 {
@@ -23,12 +25,17 @@ class ObjectTree    :   private ObjSignal
         virtual ~ObjectTree();
 
         virtual bool insert(GameObject *obj);
-
         virtual void query(const RectF &region,vector<GameObject*> &buffer);
-        virtual void draw(PixelDisplay &display);
+        virtual void getDrawable(vector<VertexPath*> &drawable,const Color &color = Color(255,255,255));
+        //virtual void draw(PixelDisplay &display);
         virtual void clear();
         virtual void removeInLeaf(GameObject *obj);
         virtual void removeRecursive(GameObject *obj);
+
+        /*virtual void subscribeToDisplay(PixelDisplay &display);
+        virtual void unsubscribeToDisplay(PixelDisplay &display);
+        virtual void setVisibility(bool isVisible);
+        virtual bool isVisible() const;*/
 
 
     private:
@@ -54,5 +61,7 @@ class ObjectTree    :   private ObjSignal
         ObjectTree *TR;
         ObjectTree *BL;
         ObjectTree *BR;
+
+       // VertexPathPainter *m_painter;
 };
 #endif // OBJECTTREE_H

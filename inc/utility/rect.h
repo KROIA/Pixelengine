@@ -4,7 +4,7 @@
 #include "base.h"
 
 #include "mathFunctions.h"
-#include "drawUtilities.h"
+//#include "vertexPathPainter.h"
 
 typedef GeneralRect<unsigned int> RectU;
 typedef GeneralRect<int> RectI;
@@ -663,25 +663,21 @@ template<class T>
 VertexPath *GeneralRect<T>::getDrawable(const sf::Color &color) const
 {
     VertexPath *path = new VertexPath;
-    path->length = 8;
-    path->type = sf::Lines;
+    path->length = 5;
+    path->type = sf::LinesStrip;
     path->line = new sf::Vertex[path->length]
     {
         sf::Vertex(Vector2f(TL)),
         sf::Vertex(Vector2f(TR)),
 
-        sf::Vertex(Vector2f(TR)),
         sf::Vertex(Vector2f(BR)),
 
-        sf::Vertex(Vector2f(BR)),
         sf::Vertex(Vector2f(BL)),
 
-        sf::Vertex(Vector2f(BL)),
         sf::Vertex(Vector2f(TL))
     };
 
-    for(std::size_t i=0; i<path->length; i++)
-        path->line[i].color = color;
+    path->setColor(color);
 
     return path;
 }
@@ -690,31 +686,26 @@ template<class T>
 VertexPath *GeneralRect<T>::getDrawableMesh(const sf::Color &color) const
 {
     VertexPath *path = new VertexPath;
-    path->length = 12;
-    path->type = sf::Lines;
+    path->length = 8;
+    path->type = sf::LineStrip;
     path->line = new sf::Vertex[path->length]
     {
         sf::Vertex(Vector2f(TL)),
         sf::Vertex(Vector2f(TR)),
 
-        sf::Vertex(Vector2f(TR)),
         sf::Vertex(Vector2f(BR)),
 
-        sf::Vertex(Vector2f(BR)),
         sf::Vertex(Vector2f(BL)),
 
-        sf::Vertex(Vector2f(BL)),
         sf::Vertex(Vector2f(TL)),
 
-        sf::Vertex(Vector2f(TL)),
         sf::Vertex(Vector2f(BR)),
 
-        sf::Vertex(Vector2f(TR)),
-        sf::Vertex(Vector2f(BL))
+        sf::Vertex(Vector2f(BL)),
+        sf::Vertex(Vector2f(TR))
     };
 
-    for(std::size_t i=0; i<path->length; i++)
-        path->line[i].color = color;
+    path->setColor(color);
 
     return path;
 }

@@ -1,31 +1,17 @@
 #include "pixelPainter.h"
 
 PixelPainter::PixelPainter()
-    :   Painter()
+    :   SpritePainter()
 {
-    m_sprite    = new sf::Sprite;
     m_texture   = new sf::Texture;
     m_image     = new sf::Image;
-    //m_sprite->setScale(globalScale);
 }
 PixelPainter::~PixelPainter()
 {
-    delete m_sprite;
     delete m_texture;
     delete m_image;
 }
 
-void PixelPainter::draw(PixelDisplay &display)
-{
-    EASY_FUNCTION(profiler::colors::Cyan);
-    if(m_image->getSize().x == 0 || m_image->getSize().y == 0)
-        return;
-
-
-    m_sprite->setTexture(*m_texture,true);
-
-    Painter::draw(display);
-}
 void PixelPainter::setPixel(const Pixel &pixel)
 {
     EASY_FUNCTION(profiler::colors::Cyan100);
@@ -78,7 +64,6 @@ void PixelPainter::update()
 {
     EASY_BLOCK("PixelPainter::update() loadFromImage",profiler::colors::Cyan900);
     m_texture->loadFromImage(*m_image);
-    EASY_END_BLOCK;
 }
 void PixelPainter::resize(Vector2u size)
 {
@@ -86,38 +71,38 @@ void PixelPainter::resize(Vector2u size)
     Image tmp = *m_image;
     m_image->create(size.x,size.y,Color(0,0,0,0));
     m_image->copy(tmp,0,0,sf::IntRect(0,0,tmp.getSize().x,tmp.getSize().y),true);
-    internalUpdateOrigin();
+    internal_UpdateOrigin();
 
 }
 void PixelPainter::clear()
 {
     m_image->create(m_image->getSize().x,m_image->getSize().y,Color(0,0,0,0));
 }
-void PixelPainter::internalUpdateOrigin()
+/*void PixelPainter::internal_UpdateOrigin()
 {
     EASY_FUNCTION(profiler::colors::Cyan700);
     switch(m_originType)
     {
         case Origin::topLeft:
-            internalSetOrigin(Vector2f(0,0));
+            internal_SetOrigin(Vector2f(0,0));
         break;
         case Origin::topRight:
-            internalSetOrigin(Vector2f(m_texture->getSize().x,0));
+            internal_SetOrigin(Vector2f(m_texture->getSize().x,0));
         break;
         case Origin::bottomLeft:
-            internalSetOrigin(Vector2f(0,m_texture->getSize().y));
+            internal_SetOrigin(Vector2f(0,m_texture->getSize().y));
         break;
         case Origin::bottomRight:
-            internalSetOrigin(Vector2f(m_texture->getSize().x,m_texture->getSize().y));
+            internal_SetOrigin(Vector2f(m_texture->getSize().x,m_texture->getSize().y));
         break;
         case Origin::middle:
-            internalSetOrigin(Vector2f(m_texture->getSize().x/2,m_texture->getSize().y/2));
+            internal_SetOrigin(Vector2f(m_texture->getSize().x/2,m_texture->getSize().y/2));
         break;
         default:
 
         break;
     }
-}
+}*/
 
 void PixelPainter::setPixelColor(const Vector2i & pixelPos, const Color &color)
 {

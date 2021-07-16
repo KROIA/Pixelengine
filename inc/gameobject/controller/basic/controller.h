@@ -48,9 +48,9 @@ class Controller    :   public UserEventHandler
         virtual void rotate_180();
         virtual void rotate_270();
 
-        virtual void subscribeControllerSignal(ControllerSignal *subscriber);
-        virtual void unsubscribeControllerSignal(ControllerSignal *subscriber);
-        virtual void unsubscribeAllControllerSignal();
+        virtual void subscribe_ControllerSignal(ControllerSignal *subscriber);
+        virtual void unsubscribe_ControllerSignal(ControllerSignal *subscriber);
+        virtual void unsubscribeAll_ControllerSignal();
 
     protected:
         // Receiver Signal from Eventhandler

@@ -30,9 +30,9 @@ class UserEventHandler
         virtual void receive_key_goesUp(const int &key);
 
         // Signals
-        virtual void subscribeUserEventSignal(UserEventSignal *subscriber);
-        virtual void unsubscribeUserEventSignal(UserEventSignal *subscriber);
-        virtual void unsubscribeAllUserEventSignal();
+        virtual void subscribe_UserEventSignal(UserEventSignal *subscriber);
+        virtual void unsubscribe_UserEventSignal(UserEventSignal *subscriber);
+        virtual void unsubscribeAll_UserEventSignal();
     protected:
 
     private:

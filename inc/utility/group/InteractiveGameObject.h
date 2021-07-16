@@ -25,6 +25,10 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         virtual const InteractiveGameObject &operator=(const InteractiveGameObject &other);
         virtual Settings getSettings() const;
 
+        virtual void preTick();
+        virtual void postTick();
+        virtual inline void preDraw();
+
         virtual void setGameObject(GameObject *obj);
         virtual GameObject *getGameObject() const;
 
@@ -45,7 +49,9 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         virtual const vector<GameObject*> getInteractiveObjects();
 
 
-        virtual void drawObjectTree(PixelDisplay &display);
+        //virtual void drawObjectTree(PixelDisplay &display);
+        virtual void subscribeToDisplay(PixelDisplay &display);
+        virtual void unsubscribeToDisplay(PixelDisplay &display);
         virtual void setVisibility_objectTree(bool isVisible);
         virtual bool isVisible_objectTree() const;
         /*virtual void draw_chunks(PixelDisplay &display);
@@ -71,6 +77,7 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
 
         GameObject *m_gameObject;
         ObjectTree   *m_objectTree;
+        VertexPathPainter *m_objectTreePainter;
 
         vector<GameObjectGroup*> m_interactsWithObjectsList;
         size_t      m_interactorAmount;

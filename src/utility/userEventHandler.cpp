@@ -94,31 +94,17 @@ void UserEventHandler::receive_key_goesUp(const int &key)
     qDebug() << "Key: "<<key<<"\receive_key_goesUp";
 }
 // Signals
-void UserEventHandler::subscribeUserEventSignal(UserEventSignal *subscriber)
+void UserEventHandler::subscribe_UserEventSignal(UserEventSignal *subscriber)
 {
     if(subscriber == nullptr)
         return;
-    for(size_t i=0; i<m_userEventSubscriberList.size(); i++)
-    {
-        if(m_userEventSubscriberList[i] == subscriber)
-        {
-            return;
-        }
-    }
-    m_userEventSubscriberList.push_back(subscriber);
+    m_userEventSubscriberList.insert(subscriber);
 }
-void UserEventHandler::unsubscribeUserEventSignal(UserEventSignal *subscriber)
+void UserEventHandler::unsubscribe_UserEventSignal(UserEventSignal *subscriber)
 {
-    for(size_t i=0; i<m_userEventSubscriberList.size(); i++)
-    {
-        if(m_userEventSubscriberList[i] == subscriber)
-        {
-            m_userEventSubscriberList.erase(m_userEventSubscriberList.begin()+i);
-            return;
-        }
-    }
+    m_userEventSubscriberList.erase(subscriber);
 }
-void UserEventHandler::unsubscribeAllUserEventSignal()
+void UserEventHandler::unsubscribeAll_UserEventSignal()
 {
     m_userEventSubscriberList.clear();
 }

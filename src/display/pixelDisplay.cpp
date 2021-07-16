@@ -40,10 +40,21 @@ void PixelDisplay::constructor(const Settings &settings)
     m_spriteListUsed            = true;
     m_vertexPathUsed            = true;
     m_textListUsed              = false;
-    m_stats_renderSprites       = 0;
-    m_stats_renderText          = 0;
-    m_stats_renderVertexPaths   = 0;
+    m_stats.renderSprites       = 0;
+    m_stats.renderText          = 0;
+    m_stats.renderVertexPaths   = 0;
     m_viewPortZoom              = 1;
+    m_stats.activePainters      = 0;
+    m_maxRenderLayers           = settings.renderLayers;
+    m_renderLayerList.resize(m_maxRenderLayers);
+    m_stats.avtivePaintersInLayer.resize(m_maxRenderLayers);
+    for(size_t i=0; i<m_renderLayerList.size(); i++)
+    {
+        m_renderLayerList[i].index = i;
+        m_renderLayerList[i].enabled = true;
+        m_stats.avtivePaintersInLayer[i] = 0;
+
+    }
 
     float zoomFac               = (float)m_pixelMapSize.x / (float)m_windowSize.x;
     zoomViewAt(Vector2i(0,0),zoomFac);
@@ -70,15 +81,39 @@ PixelDisplay::Settings PixelDisplay::getSettings() const
     settings.backgroundColor    = m_backgroundColor;
     settings.pixelMapSize       = m_pixelMapSize;
     settings.windowSize         = m_windowSize;
+    settings.renderLayers       = m_maxRenderLayers;
     return settings;
 }
 
 void PixelDisplay::display()
 {
+   /* size_t size = 0;
+    for(size_t i=0; i<m_renderLayerList.size();  i++)
+    {
+        size  += m_renderLayerList[i].table.size();
+    }
+    qDebug() << "m_painterList.size: "<<size;*/
     EASY_FUNCTION("PixelDisplay::display()",profiler::colors::Blue);
 
     m_renderWindow->clear();
-    m_stats_renderVertexPaths = m_vertexPathList.size();
+
+    m_stats.renderSprites       = 0;
+    m_stats.renderText          = 0;
+    m_stats.renderVertexPaths   = 0;
+    for(size_t i=0; i<m_renderLayerList.size();  i++)
+    {
+        if(!m_renderLayerList[i].enabled)
+            continue;
+        for(auto pair : m_renderLayerList[i].table)
+        {
+            if(pair.second->needsRendering(m_renderFrame)/* && pair.second->getFrame().intersects_fast(m_renderFrame)*/)
+                pair.second->render(m_renderWindow,m_viewPortZoom,m_stats);
+        }
+    }
+   /* VertexPath *frame = m_renderFrame.getDrawableMesh();
+    m_renderWindow->draw(frame->line, frame->length, frame->type);
+    delete frame;*/
+    /*_stats_renderVertexPaths = m_vertexPathList.size();
     m_stats_renderSprites     = m_spriteList.size();
 
     EASY_BLOCK("local pixler",profiler::colors::Blue100);
@@ -98,31 +133,13 @@ void PixelDisplay::display()
         }
     }
     EASY_END_BLOCK;
-    /*
-    m_spriteListUsed = true;
-    m_spriteList.push_back(sprite);
-    m_spriteList[m_spriteList.size()-1].setScale(m_renderScale.x,m_renderScale.y);
-    Vector2f point = sprite.getPosition() + m_globalDisplayFrame.getPos();
-    m_spriteList[m_spriteList.size()-1].setPosition(point.x * m_renderScale.x, point.y * m_renderScale.y);
-     */
+
     EASY_BLOCK("draw m_spriteSubscriberList",profiler::colors::Blue100);
     //Vector2f displayFramePos = m_globalDisplayFrame.getPos();
-    for(Painter* object : m_spriteSubscriberList)
+    for(SpritePainter* object : m_spriteSubscriberList)
     {
-        //Vector2f oldPos = object->getPosition();
-        //Vector2f oldScale = object->getScale();
-        //object->setScale(m_renderScale);
-
-        //Vector2f newPos(displayFramePos + oldPos);
-        //newPos.x *= m_renderScale.x;
-        //newPos.y *= m_renderScale.y;
-        //object->setPosition(newPos);
-
-       // RectF frame = this->getRenderFrame();
         if(m_renderFrame.intersects_fast(object->getFrame()))
             m_renderWindow->draw(*object->getSprite());
-        //object->setScale(oldScale);
-        //object->setPosition(oldPos);
     }
     EASY_END_BLOCK;
 
@@ -165,9 +182,7 @@ void PixelDisplay::display()
                 }
                 else
                 {
-                   /* sf::Text t = text.getText();
-                    t.setScale(1/m_viewPortZoom,1/m_viewPortZoom);
-                    m_renderWindow->draw(t);*/
+
                     m_renderWindow->draw(text.getText());
 
                 }
@@ -179,7 +194,7 @@ void PixelDisplay::display()
             }
         }
     }
-    EASY_END_BLOCK;
+    EASY_END_BLOCK;*/
     EASY_BLOCK("m_renderWindow->display()",profiler::colors::Blue100);
     m_renderWindow->display();
     EASY_END_BLOCK;
@@ -205,6 +220,18 @@ void PixelDisplay::clear()
         clearVertexLine();
     }
 
+}
+void PixelDisplay::setLayerVisibility(size_t layer, bool visibility)
+{
+    if(layer >= m_renderLayerList.size())
+        return;
+    m_renderLayerList[layer].enabled = visibility;
+}
+bool PixelDisplay::getLayerVisibility(size_t layer)
+{
+    if(layer >= m_renderLayerList.size())
+        return false;
+    return m_renderLayerList[layer].enabled;
 }
 
 void PixelDisplay::setPixel(const Vector2i &pos, const Color &color)
@@ -256,11 +283,11 @@ void PixelDisplay::addSprite(Sprite *sprite)
     //Vector2f point = sprite.getPosition() + m_globalDisplayFrame.getPos();
     //m_spriteList[m_spriteList.size()-1].setPosition(point.x * m_renderScale.x, point.y * m_renderScale.y);
 }
-void PixelDisplay::subscribeSprite(Painter *sprite)
+void PixelDisplay::subscribeSprite(SpritePainter *sprite)
 {
     m_spriteSubscriberList.push_back(sprite);
 }
-void PixelDisplay::unsubscribeSprite(Painter *sprite)
+void PixelDisplay::unsubscribeSprite(SpritePainter *sprite)
 {
     for(size_t i=0; i<m_spriteSubscriberList.size(); i++)
         if(m_spriteSubscriberList[i] == sprite)
@@ -453,7 +480,7 @@ void PixelDisplay::setView(const RectF &frame)
     updateRenderFrame();
 }
 
-bool PixelDisplay::addText(DisplayText *text)       // This function will not own the Text Object!
+/*bool PixelDisplay::addText(DisplayText *text)       // This function will not own the Text Object!
 {
     EASY_FUNCTION(profiler::colors::Blue800);
     for(DisplayText* &listedText : m_textList)
@@ -463,13 +490,11 @@ bool PixelDisplay::addText(DisplayText *text)       // This function will not ow
         if(text == nullptr)
             return false;
     }
-    //text->setFont(m_font);
-    /*if(m_pixelMapSize.x != 0)
-        text->setPixelRatio(float(m_windowSize.x) / float(m_pixelMapSize.x));*/
     m_textList.push_back(text);
     m_textListUsed = true;
     return true;
-}
+}*/
+/*
 bool PixelDisplay::removeText(DisplayText *text)
 {
     EASY_FUNCTION(profiler::colors::Blue900);
@@ -484,11 +509,11 @@ bool PixelDisplay::removeText(DisplayText *text)
     if(m_textList.size() == 0)
         m_textListUsed = false;
     return false;
-}
+}*/
 void PixelDisplay::clearText()
 {
     EASY_FUNCTION(profiler::colors::BlueA100);
-    m_textList.clear();
+    //m_textList.clear();
     m_textListUsed = false;
 }
 const Vector2u &PixelDisplay::getWindowSize() const
@@ -539,15 +564,66 @@ const RectF &PixelDisplay::getRenderFrame() const
     //qDebug() << viewport.getPosition().x<< " "<<viewport.getPosition().y << " "<<viewport.getSize().x<<" "<<viewport.getSize().y;
     return m_renderFrame;
 }
-unsigned long long PixelDisplay::stats_getRenderSprites() const
+const DisplayStats &PixelDisplay::getStats() const
 {
-    return m_stats_renderSprites;
+    return m_stats;
 }
-unsigned long long PixelDisplay::stats_getRenderVertexPaths() const
+
+
+void PixelDisplay::subscribePainter(Painter *painter)
 {
-    return m_stats_renderVertexPaths;
+    if(painter->getRenderLayer() >= m_maxRenderLayers)
+        painter->setRenderLayer(m_maxRenderLayers-1);
+
+    painter->subscribe_painterSignal(this);
+  //  painter->setDisplay(this);
+    if(painter->isVisible())
+    {
+        size_t layer = painter->getRenderLayer();
+        m_renderLayerList[layer].table.insert({painter,painter});
+
+        // Update stats
+        m_stats.avtivePaintersInLayer[layer] = m_renderLayerList[layer].table.size();
+        m_stats.activePainters = 0;
+        for(size_t i=0; i<m_renderLayerList.size(); i++)
+            m_stats.activePainters += m_renderLayerList[i].table.size();
+    }
 }
-unsigned long long PixelDisplay::stats_getRenderText() const
+void PixelDisplay::unsubscribePainter(Painter *painter)
 {
-    return m_stats_renderText;
+    m_stats.activePainters = 0;
+    for(size_t i=0; i<m_renderLayerList.size();  i++)
+    {
+        m_renderLayerList[i].table.erase(painter);
+
+        // Update stats
+        m_stats.avtivePaintersInLayer[i] = m_renderLayerList[i].table.size();
+        m_stats.activePainters += m_renderLayerList[i].table.size();
+    }
+    painter->unsubscribe_painterSignal(this);
+ //   painter->setDisplay(nullptr);
+}
+void PixelDisplay::renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer)
+{
+    if(newLayer >= m_maxRenderLayers)
+        newLayer = m_maxRenderLayers-1;
+    if(newLayer == lastLayer)
+        return;
+    if(sender->isVisible())
+    {
+        m_renderLayerList[lastLayer].table.erase(sender);
+        m_renderLayerList[newLayer].table.insert({sender,sender});
+    }
+}
+void PixelDisplay::isInvisible(Painter *sender)
+{
+    m_renderLayerList[sender->getRenderLayer()].table.erase(sender);
+    m_stats.avtivePaintersInLayer[sender->getRenderLayer()]--;
+    m_stats.activePainters--;
+}
+void PixelDisplay::isVisible(Painter *sender)
+{
+    m_renderLayerList[sender->getRenderLayer()].table.insert({sender,sender});
+    m_stats.avtivePaintersInLayer[sender->getRenderLayer()]++;
+    m_stats.activePainters++;
 }

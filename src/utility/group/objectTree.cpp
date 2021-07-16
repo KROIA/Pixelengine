@@ -25,7 +25,7 @@ ObjectTree::ObjectTree(const ObjectTree &other)
 
     for(size_t i=0; i<m_objectList.size(); i++)
     {
-        m_objectList[i]->subscribeObjSignal(this);
+        m_objectList[i]->subscribe_ObjSignal(this);
     }
 
     if(m_divided)
@@ -39,6 +39,8 @@ ObjectTree::ObjectTree(const ObjectTree &other)
 
 void ObjectTree::constructor(const Settings &settings)
 {
+   // m_painter           = new VertexPathPainter();
+   // m_painter->setVisibility(false);
     m_boundry           = settings.boundry;
     m_capacity          = settings.maxObjects;
     m_depth             = settings.parentDepth+1;
@@ -66,7 +68,7 @@ bool ObjectTree::insert(GameObject *obj)
     EASY_FUNCTION(profiler::colors::Green);
     if(m_objectList.size()  < m_capacity || m_disableDivider)
     {
-        obj->subscribeObjSignal(this);
+        obj->subscribe_ObjSignal(this);
         m_objectList.push_back(obj);
         return true;
     }
@@ -113,7 +115,20 @@ void ObjectTree::query(const RectF &region,vector<GameObject*> &buffer)
         BR->query(region,buffer);
     }
 }
-void ObjectTree::draw(PixelDisplay &display)
+void ObjectTree::getDrawable(vector<VertexPath*> &drawable,const Color &color)
+{
+    EASY_FUNCTION(profiler::colors::Green500);
+    drawable.push_back(m_boundry.getDrawable(color));
+    if(m_divided)
+    {
+        drawable.reserve(drawable.size() + 4);
+        TL->getDrawable(drawable,color);
+        TR->getDrawable(drawable,color);
+        BL->getDrawable(drawable,color);
+        BR->getDrawable(drawable,color);
+    }
+}
+/*void ObjectTree::draw(PixelDisplay &display)
 {
     EASY_FUNCTION(profiler::colors::Green500);
     display.addVertexLine(m_boundry.getDrawable(Color(255,255,255)));
@@ -124,13 +139,13 @@ void ObjectTree::draw(PixelDisplay &display)
         BL->draw(display);
         BR->draw(display);
     }
-}
+}*/
 void ObjectTree::clear()
 {
     EASY_FUNCTION(profiler::colors::Green400);
     for(size_t i=0; i<m_objectList.size(); i++)
     {
-        m_objectList[i]->unsubscribeObjSignal(this);
+        m_objectList[i]->unsubscribe_ObjSignal(this);
     }
     m_objectList.clear();
     if(m_divided)
@@ -152,7 +167,7 @@ void ObjectTree::removeInLeaf(GameObject *obj)
     {
         if(m_objectList[i] == obj)
         {
-            obj->unsubscribeObjSignal(this);
+            obj->unsubscribe_ObjSignal(this);
             m_objectList.erase(m_objectList.begin() + i);
             i--;
         }
@@ -169,7 +184,22 @@ void ObjectTree::removeRecursive(GameObject *obj)
         BR->removeRecursive(obj);
     }
 }
-
+/*void ObjectTree::subscribeToDisplay(PixelDisplay &display)
+{
+    display.subscribePainter(m_painter);
+}
+void ObjectTree::unsubscribeToDisplay(PixelDisplay &display)
+{
+    display.unsubscribePainter(m_painter);
+}
+void ObjectTree::setVisibility(bool isVisible)
+{
+    m_painter->setVisibility(isVisible);
+}
+bool ObjectTree::isVisible() const
+{
+    return m_painter->isVisible();
+}*/
 
 void ObjectTree::subdivide()
 {

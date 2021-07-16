@@ -3,7 +3,7 @@
 #include "base.h"
 
 #include "gameobject.h"
-#include "painter.h"
+#include "spritePainter.h"
 
 //                         Will receive GameObject Signals
 class GameObjectGroup  :   private ObjSignal//, GroupSignal
@@ -15,7 +15,7 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
 
         virtual ~GameObjectGroup();
 
-        virtual void draw(PixelDisplay &display);
+       // virtual void draw(PixelDisplay &display);
 
         virtual void add(GameObject *object);
         virtual void add(GameObjectGroup *other);
@@ -82,9 +82,9 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         static void removinguplicates(GameObjectGroup *list);
 
         // Signals
-        virtual void subscribeGroupSignal(GroupSignal   *subscriber);
-        virtual void unsubscribeGroupSignal(GroupSignal *subscriber);
-        virtual void unsubscribeAllGroupSignal();
+        virtual void subscribe_GroupSignal(GroupSignal   *subscriber);
+        virtual void unsubscribe_GroupSignal(GroupSignal *subscriber);
+        virtual void unsubscribeAll_GroupSignal();
 
     protected:
         void addInternal(GameObject *object);

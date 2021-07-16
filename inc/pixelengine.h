@@ -17,9 +17,10 @@
 #include "controller.h"
 #include "keyController.h"
 #include "dynamicCoordinator.h"
-#include "painter.h"
+#include "spritePainter.h"
 #include "texturePainter.h"
 #include "pixelPainter.h"
+#include "textPainter.h"
 #include "property.h"
 #include "sensor.h"
 #include "texture.h"
@@ -80,15 +81,13 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
             unsigned long long collisionsPerTick;
             unsigned long long objectsInEngine;
 
-            unsigned long long display_sprites;
-            unsigned long long display_vertexPaths;
-            unsigned long long display_text;
+            DisplayStats display;
 
             float  collisionCheckTime;
             float  gameObjectTickTime;
             float  checkEventTime;
             float  tickTime;
-            float  drawTime;
+            float  preDisplayTime;
             float  displayTime;
 
             float  checkUserEventTime;
@@ -113,7 +112,7 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
             EngineSettings                      engine;
             InteractiveGameObject::Settings     gameObject;
             PixelDisplay::Settings              display;
-            DisplayText::Settings               text;
+            TextPainter::Settings               text;
         };
         static EngineSettings __defaultEngineSettings;
         static Settings       __defaultSettings;
@@ -206,6 +205,8 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         virtual void setRenderLayer_BOTTOM(GameObjectGroup *objGroup);
         virtual void setRenderLayer_TOP(GameObject *obj);
         virtual void setRenderLayer_TOP(GameObjectGroup *objGroup);
+        virtual void setLayerVisibility(size_t layer, bool visibility);
+        virtual bool getLayerVisibility(size_t layer);
 
         // GameObject Events from GameObjectEventHandler
         // These functions will be called from the GameObject's
@@ -213,8 +214,8 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         virtual void removeFromEngine(GameObject *obj);
         //virtual void deleteObject(GameObject *obj);
         virtual void collisionOccured(GameObject *obj1,vector<GameObject *> obj2);
-        virtual void addDisplayText(DisplayText *text);
-        virtual void removeDisplayText(DisplayText *text);
+        virtual void addPainterToDisplay(Painter *painter);
+        virtual void removePainterFromDisplay(Painter *painter);
 
         // General functions
         static float random(float min, float max);
@@ -267,6 +268,7 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
        // Settings m_settings;
         PixelDisplay *m_display;
         bool   m_engineIsRunning;
+        bool   m_drawingEnabled;
        // Vector2u m_windowSize;
        // Vector2u  m_mapSize;
 
@@ -311,12 +313,13 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         std::chrono::high_resolution_clock::time_point m_stats_tps_timer_start;
         std::chrono::high_resolution_clock::time_point m_stats_tps_timer_end;
 
-        DisplayText *m_stats_text;
+        TextPainter *m_stats_text;
 #endif
 
 #ifdef USE_THREADS
         struct ThreadParam{
                 int index;
+                bool drawingEnabled;
                 Vector2i dirLock;
                 size_t obj_begin;
                 size_t obj_end;
@@ -333,6 +336,7 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
                 sf::Mutex *globalMutex;
 #endif
                 Statistics *stats;
+                float statsFilter;
         };
         vector<sf::Thread*> m_threadList;
         vector<ThreadParam*> m_threadParamList;

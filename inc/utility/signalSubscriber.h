@@ -2,6 +2,7 @@
 #define OBJSIGNAL_H
 #include "base.h"
 
+
 // Signals for GameObjects
 class ObjSignal
 {
@@ -14,14 +15,15 @@ class ObjSignal
 
 };
 // Vector of Signals
-class ObjSubscriberList    : public vector<ObjSignal*>
+class ObjSubscriberList    : public HashTable<ObjSignal*>
 {
     public:
         ObjSubscriberList();
+        virtual void insert(ObjSignal* signal);
+
         virtual void moved(GameObject* sender,const Vector2f &move);
         virtual void rotated(GameObject* sender,const float deltaAngle);
     protected:
-
 };
 
 
@@ -38,10 +40,12 @@ class GroupSignal
 };
 
 // Vector of Signals
-class GroupSubscriberList    : public vector<GroupSignal*>
+class GroupSubscriberList    : public HashTable<GroupSignal*>
 {
     public:
         GroupSubscriberList();
+        virtual void insert(GroupSignal* signal);
+
         virtual void adding(GameObjectGroup* sender,GameObject* obj);
         virtual void adding(GameObjectGroup* sender,GameObjectGroup* group);
         virtual void removing(GameObjectGroup* sender,GameObject* obj);
@@ -90,10 +94,11 @@ class ControllerSignal
         virtual void moveAvailable(Controller *sender) = 0;
 };
 // Vector of Signals
-class ControllerSubscriberList: public vector<ControllerSignal*>
+class ControllerSubscriberList: public HashTable<ControllerSignal*>
 {
     public:
         ControllerSubscriberList();
+        virtual void insert(ControllerSignal* signal);
 
         virtual void moveAvailable(Controller *sender);
 };
@@ -110,12 +115,39 @@ class UserEventSignal
 
 };
 // Vector of Signals
-class UserEventSubscriberList    : public vector<UserEventSignal*>
+class UserEventSubscriberList    : public HashTable<UserEventSignal*>
 {
     public:
         UserEventSubscriberList();
+        virtual void insert(UserEventSignal* signal);
+
         virtual void eventAdded(UserEventHandler *sender,  Event *e);
         virtual void eventRemoved(UserEventHandler *sender,  Event *e);
+    protected:
+
+};
+
+// Signals from Painter
+class PainterSignal
+{
+    public:
+        PainterSignal(){}
+
+        virtual void renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer) = 0;
+        virtual void isInvisible(Painter *sender) = 0;
+        virtual void isVisible(Painter *sender) = 0;
+};
+
+// Vector of Signals
+class PainterSubscriberList    : public HashTable<PainterSignal*>
+{
+    public:
+        PainterSubscriberList();
+        virtual void insert(PainterSignal* signal);
+
+        virtual void renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer);
+        virtual void isInvisible(Painter *sender);
+        virtual void isVisible(Painter *sender);
     protected:
 
 };

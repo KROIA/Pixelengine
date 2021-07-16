@@ -159,31 +159,17 @@ void Controller::receive_key_goesUp(const int &key)
     qDebug() << "Key: "<<key<<"\tController::receive_key_goesUp";
 }
 // Signals
-void Controller::subscribeControllerSignal(ControllerSignal *subscriber)
+void Controller::subscribe_ControllerSignal(ControllerSignal *subscriber)
 {
     if(subscriber == nullptr)
         return;
-    for(size_t i=0; i<m_controllerSubscriberList.size(); i++)
-    {
-        if(m_controllerSubscriberList[i] == subscriber)
-        {
-            return;
-        }
-    }
-    m_controllerSubscriberList.push_back(subscriber);
+    m_controllerSubscriberList.insert(subscriber);
 }
-void Controller::unsubscribeControllerSignal(ControllerSignal *subscriber)
+void Controller::unsubscribe_ControllerSignal(ControllerSignal *subscriber)
 {
-    for(size_t i=0; i<m_controllerSubscriberList.size(); i++)
-    {
-        if(m_controllerSubscriberList[i] == subscriber)
-        {
-            m_controllerSubscriberList.erase(m_controllerSubscriberList.begin()+i);
-            return;
-        }
-    }
+    m_controllerSubscriberList.erase(subscriber);
 }
-void Controller::unsubscribeAllControllerSignal()
+void Controller::unsubscribeAll_ControllerSignal()
 {
     m_controllerSubscriberList.clear();
 }
