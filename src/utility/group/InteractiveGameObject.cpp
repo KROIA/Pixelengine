@@ -359,8 +359,6 @@ void InteractiveGameObject::rotated(GameObject* sender,const float deltaAngle)
     m_objectTree->insert(sender);
 }
 
-}
-
 // Signals from GameObjectGroup
 void InteractiveGameObject::adding(GameObjectGroup* sender,GameObject* obj)
 {
