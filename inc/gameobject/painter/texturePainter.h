@@ -3,22 +3,19 @@
 
 #include "base.h"
 
-#include "painter.h"
+#include "spritePainter.h"
 #include "texture.h"
 
-class TexturePainter    :   public  Painter
+class TexturePainter    :   public  SpritePainter
 {
     public:
         TexturePainter();
         virtual ~TexturePainter();
 
-        virtual void draw(PixelDisplay &display);
-
         virtual void setTexture(Texture *texture);
         virtual Texture *getTexture();
     protected:
         Texture *m_textureObj;
-
     private:
 };
 #endif // TEXTUREPAINTER_H

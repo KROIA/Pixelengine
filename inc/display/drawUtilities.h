@@ -32,6 +32,13 @@ struct VertexPath
             line[i].position += vec;
         }
     }
+    void setColor(const Color &color)
+    {
+        for(size_t i=0; i<length; i++)
+        {
+            line[i].color   = color;
+        }
+    }
 };
 
 //inline VertexPath getCrossedRect()

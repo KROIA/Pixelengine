@@ -6,6 +6,7 @@
 #include "layeritem.h"
 #include "userEventHandler.h"
 #include "event.h"
+#include "signalSubscriber.h"
 
 using std::vector;
 using sf::Vector2f;
@@ -47,6 +48,10 @@ class Controller    :   public UserEventHandler
         virtual void rotate_180();
         virtual void rotate_270();
 
+        virtual void subscribe_ControllerSignal(ControllerSignal *subscriber);
+        virtual void unsubscribe_ControllerSignal(ControllerSignal *subscriber);
+        virtual void unsubscribeAll_ControllerSignal();
+
     protected:
         // Receiver Signal from Eventhandler
         virtual void receive_key_isPressed(const int &key);
@@ -54,9 +59,14 @@ class Controller    :   public UserEventHandler
         virtual void receive_key_goesDown(const int &key);
         virtual void receive_key_goesUp(const int &key);
 
+
         Vector2f m_currentDeltaMove;
         int m_rotationDeg;
         MovingMode m_movingMode;
+        //bool m_nothingToDo;
+
+        ControllerSubscriberList m_controllerSubscriberList;
+
     private:
 
 };

@@ -2,10 +2,9 @@
 #define PAINTER_H
 
 #include "base.h"
-
 #include "layeritem.h"
 #include "pixelDisplay.h"
-#include "pixel.h"
+#include "signalSubscriber.h"
 #include "texture.h"
 
 class Painter   :   public  LayerItem
@@ -19,55 +18,64 @@ class Painter   :   public  LayerItem
         virtual const Painter &operator=(const Painter &other);
         virtual RectF getFrame() const;
 
-        virtual void draw(PixelDisplay &display);
-        virtual void subscribeToDisplay(PixelDisplay &display);
-        virtual void unsubscribeToDisplay(PixelDisplay &display);
+       // void setDisplay(PixelDisplay *display);
+        virtual void setVisibility(bool isVisible);
+        virtual bool isVisible() const;
+        virtual bool needsRendering(const RectF &renderRect);
+        virtual inline void render(sf::RenderWindow *window,
+                            float viewPortZoom,
+                            DisplayStats &stats) = 0;
 
         virtual void setPos(const Vector2f &pos);
+        virtual void move(const Vector2f vec);
 
-        virtual void setX(int x);
-        virtual void setY(int y);
+        float getRotation() const;
+        void setRotation(float deg);
+        void rotate(float deg);
+        void rotate_90();
+        void rotate_180();
+        void rotate_270();
+        void setRotation(const Vector2f &rotPoint,float deg);
+        void rotate(const Vector2f &rotPoint,float deg);
+        void rotate_90(const Vector2f &rotPoint);
+        void rotate_180(const Vector2f &rotPoint);
+        void rotate_270(const Vector2f &rotPoint);
 
-        virtual void setVisibility(const bool &isVisible);
-        virtual const bool &isVisible() const;
+        void updateOrigin();
+        void setOrigin(const Vector2f &origin);
+        void setOriginType(Origin origin);
+        Origin getOriginType() const;
+        const Vector2f getOrigin() const;
 
-        virtual float getRotation() const;
-        virtual void setRotation(float deg);
-        virtual void rotate(float deg);
-        virtual void rotate_90();
-        virtual void rotate_180();
-        virtual void rotate_270();
-        virtual void setRotation(const Vector2f &rotPoint,float deg);
-        virtual void rotate_90(const Vector2f &rotPoint);
-        virtual void rotate_180(const Vector2f &rotPoint);
-        virtual void rotate_270(const Vector2f &rotPoint);
+        void setRenderLayer(size_t layer);
+        size_t getRenderLayer() const;
 
-        virtual void updateOrigin();
-        virtual void setOrigin(const Vector2f &origin);
-        virtual void setOriginType(Origin origin);
-        virtual Origin getOriginType() const;
-        virtual const Vector2f getOrigin() const;
+        void subscribe_painterSignal(PainterSignal *subscriber);
+        void unsubscribe_painterSignal(PainterSignal *subscriber);
+        void unsubscribeAll_painterSignal();
+
 
     protected:
-        virtual void internal_rotate(const Vector2f &rotPoint,float deg);
-        virtual void internal_rotate(const float &deg);
-        virtual void internalUpdateOrigin();
-        virtual void internalSetOrigin(const Vector2f &origin);
-        virtual void internalCalculateFrame();
+        virtual inline void internal_setPos(const Vector2f &pos) = 0;
+        virtual inline float internal_getRotation() const = 0;
+        virtual inline void internal_setRotation(const Vector2f &rotPoint,float deg) = 0;
+        virtual inline void internal_setRotation(const float &deg) = 0;
+        virtual inline void internal_UpdateOrigin() = 0;
+        virtual inline void internal_SetOrigin(const Vector2f &origin) = 0;
+        virtual inline const Vector2f &internal_getOrigin() const = 0;
+        virtual inline void internal_CalculateFrame() = 0;
 
-        bool    m_isVisible;
 
-        sf::Sprite  *m_sprite;
-        sf::Texture *m_texture;
-        sf::Image   *m_image;
-        Origin       m_originType;
 
-        RectF        m_frame;
+        bool        m_isVisible;
+
+        Origin      m_originType;
+        RectF       m_frame;
+        size_t      m_renderlayer;
+
+        PainterSubscriberList m_signalSubscriber;
+      //  PixelDisplay    *m_display;
 
     private:
-
-        bool m_spriteHasSubscribedToDisplay;
-        //Vector2f m_renderScale;
-        Pixel m_const_dummy_pixel;
 };
 #endif

@@ -15,11 +15,15 @@ InteractiveGameObject::InteractiveGameObject(const Settings &settings)
 void InteractiveGameObject::constructor(const Settings &settings)
 {
     EASY_FUNCTION("new InteractiveGameObject()",profiler::colors::Purple50);
+    m_interactorAmount              = 0;
     m_gameObject                    = nullptr;
     m_drawingIsDisabled             = true;
     m_interactsWithOthers           = false;
-    m_interactiveObjectsChunkMap    = new ChunkMap(settings.chunkMap);
-    m_gameObjectChunkMap            = new ChunkMap(settings.chunkMap);
+    //m_interactiveObjectsChunkMap    = new ChunkMap(settings.chunkMap);
+    //m_gameObjectChunkMap            = new ChunkMap(settings.chunkMap);
+    m_objectTreePainter             = new VertexPathPainter();
+    m_objectTreePainter->setVisibility(false);
+    m_objectTree                    = new ObjectTree(settings.objectTree);
 
     m_interactsWithObjectsList.push_back(new GameObjectGroup());
 }
@@ -27,46 +31,72 @@ InteractiveGameObject::InteractiveGameObject(const InteractiveGameObject &other)
 {
     this->setGameObject(other.m_gameObject);
     this->m_interactsWithObjectsList    = other.m_interactsWithObjectsList;
-    this->m_interactiveObjectsChunkMap  = new ChunkMap(*other.m_interactiveObjectsChunkMap);
-    this->m_gameObjectChunkMap          = new ChunkMap(*other.m_gameObjectChunkMap);
+   // this->m_interactiveObjectsChunkMap  = new ChunkMap(*other.m_interactiveObjectsChunkMap);
+   // this->m_gameObjectChunkMap          = new ChunkMap(*other.m_gameObjectChunkMap);
     this->m_drawingIsDisabled           = other.m_drawingIsDisabled;
     this->m_interactsWithOthers         = other.m_interactsWithOthers;
 }
 InteractiveGameObject::~InteractiveGameObject()
 {
-    m_gameObject->unsubscribe(this);
+    m_gameObject->unsubscribe_ObjSignal(this);
     m_gameObject->setThisInteractiveGameObject(nullptr);
     for(GameObjectGroup* &group : m_interactsWithObjectsList)
-        group->unsubscribe(this);
+        group->unsubscribe_GroupSignal(this);
     delete m_interactsWithObjectsList[0];
-    delete m_interactiveObjectsChunkMap;
-    delete m_gameObjectChunkMap;
+    //delete m_interactiveObjectsChunkMap;
+    //delete m_gameObjectChunkMap;
+    delete m_objectTree;
+    delete m_objectTreePainter;
 }
 const InteractiveGameObject &InteractiveGameObject::operator=(const InteractiveGameObject &other)
 {
     setGameObject(other.m_gameObject);
-    *m_interactiveObjectsChunkMap   = *other.m_interactiveObjectsChunkMap;
-    *m_gameObjectChunkMap           = *other.m_gameObjectChunkMap;
+    //*m_interactiveObjectsChunkMap   = *other.m_interactiveObjectsChunkMap;
+    //*m_gameObjectChunkMap           = *other.m_gameObjectChunkMap;
+
+    m_interactorAmount              = other.m_interactorAmount;
     m_drawingIsDisabled             = other.m_drawingIsDisabled;
     m_interactsWithOthers           = other.m_interactsWithOthers;
+    *m_objectTree                   = *other.m_objectTree;
 
     for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
     {
-        m_interactsWithObjectsList[i]->unsubscribe(this);
+        m_interactsWithObjectsList[i]->unsubscribe_GroupSignal(this);
     }
     m_interactsWithObjectsList = other.m_interactsWithObjectsList;
     for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
     {
-        m_interactsWithObjectsList[i]->subscribe(this);
+        m_interactsWithObjectsList[i]->subscribe_GroupSignal(this);
     }
     return *this;
 }
 InteractiveGameObject::Settings InteractiveGameObject::getSettings() const
 {
     Settings settings;
-    settings.chunkMap = m_interactiveObjectsChunkMap->getSettings();
+   // settings.chunkMap = m_interactiveObjectsChunkMap->getSettings();
 
     return settings;
+}
+void InteractiveGameObject::preTick()
+{
+    m_gameObject->preTick();
+}
+void InteractiveGameObject::postTick()
+{
+    m_gameObject->postTick();
+}
+void InteractiveGameObject::preDraw()
+{
+    EASY_FUNCTION(profiler::colors::Purple50);
+    m_gameObject->preDraw();
+    if(m_objectTreePainter->isVisible())
+    {
+        EASY_BLOCK("objectTree",profiler::colors::Purple50);
+        vector<VertexPath*> tree;
+        m_objectTree->getDrawable(tree);
+        m_objectTreePainter->clear();
+        m_objectTreePainter->addPath(tree);
+    }
 }
 void InteractiveGameObject::setGameObject(GameObject *obj)
 {
@@ -76,14 +106,14 @@ void InteractiveGameObject::setGameObject(GameObject *obj)
 
     if(m_gameObject != nullptr)
     {
-        m_gameObject->unsubscribe(this);
+        m_gameObject->unsubscribe_ObjSignal(this);
         m_gameObject->setThisInteractiveGameObject(nullptr);
-        m_gameObjectChunkMap->remove(m_gameObject);
+       // m_gameObjectChunkMap->remove(m_gameObject);
     }
     m_gameObject = obj;
-    m_gameObject->subscribe(this);
+    //m_gameObject->subscribe(this);
     m_gameObject->setThisInteractiveGameObject(this);
-    m_gameObjectChunkMap->add(m_gameObject);
+  //  m_gameObjectChunkMap->add(m_gameObject);
     //m_interactiveObjectsChunkMap->add(m_gameObject);
 }
 GameObject *InteractiveGameObject::getGameObject() const
@@ -106,7 +136,11 @@ void InteractiveGameObject::addInteractionWith(GameObject *obj)
 #endif
     m_interactsWithOthers = true;
     m_interactsWithObjectsList[0]->add(obj);
-    m_interactiveObjectsChunkMap->add(obj);
+    m_objectTree->insert(obj);
+    obj->subscribe_ObjSignal(this);
+    m_interactorAmount++;
+
+  //  m_interactiveObjectsChunkMap->add(obj);
 
 }
 void InteractiveGameObject::addInteractionWith(GameObjectGroup *group)
@@ -123,9 +157,15 @@ void InteractiveGameObject::addInteractionWith(GameObjectGroup *group)
 #endif
     m_interactsWithOthers = true;
     m_interactsWithObjectsList.push_back(group);
-    m_interactiveObjectsChunkMap->add(group);
     //m_interactiveObjectsChunkMap->add(group);
-    group->subscribe(this);
+    //m_interactiveObjectsChunkMap->add(group);
+    group->subscribe_GroupSignal(this);
+    for(size_t i=0; i<group->size(); i++)
+    {
+        m_objectTree->insert((*group)[i]);
+        (*group)[i]->subscribe_ObjSignal(this);
+    }
+    m_interactorAmount+=group->size();
     //updateAllList();
 }
 void InteractiveGameObject::addInteractionWith(vector<GameObjectGroup*> *groupList)
@@ -144,7 +184,13 @@ void InteractiveGameObject::removeInteractionWith(GameObject *obj)
         return;
 
    m_interactsWithObjectsList[0]->remove(obj);
-   m_interactiveObjectsChunkMap->remove(obj);
+   obj->unsubscribe_ObjSignal(this);
+   m_objectTree->removeRecursive(obj);
+   if(m_interactorAmount == 0)
+       qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
+   else
+    m_interactorAmount--;
+   //m_interactiveObjectsChunkMap->remove(obj);
 #ifdef CHECK_FOR_DOUBLE_OBJ
     for(size_t i=1; i<m_interactsWithObjectsList.size(); i++)
     {
@@ -153,6 +199,8 @@ void InteractiveGameObject::removeInteractionWith(GameObject *obj)
 #endif
     if(m_interactsWithObjectsList.size() == 1 && m_interactsWithObjectsList[0]->size() == 0)
         m_interactsWithOthers = false;
+
+
     //m_interactiveObjectsChunkMap->remove(obj);
 }
 void InteractiveGameObject::removeInteractionWith(GameObjectGroup *group)
@@ -162,13 +210,24 @@ void InteractiveGameObject::removeInteractionWith(GameObjectGroup *group)
     {
         if(m_interactsWithObjectsList[i] == group)
         {
-            m_interactsWithObjectsList[i]->unsubscribe(this);
-            m_interactiveObjectsChunkMap->remove(group);
+            m_interactsWithObjectsList[i]->unsubscribe_GroupSignal(this);
+        //    m_interactiveObjectsChunkMap->remove(group);
             m_interactsWithObjectsList.erase(m_interactsWithObjectsList.begin()+i);
+
+            for(size_t i=0; i<group->size(); i++)
+            {
+                m_objectTree->removeRecursive((*group)[i]);
+                (*group)[i]->unsubscribe_ObjSignal(this);
+            }
+            if(m_interactorAmount < group->size())
+                qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
+            else
+                m_interactorAmount -= group->size();
+            if(m_interactsWithObjectsList.size() == 1 && m_interactsWithObjectsList[0]->size() == 0)
+                m_interactsWithOthers = false;
         }
     }
-    if(m_interactsWithObjectsList.size() == 1 && m_interactsWithObjectsList[0]->size() == 0)
-        m_interactsWithOthers = false;
+
     //m_interactiveObjectsChunkMap->remove(group);
 }
 void InteractiveGameObject::removeInteractionWith(vector<GameObjectGroup*> *groupList)
@@ -216,9 +275,51 @@ const vector<GameObjectGroup*> &InteractiveGameObject::getInteractiveObjectsList
 const vector<GameObject*> InteractiveGameObject::getInteractiveObjects()
 {
     EASY_FUNCTION(profiler::colors::Purple400);
-    return m_interactiveObjectsChunkMap->getGameObjectGroup(m_gameObject->getChunkIDList());
+    /*m_objectTree->clear();
+    size_t maxPossibleSize = 0;
+    for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
+    {
+        maxPossibleSize += m_interactsWithObjectsList[i]->size();
+        for(size_t j=0; j<m_interactsWithObjectsList[i]->size(); j++)
+        {
+            m_objectTree->insert((*m_interactsWithObjectsList[i])[j]);
+        }
+    }*/
+    vector<GameObject*> possibleInteractionList;
+    possibleInteractionList.reserve(m_interactorAmount);
+    m_objectTree->query(m_gameObject->getBoundingBox(),possibleInteractionList);
+
+    return possibleInteractionList;
+    //return m_interactiveObjectsChunkMap->getGameObjectGroup(m_gameObject->getChunkIDList());
     //return m_allList;
 }
+/*void InteractiveGameObject::drawObjectTree(PixelDisplay &display)
+{
+    if(m_drawingIsDisabled)
+       return;
+    m_objectTree->draw(display);
+}*/
+void InteractiveGameObject::subscribeToDisplay(PixelDisplay &display)
+{
+    display.subscribePainter(m_objectTreePainter);
+    m_gameObject->subscribeToDisplay(display);
+}
+void InteractiveGameObject::unsubscribeToDisplay(PixelDisplay &display)
+{
+    display.unsubscribePainter(m_objectTreePainter);
+    m_gameObject->unsubscribeToDisplay(display);
+}
+void InteractiveGameObject::setVisibility_objectTree(bool isVisible)
+{
+    //m_drawingIsDisabled = !isVisible;
+    m_objectTreePainter->setVisibility(isVisible);
+}
+bool InteractiveGameObject::isVisible_objectTree() const
+{
+    return m_objectTreePainter->isVisible();
+    //return !m_drawingIsDisabled;
+}
+/*
 void InteractiveGameObject::draw_chunks(PixelDisplay &display)
 {
     if(m_drawingIsDisabled)
@@ -246,14 +347,17 @@ bool InteractiveGameObject::isVisible_chunks() const
 {
     return m_gameObjectChunkMap->isVisible_chunks();
 }
-
+*/
 // GameObject singals:
 void InteractiveGameObject::moved(GameObject* sender,const Vector2f &move)
 {
     //qDebug() << "sender: "<<sender << " moved: "<<Vector::toString(move).c_str();
+    m_objectTree->insert(sender);
 }
 void InteractiveGameObject::rotated(GameObject* sender,const float deltaAngle)
 {
+    m_objectTree->insert(sender);
+}
 
 }
 
@@ -262,30 +366,60 @@ void InteractiveGameObject::adding(GameObjectGroup* sender,GameObject* obj)
 {
     //qDebug() << "sender: "<<sender << " adding: "<<obj;
     //updateAllList();
-    m_interactiveObjectsChunkMap->add(obj);
+    //m_interactiveObjectsChunkMap->add(obj);
+    m_objectTree->insert(obj);
+    obj->subscribe_ObjSignal(this);
+    m_interactorAmount++;
 }
 void InteractiveGameObject::adding(GameObjectGroup* sender,GameObjectGroup* group)
 {
     //updateAllList();
-    m_interactiveObjectsChunkMap->add(group);
+    //m_interactiveObjectsChunkMap->add(group);
+    for(size_t i=0; i<group->size(); i++)
+    {
+        m_objectTree->insert((*group)[i]);
+        (*group)[i]->subscribe_ObjSignal(this);
+    }
+    m_interactorAmount+=group->size();
 }
 void InteractiveGameObject::removing(GameObjectGroup* sender,GameObject* obj)
 {
     //qDebug() << "sender: "<<sender << " removing: "<<obj;
     //updateAllList();
-    m_interactiveObjectsChunkMap->remove(obj);
-    obj->unsubscribe(this);
+    //m_interactiveObjectsChunkMap->remove(obj);
+    m_objectTree->removeRecursive(obj);
+    obj->unsubscribe_ObjSignal(this);
+    if(m_interactorAmount == 0)
+        qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
+    else
+        m_interactorAmount --;
 }
 void InteractiveGameObject::removing(GameObjectGroup* sender,GameObjectGroup* group)
 {
     //updateAllList();
-    m_interactiveObjectsChunkMap->remove(group);
-
+    //m_interactiveObjectsChunkMap->remove(group);
+    for(size_t i=0; i<group->size(); i++)
+    {
+        m_objectTree->removeRecursive((*group)[i]);
+        (*group)[i]->unsubscribe_ObjSignal(this);
+    }
+    if(m_interactorAmount < group->size())
+        qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
+    else
+        m_interactorAmount -= group->size();
 }
 void InteractiveGameObject::willBeCleared(GameObjectGroup* sender)
 {
-    m_interactiveObjectsChunkMap->remove(sender);
-
+    //m_interactiveObjectsChunkMap->remove(sender);
+    for(size_t i=0; i<sender->size(); i++)
+    {
+        m_objectTree->removeRecursive((*sender)[i]);
+        (*sender)[i]->unsubscribe_ObjSignal(this);
+    }
+    if(m_interactorAmount < sender->size())
+        qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
+    else
+        m_interactorAmount -= sender->size();
 }
 void InteractiveGameObject::cleared(GameObjectGroup* sender)
 {

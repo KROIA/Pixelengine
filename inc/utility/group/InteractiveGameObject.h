@@ -4,7 +4,7 @@
 #include "base.h"
 #include "gameobject.h"
 #include "gameObjectGroup.h"
-#include "chunkMap.h"
+#include "objectTree.h"
 
 #define CHECK_FOR_DOUBLE_OBJ
 
@@ -13,7 +13,8 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
     public:
         struct Settings
         {
-            ChunkMap::Settings chunkMap;
+           // ChunkMap::Settings chunkMap;
+            ObjectTree::Settings    objectTree;
         };
         static Settings __defaultSettings;
         InteractiveGameObject();
@@ -23,6 +24,10 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
 
         virtual const InteractiveGameObject &operator=(const InteractiveGameObject &other);
         virtual Settings getSettings() const;
+
+        virtual void preTick();
+        virtual void postTick();
+        virtual inline void preDraw();
 
         virtual void setGameObject(GameObject *obj);
         virtual GameObject *getGameObject() const;
@@ -43,12 +48,18 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         virtual const vector<GameObjectGroup*> &getInteractiveObjectsList() const;
         virtual const vector<GameObject*> getInteractiveObjects();
 
-        virtual void draw_chunks(PixelDisplay &display);
+
+        //virtual void drawObjectTree(PixelDisplay &display);
+        virtual void subscribeToDisplay(PixelDisplay &display);
+        virtual void unsubscribeToDisplay(PixelDisplay &display);
+        virtual void setVisibility_objectTree(bool isVisible);
+        virtual bool isVisible_objectTree() const;
+        /*virtual void draw_chunks(PixelDisplay &display);
         virtual void setVisibility_chunk(const ChunkID &id,bool isVisible);
         virtual void setVisibility_chunks(bool isVisible);
         virtual bool isVisible_chunk(const ChunkID &id) const;
         virtual bool isVisible_chunks() const;
-
+*/
 
 
     protected:
@@ -65,9 +76,11 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         virtual void cleared(GameObjectGroup* sender);
 
         GameObject *m_gameObject;
-        ChunkMap   *m_interactiveObjectsChunkMap;
-        ChunkMap   *m_gameObjectChunkMap;
+        ObjectTree   *m_objectTree;
+        VertexPathPainter *m_objectTreePainter;
+
         vector<GameObjectGroup*> m_interactsWithObjectsList;
+        size_t      m_interactorAmount;
         bool        m_drawingIsDisabled;
         bool        m_interactsWithOthers;
     private:

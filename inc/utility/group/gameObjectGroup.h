@@ -3,7 +3,7 @@
 #include "base.h"
 
 #include "gameobject.h"
-#include "painter.h"
+#include "spritePainter.h"
 
 //                         Will receive GameObject Signals
 class GameObjectGroup  :   private ObjSignal//, GroupSignal
@@ -15,7 +15,7 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
 
         virtual ~GameObjectGroup();
 
-        virtual void draw(PixelDisplay &display);
+       // virtual void draw(PixelDisplay &display);
 
         virtual void add(GameObject *object);
         virtual void add(GameObjectGroup *other);
@@ -59,16 +59,18 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         virtual void rotate_270(const Vector2f &rotationPoint);
 
         virtual void setVisibility(bool isVisible);
-        virtual void setVisibility_chunks(bool isVisible);
-        virtual void setVisibility_chunk(const ChunkID &id, bool isVisible);
+        virtual void setVisibility_objectTree(bool isVisible);
+       // virtual void setVisibility_chunks(bool isVisible);
+       // virtual void setVisibility_chunk(const ChunkID &id, bool isVisible);
         virtual void setVisibility_collider_hitbox(bool isVisible);
         virtual void setVisibility_collider_boundingBox(bool isVisible);
         virtual void setVisibility_collider_collisionData(bool isVisible);
         virtual void setVisibility_collider_isCollidingWith(bool isVisible);
 
         virtual bool isVisible() const;
-        virtual bool isVisible_chunks() const;
-        virtual bool isVisible_collider_hitbox() const;
+        virtual bool isVisible_objectTree() const;
+       // virtual bool isVisible_chunks() const;
+       // virtual bool isVisible_collider_hitbox() const;
         virtual bool isVisible_collider_boundingBox() const;
         virtual bool isVisible_collider_collisionData() const;
         virtual bool isVisible_collider_isCollidingWith() const;
@@ -80,9 +82,9 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         static void removinguplicates(GameObjectGroup *list);
 
         // Signals
-        virtual void subscribe(GroupSignal   *subscriber);
-        virtual void unsubscribe(GroupSignal *subscriber);
-        virtual void unsubscribeAll();
+        virtual void subscribe_GroupSignal(GroupSignal   *subscriber);
+        virtual void unsubscribe_GroupSignal(GroupSignal *subscriber);
+        virtual void unsubscribeAll_GroupSignal();
 
     protected:
         void addInternal(GameObject *object);
@@ -98,7 +100,8 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         bool          m_visibility_collider_boundingBox;
         bool          m_visibility_collider_collisionData;
         bool          m_visibility_collider_collidingWith;
-        bool          m_visibility_chunks;
+        bool          m_visibility_objectTree;
+        //bool          m_visibility_chunks;
 
         vector<GameObject *> m_isInList;
         GroupSubscriberList m_groupSubscriberList;

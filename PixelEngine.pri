@@ -55,10 +55,12 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/display
 
 SOURCES += \
-        $$PWD/src/utility/group/chunk/chunk.cpp \
-        $$PWD/src/utility/group/chunk/chunkMap.cpp \
-        $$PWD/src/utility/settings.cpp \
-        $$PWD/src/utility/signalSubscriber.cpp \
+        $$PWD/src/gameobject/painter/colliderPainter.cpp \
+        $$PWD/src/gameobject/painter/textPainter.cpp \
+        $$PWD/src/gameobject/painter/vertexPathPainter.cpp \
+        $$PixelEngine_srcPath/utility/group/objectTree.cpp \
+        $$PixelEngine_srcPath/utility/signalSubscriber.cpp \
+        $$PixelEngine_srcPath/utility/settings.cpp \
         $$PixelEngine_srcPath/display/drawUtilities.cpp \
         $$PixelEngine_srcPath/gameobject/painter/texturePainter.cpp \
         $$PixelEngine_srcPath/display/displayText.cpp \
@@ -71,6 +73,8 @@ SOURCES += \
         $$PixelEngine_srcPath/display/pixel.cpp \
         $$PixelEngine_srcPath/gameobject/collider/basic/collider.cpp \
         $$PixelEngine_srcPath/gameobject/painter/basic/painter.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/spritePainter.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/hitboxPainter.cpp \
         $$PixelEngine_srcPath/gameobject/controller/basic/controller.cpp \
         $$PixelEngine_srcPath/gameobject/controller/keyController.cpp \
         $$PixelEngine_srcPath/gameobject/basic/gameobject.cpp \
@@ -86,11 +90,12 @@ SOURCES += \
         $$PixelEngine_srcPath/utility/layeritem.cpp
 
 HEADERS += \
-        $$PWD/inc/utility/base.h \
-        $$PWD/inc/utility/group/chunk/chunk.h \
-        $$PWD/inc/utility/group/chunk/chunkID.h \
-        $$PWD/inc/utility/group/chunk/chunkMap.h \
-        $$PWD/inc/utility/signalSubscriber.h \
+        $$PWD/inc/gameobject/painter/colliderPainter.h \
+        $$PWD/inc/gameobject/painter/textPainter.h \
+        $$PWD/inc/gameobject/painter/vertexPathPainter.h \
+        $$PixelEngine_incPath/utility/base.h \
+        $$PixelEngine_incPath/utility/group/objectTree.h \
+        $$PixelEngine_incPath/utility/signalSubscriber.h \
         $$PixelEngine_incPath/display/drawUtilities.h \
         $$PixelEngine_incPath/gameobject/painter/texturePainter.h \
         $$PixelEngine_incPath/utility/mathFunctions.h \
@@ -111,6 +116,8 @@ HEADERS += \
         $$PixelEngine_incPath/display/pixel.h \
         $$PixelEngine_incPath/gameobject/collider/basic/collider.h \
         $$PixelEngine_incPath/gameobject/painter/basic/painter.h \
+        $$PixelEngine_incPath/gameobject/painter/spritePainter.h \
+        $$PixelEngine_incPath/gameobject/painter/hitboxPainter.h \
         $$PixelEngine_incPath/gameobject/controller/basic/controller.h \
         $$PixelEngine_incPath/gameobject/controller/keyController.h \
         $$PixelEngine_incPath/gameobject/basic/gameobject.h \

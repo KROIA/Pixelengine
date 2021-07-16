@@ -28,6 +28,7 @@ namespace Vector{
     template <typename T>
     inline Vector2<T> getRotated(const Vector2<T> &vec,const Vector2<T> &rotPoint, float deg);
     inline void rotate(Vector2f &vec,const Vector2f &rotPoint, float deg);
+    inline void rotate(vector<Vector2f> &points,const Vector2f &rotPoint, float deg);
     template <typename T>
     inline Vector2<T> getRotated(const Vector2<T> &vec, float deg);
     template <typename T>
@@ -56,6 +57,17 @@ namespace Vector{
     inline VertexPath* getDrawableVector(const Vector2<T> &begin,const Vector2<T> &end,const sf::Color &color = sf::Color(255,255,255));
     template <typename T>
     inline Vector2<T>  multiply(const Vector2<T> &a,const Vector2<T> &b);
+
+    template <typename T>
+    inline T  getMaxX(const vector<Vector2<T>   > &points);
+    template <typename T>
+    inline T  getMaxY(const vector<Vector2<T>   > &points);
+    template <typename T>
+    inline T  getMinX(const vector<Vector2<T>   > &points);
+    template <typename T>
+    inline T  getMinY(const vector<Vector2<T>   > &points);
+
+
 
     template <typename T>
     inline float length(const Vector2<T> &vec)
@@ -100,26 +112,15 @@ namespace Vector{
         sf::Transform t;
         t.rotate(deg, rotPoint);
         vec = t.transformPoint(vec);
-        //vec = sf::Transform(vec).rotate(deg, rotPoint);
-        /*
-        if(long(100*deg)%36000 == 0)
-            return vec;
-        if(length(vec - rotPoint) <= 0.00001)
-            return vec;
-        float newAngle = asin(float(vec.y-rotPoint.y) / length(vec-rotPoint));
-        if((vec.x-rotPoint.x) < 0)
-            newAngle = M_PI - newAngle;
-        newAngle += deg * M_PI / 180;
-        float l = length(vec-rotPoint);
-        float xComp = cos(newAngle)*l;
-        float yComp = sin(newAngle)*l;
-
-        if(xComp<0.00001 && xComp>-0.00001)
-            xComp = 0;
-        if(yComp<0.00001 && yComp>-0.00001)
-            yComp = 0;
-        vec = Vector2<T>(xComp+rotPoint.x,yComp+rotPoint.y);*/
     }
+    inline void rotate(vector<Vector2f> &points,const Vector2f &rotPoint, float deg)
+    {
+        sf::Transform t;
+        t.rotate(deg, rotPoint);
+        for(size_t i=0; i<points.size(); i++)
+            points[i] = t.transformPoint(points[i]);
+    }
+
     template <typename T>
     inline Vector2<T> getRotated(const Vector2<T> &vec, float deg)
     {
@@ -216,7 +217,7 @@ namespace Vector{
     template <typename T>
     inline VertexPath* getDrawableVectorFunc(const Vector2<T> &ref,const Func2<T> &vecFunc,const T &scalar,const sf::Color &color)
     {
-        VertexPath *path = new VertexPath;
+        VertexPath *path = new VertexPath();
         path->length = 4;
         path->type   = sf::Lines;
         path->line = new sf::Vertex[path->length]
@@ -256,7 +257,86 @@ namespace Vector{
         res.y *= b.y;
         return res;
     }
-}
 
+
+    template <typename T>
+    inline T  getMaxX(const vector<Vector2<T>   > &points)
+    {
+        T maxX = 0;
+        if(points.size() == 0)
+            return maxX;
+        maxX = points[0].x;
+        for(size_t i=1; i < points.size(); i++)
+        {
+            if(maxX < points[i].x)
+                maxX = points[i].x;
+        }
+        return maxX;
+    }
+    template <typename T>
+    inline T  getMaxY(const vector<Vector2<T>   > &points)
+    {
+        T maxY = 0;
+        if(points.size() == 0)
+            return maxY;
+        maxY = points[0].y;
+        for(size_t i=1; i < points.size(); i++)
+        {
+            if(maxY < points[i].y)
+                maxY = points[i].y;
+        }
+        return maxY;
+    }
+    template <typename T>
+    inline T  getMinX(const vector<Vector2<T>   > &points)
+    {
+        T minX = 0;
+        if(points.size() == 0)
+            return minX;
+        minX = points[0].x;
+        for(size_t i=1; i < points.size(); i++)
+        {
+            if(minX > points[i].x)
+                minX = points[i].x;
+        }
+        return minX;
+    }
+    template <typename T>
+    inline T  getMinY(const vector<Vector2<T>   > &points)
+    {
+        T minY = 0;
+        if(points.size() == 0)
+            return minY;
+        minY = points[0].y;
+        for(size_t i=1; i < points.size(); i++)
+        {
+            if(minY > points[i].y)
+                minY = points[i].y;
+        }
+        return minY;
+    }
+
+}
+namespace Hash{
+    template <typename T>
+    inline size_t  getHashOfList(const vector<T> &list);
+    template <typename T>
+    inline size_t  getHash(const T &obj);
+
+
+    template <typename T>
+    inline size_t  getHashOfList(const vector<T> &list)
+    {
+        size_t hash = 0;
+        for(size_t i=0; i<list.size(); i++)
+            hash += getHash(list[i]);
+        return hash;
+    }
+    template <typename T>
+    inline size_t  getHash(const T &obj)
+    {
+        return std::hash<T>{}(obj);
+    }
+}
 
 #endif // MATH_H

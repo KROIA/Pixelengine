@@ -1,16 +1,25 @@
-#include "displayText.h"
+/*#include "displayText.h"
 
 
 
 DisplayText::DisplayText()
 {
-   /* setFont("C:\\Windows\\Fonts\\consolab.ttf");
-    setCharacterSize(20);
-    setColor(Color(255,255,255,255));
-    setText("");
-    setVisibility(false);
-    //setPixelRatio(1);
-    setPositionFix(false);
+
+
+    constructor(__defaultSettings);
+}
+DisplayText::DisplayText(const Settings &settings)
+{
+    constructor(settings);
+}
+void DisplayText::constructor(const Settings &settings)
+{
+    setVisibility(settings.isVisible);
+    setPositionFix(settings.positionFix);
+    setPos(settings.position);
+    setFont(settings.fontPath);
+    setColor(settings.color);
+    setCharacterSize(settings.characterSize);
     m_text.setScale(0.1,0.1);
     m_text.setOrigin(0,0);
 */
@@ -78,11 +87,7 @@ const Text &DisplayText::getText() const
 {
     return m_text;
 }
-/*void DisplayText::setPixelRatio(float ratio)
-{
-    m_pixelRatio = ratio;
-    m_text.setPosition(m_position * m_pixelRatio);
-}*/
+
 
 void DisplayText::setFont(const string &fontPath)
 {
@@ -132,7 +137,7 @@ const Color &DisplayText::getColor() const
 void DisplayText::setPos(const Vector2f &position)
 {
     m_position = position;
-    m_text.setPosition(m_position /** m_pixelRatio*/);
+    m_text.setPosition(m_position );
 }
 const Vector2f &DisplayText::getPos() const
 {
@@ -141,17 +146,15 @@ const Vector2f &DisplayText::getPos() const
 void DisplayText::move(const Vector2f &vec)
 {
     m_position += vec;
-    m_text.setPosition(m_position /** m_pixelRatio*/);
+    m_text.setPosition(m_position );
 }
 void DisplayText::setPositionFix(bool fix)
 {
     m_positionFix = fix;
-    /*if(m_positionFix)
-        m_pixelRatio = 1;
-    else
-        m_pixelRatio = globalScale.x;*/
+
 }
 bool DisplayText::getPositionFix() const
 {
     return m_positionFix;
 }
+*/
