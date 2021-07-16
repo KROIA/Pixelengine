@@ -203,6 +203,7 @@ class GameObject : private UserEventSignal, ControllerSignal
         bool m_isTrash;
 
 
+
         //ChunkID           m_constDummy_chunkID;
 };
 #endif // GAMEOBJECT_H
