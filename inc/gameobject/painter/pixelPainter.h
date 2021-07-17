@@ -40,6 +40,7 @@ class PixelPainter  : public Painter
         virtual inline void internal_CalculateFrame();
 
 
+
         void internalSetPixel(const vector<Pixel> &pixelList);
         void internalAddPixel(const Pixel &pixel);
         void internalAddPixel(const vector<Pixel> &pixelList);
