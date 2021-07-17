@@ -4,12 +4,14 @@ PixelPainter::PixelPainter()
     :   SpritePainter()
 {
     m_texture   = new sf::Texture;
-    m_image     = new sf::Image;
+    //m_image     = new sf::Image;
+    m_pixels = nullptr;
+
 }
 PixelPainter::~PixelPainter()
 {
     delete m_texture;
-    delete m_image;
+//    delete m_image;
 }
 
 void PixelPainter::setPixel(const Pixel &pixel)
@@ -17,9 +19,9 @@ void PixelPainter::setPixel(const Pixel &pixel)
     EASY_FUNCTION(profiler::colors::Cyan100);
     if(pixel.getPos().x < 0 || pixel.getPos().y < 0)
         return;
-    if(unsigned(pixel.getPos().x) >= m_image->getSize().x || unsigned(pixel.getPos().y) >= m_image->getSize().y)
+  /*  if(unsigned(pixel.getPos().x) >= m_image->getSize().x || unsigned(pixel.getPos().y) >= m_image->getSize().y)
         return;
-    m_image->setPixel(pixel.getPos().x,pixel.getPos().y,pixel);
+    m_image->setPixel(pixel.getPos().x,pixel.getPos().y,pixel);*/
 }
 void PixelPainter::setPixel(const vector<Pixel> &pixelList)
 {
@@ -49,34 +51,44 @@ const Pixel PixelPainter::getPixel(const Vector2i&pixelPos) const
 {
     Pixel p;
     p.setPos(pixelPos);
-    p.setColor(m_image->getPixel(pixelPos.x,pixelPos.y));
+  //  p.setColor(m_image->getPixel(pixelPos.x,pixelPos.y));
     return p;
 }
 const Pixel PixelPainter::getPixel(unsigned int x,unsigned int y) const
 {
     Pixel p;
     p.setPos(Vector2i(x,y));
-    p.setColor(m_image->getPixel(x,y));
+  //  p.setColor(m_image->getPixel(x,y));
     return p;
 }
 
 void PixelPainter::update()
 {
     EASY_BLOCK("PixelPainter::update() loadFromImage",profiler::colors::Cyan900);
-    m_texture->loadFromImage(*m_image);
+   // m_texture->loadFromImage(*m_image);
+   // m_sprite->setTexture(*m_texture);
+    m_texture->update(m_pixels);
 }
 void PixelPainter::resize(Vector2u size)
 {
     EASY_FUNCTION(profiler::colors::Cyan100);
-    Image tmp = *m_image;
+
+    /*Image tmp = *m_image;
     m_image->create(size.x,size.y,Color(0,0,0,0));
     m_image->copy(tmp,0,0,sf::IntRect(0,0,tmp.getSize().x,tmp.getSize().y),true);
-    internal_UpdateOrigin();
+    internal_UpdateOrigin();*/
 
+    if(m_pixels != nullptr)
+        delete m_pixels;
+    m_size = size;
+    m_pixels = new sf::Uint8[size.x*size.y*4];
+    delete m_sprite;
+    m_texture->create(size.x,size.y);
+    m_sprite = new sf::Sprite(*m_texture);
 }
 void PixelPainter::clear()
 {
-    m_image->create(m_image->getSize().x,m_image->getSize().y,Color(0,0,0,0));
+   // m_image->create(m_image->getSize().x,m_image->getSize().y,Color(0,0,0,100));
 }
 /*void PixelPainter::internal_UpdateOrigin()
 {
@@ -109,9 +121,14 @@ void PixelPainter::setPixelColor(const Vector2i & pixelPos, const Color &color)
     EASY_FUNCTION(profiler::colors::Cyan100);
     if(pixelPos.x < 0 || pixelPos.y < 0)
         return;
-    if(unsigned(pixelPos.x) >= m_image->getSize().x || unsigned(pixelPos.y) >= m_image->getSize().y)
+    if(unsigned(pixelPos.x) >= m_size.x || unsigned(pixelPos.y) >= m_size.y)
         return;
-    m_image->setPixel(pixelPos.x,pixelPos.y,color);
+   // m_image->setPixel(pixelPos.x,pixelPos.y,color);
+    size_t index = pixelPos.x * pixelPos.y;
+    m_pixels[index] = color.r;
+    m_pixels[index+1] = color.g;
+    m_pixels[index+2] = color.b;
+    m_pixels[index+3] = color.a;
 }
 void PixelPainter::setPixelColor(unsigned int x,unsigned int y, const Color &color)
 {
@@ -120,8 +137,7 @@ void PixelPainter::setPixelColor(unsigned int x,unsigned int y, const Color &col
 }
 void PixelPainter::internalSetPixel(const vector<Pixel> &pixelList)
 {
-    EASY_FUNCTION(profiler::colors::Cyan800);
-    Vector2u imageSize(m_image->getSize().x,m_image->getSize().y);
+   /* EASY_FUNCTION(profiler::colors::Cyan800);
     Vector2u newSize(0,0);
     for(const Pixel &pixel : pixelList)
     {
@@ -140,11 +156,11 @@ void PixelPainter::internalSetPixel(const vector<Pixel> &pixelList)
     {
         m_image->setPixel(pixel.getX(),pixel.getY(),pixel);
         m_texture->loadFromImage(*m_image);
-    }
+    }*/
 }
 void PixelPainter::internalAddPixel(const Pixel &pixel)
 {
-    EASY_FUNCTION(profiler::colors::Cyan800);
+   /* EASY_FUNCTION(profiler::colors::Cyan800);
     Vector2u newSize(m_image->getSize().x,m_image->getSize().y);
     bool doResize = false;
     if(unsigned(pixel.getX()) >= m_image->getSize().x)
@@ -161,7 +177,7 @@ void PixelPainter::internalAddPixel(const Pixel &pixel)
         resize(newSize);
     EASY_BLOCK("setPixel",profiler::colors::Cyan900);
     m_image->setPixel(pixel.getX(),pixel.getY(),pixel);
-    EASY_END_BLOCK;
+    EASY_END_BLOCK;*/
 }
 void PixelPainter::internalAddPixel(const vector<Pixel> &pixelList)
 {

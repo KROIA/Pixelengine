@@ -26,6 +26,7 @@ void PixelEngine::constructor(const Settings &settings)
     m_display            = new PixelDisplay(__defaultSettings.display);
     m_engineIsRunning    = true;
 
+    m_drawingEnabled     = true;
     m_nextSyncLoopActive = false;
     m_syncTimer          = new Timer;
     m_eventTimer         = new Timer;
@@ -57,6 +58,8 @@ void PixelEngine::constructor(const Settings &settings)
     m_statistics.ticksPerSecond         = 0;
     m_statistics.collisionsPerTick      = 0;
     m_statistics.collisionChecksPerTick = 0;
+    m_statistics.intersectionCheckPerTick = 0;
+    m_statistics.doesIntersectPerTick   = 0;
     m_statistics.objectsInEngine        = 0;
     m_statistics.collisionCheckTime     = 0;
     m_statistics.gameObjectTickTime     = 0;

@@ -33,7 +33,10 @@ class PixelPainter  : public SpritePainter
         void internalAddPixel(const Pixel &pixel);
         void internalAddPixel(const vector<Pixel> &pixelList);
 
-        sf::Image   *m_image;
+       // sf::Image   *m_image;
+
+        sf::Uint8* m_pixels;
+        Vector2u   m_size;
 
     private:
 
