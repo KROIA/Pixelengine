@@ -3,7 +3,7 @@
 
 #include "base.h"
 
-#include "painter.h"
+#include "spritePainter.h"
 
 class PixelPainter  : public Painter
 {
@@ -11,30 +11,43 @@ class PixelPainter  : public Painter
         PixelPainter();
         ~PixelPainter();
 
-        virtual void draw(PixelDisplay &display);
+        virtual inline void render(sf::RenderWindow *window,
+                            float viewPortZoom,
+                            DisplayStats &stats);
 
-        virtual void setPixel(const Pixel &pixel);
-        virtual void setPixel(const vector<Pixel> &pixelList);
-        virtual void addPixel(unsigned int x, unsigned int y, Color color);
-        virtual void addPixel(const Pixel &pixel);
-        virtual void addPixel(const vector<Pixel> &pixelList);
-        virtual const Pixel getPixel(const Vector2i&pixelPos) const;
-        virtual const Pixel getPixel(unsigned int x,unsigned int y) const;
-        virtual void setPixelColor(const Vector2i&pixelPos, const Color &color);
-        virtual void setPixelColor(unsigned int x,unsigned int y, const Color &color);
+        void setPixel(const Pixel &pixel);
+        void setPixel(const vector<Pixel> &pixelList);
+        void addPixel(unsigned int x, unsigned int y, Color color);
+        void addPixel(const Pixel &pixel);
+        void addPixel(const vector<Pixel> &pixelList);
+        const Pixel getPixel(const Vector2i&pixelPos) const;
+        const Pixel getPixel(unsigned int x,unsigned int y) const;
+        void setPixelColor(const Vector2i&pixelPos, const Color &color);
+        void setPixelColor(unsigned int x,unsigned int y, const Color &color);
 
-        virtual void update();
-        virtual void resize(Vector2u size);
-        virtual void clear();
+        void update();
+        void resize(Vector2u size);
+        void clear();
 
     protected:
-        virtual void internalUpdateOrigin();
+        virtual inline void internal_setPos(const Vector2f &pos);
+        virtual inline float internal_getRotation() const;
+        virtual inline void internal_setRotation(const Vector2f &rotPoint,float deg);
+        virtual inline void internal_setRotation(const float &deg);
+        virtual inline void internal_UpdateOrigin();
+        virtual inline void internal_SetOrigin(const Vector2f &origin);
+        virtual inline const Vector2f &internal_getOrigin() const;
+        virtual inline void internal_CalculateFrame();
 
 
-        virtual void internalSetPixel(const vector<Pixel> &pixelList);
-        virtual void internalAddPixel(const Pixel &pixel);
-        virtual void internalAddPixel(const vector<Pixel> &pixelList);
 
+        void internalSetPixel(const vector<Pixel> &pixelList);
+        void internalAddPixel(const Pixel &pixel);
+        void internalAddPixel(const vector<Pixel> &pixelList);
+
+        //sf::Image   *m_image;
+        vector<vector<sf::VertexArray> > m_pixMap;
+        Vector2f m_lastPos;
     private:
 
 

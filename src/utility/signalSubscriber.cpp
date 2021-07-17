@@ -1,77 +1,82 @@
 #include "signalSubscriber.h"
 
 ObjSubscriberList::ObjSubscriberList()
-    :   vector<ObjSignal *>()
-{
+    :   HashTable<ObjSignal *>()
+{}
 
+void ObjSubscriberList::insert(ObjSignal* signal)
+{
+    HashTable<ObjSignal *>::insert({signal,signal});
 }
 
 void ObjSubscriberList::moved(GameObject* sender,const Vector2f &move)
 {
-    for(size_t i=0; i<this->size(); i++)
-    //for(ObjSignal* &sub : *this)
+    for(auto pair : *this)
     {
-        (*this)[i]->moved(sender,move);
+        pair.second->moved(sender,move);
     }
 }
 void ObjSubscriberList::rotated(GameObject* sender,const float deltaAngle)
 {
-    for(size_t i=0; i<this->size(); i++)
-    //for(ObjSignal* &sub : *this)
+    for(auto pair : *this)
     {
-        (*this)[i]->rotated(sender,deltaAngle);
+        pair.second->rotated(sender,deltaAngle);
     }
 }
 
 
 GroupSubscriberList::GroupSubscriberList()
-    :   vector<GroupSignal *>()
+    :   HashTable<GroupSignal *>()
 {
 
 }
+void GroupSubscriberList::insert(GroupSignal* signal)
+{
+    HashTable<GroupSignal *>::insert({signal,signal});
+}
 void GroupSubscriberList::adding(GameObjectGroup *sender,GameObject* obj)
 {
-    for(GroupSignal* &sub : *this)
+    for(auto pair : *this)
     {
-        sub->adding(sender,obj);
+        pair.second->adding(sender,obj);
     }
 }
 void GroupSubscriberList::adding(GameObjectGroup *sender,GameObjectGroup* group)
 {
-    for(GroupSignal* &sub : *this)
+    for(auto pair : *this)
     {
-        sub->adding(sender,group);
+        pair.second->adding(sender,group);
     }
 }
 void GroupSubscriberList::removing(GameObjectGroup *sender,GameObject* obj)
 {
-    for(GroupSignal* &sub : *this)
+    for(auto pair : *this)
     {
-        sub->removing(sender,obj);
+        pair.second->removing(sender,obj);
     }
 }
 void GroupSubscriberList::removing(GameObjectGroup *sender,GameObjectGroup* group)
 {
-    for(GroupSignal* &sub : *this)
+    for(auto pair : *this)
     {
-        sub->removing(sender,group);
+        pair.second->removing(sender,group);
     }
 }
 void GroupSubscriberList::willBeCleared(GameObjectGroup* sender)
 {
-    for(GroupSignal* &sub : *this)
+    for(auto pair : *this)
     {
-        sub->willBeCleared(sender);
+        pair.second->willBeCleared(sender);
     }
 }
 void GroupSubscriberList::cleared(GameObjectGroup* sender)
 {
-    for(GroupSignal* &sub : *this)
+    for(auto pair : *this)
     {
-        sub->cleared(sender);
+        pair.second->cleared(sender);
     }
 }
-
+/*
 ChunkSubscriberList::ChunkSubscriberList()
     :   vector<ChunkSignal *>()
 {
@@ -79,57 +84,103 @@ ChunkSubscriberList::ChunkSubscriberList()
 }
 void ChunkSubscriberList::objectIsNowInChunk(Chunk *sender,GameObject* obj,const Vector2<size_t> &newChunkIndex)
 {
-    for(ChunkSignal* &sub : *this)
+    for(ChunkSignal* &pair.second : *this)
     {
-        sub->objectIsNowInChunk(sender,obj,newChunkIndex);
+        pair.second->objectIsNowInChunk(sender,obj,newChunkIndex);
     }
 }
 void ChunkSubscriberList::objectIsNowOutOfBoundry(Chunk *sender,GameObject *obj)
 {
-    for(ChunkSignal* &sub : *this)
+    for(ChunkSignal* &pair.second : *this)
     {
-        sub->objectIsNowOutOfBoundry(sender,obj);
+        pair.second->objectIsNowOutOfBoundry(sender,obj);
     }
 }
 void ChunkSubscriberList::objectIsNowIntersecting(Chunk *sender,GameObject *obj, const Vector2<size_t> &intersectingChunk)
 {
-    for(ChunkSignal* &sub : *this)
+    for(ChunkSignal* &pair.second : *this)
     {
-        sub->objectIsNowIntersecting(sender,obj,intersectingChunk);
+        pair.second->objectIsNowIntersecting(sender,obj,intersectingChunk);
     }
 }
 void ChunkSubscriberList::objectIsNoLongerIntersecting(Chunk *sender,GameObject *obj, const Vector2<size_t> &intersectingChunk)
 {
-    for(ChunkSignal* &sub : *this)
+    for(ChunkSignal* &pair.second : *this)
     {
-        sub->objectIsNoLongerIntersecting(sender,obj,intersectingChunk);
+        pair.second->objectIsNoLongerIntersecting(sender,obj,intersectingChunk);
     }
 }
 void ChunkSubscriberList::updateChunkPos(Chunk *sender, GameObject* obj)
 {
-    for(ChunkSignal* &sub : *this)
+    for(ChunkSignal* &pair.second : *this)
     {
-        sub->updateChunkPos(sender,obj);
+        pair.second->updateChunkPos(sender,obj);
+    }
+}*/
+ControllerSubscriberList::ControllerSubscriberList()
+    :   HashTable<ControllerSignal *>()
+{}
+void ControllerSubscriberList::insert(ControllerSignal* signal)
+{
+    HashTable<ControllerSignal *>::insert({signal,signal});
+}
+
+void ControllerSubscriberList::moveAvailable(Controller *sender)
+{
+    for(auto pair : *this)
+    {
+        pair.second->moveAvailable(sender);
     }
 }
 
-
 UserEventSubscriberList::UserEventSubscriberList()
-    :   vector<UserEventSignal *>()
+    :   HashTable<UserEventSignal *>()
 {
 
 }
+void UserEventSubscriberList::insert(UserEventSignal* signal)
+{
+    HashTable<UserEventSignal *>::insert({signal,signal});
+}
 void UserEventSubscriberList::eventAdded(UserEventHandler *sender,  Event *e)
 {
-    for(UserEventSignal* &sub : *this)
+    for(auto pair : *this)
     {
-        sub->eventAdded(sender,e);
+        pair.second->eventAdded(sender,e);
     }
 }
 void UserEventSubscriberList::eventRemoved(UserEventHandler *sender,  Event *e)
 {
-    for(UserEventSignal* &sub : *this)
+    for(auto pair : *this)
     {
-        sub->eventRemoved(sender,e);
+        pair.second->eventRemoved(sender,e);
+    }
+}
+PainterSubscriberList::PainterSubscriberList()
+    :   HashTable<PainterSignal *>()
+{}
+void PainterSubscriberList::insert(PainterSignal* signal)
+{
+    HashTable<PainterSignal *>::insert({signal,signal});
+}
+void PainterSubscriberList::renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer)
+{
+    for(auto pair : *this)
+    {
+        pair.second->renderLayerChanged(sender,lastLayer,newLayer);
+    }
+}
+void PainterSubscriberList::isInvisible(Painter *sender)
+{
+    for(auto pair : *this)
+    {
+        pair.second->isInvisible(sender);
+    }
+}
+void PainterSubscriberList::isVisible(Painter *sender)
+{
+    for(auto pair : *this)
+    {
+        pair.second->isVisible(sender);
     }
 }

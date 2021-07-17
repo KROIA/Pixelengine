@@ -6,6 +6,8 @@ Controller::Controller()
     m_currentDeltaMove.x    = 0;
     m_currentDeltaMove.y    = 0;
     m_rotationDeg           = 0;
+    m_movingMode            = add;
+    //m_nothingToDo           = true;
 }
 Controller::Controller(const Controller &other)
     :   UserEventHandler()//, LayerItem()
@@ -63,30 +65,35 @@ void Controller::move(const Vector2i & directionVector,MovingMode mode)
     EASY_FUNCTION(profiler::colors::Pink200);
     m_currentDeltaMove += Vector2f(directionVector);
     setMovingMode(mode);
+    m_controllerSubscriberList.moveAvailable(this);
 }
 void Controller::move(const Vector2f &directionVector,MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::Pink200);
     m_currentDeltaMove += directionVector;
     setMovingMode(mode);
+    m_controllerSubscriberList.moveAvailable(this);
 }
 void Controller::move(float x,float y,MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::Pink200);
     m_currentDeltaMove += Vector2f(x,y);
     setMovingMode(mode);
+    m_controllerSubscriberList.moveAvailable(this);
 }
 void Controller::moveX(float x,MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::Pink200);
     m_currentDeltaMove += Vector2f(x,0);
     setMovingMode(mode);
+    m_controllerSubscriberList.moveAvailable(this);
 }
 void Controller::moveY(float y,MovingMode mode)
 {
     EASY_FUNCTION(profiler::colors::Pink200);
     m_currentDeltaMove += Vector2f(0,y);
     setMovingMode(mode);
+    m_controllerSubscriberList.moveAvailable(this);
 }
 const Vector2f &Controller::getMovingVector() const
 {
@@ -97,11 +104,13 @@ void Controller::setRotation(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Pink300);
     m_rotationDeg = int(deg) % 360;
+    m_controllerSubscriberList.moveAvailable(this);
 }
 void Controller::rotate(const float &deg)
 {
     EASY_FUNCTION(profiler::colors::Pink300);
     m_rotationDeg += deg;
+    m_controllerSubscriberList.moveAvailable(this);
 }
 float Controller::getRotation() const
 {
@@ -112,18 +121,21 @@ void Controller::rotate_90()
     EASY_FUNCTION(profiler::colors::Pink300);
     m_rotationDeg += 90;
     m_rotationDeg = m_rotationDeg % 360;
+    m_controllerSubscriberList.moveAvailable(this);
 }
 void Controller::rotate_180()
 {
     EASY_FUNCTION(profiler::colors::Pink300);
     m_rotationDeg += 180;
     m_rotationDeg = m_rotationDeg % 360;
+    m_controllerSubscriberList.moveAvailable(this);
 }
 void Controller::rotate_270()
 {
     EASY_FUNCTION(profiler::colors::Pink300);
     m_rotationDeg += 270;
     m_rotationDeg = m_rotationDeg % 360;
+    m_controllerSubscriberList.moveAvailable(this);
 }
 // Eventhandler
 void Controller::receive_key_isPressed(const int &key)
@@ -145,4 +157,19 @@ void Controller::receive_key_goesUp(const int &key)
 {
     EASY_FUNCTION(profiler::colors::Pink400);
     qDebug() << "Key: "<<key<<"\tController::receive_key_goesUp";
+}
+// Signals
+void Controller::subscribe_ControllerSignal(ControllerSignal *subscriber)
+{
+    if(subscriber == nullptr)
+        return;
+    m_controllerSubscriberList.insert(subscriber);
+}
+void Controller::unsubscribe_ControllerSignal(ControllerSignal *subscriber)
+{
+    m_controllerSubscriberList.erase(subscriber);
+}
+void Controller::unsubscribeAll_ControllerSignal()
+{
+    m_controllerSubscriberList.clear();
 }

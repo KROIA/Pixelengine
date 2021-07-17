@@ -14,7 +14,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-
 isEmpty(ENGINE_PATH) {
     #message( 'ENGINE_PATH is empty. use default value.' )
     ENGINE_PATH = $$PWD
@@ -55,13 +54,14 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/display
 
 SOURCES += \
-        $$PWD/src/utility/group/chunk/chunk.cpp \
-        $$PWD/src/utility/group/chunk/chunkMap.cpp \
-        $$PWD/src/utility/settings.cpp \
-        $$PWD/src/utility/signalSubscriber.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/colliderPainter.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/textPainter.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/vertexPathPainter.cpp \
+        $$PixelEngine_srcPath/utility/group/objectTree.cpp \
+        $$PixelEngine_srcPath/utility/signalSubscriber.cpp \
+        $$PixelEngine_srcPath/utility/settings.cpp \
         $$PixelEngine_srcPath/display/drawUtilities.cpp \
         $$PixelEngine_srcPath/gameobject/painter/texturePainter.cpp \
-        $$PixelEngine_srcPath/display/displayText.cpp \
         $$PixelEngine_srcPath/utility/group/InteractiveGameObject.cpp \
         $$PixelEngine_srcPath/utility/group/InteractiveGameObjectGroup.cpp \
         $$PixelEngine_srcPath/gameobject/controller/basic/dynamicCoordinator.cpp \
@@ -71,6 +71,7 @@ SOURCES += \
         $$PixelEngine_srcPath/display/pixel.cpp \
         $$PixelEngine_srcPath/gameobject/collider/basic/collider.cpp \
         $$PixelEngine_srcPath/gameobject/painter/basic/painter.cpp \
+        $$PixelEngine_srcPath/gameobject/painter/spritePainter.cpp \
         $$PixelEngine_srcPath/gameobject/controller/basic/controller.cpp \
         $$PixelEngine_srcPath/gameobject/controller/keyController.cpp \
         $$PixelEngine_srcPath/gameobject/basic/gameobject.cpp \
@@ -86,15 +87,15 @@ SOURCES += \
         $$PixelEngine_srcPath/utility/layeritem.cpp
 
 HEADERS += \
-        $$PWD/inc/utility/base.h \
-        $$PWD/inc/utility/group/chunk/chunk.h \
-        $$PWD/inc/utility/group/chunk/chunkID.h \
-        $$PWD/inc/utility/group/chunk/chunkMap.h \
-        $$PWD/inc/utility/signalSubscriber.h \
+        $$PixelEngine_incPath/gameobject/painter/colliderPainter.h \
+        $$PixelEngine_incPath/gameobject/painter/textPainter.h \
+        $$PixelEngine_incPath/gameobject/painter/vertexPathPainter.h \
+        $$PixelEngine_incPath/utility/base.h \
+        $$PixelEngine_incPath/utility/group/objectTree.h \
+        $$PixelEngine_incPath/utility/signalSubscriber.h \
         $$PixelEngine_incPath/display/drawUtilities.h \
         $$PixelEngine_incPath/gameobject/painter/texturePainter.h \
         $$PixelEngine_incPath/utility/mathFunctions.h \
-        $$PixelEngine_incPath/display/displayText.h \
         $$PixelEngine_incPath/utility/group/InteractiveGameObject.h \
         $$PixelEngine_incPath/utility/group/InteractiveGameObjectGroup.h \
         $$PixelEngine_incPath/utility/group/groupManagerInterface.h \
@@ -111,6 +112,7 @@ HEADERS += \
         $$PixelEngine_incPath/display/pixel.h \
         $$PixelEngine_incPath/gameobject/collider/basic/collider.h \
         $$PixelEngine_incPath/gameobject/painter/basic/painter.h \
+        $$PixelEngine_incPath/gameobject/painter/spritePainter.h \
         $$PixelEngine_incPath/gameobject/controller/basic/controller.h \
         $$PixelEngine_incPath/gameobject/controller/keyController.h \
         $$PixelEngine_incPath/gameobject/basic/gameobject.h \

@@ -5,8 +5,9 @@
 
 #include "rect.h"
 #include "pixel.h"
-#include "displayText.h"
 #include "drawUtilities.h"
+#include "painter.h"
+#include "signalSubscriber.h"
 
 using sf::Color;
 using sf::RenderWindow;
@@ -23,10 +24,17 @@ struct KeyEvent
         sf::Keyboard::Key key;
         fp callbackFunction;
 };
+struct DisplayStats
+{
+    unsigned long long renderSprites;
+    unsigned long long renderVertexPaths;
+    unsigned long long renderText;
+    unsigned long long activePainters;
+    vector<unsigned long long> avtivePaintersInLayer;
+};
 
 
-
-class PixelDisplay
+class PixelDisplay  : private PainterSignal
 {
     public:
 
@@ -36,7 +44,16 @@ class PixelDisplay
             Vector2u pixelMapSize;
             Color    backgroundColor;
             sf::ContextSettings sf_contextSettings;
+            size_t   renderLayers;
         };
+        struct RenderLayer
+        {
+            bool enabled;
+            size_t index;
+            HashTable<Painter *>    table;
+        };
+
+
         static Settings __defaultSettings;
 
 
@@ -53,14 +70,17 @@ class PixelDisplay
         virtual void display();
         virtual void clear();
 
+        virtual void setLayerVisibility(size_t layer, bool visibility);
+        virtual bool getLayerVisibility(size_t layer);
+
         virtual void setPixel(const Vector2i &pos, const Color &color);
         virtual void setPixel(const Pixel &pixel);
         virtual void setPixel(const vector<Pixel> &pixelList);
 
         virtual void clearSprite();
         virtual void addSprite(Sprite *sprite);
-        virtual void subscribeSprite(Sprite *sprite);
-        virtual void unsubscribeSprite(Sprite *sprite);
+        virtual void subscribeSprite(SpritePainter *sprite);
+        virtual void unsubscribeSprite(SpritePainter *sprite);
 
         virtual void clearVertexLine();
         virtual void addVertexLine(VertexPath* path);
@@ -77,8 +97,8 @@ class PixelDisplay
         virtual void updateRenderFrame();
         virtual void setView(const RectF &frame);
 
-        virtual bool addText(DisplayText *text);       // This function will not own the Text Object!
-        virtual bool removeText(DisplayText *text);
+        //virtual bool addText(DisplayText *text);       // This function will not own the Text Object!
+        //virtual bool removeText(DisplayText *text);
         virtual void clearText();
 
         virtual const Vector2u &getWindowSize() const;
@@ -93,17 +113,24 @@ class PixelDisplay
         //virtual void setRenderFrame(const RectF &frame);
         virtual const RectF &getRenderFrame() const;
 
-        virtual unsigned long long stats_getRenderSprites() const;
-        virtual unsigned long long stats_getRenderVertexPaths() const;
-        virtual unsigned long long stats_getRenderText() const;
+        virtual const DisplayStats &getStats() const;
+
+        virtual void subscribePainter(Painter *painter);
+        virtual void unsubscribePainter(Painter *painter);
+
 
     protected:
 
+        // Signals from Painter
+        virtual void renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer);
+        virtual void isInvisible(Painter *sender);
+        virtual void isVisible(Painter *sender);
 
+        RenderWindow *m_renderWindow;
         Vector2u m_windowSize;
         Vector2u m_pixelMapSize;
 
-        RenderWindow *m_renderWindow;
+
         RectF m_renderFrame;
         sf::View m_view;
 
@@ -113,28 +140,28 @@ class PixelDisplay
         bool m_localPixlerUsed;
 
         Color m_backgroundColor;
-        vector<DisplayText*> m_textList;
+        //vector<DisplayText*> m_textList;
         bool                 m_textListUsed;
 
         vector<Sprite*>       m_spriteList;
-        vector<Sprite*>      m_spriteSubscriberList;
+        vector<SpritePainter*>      m_spriteSubscriberList;
         bool                 m_spriteListUsed;
         vector<VertexPath*>   m_vertexPathList;
         bool                 m_vertexPathUsed;
-       // Vector2f             m_renderScale;
-       // RectF                m_globalDisplayFrame;
+       // Vector2f           m_renderLayerList       // RectF                m_globalDisplayFrame;
 
         vector<sf::Event>    m_lastEventList;
+        vector<RenderLayer > m_renderLayerList;
+        size_t               m_maxRenderLayers;
 
     private:
         void constructor(const Settings &settings);
-        bool                 m_dragMap;
-        Vector2f             m_lastMousePos;
-        float                m_viewPortZoom;
+        bool                m_dragMap;
+        Vector2f            m_lastMousePos;
+        float               m_viewPortZoom;
 
-        unsigned long long m_stats_renderSprites;
-        unsigned long long m_stats_renderVertexPaths;
-        unsigned long long m_stats_renderText;
+        DisplayStats        m_stats;
+
 
 };
 #endif // PIXELDISPLAY_H

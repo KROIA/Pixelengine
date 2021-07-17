@@ -47,21 +47,46 @@ void InteractiveGameObjectGroup::add(InteractiveGameObject *obj)
 void InteractiveGameObjectGroup::add(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::Purple50);
+    if(obj == nullptr)
+        return;
+    if(m_objectsList[obj] != nullptr) // GameObject is already added to the Group
+        return;
+
     InteractiveGameObject *j = new InteractiveGameObject();
     j->setGameObject(obj);
+    m_objectsList.insert({obj,obj});
     this->add(j);
 }
 void InteractiveGameObjectGroup::addToCache(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::Purple50);
-    m_cacheObjectsList.push_back(obj);
-    m_cacheInteractiveObjectsList.push_back(nullptr);
+    if(obj == nullptr)
+        return;
+   /* GameObject *alreadyInListChecker = m_cacheObjectsList[obj];
+    if(alreadyInListChecker != nullptr) // GameObject is already added to the Group
+        return;*/
+    m_cacheObjectsList.insert({obj,obj});
+    m_objectsList.insert({obj,obj});
+    /*.push_back(nullptr);
+    if(m_cacheInteractiveObjectsList.size() == 9682 ||
+       m_cacheInteractiveObjectsList.size() == 5932 ||
+            m_cacheInteractiveObjectsList.size() == 6250)
+    {
+        qDebug() << "";
+    }*/
 }
 void InteractiveGameObjectGroup::buildCache()
 {
     EASY_FUNCTION(profiler::colors::Purple100);
+    m_cacheObjectsList_vector.clear();
+    for(auto element    :   m_cacheObjectsList)
+    {
+        m_cacheObjectsList_vector.push_back(element.second);
+        m_cacheInteractiveObjectsList.push_back(nullptr);
+    }
+
     m_interactiveObjectsList.reserve(m_interactiveObjectsList.size()+m_cacheInteractiveObjectsList.size());
-    generateInteractiveObjects(m_cacheInteractiveObjectsList,m_cacheObjectsList);
+    generateInteractiveObjects(m_cacheInteractiveObjectsList,m_cacheObjectsList_vector);
 
     for(size_t i=0; i<m_cacheInteractiveObjectsList.size(); i++)
         m_interactiveObjectsList.push_back(m_cacheInteractiveObjectsList[i]);

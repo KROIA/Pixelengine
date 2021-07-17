@@ -1,20 +1,14 @@
-#include "painter.h"
+#include "spritePainter.h"
 
 Painter::Painter()
     :   LayerItem()
 {
-    m_const_dummy_pixel.setPos(Vector2i(0,0));
-    m_const_dummy_pixel.setColor(Color(0,0,0,0));
     LayerItem::setPos(Vector2f(0,0));
     setVisibility(true);
-
-    m_sprite    = nullptr;
-    m_texture   = nullptr;
-    m_image     = nullptr;
-
-
     m_originType = Origin::middle;
-    m_spriteHasSubscribedToDisplay = false;
+    setRenderLayer(0);
+    m_frame = RectF(0,0,0,0);
+    //m_display   = nullptr;
 }
 Painter::Painter(const Painter &other)
     :   LayerItem()
@@ -30,13 +24,8 @@ const Painter &Painter::operator=(const Painter &other)
 {
     LayerItem::operator=(other);
     this->m_isVisible       = other.m_isVisible;
-    *this->m_sprite         = *other.m_sprite;
-    this->m_texture         = other.m_texture;
-    *this->m_image          = *other.m_image;
     this->m_originType      = other.m_originType;
     this->m_frame           = other.m_frame;
-    this->m_spriteHasSubscribedToDisplay = other.m_spriteHasSubscribedToDisplay;
-    //this->m_renderScale     = other.m_renderScale;
     return *this;
 }
 
@@ -44,138 +33,115 @@ RectF Painter::getFrame() const
 {
     return m_frame;
 }
-void Painter::draw(PixelDisplay &display)
+/*void Painter::setDisplay(PixelDisplay *display)
 {
-    EASY_FUNCTION(profiler::colors::Cyan200);
-    if(m_isVisible && !m_spriteHasSubscribedToDisplay)
-    {
-        display.addSprite(m_sprite);
-    }
-}
-void Painter::subscribeToDisplay(PixelDisplay &display)
-{
-    if(m_sprite != nullptr)
-    {
-        display.subscribeSprite(m_sprite);
-        //m_renderScale = display.getRenderScale();
-        m_spriteHasSubscribedToDisplay = true;
-    }
-}
-void Painter::unsubscribeToDisplay(PixelDisplay &display)
-{
-    display.unsubscribeSprite(m_sprite);
-    m_spriteHasSubscribedToDisplay = false;
-}
+    m_display = display;
+}*/
 
-void Painter::setPos(const Vector2f & pos)
-{
-    EASY_FUNCTION(profiler::colors::Cyan300);
-    m_sprite->setPosition(pos.x,pos.y);
-    LayerItem::setPos(pos);
-    internalCalculateFrame();
-}
 
-void Painter::setX(int x)
+void Painter::setVisibility(bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Cyan300);
-    m_sprite->setPosition(x,m_sprite->getPosition().y);
-    LayerItem::setX(x);
-    internalCalculateFrame();
-}
-void Painter::setY(int y)
-{
-    EASY_FUNCTION(profiler::colors::Cyan300);
-    m_sprite->setPosition(m_sprite->getPosition().x,y);
-    LayerItem::setY(y);
-    internalCalculateFrame();
-}
-void Painter::setVisibility(const bool &isVisible)
-{
+    if(m_isVisible == isVisible)
+        return;
     m_isVisible = isVisible;
+    if(m_isVisible)
+        m_signalSubscriber.isVisible(this);
+    else
+        m_signalSubscriber.isInvisible(this);
 }
-const bool &Painter::isVisible() const
+bool Painter::isVisible() const
 {
     return m_isVisible;
 }
-void Painter::internal_rotate(const Vector2f &rotPoint,float deg)
+bool Painter::needsRendering(const RectF &renderRect)
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
-    Vector2f lastOrigin = m_sprite->getOrigin();
-    m_sprite->setPosition(rotPoint.x-m_sprite->getOrigin().x,rotPoint.y - m_sprite->getOrigin().y);
-    internal_rotate(deg);
-    m_sprite->setOrigin(lastOrigin);
+    if(!m_isVisible)
+        return false;
+    return m_frame.intersects_fast(renderRect);
 }
-void Painter::internal_rotate(const float &deg)
+void Painter::setPos(const Vector2f & pos)
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
-    m_sprite->rotate(deg);
+    EASY_FUNCTION(profiler::colors::Cyan300);
+    LayerItem::setPos(pos);
+    internal_setPos(m_pos);
+    internal_CalculateFrame();
 }
+void Painter::move(const Vector2f vec)
+{
+    LayerItem::move(vec);
+    internal_setPos(m_pos);
+    internal_CalculateFrame();
+}
+
 
 float Painter::getRotation() const
 {
-    return m_sprite->getRotation();
+    return internal_getRotation();
 }
 void Painter::setRotation(float deg)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    m_sprite->setRotation(deg);
+    internal_setRotation(deg);
 }
 void Painter::rotate(float deg)
 {
-    internal_rotate(deg);
+    EASY_FUNCTION(profiler::colors::Cyan600);
+    internal_setRotation(internal_getRotation() + deg);
 }
 void Painter::rotate_90()
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    this->internal_rotate(90);
+    this->rotate(90);
 }
 void Painter::rotate_180()
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    this->internal_rotate(180);
+    this->rotate(180);
 }
 void Painter::rotate_270()
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    this->internal_rotate(270);
+    this->rotate(270);
 }
 void Painter::setRotation(const Vector2f &rotPoint,float deg)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    Vector2f lastOrigin = m_sprite->getOrigin();
-    m_sprite->setPosition(rotPoint.x,rotPoint.y);
-    setRotation(deg);
-    m_sprite->setOrigin(lastOrigin);
+    internal_setRotation(rotPoint, deg);
+}
+void Painter::rotate(const Vector2f &rotPoint,float deg)
+{
+    EASY_FUNCTION(profiler::colors::Cyan600);
+    internal_setRotation(rotPoint,internal_getRotation() + deg);
 }
 void Painter::rotate_90(const Vector2f &rotPoint)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    this->internal_rotate(rotPoint,90);
+    this->rotate(rotPoint,90);
 }
 void Painter::rotate_180(const Vector2f &rotPoint)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    this->internal_rotate(rotPoint,180);
+    this->rotate(rotPoint,180);
 }
 void Painter::rotate_270(const Vector2f &rotPoint)
 {
     EASY_FUNCTION(profiler::colors::Cyan600);
-    this->internal_rotate(rotPoint,270);
+    this->rotate(rotPoint,270);
 }
 
 void Painter::updateOrigin()
 {
-    internalUpdateOrigin();
+    internal_UpdateOrigin();
 }
 void Painter::setOrigin(const Vector2f &origin)
 {
-    internalSetOrigin(origin);
+    internal_SetOrigin(origin);
     m_originType = Origin::costumPos;
 }
 void Painter::setOriginType(Origin origin)
 {
     m_originType = origin;
-    internalUpdateOrigin();
+    internal_UpdateOrigin();
 }
 Origin Painter::getOriginType() const
 {
@@ -183,44 +149,29 @@ Origin Painter::getOriginType() const
 }
 const Vector2f Painter::getOrigin() const
 {
-    return m_sprite->getOrigin();
+    return internal_getOrigin();
 }
-void Painter::internalUpdateOrigin()
+void Painter::setRenderLayer(size_t layer)
 {
-    EASY_FUNCTION(profiler::colors::Cyan700);
-    if(m_texture == nullptr)
+    if(m_renderlayer == layer)
         return;
-    switch(m_originType)
-    {
-        case Origin::topLeft:
-            internalSetOrigin(Vector2f(0,0));
-        break;
-        case Origin::topRight:
-            internalSetOrigin(Vector2f(m_texture->getSize().x,0));
-        break;
-        case Origin::bottomLeft:
-            internalSetOrigin(Vector2f(0,m_texture->getSize().y));
-        break;
-        case Origin::bottomRight:
-            internalSetOrigin(Vector2f(m_texture->getSize().x,m_texture->getSize().y));
-        break;
-        case Origin::middle:
-            internalSetOrigin(Vector2f(m_texture->getSize().x/2,m_texture->getSize().y/2));
-        break;
-        default:
-
-        break;
-    }
+    size_t lastLayer = m_renderlayer;
+    m_renderlayer  = layer;
+    m_signalSubscriber.renderLayerChanged(this,lastLayer,m_renderlayer);
 }
-void Painter::internalSetOrigin(const Vector2f &origin)
+size_t Painter::getRenderLayer() const
 {
-    EASY_FUNCTION(profiler::colors::Cyan700);
-    m_sprite->setOrigin(origin.x,origin.y);
-    internalCalculateFrame();
+    return m_renderlayer;
 }
-void Painter::internalCalculateFrame()
+void Painter::subscribe_painterSignal(PainterSignal *subscriber)
 {
-    Vector2f offset(5,5);
-    m_frame.setPos(m_sprite->getPosition() - m_sprite->getOrigin()-offset);
-    m_frame.setSize(Vector2f(m_texture->getSize())+offset*2.f);
+    m_signalSubscriber.insert(subscriber);
+}
+void Painter::unsubscribe_painterSignal(PainterSignal *subscriber)
+{
+    m_signalSubscriber.erase(subscriber);
+}
+void Painter::unsubscribeAll_painterSignal()
+{
+    m_signalSubscriber.clear();
 }

@@ -25,7 +25,9 @@ void PixelEngine::constructor(const Settings &settings)
     setSettings(settings);
     m_display            = new PixelDisplay(__defaultSettings.display);
     m_engineIsRunning    = true;
+    m_drawingEnabled     = true;
 
+    m_drawingEnabled     = true;
     m_nextSyncLoopActive = false;
     m_syncTimer          = new Timer;
     m_eventTimer         = new Timer;
@@ -57,20 +59,22 @@ void PixelEngine::constructor(const Settings &settings)
     m_statistics.ticksPerSecond         = 0;
     m_statistics.collisionsPerTick      = 0;
     m_statistics.collisionChecksPerTick = 0;
+    m_statistics.intersectionCheckPerTick = 0;
+    m_statistics.doesIntersectPerTick   = 0;
     m_statistics.objectsInEngine        = 0;
     m_statistics.collisionCheckTime     = 0;
     m_statistics.gameObjectTickTime     = 0;
     m_statistics.checkEventTime         = 0;
     m_statistics.tickTime               = 0;
     m_statistics.displayTime            = 0;
-    m_statistics.drawTime               = 0;
+    m_statistics.preDisplayTime         = 0;
     m_statistics.checkUserEventTime     = 0;
     m_statistics.userTickTime           = 0;
     m_statistics.userDisplayTime        = 0;
     m_statsFilterFactor                 = __defaultSettings.engine.statsDisplayFilter;
 
 
-    m_stats_text = new DisplayText();
+    m_stats_text = new TextPainter();
     m_stats_text->setCharacterSize(25); // in pixels, not points!
     m_stats_text->setLineSpacing(0.8);
     sf::Color col(255,255,255,100); // Transparent white
@@ -78,7 +82,7 @@ void PixelEngine::constructor(const Settings &settings)
     m_stats_text->setPos(Vector2f(0,0));
     m_stats_text->setPositionFix(true);
 
-    m_display->addText(m_stats_text);
+    m_display->subscribePainter(m_stats_text);
 
     //RectI rect(0,0,2000,2000);
     //m_chunkMap = new ChunkMap(Vector2u(128,128),rect);
@@ -120,6 +124,10 @@ PixelEngine::PixelEngine(const PixelEngine &other)
 
 PixelEngine::~PixelEngine()
 {
+#ifdef BUILD_WITH_EASY_PROFILER
+    auto blocks_count = profiler::dumpBlocksToFile("profiler.prof");
+    std::cout << "Profiler blocks count: " << blocks_count << std::endl;
+#endif
     for(size_t i=0; i<m_userGroups.size(); i++)
     {
         delete m_userGroups[i];
@@ -153,10 +161,7 @@ PixelEngine::~PixelEngine()
     delete m_displayTimer;
 
     delete m_stats_text;
-#ifdef BUILD_WITH_EASY_PROFILER
-    auto blocks_count = profiler::dumpBlocksToFile("profiler.prof");
-    std::cout << "Profiler blocks count: " << blocks_count << std::endl;
-#endif
+
 }
 PixelEngine::Settings PixelEngine::getSettings()
 {
@@ -165,10 +170,16 @@ PixelEngine::Settings PixelEngine::getSettings()
 void PixelEngine::setSettings(const Settings &settings)
 {
     __defaultSettings                           = settings;
-    Chunk::__defaultSettings                    = settings.gameObject.chunkMap.chunk;
-    ChunkMap::__defaultSettings                 = settings.gameObject.chunkMap;
-    InteractiveGameObject::__defaultSettings    = settings.gameObject;
-    DisplayText::__defaultSettings              = settings.text;
+    if(settings.gameObject.objectTree.boundry == ObjectTree::__defaultSettings.boundry)
+    {
+        InteractiveGameObject::__defaultSettings    = settings.gameObject;
+        InteractiveGameObject::__defaultSettings.objectTree.boundry  = RectF(0.f,0.f,(float)settings.display.pixelMapSize.x,(float)settings.display.pixelMapSize.y);
+    }
+    else
+    {
+        InteractiveGameObject::__defaultSettings    = settings.gameObject;
+    }
+    TextPainter::__defaultSettings              = settings.text;
     PixelDisplay::__defaultSettings             = settings.display;
     PixelEngine::__defaultEngineSettings        = settings.engine;
 
@@ -246,6 +257,18 @@ void PixelEngine::setup()
         return;
     EASY_BLOCK("PixelEngine::setup()",profiler::colors::Orange);
     m_masterGameObjectGroup.buildCache();
+
+    GameObject *obj;
+    for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
+    {
+        obj = m_masterGameObjectGroup[i]->getGameObject();
+        if(!obj->isBoundingBoxUpdated())
+            obj->updateBoundingBox();
+        obj->setEventHandler(this);
+        m_masterGameObjectGroup[i]->subscribeToDisplay(*m_display);
+        obj->preRun();
+    }
+
     m_setupDone = true;
 }
 void PixelEngine::loop()
@@ -348,6 +371,7 @@ void PixelEngine::tick()
     m_statistics.collisionChecksPerTick = 0;
     m_statistics.gameObjectTickTime     *= m_statsFilterFactor;
     m_statistics.collisionCheckTime     *= m_statsFilterFactor;
+    m_statistics.preDisplayTime         *= m_statsFilterFactor;
     auto stats_tick_timer_start = std::chrono::system_clock::now();
     std::chrono::duration<float> time_span_userEventEvent_time = stats_tick_timer_start - stats_userTick_timer_start;
     filter(m_statistics.userTickTime, time_span_userEventEvent_time.count()*1000.f,m_statsFilterFactor);
@@ -406,8 +430,10 @@ void PixelEngine::tickXY(const Vector2i &dirLock)
             m_threadParamList.push_back(new ThreadParam());
             m_threadParamList[m_threadParamList.size()-1]->index = i;
             m_threadParamList[m_threadParamList.size()-1]->isRunning = false;
+            m_threadParamList[m_threadParamList.size()-1]->drawingEnabled = m_drawingEnabled;
             m_threadParamList[m_threadParamList.size()-1]->globalMutex = &m_threadGlobalMutex;
             m_threadParamList[m_threadParamList.size()-1]->stats = &m_statistics;
+            m_threadParamList[m_threadParamList.size()-1]->statsFilter = m_statsFilterFactor;
 #ifdef USE_STD_THREADS
             m_threadParamList[m_threadParamList.size()-1]->mutex = PTHREAD_MUTEX_INITIALIZER;
             m_threadParamList[m_threadParamList.size()-1]->cv = &cv;
@@ -535,6 +561,8 @@ void PixelEngine::tickXY(const Vector2i &dirLock)
         auto stats_timer_start = std::chrono::system_clock::now();
 
 #endif
+        if(dirLock.x)
+            interactiveObject->preTick();
         obj->tick(dirLock);
 
 #ifdef STATISTICS
@@ -544,11 +572,25 @@ void PixelEngine::tickXY(const Vector2i &dirLock)
         stats_timer_start = std::chrono::system_clock::now();
 #endif
         m_statistics.collisionsPerTick += obj->checkCollision(interactiveObject->getInteractiveObjects());
+
+        if(dirLock.y)
+            interactiveObject->postTick();
 #ifdef STATISTICS
         stats_timer_end = std::chrono::system_clock::now();
         stats_time_span = stats_timer_end - stats_timer_start;
         m_statistics.collisionCheckTime += stats_time_span.count()*1000.f*(1.f-m_statsFilterFactor);
 #endif
+        if(m_drawingEnabled)
+        {
+            if(dirLock.y)
+                interactiveObject->preDraw();
+
+#ifdef STATISTICS
+        stats_timer_start = std::chrono::system_clock::now();
+        stats_time_span   = stats_timer_start - stats_timer_end;
+        m_statistics.collisionCheckTime    += stats_time_span.count()*1000*(1.f-m_statsFilterFactor);
+#endif
+        }
     }
 
 #endif
@@ -620,6 +662,7 @@ void *PixelEngine::thread_tick(void *p)
         unsigned long collisionsPerTick = 0;
         double gameObjectTickTime = 0;
         double collisionCheckTime = 0;
+        double preDisplayTime = 0;
         for(size_t i=param->obj_begin; i<param->obj_end; i++)
         {
             EASY_BLOCK("For each m_masterGameObjectGroup index",profiler::colors::Orange500);
@@ -628,8 +671,19 @@ void *PixelEngine::thread_tick(void *p)
     #ifdef STATISTICS
             auto stats_timer_start = std::chrono::system_clock::now();
     #endif
+/*#ifdef USE_STD_THREADS
+        pthread_mutex_lock(param->globalMutex);
+#else
+        param->globalMutex->lock();
+#endif*/
+            if(param->dirLock.x)
+                interactiveObject->preTick();
             obj->tick(param->dirLock);
-
+/*#ifdef USE_STD_THREADS
+        pthread_mutex_unlock(param->globalMutex);
+#else
+        param->globalMutex->unlock();
+#endif*/
     #ifdef STATISTICS
             auto stats_timer_end = std::chrono::system_clock::now();
             std::chrono::duration<float> stats_time_span = stats_timer_end - stats_timer_start;
@@ -644,14 +698,25 @@ void *PixelEngine::thread_tick(void *p)
     #else
             obj->checkCollision(interactiveObject->getInteractiveObjects().getVector());
     #endif
+            if(param->dirLock.y)
+                interactiveObject->postTick();
 
     #ifdef STATISTICS
-            stats_timer_end = std::chrono::system_clock::now();
-            stats_time_span = stats_timer_end - stats_timer_start;
+            stats_timer_end     = std::chrono::system_clock::now();
+            stats_time_span     = stats_timer_end - stats_timer_start;
             collisionCheckTime += stats_time_span.count();
-
-
     #endif
+            if(param->drawingEnabled)
+            {
+                if(param->dirLock.y)
+                    interactiveObject->preDraw();
+
+    #ifdef STATISTICS
+            stats_timer_start = std::chrono::system_clock::now();
+            stats_time_span   = stats_timer_start - stats_timer_end;
+            preDisplayTime    += stats_time_span.count();
+    #endif
+            }
         }
 
     #ifdef STATISTICS
@@ -661,8 +726,9 @@ void *PixelEngine::thread_tick(void *p)
         param->globalMutex->lock();
 #endif
         param->stats->collisionsPerTick  += collisionsPerTick;
-        param->stats->collisionCheckTime += collisionCheckTime*500.f;
-        param->stats->gameObjectTickTime += gameObjectTickTime*500.f;
+        param->stats->collisionCheckTime += collisionCheckTime*1000.f*(1.f-param->statsFilter);
+        param->stats->gameObjectTickTime += gameObjectTickTime*1000.f*(1.f-param->statsFilter);
+        param->stats->preDisplayTime     += preDisplayTime*1000.f*(1.f-param->statsFilter);
 #ifdef USE_STD_THREADS
         pthread_mutex_unlock(param->globalMutex);
 #else
@@ -847,18 +913,17 @@ void PixelEngine::display()
     if(m_p_func_userDisplayLoop != nullptr)
         (*m_p_func_userDisplayLoop)(m_displayInterval,m_tick,*m_display);
     EASY_END_BLOCK;
-#ifdef STATISTICS
+/*#ifdef STATISTICS
     auto stats_timePoint_2 = std::chrono::system_clock::now();
     std::chrono::duration<float> time_span_userDisplay_time = stats_timePoint_2 - stats_timePoint_1;
     filter(m_statistics.userDisplayTime,time_span_userDisplay_time.count()*1000.f,m_statsFilterFactor);
-#endif
-
-    EASY_BLOCK("m_renderLayer->display",profiler::colors::OrangeA100)
+#endif*/
+    /*EASY_BLOCK("m_renderLayer->display",profiler::colors::OrangeA100)
     for(size_t i=0; i<m_renderLayer.size(); i++)
     {        
         m_renderLayer[i].draw(*m_display);
     }
-    EASY_END_BLOCK;
+    EASY_END_BLOCK;*/
     /*EASY_BLOCK("draw_chunks",profiler::colors::OrangeA100)
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
     {
@@ -866,13 +931,18 @@ void PixelEngine::display()
     }
     EASY_END_BLOCK;*/
 #ifdef STATISTICS
-    stats_timePoint_1 = std::chrono::system_clock::now();
-    std::chrono::duration<float> m_time_span_draw_time = stats_timePoint_1 - stats_timePoint_2;
-    filter(m_statistics.drawTime, m_time_span_draw_time.count()*1000.f,m_statsFilterFactor);
+    //stats_timePoint_1 = std::chrono::system_clock::now();
+    //std::chrono::duration<float> m_time_span_draw_time = stats_timePoint_1 - stats_timePoint_2;
+    //filter(m_statistics.drawTime, m_time_span_draw_time.count()*1000.f,m_statsFilterFactor);
     updateText();
-    m_display->display();
+
 
 #endif
+   /* for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
+    {
+        m_masterGameObjectGroup[i]->preDraw();
+    }*/
+    m_display->display();
 
 #ifdef STATISTICS
     m_stats_fps_timer_end = std::chrono::system_clock::now();
@@ -957,18 +1027,16 @@ void PixelEngine::addGameObject(GameObject *obj)
         if(m_masterGameObjectGroup[i]->getGameObject() == obj)
             return; // Object already added to list
 
-    if(!obj->isBoundingBoxUpdated())
-        obj->updateBoundingBox();
-    obj->setEventHandler(this);
+
     //obj->setTextSettings(m_settings.text);
     //obj->subscribeToDisplay(*m_display);
-    obj->preRun();
+    //obj->preRun();
   //  m_masterNoInteractionGameObjectList.add(obj);
     if(!m_setupDone)
         m_masterGameObjectGroup.addToCache(obj);
     else
         m_masterGameObjectGroup.add(obj);
-    m_renderLayer[2].add(obj);
+    //m_renderLayer[2].add(obj);
     //m_chunkMap->add(obj);
 }
 /*void PixelEngine::addGameObject(GameObjectGroup *group)
@@ -981,7 +1049,7 @@ void PixelEngine::addGameObject(GameObjectGroup *group)
     EASY_FUNCTION(profiler::colors::OrangeA200);
     //GameObjectGroup::removinguplicates(group);
     addGameObjectIntern(group->getVector());
-    group->subscribe(this);
+    group->subscribe_GroupSignal(this);
 }
 void PixelEngine::addGameObjectIntern(const vector<GameObject *> &list)
 {
@@ -1010,7 +1078,7 @@ void PixelEngine::removeGameObject(GameObjectGroup *group)
         if(m_userGroups[i] == group)
             m_userGroups.erase(m_userGroups.begin() + i);
     }
-    group->unsubscribe(this);
+    group->unsubscribe_GroupSignal(this);
 }
 
 void PixelEngine::removeGameObjectsIntern()
@@ -1021,13 +1089,15 @@ void PixelEngine::removeGameObjectsIntern()
     for(GameObject* &obj : m_removeLaterObjectGroup)
     {
         obj->setEventHandler(nullptr);
-        this->removeObjectFromList(m_renderLayer,obj);
+        //this->removeObjectFromList(m_renderLayer,obj);
         m_masterGameObjectGroup.removeAllInteractionsWithObj(obj);
         m_masterGameObjectGroup.remove(obj);
         removeObjectFromList(m_userGroups,obj);
 
+        obj->unsubscribeToDisplay(*m_display);
+
         obj->markAsTrash(true);
-        obj->unsubscribeAll();
+        obj->unsubscribeAll_ObjSignal();
         m_trashList.add(obj);
     }
     m_removeLaterObjectGroup.clear();
@@ -1185,7 +1255,8 @@ void PixelEngine::display_zoomView(const Vector2i &zoomAt, float zoom)
 void PixelEngine::moveRenderLayer_UP(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::OrangeA700);
-    size_t currentLayer = 0;
+    obj->setRenderLayer(obj->getRenderLayer() + 1);
+    /*size_t currentLayer = 0;
     for(size_t i=0; i<m_renderLayer.size(); i++)
     {
         for(size_t j=0; j<m_renderLayer[i].size(); j++)
@@ -1200,7 +1271,7 @@ void PixelEngine::moveRenderLayer_UP(GameObject *obj)
                 return;
             }
         }
-    }
+    }*/
 }
 void PixelEngine::moveRenderLayer_UP(GameObjectGroup *objGroup)
 {
@@ -1211,7 +1282,9 @@ void PixelEngine::moveRenderLayer_UP(GameObjectGroup *objGroup)
 void PixelEngine::moveRenderLayer_DOWN(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::OrangeA700);
-    size_t currentLayer = 0;
+    if(obj->getRenderLayer() > 0)
+        obj->setRenderLayer(obj->getRenderLayer() - 1);
+    /*size_t currentLayer = 0;
     for(size_t i=0; i<m_renderLayer.size(); i++)
     {
         for(size_t j=0; j<m_renderLayer[i].size(); j++)
@@ -1227,7 +1300,7 @@ void PixelEngine::moveRenderLayer_DOWN(GameObject *obj)
                 return;
             }
         }
-    }
+    }*/
 }
 void PixelEngine::moveRenderLayer_DOWN(GameObjectGroup *objGroup)
 {
@@ -1238,7 +1311,8 @@ void PixelEngine::moveRenderLayer_DOWN(GameObjectGroup *objGroup)
 void PixelEngine::setRenderLayer_BOTTOM(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::OrangeA700);
-    size_t currentLayer = 0;
+    obj->setRenderLayer(0);
+    /*size_t currentLayer = 0;
     for(size_t i=0; i<m_renderLayer.size(); i++)
     {
         for(size_t j=0; j<m_renderLayer[i].size(); j++)
@@ -1254,7 +1328,7 @@ void PixelEngine::setRenderLayer_BOTTOM(GameObject *obj)
                 return;
             }
         }
-    }
+    }*/
 }
 void PixelEngine::setRenderLayer_BOTTOM(GameObjectGroup *objGroup)
 {
@@ -1266,6 +1340,8 @@ void PixelEngine::setRenderLayer_BOTTOM(GameObjectGroup *objGroup)
 void PixelEngine::setRenderLayer_TOP(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::OrangeA700);
+    obj->setRenderLayer(m_display->getSettings().renderLayers-1);
+    /*
     size_t currentLayer = 0;
     for(size_t i=0; i<m_renderLayer.size(); i++)
     {
@@ -1282,7 +1358,7 @@ void PixelEngine::setRenderLayer_TOP(GameObject *obj)
                 return;
             }
         }
-    }
+    }*/
 }
 void PixelEngine::setRenderLayer_TOP(GameObjectGroup *objGroup)
 {
@@ -1290,6 +1366,14 @@ void PixelEngine::setRenderLayer_TOP(GameObjectGroup *objGroup)
     m_renderLayer[m_renderLayer.size()-1].reserve(objGroup->size());
     for(size_t i=0; i<objGroup->size(); i++)
         this->setRenderLayer_TOP((*objGroup)[i]);
+}
+void PixelEngine::setLayerVisibility(size_t layer, bool visibility)
+{
+    m_display->setLayerVisibility(layer,visibility);
+}
+bool PixelEngine::getLayerVisibility(size_t layer)
+{
+    return m_display->getLayerVisibility(layer);
 }
 
 // GameObject Events from GameObjectEventHandler
@@ -1301,7 +1385,7 @@ void PixelEngine::removeFromEngine(GameObject *obj)
 {
     EASY_FUNCTION(profiler::colors::OrangeA400);
     this->removeGameObject(obj);
-    m_removeLaterObjectGroup.push_back(obj);
+    //m_removeLaterObjectGroup.push_back(obj);
 }
 /*void PixelEngine::deleteObject(GameObject *obj)
 {
@@ -1312,15 +1396,15 @@ void PixelEngine::collisionOccured(GameObject *obj1,vector<GameObject *> obj2)
 {
     EASY_FUNCTION(profiler::colors::Orange100);
 }
-void PixelEngine::addDisplayText(DisplayText*text)
+void PixelEngine::addPainterToDisplay(Painter *painter)
 {
     EASY_FUNCTION(profiler::colors::Orange200);
-    m_display->addText(text);
+    m_display->subscribePainter(painter);
 };
-void PixelEngine::removeDisplayText(DisplayText*text)
+void PixelEngine::removePainterFromDisplay(Painter *painter)
 {
     EASY_FUNCTION(profiler::colors::Orange300);
-    m_display->removeText(text);
+    m_display->unsubscribePainter(painter);
 };
 
 
@@ -1410,19 +1494,24 @@ void PixelEngine::resetStatistics()
 }
 void PixelEngine::updateStatsText()
 {
-    m_statistics.display_sprites = m_display->stats_getRenderSprites();
-    m_statistics.display_vertexPaths = m_display->stats_getRenderVertexPaths();
-    m_statistics.display_text = m_display->stats_getRenderText();
+    m_statistics.display = m_display->getStats();
 
     EASY_FUNCTION(profiler::colors::Orange700);
+    std::string painterList = "";
+    for(size_t i=0; i<m_statistics.display.avtivePaintersInLayer.size(); i++)
+    {
+        painterList += "    Layer: "+to_string(i+1) + "\t   \t\t" + to_string(m_statistics.display.avtivePaintersInLayer[i])+        " stk.\n";
+    }
     std::string text =
      "objectsInEngine:       \t" + to_string(m_statistics.objectsInEngine) +        " stk.\n"+
      "ticks:                 \t" + to_string(m_statistics.ticksPerSecond) +         " /s\n"+
      "Display:\n"+
      "  frames:              \t" + to_string(m_statistics.framesPerSecond) +        " /s\n"+
-     "  draw sprites:        \t" + to_string(m_statistics.display_sprites) +        " stk.\n"+
-     "  draw vertexPaths:    \t" + to_string(m_statistics.display_vertexPaths) +    " stk.\n"+
-     "  draw text:           \t" + to_string(m_statistics.display_text) +           " stk.\n"+
+     "  Active Painters:     \t" + to_string(m_statistics.display.activePainters)+        " stk.\n"+
+     painterList +
+     "  draw sprites:        \t" + to_string(m_statistics.display.renderSprites) +        " stk.\n"+
+     "  draw vertexPaths:    \t" + to_string(m_statistics.display.renderVertexPaths) +    " stk.\n"+
+     "  draw text:           \t" + to_string(m_statistics.display.renderText) +           " stk.\n"+
      "Collider:\n"+
      "  Check Intersections: \t" + to_string(m_statistics.intersectionCheckPerTick)+" /Tick\n"+
      "  Intersecting:        \t" + to_string(m_statistics.doesIntersectPerTick) +   " /Tick\n"+
@@ -1433,7 +1522,7 @@ void PixelEngine::updateStatsText()
      "  gameObjectTickTime:  \t" + to_string(m_statistics.gameObjectTickTime) +     " ms\n"+
      "  checkEventTime:      \t" + to_string(m_statistics.checkEventTime) +         " ms\n"+
      "  tickTime:            \t" + to_string(m_statistics.tickTime) +               " ms\n"+
-     "  drawTime:            \t" + to_string(m_statistics.drawTime) +               " ms\n"+
+     "  preDisplayTime:      \t" + to_string(m_statistics.preDisplayTime) +         " ms\n"+
      "  displayTime:         \t" + to_string(m_statistics.displayTime) +            " ms\n"+
      "User Times:\n"+
      "  checkUserEventTime:  \t" + to_string(m_statistics.checkUserEventTime) +     " ms\n"+
