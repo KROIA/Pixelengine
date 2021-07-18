@@ -25,7 +25,7 @@ isEmpty(ENGINE_PATH) {
 message( "----- PixelEngine.pri ------- " )
 message( "  Path: $$ENGINE_PATH " )
 
-
+LIBS += -lopengl32 -lglu32
 
 
 include(extern/easy_profiler.pri)
