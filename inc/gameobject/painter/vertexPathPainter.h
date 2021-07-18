@@ -30,7 +30,7 @@ class VertexPathPainter :   public  Painter
         VertexPathPainter();
         ~VertexPathPainter();
 
-        inline void render(sf::RenderWindow *window,
+        void render(sf::RenderWindow *window,
                     float viewPortZoom,
                     DisplayStats &stats);
 
@@ -48,14 +48,14 @@ class VertexPathPainter :   public  Painter
         //void erase(VertexPath *path);
 
     protected:
-        virtual inline void internal_setPos(const Vector2f &pos);
-        virtual inline float internal_getRotation() const;
-        virtual inline void internal_setRotation(const Vector2f &rotPoint,float deg);
-        virtual inline void internal_setRotation(const float &deg);
-        virtual inline void internal_UpdateOrigin();
-        virtual inline void internal_SetOrigin(const Vector2f &origin);
-        virtual inline const Vector2f &internal_getOrigin() const;
-        virtual inline void internal_CalculateFrame();
+        virtual void internal_setPos(const Vector2f &pos);
+        virtual float internal_getRotation() const;
+        virtual void internal_setRotation(const Vector2f &rotPoint,float deg);
+        virtual void internal_setRotation(const float &deg);
+        virtual void internal_UpdateOrigin();
+        virtual void internal_SetOrigin(const Vector2f &origin);
+        virtual const Vector2f &internal_getOrigin() const;
+        virtual void internal_CalculateFrame();
 
 
         HashTable<VertexPath*>  m_pathList;

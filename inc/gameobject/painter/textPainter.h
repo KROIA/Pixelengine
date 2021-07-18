@@ -33,7 +33,7 @@ class TextPainter   :   public Painter
         virtual Settings  getSettings()const;
 
         bool needsRendering(const RectF &renderRect);
-        inline void render(sf::RenderWindow *window,
+        void render(sf::RenderWindow *window,
                     float viewPortZoom,
                     DisplayStats &stats);
 
@@ -47,6 +47,10 @@ class TextPainter   :   public Painter
         virtual void setCharacterSize(unsigned int size);
         virtual unsigned int getCharacterSize() const;
 
+        virtual void setScale(float scale);
+        virtual void setScale(const Vector2f &scale);
+        virtual const Vector2f &getScale() const;
+
         virtual void setLineSpacing(float spacingFactor);
         virtual float getLineSpacing() const;
 
@@ -58,22 +62,25 @@ class TextPainter   :   public Painter
         virtual bool getPositionFix() const;
 
     protected:
-        virtual inline void internal_setPos(const Vector2f &pos);
-        virtual inline float internal_getRotation() const;
-        virtual inline void internal_setRotation(const Vector2f &rotPoint,float deg);
-        virtual inline void internal_setRotation(const float &deg);
-        virtual inline void internal_UpdateOrigin();
-        virtual inline void internal_SetOrigin(const Vector2f &origin);
-        virtual inline const Vector2f &internal_getOrigin() const;
-        virtual inline void internal_CalculateFrame();
+        virtual void internal_setPos(const Vector2f &pos);
+        virtual float internal_getRotation() const;
+        virtual void internal_setRotation(const Vector2f &rotPoint,float deg);
+        virtual void internal_setRotation(const float &deg);
+        virtual void internal_UpdateOrigin();
+        virtual void internal_SetOrigin(const Vector2f &origin);
+        virtual const Vector2f &internal_getOrigin() const;
+        virtual void internal_CalculateFrame();
 
         //Vector2f        m_position;
         Text            m_text;
         Font            m_font;
         bool            m_positionFix;
         string          m_fontPath;
+        Vector2f        m_scale;
     private:
         void constructor(const Settings &settings);
+        static bool     m_standardFontLoaded;
+        static Font     m_standardFont;
 };
 
 #endif // TEXTPAINTER_H

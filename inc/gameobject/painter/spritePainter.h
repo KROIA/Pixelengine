@@ -13,21 +13,21 @@ class SpritePainter   :   public  Painter
         virtual ~SpritePainter();
         virtual const SpritePainter &operator=(const SpritePainter &other);
 
-        inline void render(sf::RenderWindow *window,
+        virtual void render(sf::RenderWindow *window,
                     float viewPortZoom,
                     DisplayStats &stats);
 
         //sf::Sprite *getSprite() const;
 
     protected:
-        virtual inline void internal_setPos(const Vector2f &pos);
-        virtual inline float internal_getRotation() const;
-        virtual inline void internal_setRotation(const Vector2f &rotPoint,float deg);
-        virtual inline void internal_setRotation(const float &deg);
-        virtual inline void internal_UpdateOrigin();
-        virtual inline void internal_SetOrigin(const Vector2f &origin);
-        virtual inline const Vector2f &internal_getOrigin() const;
-        virtual inline void internal_CalculateFrame();
+        virtual void internal_setPos(const Vector2f &pos);
+        virtual float internal_getRotation() const;
+        virtual void internal_setRotation(const Vector2f &rotPoint,float deg);
+        virtual void internal_setRotation(const float &deg);
+        virtual void internal_UpdateOrigin();
+        virtual void internal_SetOrigin(const Vector2f &origin);
+        virtual const Vector2f &internal_getOrigin() const;
+        virtual void internal_CalculateFrame();
 
         sf::Sprite  *m_sprite;
         sf::Texture *m_texture;

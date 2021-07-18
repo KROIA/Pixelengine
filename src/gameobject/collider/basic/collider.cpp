@@ -46,7 +46,7 @@ const Collider &Collider::operator=(const Collider &other)
 }
 void Collider::setPosInitial(const Vector2f &pos)
 {
-    EASY_FUNCTION(profiler::colors::Red);
+    COLLIDER_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == pos.x && LayerItem::getY() == pos.y)
         return;
     LayerItem::setPosInitial(pos);
@@ -54,7 +54,7 @@ void Collider::setPosInitial(const Vector2f &pos)
 }
 void Collider::setPosInitial(const Vector2i &pos)
 {
-    EASY_FUNCTION(profiler::colors::Red);
+    COLLIDER_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == pos.x && LayerItem::getY() == pos.y)
         return;
     LayerItem::setPosInitial(pos);
@@ -62,7 +62,7 @@ void Collider::setPosInitial(const Vector2i &pos)
 }
 void Collider::setPosInitial(int x, int y)
 {
-    EASY_FUNCTION(profiler::colors::Red);
+    COLLIDER_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == x && LayerItem::getY() == y)
         return;
     LayerItem::setPosInitial(x,y);
@@ -70,7 +70,7 @@ void Collider::setPosInitial(int x, int y)
 }
 void Collider::setPosInitial(float x, float y)
 {
-    EASY_FUNCTION(profiler::colors::Red);
+    COLLIDER_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == x && LayerItem::getY() == y)
         return;
     LayerItem::setPosInitial(x,y);
@@ -78,7 +78,7 @@ void Collider::setPosInitial(float x, float y)
 }
 void Collider::setPos(const Vector2f &pos)
 {
-    EASY_FUNCTION(profiler::colors::Red);
+    COLLIDER_FUNCTION(profiler::colors::Red);
     if(LayerItem::getPos() == pos)
         return;
     Vector2f deltaPos = pos - LayerItem::getPos();
@@ -92,7 +92,7 @@ void Collider::setPos(const Vector2f &pos)
 }
 void Collider::setPos(const Vector2i &pos)
 {
-    EASY_FUNCTION(profiler::colors::Red);
+    COLLIDER_FUNCTION(profiler::colors::Red);
     setPos(Vector2f(pos));
 }
 void Collider::setX(int x)
@@ -105,7 +105,7 @@ void Collider::setY(int y)
 }
 void Collider::setX(float x)
 {
-    EASY_FUNCTION(profiler::colors::Red);
+    COLLIDER_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == x)
         return;
     float deltaX = x - LayerItem::getX();
@@ -119,7 +119,7 @@ void Collider::setX(float x)
 }
 void Collider::setY(float y)
 {
-    EASY_FUNCTION(profiler::colors::Red);
+    COLLIDER_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == y)
         return;
     float deltaY = y - LayerItem::getY();
@@ -147,7 +147,7 @@ void Collider::reserve(const size_t &amount)
 
 void Collider::addHitbox(const RectF &box)
 {
-    EASY_FUNCTION(profiler::colors::Red100);
+    COLLIDER_FUNCTION(profiler::colors::Red100);
     m_boundingBoxUpdated = false;
     m_hitboxList.push_back(box);
     m_hitboxList[m_hitboxList.size()-1].setPos(box.getPos() + LayerItem::getPos());
@@ -157,7 +157,7 @@ void Collider::addHitbox(const RectF &box)
 
 void Collider::addHitbox(const vector<RectF> &boxList)
 {
-    EASY_FUNCTION(profiler::colors::Red100);
+    COLLIDER_FUNCTION(profiler::colors::Red100);
     m_boundingBoxUpdated = false;
     m_hitboxList.reserve(m_hitboxList.size()+boxList.size());
     m_hitBoxListDoesIntersect.reserve(m_hitBoxListDoesIntersect.size()+boxList.size());
@@ -169,7 +169,7 @@ void Collider::addHitbox(const vector<RectF> &boxList)
 }
 void Collider::addHitbox(const RectI &box)
 {
-    EASY_FUNCTION(profiler::colors::Red100);
+    COLLIDER_FUNCTION(profiler::colors::Red100);
     m_boundingBoxUpdated = false;
     m_hitboxList.push_back(RectF(box.getPos().x,box.getPos().y,box.getSize().x,box.getSize().y));
     m_hitboxList[m_hitboxList.size()-1].setPos(Vector2f(box.getPos()) + LayerItem::getPos());
@@ -178,7 +178,7 @@ void Collider::addHitbox(const RectI &box)
 }
 void Collider::addHitbox(const vector<RectI> &boxList)
 {
-    EASY_FUNCTION(profiler::colors::Red100);
+    COLLIDER_FUNCTION(profiler::colors::Red100);
     m_boundingBoxUpdated = false;
     m_hitboxList.reserve(m_hitboxList.size()+boxList.size());
     m_hitBoxListDoesIntersect.reserve(m_hitBoxListDoesIntersect.size()+boxList.size());
@@ -204,7 +204,7 @@ const vector<RectF> &Collider::getHitbox() const
 
 bool Collider::intersectsBoundingBox(const Collider &other)
 {
-    EASY_FUNCTION(profiler::colors::Red200);
+    COLLIDER_FUNCTION(profiler::colors::Red200);
     /*if(LayerItem::getLastPos()       == LayerItem::getPos()      && other.LayerItem::getLastPos()      == other.LayerItem::getPos() &&
        LayerItem::getLastRotation()  == LayerItem::getRotation() && other.LayerItem::getLastRotation() == other.LayerItem::getRotation())
         return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben*/
@@ -221,18 +221,18 @@ bool Collider::intersectsBoundingBox(const Collider &other)
 
 bool Collider::collides(const Collider &other)
 {
-    EASY_FUNCTION(profiler::colors::Red300);
+    COLLIDER_FUNCTION(profiler::colors::Red300);
     /*if(LayerItem::getLastPos()       == LayerItem::getPos()      && other.LayerItem::getLastPos()      == other.LayerItem::getPos() &&
        LayerItem::getLastRotation()  == LayerItem::getRotation() && other.LayerItem::getLastRotation() == other.LayerItem::getRotation())
         return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben*/
 
-    EASY_BLOCK("for(size_t x=0; x<this->m_hitboxList.size(); x++)",profiler::colors::Red400);
+    COLLIDER_BLOCK("for(size_t x=0; x<this->m_hitboxList.size(); x++)",profiler::colors::Red400);
     for(size_t x=0; x<this->m_hitboxList.size(); x++)
     {
-        EASY_BLOCK("for(size_t y=0; y<other.m_hitboxList.size(); y++)",profiler::colors::Red500);
+        COLLIDER_BLOCK("for(size_t y=0; y<other.m_hitboxList.size(); y++)",profiler::colors::Red500);
         for(size_t y=0; y<other.m_hitboxList.size(); y++)
         {
-            EASY_BLOCK("this->m_hitboxList[x].intersects(other.m_hitboxList[y])",profiler::colors::Red600);
+            COLLIDER_BLOCK("this->m_hitboxList[x].intersects(other.m_hitboxList[y])",profiler::colors::Red600);
             //Vector::Func2f colliderFunc;
             if(this->m_hitboxList[x].intersects(other.m_hitboxList[y]))
             {
@@ -245,11 +245,11 @@ bool Collider::collides(const Collider &other)
                 return true;
             }
             stats_checkCollisionCounter++;
-            EASY_END_BLOCK;
+            COLLIDER_END_BLOCK;
         }
-        EASY_END_BLOCK;
+        COLLIDER_END_BLOCK;
     }
-    EASY_END_BLOCK;
+    COLLIDER_END_BLOCK;
     return false;
 }
 void Collider::tick()
@@ -270,14 +270,14 @@ void Collider::tick()
 }
 void Collider::erase(const size_t &index)
 {
-    EASY_FUNCTION(profiler::colors::Red700);
+    COLLIDER_FUNCTION(profiler::colors::Red700);
     m_hitboxList.erase(m_hitboxList.begin()+index);
     m_hitBoxListDoesIntersect.erase(m_hitBoxListDoesIntersect.begin()+index);
     this->setBoundingBox();
 }
 void Collider::clear()
 {
-    EASY_FUNCTION(profiler::colors::Red800);
+    COLLIDER_FUNCTION(profiler::colors::Red800);
     m_boundingBoxUpdated = false;
     m_hitboxList.clear();
     m_hitBoxListDoesIntersect.clear();
@@ -289,17 +289,17 @@ const bool &Collider::isBoundingBoxUpdated() const
 }
 void Collider::updateBoundingBox()
 {
-    EASY_FUNCTION(profiler::colors::Red900);
+    COLLIDER_FUNCTION(profiler::colors::Red900);
     this->setBoundingBox();
 }
 void Collider::setBoundingBox()
 {
-    EASY_FUNCTION(profiler::colors::Red900);
+    COLLIDER_FUNCTION(profiler::colors::Red900);
     setBoundingBox(RectF::getFrame(m_hitboxList));
 }
 void Collider::setBoundingBox(const RectF &box)
 {
-    EASY_FUNCTION(profiler::colors::RedA100);
+    COLLIDER_FUNCTION(profiler::colors::RedA100);
     m_boundingBox = box;
     m_boundingBoxUpdated = true;
     m_stateChanged = true;
@@ -308,7 +308,7 @@ void Collider::setBoundingBox(const RectF &box)
 void Collider::setBoundingBox(const int &x,const int &y,
                               const int &width,const int &height)
 {
-    EASY_FUNCTION(profiler::colors::RedA100);
+    COLLIDER_FUNCTION(profiler::colors::RedA100);
     m_boundingBox.setPos(x,y);
     m_boundingBox.setSize(width,height);
     m_boundingBoxUpdated = true;
@@ -326,62 +326,62 @@ float Collider::getRotation() const
 }
 void Collider::setRotation(float deg)
 {
-    EASY_FUNCTION(profiler::colors::RedA200);
+    COLLIDER_FUNCTION(profiler::colors::RedA200);
     if(m_rotation != deg)
         this->internalRotate(Vector2f(LayerItem::getPos()),deg - m_rotation);
     m_rotation = deg;
 }
 void Collider::rotate(float deg)
 {
-    EASY_FUNCTION(profiler::colors::RedA200);
+    COLLIDER_FUNCTION(profiler::colors::RedA200);
     this->internalRotate(LayerItem::getPos(),deg);
 }
 void Collider::rotate_90()
 {
-    EASY_FUNCTION(profiler::colors::RedA200);
+    COLLIDER_FUNCTION(profiler::colors::RedA200);
     this->internalRotate(Vector2f(LayerItem::getPos()),90);
 }
 void Collider::rotate_180()
 {
-    EASY_FUNCTION(profiler::colors::RedA200);
+    COLLIDER_FUNCTION(profiler::colors::RedA200);
     this->internalRotate(Vector2f(LayerItem::getPos()),180);
 }
 void Collider::rotate_270()
 {
-    EASY_FUNCTION(profiler::colors::RedA200);
+    COLLIDER_FUNCTION(profiler::colors::RedA200);
     this->internalRotate(Vector2f(LayerItem::getPos()),-90);
 }
 void Collider::rotate(const Vector2f &rotationPoint,float deg)
 {
-    EASY_FUNCTION(profiler::colors::RedA200);
+    COLLIDER_FUNCTION(profiler::colors::RedA200);
     this->internalRotate(rotationPoint,deg);
 }
 void Collider::setRotation(const Vector2f &rotationPoint,float deg)
 {
-    EASY_FUNCTION(profiler::colors::RedA200);
+    COLLIDER_FUNCTION(profiler::colors::RedA200);
     if(m_rotation != deg)
         this->internalRotate(rotationPoint,deg - m_rotation);
     m_rotation = deg;
 }
 void Collider::rotate_90(const Vector2f &rotationPoint)
 {
-    EASY_FUNCTION(profiler::colors::RedA200);
+    COLLIDER_FUNCTION(profiler::colors::RedA200);
     this->internalRotate(rotationPoint,90);
 }
 void Collider::rotate_180(const Vector2f &rotationPoint)
 {
-    EASY_FUNCTION(profiler::colors::RedA200);
+    COLLIDER_FUNCTION(profiler::colors::RedA200);
     this->internalRotate(rotationPoint,180);
 }
 void Collider::rotate_270(const Vector2f &rotationPoint)
 {
-    EASY_FUNCTION(profiler::colors::RedA200);
+    COLLIDER_FUNCTION(profiler::colors::RedA200);
     this->internalRotate(rotationPoint,-90);
 }
 
 void Collider::setHitboxFromTexture(const Texture *texture)
 {
-    EASY_FUNCTION(profiler::colors::RedA400);
+    COLLIDER_FUNCTION(profiler::colors::RedA400);
     this->clear();
     this->addHitbox(texture->getRects());
 }
@@ -468,12 +468,12 @@ void Collider::stats_reset()
 
 void Collider::internalRotate(const Vector2f &rotPoint,const float &deg)
 {
-    EASY_FUNCTION(profiler::colors::RedA200);
+    COLLIDER_FUNCTION(profiler::colors::RedA200);
     if(deg <= 0.00001 && deg >= -0.00001)
         return;
     for(size_t i=0; i<m_hitboxList.size(); i++)
     {
-        EASY_BLOCK("internalRotate Obj",profiler::colors::RedA200);
+        COLLIDER_BLOCK("internalRotate Obj",profiler::colors::RedA200);
 
        /* Vector2f vec(m_hitboxList[i].getPos().x,m_hitboxList[i].getPos().y);
         Vector2f newPos = Vector::getRotated(vec,rotPoint,deg);

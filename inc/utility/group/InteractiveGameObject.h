@@ -25,9 +25,10 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         virtual const InteractiveGameObject &operator=(const InteractiveGameObject &other);
         virtual Settings getSettings() const;
 
-        virtual void preTick();
-        virtual void postTick();
-        virtual inline void preDraw();
+
+        virtual void engineCalled_preTick();
+        virtual void engineCalled_postTick();
+        virtual void engineCalled_preDraw();
 
         virtual void setGameObject(GameObject *obj);
         virtual GameObject *getGameObject() const;

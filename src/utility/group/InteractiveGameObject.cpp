@@ -14,7 +14,7 @@ InteractiveGameObject::InteractiveGameObject(const Settings &settings)
 }
 void InteractiveGameObject::constructor(const Settings &settings)
 {
-    EASY_FUNCTION("new InteractiveGameObject()",profiler::colors::Purple50);
+    GAME_OBJECT_FUNCTION("new InteractiveGameObject()",profiler::colors::Purple50);
     m_interactorAmount              = 0;
     m_gameObject                    = nullptr;
     m_drawingIsDisabled             = true;
@@ -77,21 +77,21 @@ InteractiveGameObject::Settings InteractiveGameObject::getSettings() const
 
     return settings;
 }
-void InteractiveGameObject::preTick()
+void InteractiveGameObject::engineCalled_preTick()
 {
-    m_gameObject->preTick();
+    m_gameObject->engineCalled_preTick();
 }
-void InteractiveGameObject::postTick()
+void InteractiveGameObject::engineCalled_postTick()
 {
-    m_gameObject->postTick();
+    m_gameObject->engineCalled_postTick();
 }
-void InteractiveGameObject::preDraw()
+void InteractiveGameObject::engineCalled_preDraw()
 {
-    EASY_FUNCTION(profiler::colors::Purple50);
-    m_gameObject->preDraw();
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple50);
+    m_gameObject->engineCalled_preDraw();
     if(m_objectTreePainter->isVisible())
     {
-        EASY_BLOCK("objectTree",profiler::colors::Purple50);
+        GAME_OBJECT_BLOCK("objectTree",profiler::colors::Purple50);
         vector<VertexPath*> tree;
         m_objectTree->getDrawable(tree);
         m_objectTreePainter->clear();
@@ -100,7 +100,7 @@ void InteractiveGameObject::preDraw()
 }
 void InteractiveGameObject::setGameObject(GameObject *obj)
 {
-    EASY_FUNCTION(profiler::colors::Purple50);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple50);
     if(obj == nullptr || obj == m_gameObject)
         return;
 
@@ -123,7 +123,7 @@ GameObject *InteractiveGameObject::getGameObject() const
 
 void InteractiveGameObject::addInteractionWith(GameObject *obj)
 {
-    EASY_FUNCTION(profiler::colors::Purple100);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple100);
     if(obj == nullptr)
         return;
 
@@ -145,7 +145,7 @@ void InteractiveGameObject::addInteractionWith(GameObject *obj)
 }
 void InteractiveGameObject::addInteractionWith(GameObjectGroup *group)
 {
-    EASY_FUNCTION(profiler::colors::Purple100);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple100);
     if(group == nullptr)
         return;
 #ifdef CHECK_FOR_DOUBLE_OBJ
@@ -170,7 +170,7 @@ void InteractiveGameObject::addInteractionWith(GameObjectGroup *group)
 }
 void InteractiveGameObject::addInteractionWith(vector<GameObjectGroup*> *groupList)
 {
-    EASY_FUNCTION(profiler::colors::Purple100);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple100);
     for(size_t i=0; i<groupList->size(); i++)
     {
         addInteractionWith((*groupList)[i]);
@@ -179,24 +179,25 @@ void InteractiveGameObject::addInteractionWith(vector<GameObjectGroup*> *groupLi
 
 void InteractiveGameObject::removeInteractionWith(GameObject *obj)
 {
-    EASY_FUNCTION(profiler::colors::Purple200);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple200);
     if(obj == nullptr)
         return;
 
-   m_interactsWithObjectsList[0]->remove(obj);
+   bool removed = false;
+   removed |= m_interactsWithObjectsList[0]->remove(obj);
+   for(size_t i=1; i<m_interactsWithObjectsList.size(); i++)
+   {
+       removed |= m_interactsWithObjectsList[i]->remove(obj);
+   }
+   if(!removed)
+       return;
    obj->unsubscribe_ObjSignal(this);
    m_objectTree->removeRecursive(obj);
    if(m_interactorAmount == 0)
        qDebug() << "ERROR: InteractiveGameObject: m_interactorAmount will count wrong";
    else
-    m_interactorAmount--;
-   //m_interactiveObjectsChunkMap->remove(obj);
-#ifdef CHECK_FOR_DOUBLE_OBJ
-    for(size_t i=1; i<m_interactsWithObjectsList.size(); i++)
-    {
-        m_interactsWithObjectsList[i]->remove(obj);
-    }
-#endif
+       m_interactorAmount--;
+
     if(m_interactsWithObjectsList.size() == 1 && m_interactsWithObjectsList[0]->size() == 0)
         m_interactsWithOthers = false;
 
@@ -205,7 +206,7 @@ void InteractiveGameObject::removeInteractionWith(GameObject *obj)
 }
 void InteractiveGameObject::removeInteractionWith(GameObjectGroup *group)
 {
-    EASY_FUNCTION(profiler::colors::Purple200);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple200);
     for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)
     {
         if(m_interactsWithObjectsList[i] == group)
@@ -232,7 +233,7 @@ void InteractiveGameObject::removeInteractionWith(GameObjectGroup *group)
 }
 void InteractiveGameObject::removeInteractionWith(vector<GameObjectGroup*> *groupList)
 {
-    EASY_FUNCTION(profiler::colors::Purple200);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple200);
     for(size_t i=0; i<groupList->size(); i++)
     {
         removeInteractionWith((*groupList)[i]);
@@ -241,7 +242,7 @@ void InteractiveGameObject::removeInteractionWith(vector<GameObjectGroup*> *grou
 
 void InteractiveGameObject::setInteractionWith(GameObject *obj, bool doesCollide)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     if(doesCollide)
         addInteractionWith(obj);
     else
@@ -249,7 +250,7 @@ void InteractiveGameObject::setInteractionWith(GameObject *obj, bool doesCollide
 }
 void InteractiveGameObject::setInteractionWith(GameObjectGroup *group, bool doesCollide)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     if(doesCollide)
         addInteractionWith(group);
     else
@@ -257,7 +258,7 @@ void InteractiveGameObject::setInteractionWith(GameObjectGroup *group, bool does
 }
 void InteractiveGameObject::setInteractionWith(vector<GameObjectGroup*> *groupList, bool doesCollide)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     if(doesCollide)
         addInteractionWith(groupList);
     else
@@ -274,7 +275,7 @@ const vector<GameObjectGroup*> &InteractiveGameObject::getInteractiveObjectsList
 }
 const vector<GameObject*> InteractiveGameObject::getInteractiveObjects()
 {
-    EASY_FUNCTION(profiler::colors::Purple400);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     /*m_objectTree->clear();
     size_t maxPossibleSize = 0;
     for(size_t i=0; i<m_interactsWithObjectsList.size(); i++)

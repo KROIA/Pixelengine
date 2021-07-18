@@ -1,6 +1,31 @@
 
 #ifndef BASE_H
 #define BASE_H
+#if defined __has_include
+#  if __has_include (<pixelEngineSettings.h>)
+#    include <pixelEngineSettings.h>
+#    pragma message( "Applying Profiler settings from  pixelEngineSettings.h " )
+#  else
+// Timing
+//#define PIXELENGINE_NO_TIMED_LOOPS
+
+// Performance
+#define PIXELENGINE_USE_THREADS
+
+// Physics
+#define PIXELENGINE_ENABLE_COLLISION
+#define PIXELENGINE_ENABLE_GAME_OBJECT_EVENTS
+
+//  Debuging
+#define PIXELENGINE_STATISTICS
+//#define PIXELENGINE_DBUG_THREAD
+
+#ifdef BUILD_WITH_EASY_PROFILER
+    #define PIXELENGINE_NO_TIMED_LOOPS
+#endif
+#pragma message( "Applying PixelEngine settings from " __FILE__ )
+#  endif
+#endif
 
 
 #include <SFML/System.hpp>
@@ -38,17 +63,6 @@ template<typename T> struct HashTable {
 //const Vector2f globalScale(10,10);
 class PixelEngine;
 
-//class DisplayText;
-class Pixel;
-class PixelDisplay;
-struct DisplayStats;
-
-class GameObject;
-class Collider;
-class Controller;
-class KeyController;
-class DynamicCoordinator;
-
 class Painter;
 class SpritePainter;
 class PixelPainter;
@@ -57,6 +71,29 @@ class TextPainter;
 struct VertexPath;
 class VertexPathPainter;
 class ColliderPainter;
+
+//class DisplayText;
+class Pixel;
+//class GameObjectDisplayInterface;
+class PixelDisplay;
+
+struct DisplayStats
+{
+    unsigned long long renderSprites;
+    unsigned long long renderVertexPaths;
+    unsigned long long renderText;
+    unsigned long long activePainters;
+    vector<unsigned long long> avtivePaintersInLayer;
+};
+
+class GameObjectEngine_Interface;
+class GameObject;
+class Collider;
+class Controller;
+class KeyController;
+class DynamicCoordinator;
+
+
 
 namespace Property
 {

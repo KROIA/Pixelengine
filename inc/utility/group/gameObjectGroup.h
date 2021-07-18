@@ -17,11 +17,11 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
 
        // virtual void draw(PixelDisplay &display);
 
-        virtual void add(GameObject *object);
-        virtual void add(GameObjectGroup *other);
-        virtual void remove(GameObject *toRemove);
-        virtual void remove(GameObjectGroup *other);
-        virtual void remove(const size_t index);
+        virtual bool add(GameObject *object);
+        virtual bool add(GameObjectGroup *other);
+        virtual bool remove(GameObject *toRemove);
+        virtual bool remove(GameObjectGroup *other);
+        virtual bool remove(const size_t index);
         virtual void clear();
         virtual void reserve(size_t size);
         virtual size_t size() const;
@@ -87,9 +87,9 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         virtual void unsubscribeAll_GroupSignal();
 
     protected:
-        void addInternal(GameObject *object);
-        void removeInternal(GameObject *object);
-        void removeInternal(size_t index);
+        bool addInternal(GameObject *object);
+        bool removeInternal(GameObject *object);
+        bool removeInternal(size_t index);
 
         // GameObject singals:
         virtual void moved(GameObject* sender,const Vector2f &move);

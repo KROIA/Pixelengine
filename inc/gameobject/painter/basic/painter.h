@@ -3,7 +3,7 @@
 
 #include "base.h"
 #include "layeritem.h"
-#include "pixelDisplay.h"
+//#include "pixelDisplay.h"
 #include "signalSubscriber.h"
 #include "texture.h"
 
@@ -22,7 +22,7 @@ class Painter   :   public  LayerItem
         virtual void setVisibility(bool isVisible);
         virtual bool isVisible() const;
         virtual bool needsRendering(const RectF &renderRect);
-        virtual inline void render(sf::RenderWindow *window,
+        virtual void render(sf::RenderWindow *window,
                             float viewPortZoom,
                             DisplayStats &stats) = 0;
 
@@ -56,14 +56,14 @@ class Painter   :   public  LayerItem
 
 
     protected:
-        virtual inline void internal_setPos(const Vector2f &pos) = 0;
-        virtual inline float internal_getRotation() const = 0;
-        virtual inline void internal_setRotation(const Vector2f &rotPoint,float deg) = 0;
-        virtual inline void internal_setRotation(const float &deg) = 0;
-        virtual inline void internal_UpdateOrigin() = 0;
-        virtual inline void internal_SetOrigin(const Vector2f &origin) = 0;
-        virtual inline const Vector2f &internal_getOrigin() const = 0;
-        virtual inline void internal_CalculateFrame() = 0;
+        virtual void internal_setPos(const Vector2f &pos) = 0;
+        virtual float internal_getRotation() const = 0;
+        virtual void internal_setRotation(const Vector2f &rotPoint,float deg) = 0;
+        virtual void internal_setRotation(const float &deg) = 0;
+        virtual void internal_UpdateOrigin() = 0;
+        virtual void internal_SetOrigin(const Vector2f &origin) = 0;
+        virtual const Vector2f &internal_getOrigin() const = 0;
+        virtual void internal_CalculateFrame() = 0;
 
 
 

@@ -62,7 +62,7 @@ void DynamicCoordinator::addMovement(const Vector2f &vec)
 
 void DynamicCoordinator::calculateMovement()
 {
-    EASY_FUNCTION(profiler::colors::Pink600);
+    CONTROLLER_FUNCTION(profiler::colors::Pink600);
     Vector2f sum = Vector::sum(m_vecList);
     /*if(Vector::length(sum) != 0)
         qDebug() << "";*/

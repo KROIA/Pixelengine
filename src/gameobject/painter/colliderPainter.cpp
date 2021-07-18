@@ -26,7 +26,7 @@ void ColliderPainter::setCollider(Collider *collider)
 }
 void ColliderPainter::update(const vector<GameObject* > &collided)
 {
-    EASY_FUNCTION(profiler::colors::Cyan200);
+    PAINTER_FUNCTION(profiler::colors::Cyan200);
     if(!m_isVisible)
         return;
 
@@ -54,19 +54,19 @@ void ColliderPainter::update(const vector<GameObject* > &collided)
 }
 void ColliderPainter::setVisibility_boundingBox(bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Cyan300);
+    PAINTER_FUNCTION(profiler::colors::Cyan300);
     m_visibility_boundingBox = isVisible;
     checkIfPainterIsVisible();
 }
 void ColliderPainter::setVisibility_hitBox(bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Cyan300);
+    PAINTER_FUNCTION(profiler::colors::Cyan300);
     m_visibility_hitbox = isVisible;
     checkIfPainterIsVisible();
 }
 void ColliderPainter::setVisibility_collisionData(bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Cyan300);
+    PAINTER_FUNCTION(profiler::colors::Cyan300);
     m_visibility_collisionData = isVisible;
     if(m_collider != nullptr)
         m_collider->generateCollisionData(isVisible);
@@ -74,7 +74,7 @@ void ColliderPainter::setVisibility_collisionData(bool isVisible)
 }
 void ColliderPainter::setVisibility_collidedObjects(bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Cyan300);
+    PAINTER_FUNCTION(profiler::colors::Cyan300);
     m_visibility_collidedObjects= isVisible;
     checkIfPainterIsVisible();
 }

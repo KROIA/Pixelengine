@@ -43,7 +43,7 @@ bool Timer::update()
 {
     EASY_FUNCTION("Timer::update",profiler::colors::Teal100);
     m_timer_end = std::chrono::high_resolution_clock::now();
-    m_time_span = std::chrono::duration_cast<std::chrono::microseconds>(m_timer_end - m_timer_start);
+    m_time_span = m_timer_end - m_timer_start;
     m_runtime = m_time_span.count();
     if(m_runtime >= m_interval)
     {

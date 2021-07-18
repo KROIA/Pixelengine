@@ -2,28 +2,34 @@
 
 Event::Event()
 {
-    m_isPressed = false;
-    m_key       = -1;
-
-    m_keyState = false;
-    m_keyLastState1 = false;
-    m_keyLastState2 = false;
-    resetCounter();
+    constructor(-1);
 }
 
 Event::Event(const int &key)
 {
-    m_isPressed = false;
-
-    m_keyState = false;
-    m_keyLastState1 = false;
-    m_keyLastState2 = false;
-    this->setKey(key);
-    resetCounter();
+    constructor(key);
 }
 Event::Event(const Event &other)
 {
     *this = other;
+}
+void Event::constructor(const int &key)
+{
+    m_key = key;
+    m_keyState            = false;
+    m_keyLastState1       = false;
+    m_keyLastState2       = false;
+
+
+    m_isPressed           = false;
+    m_isToggled           = false;
+    m_isSinking           = false;
+    m_isRising            = false;
+
+    m_isPressed_counter   = 0;
+    m_isToggled_counter   = 0;
+    m_isSinking_counter   = 0;
+    m_isRising_counter    = 0;
 }
 Event::~Event()
 {
@@ -46,7 +52,7 @@ Event &Event::operator=(const Event &other)
 
 void Event::checkEvent()
 {
-    EASY_FUNCTION(profiler::colors::Indigo50);
+    EVENT_FUNCTION(profiler::colors::Indigo50);
     if(m_key < 0)
         return;
     m_isToggled = false;

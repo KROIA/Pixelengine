@@ -1,7 +1,8 @@
 #include "textPainter.h"
 
 
-
+bool     TextPainter::m_standardFontLoaded = false;
+Font     TextPainter::m_standardFont;
 TextPainter::TextPainter()
     :   Painter()
 {
@@ -15,15 +16,31 @@ TextPainter::TextPainter(const Settings &settings)
 }
 void TextPainter::constructor(const Settings &settings)
 {
+    if(!m_standardFontLoaded)
+    {
+        bool ret = m_standardFont.loadFromFile(settings.fontPath);
+        if (!ret)
+        {
+            qDebug()  << "can't load font: "<<settings.fontPath.c_str();
+        }
+        else
+        {
+
+        }
+        m_standardFontLoaded = true;
+    }
     setVisibility(settings.isVisible);
     setPositionFix(settings.positionFix);
     setPos(settings.position);
-    setFont(settings.fontPath);
+    m_text.setFont(m_standardFont);
+    m_font = m_standardFont;
+  //  setFont(settings.fontPath);
     setColor(settings.color);
     setCharacterSize(settings.characterSize);
     m_text.setScale(0.1,0.1);
     m_text.setOrigin(0,0);
     Painter::setRenderLayer(settings.renderLayer);
+    setScale(Vector2f(0.1,0.1));
 }
 TextPainter::~TextPainter()
 {
@@ -54,11 +71,11 @@ bool TextPainter::needsRendering(const RectF &renderRect)
         return false;
     return true;
 }
-inline void TextPainter::render(sf::RenderWindow *window,
+void TextPainter::render(sf::RenderWindow *window,
                          float viewPortZoom,
                          DisplayStats &stats)
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
  //   if(!m_isVisible || (!m_frame.intersects_fast(renderFrame) && !m_positionFix))
  //       return;
 
@@ -68,7 +85,7 @@ inline void TextPainter::render(sf::RenderWindow *window,
 
         Vector2f textPos = m_view.getCenter()-m_view.getSize()/2.f + m_pos*viewPortZoom;
         m_text.setPosition(textPos);
-        m_text.setScale(viewPortZoom,viewPortZoom);
+        m_text.setScale(viewPortZoom*m_scale.x,viewPortZoom*m_scale.y);
     }
 
     window->draw(m_text);
@@ -104,7 +121,6 @@ void TextPainter::setFont(const string &fontPath)
     {
         m_text.setFont(m_font);
     }
-
 }
 const sf::Font *TextPainter::getFont() const
 {
@@ -118,6 +134,23 @@ void TextPainter::setCharacterSize(unsigned int size)
 unsigned int TextPainter::getCharacterSize() const
 {
     return m_text.getCharacterSize();
+}
+
+void TextPainter::setScale(float scale)
+{
+    setScale(Vector2f(scale,scale));
+}
+void TextPainter::setScale(const Vector2f &scale)
+{
+    m_scale  = scale;
+    if(!m_positionFix)
+    {
+        m_text.setScale(m_scale);
+    }
+}
+const Vector2f &TextPainter::getScale() const
+{
+    return m_scale;
 }
 
 void TextPainter::setLineSpacing(float spacingFactor)
@@ -146,23 +179,23 @@ bool TextPainter::getPositionFix() const
 {
     return m_positionFix;
 }
-inline void TextPainter::internal_setPos(const Vector2f &pos)
+void TextPainter::internal_setPos(const Vector2f &pos)
 {
     m_text.setPosition(pos);
 }
-inline float TextPainter::internal_getRotation() const
+float TextPainter::internal_getRotation() const
 {
     return m_text.getRotation();
 }
-inline void TextPainter::internal_setRotation(const Vector2f &rotPoint,float deg)
+void TextPainter::internal_setRotation(const Vector2f &rotPoint,float deg)
 {
     m_text.setRotation(deg);
 }
-inline void TextPainter::internal_setRotation(const float &deg)
+void TextPainter::internal_setRotation(const float &deg)
 {
     m_text.setRotation(deg);
 }
-inline void TextPainter::internal_UpdateOrigin()
+void TextPainter::internal_UpdateOrigin()
 {
     switch(m_originType)
     {
@@ -186,15 +219,15 @@ inline void TextPainter::internal_UpdateOrigin()
         break;
     }
 }
-inline void TextPainter::internal_SetOrigin(const Vector2f &origin)
+void TextPainter::internal_SetOrigin(const Vector2f &origin)
 {
     m_text.setOrigin(origin);
 }
-inline const Vector2f &TextPainter::internal_getOrigin() const
+const Vector2f &TextPainter::internal_getOrigin() const
 {
     return m_text.getOrigin();
 }
-inline void TextPainter::internal_CalculateFrame()
+void TextPainter::internal_CalculateFrame()
 {
     m_frame.setPos(m_text.getPosition());
     m_frame.setSize(m_text.getLocalBounds().getSize().x*m_text.getScale().x,

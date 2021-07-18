@@ -31,81 +31,91 @@ GameObjectGroup &GameObjectGroup::operator=(const GameObjectGroup &other)
 }
 /*void GameObjectGroup::draw(PixelDisplay &display)
 {
-    EASY_FUNCTION(profiler::colors::Purple);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple);
     size_t size = m_isInList.size();
     for(size_t i=0; i<size; i++)
         m_isInList[i]->draw(display);
 }*/
-void GameObjectGroup::add(GameObject *object)
+bool GameObjectGroup::add(GameObject *object)
 {
-    EASY_FUNCTION(profiler::colors::Purple50);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple50);
     addInternal(object);
     m_groupSubscriberList.adding(this,object);//emit signal
+    return true;
 }
-void GameObjectGroup::add(GameObjectGroup *other)
+bool GameObjectGroup::add(GameObjectGroup *other)
 {
-    EASY_FUNCTION(profiler::colors::Purple50);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple50);
     m_isInList.reserve(m_isInList.size()   + other->size());
     for(size_t i=0; i<other->size(); i++)
         this->addInternal((*other)[i]);
     m_groupSubscriberList.adding(this,other);//emit signal
+    return true;
 }
-void GameObjectGroup::addInternal(GameObject *object)
+bool GameObjectGroup::addInternal(GameObject *object)
 {
     m_isInList.push_back(object);
     object->subscribe_ObjSignal(this);
+    return true;
 }
 
-void GameObjectGroup::remove(GameObject *toRemove)
+bool GameObjectGroup::remove(GameObject *toRemove)
 {
-    EASY_FUNCTION(profiler::colors::Purple100);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple100);
+    bool ret = false;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
         if(m_isInList[i] == toRemove)
         {
             m_groupSubscriberList.removing(this,m_isInList[i]);//emit signal
-            this->removeInternal(i);
+            ret |= this->removeInternal(i);
         }
     }
+    return ret;
 }
-void GameObjectGroup::remove(GameObjectGroup *other)
+bool GameObjectGroup::remove(GameObjectGroup *other)
 {
-    EASY_FUNCTION(profiler::colors::Purple100);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple100);
     //other->unsubscribe(this);
+    if(m_isInList.size() == 0 || other->size() == 0)
+        return false;
     m_groupSubscriberList.removing(this,other);//emit signal
+    bool ret = true;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
-        this->removeInternal((*other)[i]);
+        ret &= this->removeInternal((*other)[i]);
     }
-
+    return ret;
 }
-void GameObjectGroup::remove(const size_t index)
+bool GameObjectGroup::remove(const size_t index)
 {
-    EASY_FUNCTION(profiler::colors::Purple100);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple100);
     if(index >= m_isInList.size())
-        return;
+        return false;
     m_groupSubscriberList.removing(this,m_isInList[index]);//emit signal
-    removeInternal(index);
-
+    return removeInternal(index);
 }
-void GameObjectGroup::removeInternal(GameObject *object)
+bool GameObjectGroup::removeInternal(GameObject *object)
 {
+    bool ret = false;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
         if(m_isInList[i] == object)
         {
-            removeInternal(i);
+            ret |= removeInternal(i);
         }
     }
+    return ret;
 }
-void GameObjectGroup::removeInternal(size_t index)
+bool GameObjectGroup::removeInternal(size_t index)
 {
     m_isInList[index]->unsubscribe_ObjSignal(this);
     m_isInList.erase(m_isInList.begin()+index);
+    return true;
 }
 void GameObjectGroup::clear()
 {
-    EASY_FUNCTION(profiler::colors::Purple200);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple200);
     m_groupSubscriberList.willBeCleared(this);
     for(GameObject* &obj : m_isInList)
         obj->unsubscribe_ObjSignal(this);
@@ -130,158 +140,158 @@ const vector<GameObject*> &GameObjectGroup::getVector() const
 // GameObject stuff
 void GameObjectGroup::setPosInital(const Vector2f &pos)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setPosInital(pos);
 }
 void GameObjectGroup::setPos(int x,int y)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setPos(x,y);
 }
 void GameObjectGroup::setPos(const Vector2i &pos)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setPos(pos);
 }
 void GameObjectGroup::setPos(float x, float y)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setPos(x,y);
 }
 void GameObjectGroup::setPos(const Vector2f &pos)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setPos(pos);
 }
 void GameObjectGroup::setX(int x)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setX(x);
 }
 void GameObjectGroup::setY(int y)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setY(y);
 }
 void GameObjectGroup::setX(float x)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setX(x);
 }
 void GameObjectGroup::setY(float y)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setY(y);
 }
 void GameObjectGroup::moveToPos(const Vector2i&destination,Controller::MovingMode mode)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->moveToPos(destination,mode);
 }
 void GameObjectGroup::moveToPos(const int &x,const int &y,Controller::MovingMode mode)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->moveToPos(x,y,mode);
 }
 void GameObjectGroup::move(const Vector2i&vec,Controller::MovingMode mode)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->move(vec,mode);
 }
 void GameObjectGroup::move(const Vector2f &vec,Controller::MovingMode mode)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->move(vec,mode);
 }
 void GameObjectGroup::move(const float &deltaX, const float &deltaY, Controller::MovingMode mode)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->move(deltaX,deltaY,mode);
 }
 void GameObjectGroup::moveX(const float &delta,Controller::MovingMode mode)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->moveX(delta,mode);
 }
 void GameObjectGroup::moveY(const float &delta,Controller::MovingMode mode)
 {
-    EASY_FUNCTION(profiler::colors::Purple300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->moveY(delta,mode);
 }
 
 void GameObjectGroup::rotate(const float &deg)
 {
-    EASY_FUNCTION(profiler::colors::Purple400);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->rotate(deg);
 }
 void GameObjectGroup::setRotation(const float &deg)
 {
-    EASY_FUNCTION(profiler::colors::Purple400);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setRotation(deg);
 }
 void GameObjectGroup::rotate_90()
 {
-    EASY_FUNCTION(profiler::colors::Purple400);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->rotate_90();
 }
 void GameObjectGroup::rotate_180()
 {
-    EASY_FUNCTION(profiler::colors::Purple400);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->rotate_180();
 }
 void GameObjectGroup::rotate_270()
 {
-    EASY_FUNCTION(profiler::colors::Purple400);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->rotate_270();
 }
 void GameObjectGroup::setRotation(const Vector2f &rotationPoint,const float &deg)
 {
-    EASY_FUNCTION(profiler::colors::Purple400);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setRotation(rotationPoint,deg);
 }
 void GameObjectGroup::rotate_90(const Vector2f &rotationPoint)
 {
-    EASY_FUNCTION(profiler::colors::Purple400);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->rotate_90(rotationPoint);
 }
 void GameObjectGroup::rotate_180(const Vector2f &rotationPoint)
 {
-    EASY_FUNCTION(profiler::colors::Purple400);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->rotate_180(rotationPoint);
 }
 void GameObjectGroup::rotate_270(const Vector2f &rotationPoint)
 {
-    EASY_FUNCTION(profiler::colors::Purple400);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->rotate_270(rotationPoint);
 }/*
 void GameObjectGroup::setVisibility(bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Purple500);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple500);
     m_visibility = isVisible;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
@@ -294,7 +304,7 @@ bool GameObjectGroup::isVisible() const
 }
 void GameObjectGroup::setVisibility_collider_hitbox(bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Purple600);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple600);
     m_visibility_collider_hitbox = isVisible;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
@@ -312,7 +322,7 @@ bool GameObjectGroup::isVisible_collider_hitbox() const
 }*/
 void GameObjectGroup::setVisibility(bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Purple500);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple500);
     m_visibility = isVisible;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
@@ -321,7 +331,7 @@ void GameObjectGroup::setVisibility(bool isVisible)
 }
 void GameObjectGroup::setVisibility_objectTree(bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Purple500);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple500);
     for(size_t i=0; i<m_isInList.size(); i++)
     {
         m_isInList[i]->setVisibility_objectTree(isVisible);
@@ -330,7 +340,7 @@ void GameObjectGroup::setVisibility_objectTree(bool isVisible)
 }
 /*void GameObjectGroup::setVisibility_chunks(bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Purple500);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple500);
     m_visibility_chunks = isVisible;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
@@ -339,7 +349,7 @@ void GameObjectGroup::setVisibility_objectTree(bool isVisible)
 }
 void GameObjectGroup::setVisibility_chunk(const ChunkID &id, bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Purple500);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple500);
     for(size_t i=0; i<m_isInList.size(); i++)
     {
         m_isInList[i]->setVisibility_chunk(id,isVisible);
@@ -347,7 +357,7 @@ void GameObjectGroup::setVisibility_chunk(const ChunkID &id, bool isVisible)
 }*/
 void GameObjectGroup::setVisibility_collider_hitbox(bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Purple500);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple500);
     m_visibility_collider_hitbox = isVisible;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
@@ -356,7 +366,7 @@ void GameObjectGroup::setVisibility_collider_hitbox(bool isVisible)
 }
 void GameObjectGroup::setVisibility_collider_boundingBox(bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Purple500);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple500);
     m_visibility_collider_boundingBox = isVisible;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
@@ -365,7 +375,7 @@ void GameObjectGroup::setVisibility_collider_boundingBox(bool isVisible)
 }
 void GameObjectGroup::setVisibility_collider_collisionData(bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Purple500);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple500);
     m_visibility_collider_collisionData = isVisible;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
@@ -374,7 +384,7 @@ void GameObjectGroup::setVisibility_collider_collisionData(bool isVisible)
 }
 void GameObjectGroup::setVisibility_collider_isCollidingWith(bool isVisible)
 {
-    EASY_FUNCTION(profiler::colors::Purple500);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple500);
     m_visibility_collider_collidingWith = isVisible;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
@@ -415,7 +425,7 @@ long long GameObjectGroup::indexOf(const GameObject* obj)
 }
 long long GameObjectGroup::indexOf(const vector<GameObject *> list,const GameObject* obj)
 {
-    EASY_FUNCTION(profiler::colors::Purple600);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple600);
     for(size_t i=0; i<list.size(); i++)
     {
         if(list[i] == obj)
@@ -426,15 +436,15 @@ long long GameObjectGroup::indexOf(const vector<GameObject *> list,const GameObj
 
 void GameObjectGroup::removinguplicates(vector<GameObject *> *list)
 {
-    EASY_FUNCTION(profiler::colors::Purple700);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple700);
     vector<GameObject *> copyList;
     copyList.reserve(list->size());
 
-    EASY_BLOCK("Compare list 1 loop",profiler::colors::Purple800);
+    GAME_OBJECT_BLOCK("Compare list 1 loop",profiler::colors::Purple800);
     for(size_t i=0; i<list->size(); i++)
     {
         bool hasCopy = false;
-        EASY_BLOCK("Compare list 2 loop",profiler::colors::Purple900);
+        GAME_OBJECT_BLOCK("Compare list 2 loop",profiler::colors::Purple900);
         for(size_t j=0; j<copyList.size(); j++)
         {
             if((*list)[i] == copyList[j])
@@ -443,18 +453,18 @@ void GameObjectGroup::removinguplicates(vector<GameObject *> *list)
                 break; // Jumps to the end of this for loop
             }
         }
-        EASY_END_BLOCK;
+        GAME_OBJECT_END_BLOCK;
         // break jumpt to this Point
         if(!hasCopy)
             copyList.push_back((*list)[i]);
 
     }
-    EASY_END_BLOCK;
+    GAME_OBJECT_END_BLOCK;
     *list = copyList;
 }
 void GameObjectGroup::removinguplicates(GameObjectGroup *list)
 {
-    EASY_FUNCTION(profiler::colors::Purple700);
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple700);
     removinguplicates(&list->m_isInList);
 }
 void GameObjectGroup::subscribe_GroupSignal(GroupSignal *subscriber)

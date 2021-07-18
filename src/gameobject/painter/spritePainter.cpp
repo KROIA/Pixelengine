@@ -28,11 +28,11 @@ const SpritePainter &SpritePainter::operator=(const SpritePainter &other)
     return *this;
 }
 
-inline void SpritePainter::render(sf::RenderWindow *window,
+void SpritePainter::render(sf::RenderWindow *window,
                            float viewPortZoom,
                            DisplayStats &stats)
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
   //  if(!m_isVisible || !m_frame.intersects_fast(renderFrame))
   //      return;
     window->draw(*m_sprite);
@@ -44,30 +44,30 @@ inline void SpritePainter::render(sf::RenderWindow *window,
     return m_sprite;
 }*/
 
-inline void SpritePainter::internal_setPos(const Vector2f &pos)
+void SpritePainter::internal_setPos(const Vector2f &pos)
 {
     m_sprite->setPosition(pos);
 }
-inline float SpritePainter::internal_getRotation() const
+float SpritePainter::internal_getRotation() const
 {
     return m_sprite->getRotation();
 }
-inline void SpritePainter::internal_setRotation(const Vector2f &rotPoint,float deg)
+void SpritePainter::internal_setRotation(const Vector2f &rotPoint,float deg)
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
     Vector2f lastOrigin = m_sprite->getOrigin();
     m_sprite->setPosition(rotPoint.x-m_sprite->getOrigin().x,rotPoint.y - m_sprite->getOrigin().y);
     internal_setRotation(deg);
     m_sprite->setOrigin(lastOrigin);
 }
-inline void SpritePainter::internal_setRotation(const float &deg)
+void SpritePainter::internal_setRotation(const float &deg)
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
     m_sprite->setRotation(deg);
 }
-inline void SpritePainter::internal_UpdateOrigin()
+void SpritePainter::internal_UpdateOrigin()
 {
-    EASY_FUNCTION(profiler::colors::Cyan700);
+    PAINTER_FUNCTION(profiler::colors::Cyan700);
     if(m_texture == nullptr)
         return;
     switch(m_originType)
@@ -92,17 +92,17 @@ inline void SpritePainter::internal_UpdateOrigin()
         break;
     }
 }
-inline void SpritePainter::internal_SetOrigin(const Vector2f &origin)
+void SpritePainter::internal_SetOrigin(const Vector2f &origin)
 {
-    EASY_FUNCTION(profiler::colors::Cyan700);
+    PAINTER_FUNCTION(profiler::colors::Cyan700);
     m_sprite->setOrigin(origin.x,origin.y);
     internal_CalculateFrame();
 }
-inline const Vector2f &SpritePainter::internal_getOrigin() const
+const Vector2f &SpritePainter::internal_getOrigin() const
 {
     return m_sprite->getOrigin();
 }
-inline void SpritePainter::internal_CalculateFrame()
+void SpritePainter::internal_CalculateFrame()
 {
     Vector2f offset(5,5);
     m_frame.setPos(m_sprite->getPosition() - m_sprite->getOrigin()-offset);

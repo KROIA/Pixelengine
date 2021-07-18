@@ -55,5 +55,6 @@ class Event
         unsigned int m_isRising_counter;
 
     private:
+        void constructor(const int &key);
 };
 #endif // EVENT_H

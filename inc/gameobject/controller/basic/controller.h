@@ -52,6 +52,9 @@ class Controller    :   public UserEventHandler
         virtual void unsubscribe_ControllerSignal(ControllerSignal *subscriber);
         virtual void unsubscribeAll_ControllerSignal();
 
+        virtual void reset();
+
+
     protected:
         // Receiver Signal from Eventhandler
         virtual void receive_key_isPressed(const int &key);
@@ -60,7 +63,9 @@ class Controller    :   public UserEventHandler
         virtual void receive_key_goesUp(const int &key);
 
 
+
         Vector2f m_currentDeltaMove;
+        bool     m_overwritable;
         int m_rotationDeg;
         MovingMode m_movingMode;
         //bool m_nothingToDo;

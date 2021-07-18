@@ -140,7 +140,7 @@ namespace Vector{
     inline bool doesIntersect(const Vector2<T> &directionVector_1,
                               const Vector2<T> &directionVector_2)
     {
-        EASY_FUNCTION(profiler::colors::Blue100);
+        MATHFUNCTION_FUNCTION(profiler::colors::Blue100);
         if(getAngle(directionVector_1,directionVector_2) == 0)
             return false;
         return true;
@@ -149,7 +149,7 @@ namespace Vector{
     inline Vector2<T> getIntersection(const Vector2<T> &supportVector_1,const Vector2<T> &directionVector_1,
                                       const Vector2<T> &supportVector_2,const Vector2<T> &directionVector_2)
     {
-        EASY_FUNCTION(profiler::colors::Blue);
+        MATHFUNCTION_FUNCTION(profiler::colors::Blue);
 
         T divisor = directionVector_2.y * directionVector_1.x - directionVector_2.x * directionVector_1.y;
         if(divisor <= 0.00001 && divisor >= -0.00001)

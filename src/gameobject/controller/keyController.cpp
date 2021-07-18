@@ -53,7 +53,7 @@ const KeyController &KeyController::operator=(const KeyController &other)
 // From Controller
 void KeyController::checkEvent()
 {
-    EASY_FUNCTION(profiler::colors::Pink);
+    CONTROLLER_FUNCTION(profiler::colors::Pink);
     // KeyController::tick gets called 2 times per GameTick,
     // so only handle events once per GameTick
     m_currentMovingVec.x = 0;
@@ -64,18 +64,18 @@ void KeyController::checkEvent()
 }
 void KeyController::tick()
 {
-    EASY_FUNCTION(profiler::colors::Pink100);
+    CONTROLLER_FUNCTION(profiler::colors::Pink100);
     Controller::tick();
 }
 void KeyController::rotate(const float &deg)
 {
-    EASY_FUNCTION(profiler::colors::Pink200);
+    CONTROLLER_FUNCTION(profiler::colors::Pink200);
     Controller::rotate(deg);
     this->setRotation();
 }
 void KeyController::setRotation(const float &deg)
 {
-    EASY_FUNCTION(profiler::colors::Pink200);
+    CONTROLLER_FUNCTION(profiler::colors::Pink200);
     Controller::setRotation(deg);
     this->setRotation();
 }
@@ -85,19 +85,19 @@ float KeyController::getRotation() const
 }
 void KeyController::rotate_90()
 {
-    EASY_FUNCTION(profiler::colors::Pink200);
+    CONTROLLER_FUNCTION(profiler::colors::Pink200);
     Controller::rotate_90();
     this->setRotation();
 }
 void KeyController::rotate_180()
 {
-    EASY_FUNCTION(profiler::colors::Pink200);
+    CONTROLLER_FUNCTION(profiler::colors::Pink200);
     Controller::rotate_180();
     this->setRotation();
 }
 void KeyController::rotate_270()
 {
-    EASY_FUNCTION(profiler::colors::Pink200);
+    CONTROLLER_FUNCTION(profiler::colors::Pink200);
     Controller::rotate_270();
     this->setRotation();
 }
@@ -105,7 +105,7 @@ void KeyController::rotate_270()
 // Receiver Signal from Eventhandler
 void KeyController::receive_key_isPressed(const int &key)
 {
-    EASY_FUNCTION(profiler::colors::Pink300);
+    CONTROLLER_FUNCTION(profiler::colors::Pink300);
    if(key == m_key_forMove_UP)
         m_currentMovingVec += m_stepUp;
     else if(key == m_key_forMove_DOWN)
@@ -117,15 +117,15 @@ void KeyController::receive_key_isPressed(const int &key)
 }
 void KeyController::receive_key_toggle(const int &key)
 {
-    EASY_FUNCTION(profiler::colors::Pink300);
+    CONTROLLER_FUNCTION(profiler::colors::Pink300);
 }
 void KeyController::receive_key_goesDown(const int &key)
 {
-    EASY_FUNCTION(profiler::colors::Pink300);
+    CONTROLLER_FUNCTION(profiler::colors::Pink300);
 }
 void KeyController::receive_key_goesUp(const int &key)
 {
-    EASY_FUNCTION(profiler::colors::Pink300);
+    CONTROLLER_FUNCTION(profiler::colors::Pink300);
 }
 
 
@@ -133,7 +133,7 @@ void KeyController::receive_key_goesUp(const int &key)
 // From KeyController
 void KeyController::setKey_forMove_UP(const int &key)
 {
-    EASY_FUNCTION(profiler::colors::Pink400);
+    CONTROLLER_FUNCTION(profiler::colors::Pink400);
     if(m_key_forMove_UP != -1)
         removeEvent(m_key_forMove_UP_event);
     m_key_forMove_UP = key;
@@ -142,7 +142,7 @@ void KeyController::setKey_forMove_UP(const int &key)
 }
 void KeyController::setKey_forMove_LEFT(const int &key)
 {
-    EASY_FUNCTION(profiler::colors::Pink400);
+    CONTROLLER_FUNCTION(profiler::colors::Pink400);
     if(m_key_forMove_LEFT != -1)
         removeEvent(m_key_forMove_LEFT_event);
     m_key_forMove_LEFT = key;
@@ -151,7 +151,7 @@ void KeyController::setKey_forMove_LEFT(const int &key)
 }
 void KeyController::setKey_forMove_DOWN(const int &key)
 {
-    EASY_FUNCTION(profiler::colors::Pink400);
+    CONTROLLER_FUNCTION(profiler::colors::Pink400);
     if(m_key_forMove_DOWN != -1)
         removeEvent(m_key_forMove_DOWN_event);
     m_key_forMove_DOWN = key;
@@ -160,7 +160,7 @@ void KeyController::setKey_forMove_DOWN(const int &key)
 }
 void KeyController::setKey_forMove_RIGHT(const int &key)
 {
-    EASY_FUNCTION(profiler::colors::Pink400);
+    CONTROLLER_FUNCTION(profiler::colors::Pink400);
     if(m_key_forMove_RIGHT != -1)
         removeEvent(m_key_forMove_RIGHT_event);
     m_key_forMove_RIGHT = key;
@@ -169,7 +169,7 @@ void KeyController::setKey_forMove_RIGHT(const int &key)
 }
 void KeyController::setStepSize(float size)
 {
-    EASY_FUNCTION(profiler::colors::Pink500);
+    CONTROLLER_FUNCTION(profiler::colors::Pink500);
     m_stepSize = size;
 
     this->setRotation();
@@ -182,7 +182,7 @@ float KeyController::getStepSize() const
 
 void KeyController::setRotation()
 {
-    EASY_FUNCTION(profiler::colors::Pink600);
+    CONTROLLER_FUNCTION(profiler::colors::Pink600);
     m_stepUp        = Vector2f(0,-m_stepSize);
     m_stepDown      = Vector2f(0,m_stepSize);
     m_stepLeft      = Vector2f(-m_stepSize,0);

@@ -87,6 +87,7 @@ SOURCES += \
         $$PixelEngine_srcPath/utility/layeritem.cpp
 
 HEADERS += \
+        $$PWD/inc/display/gameObjectDisplay_interface.h \
         $$PixelEngine_incPath/gameobject/painter/colliderPainter.h \
         $$PixelEngine_incPath/gameobject/painter/textPainter.h \
         $$PixelEngine_incPath/gameobject/painter/vertexPathPainter.h \

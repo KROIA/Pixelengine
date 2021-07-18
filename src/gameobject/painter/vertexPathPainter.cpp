@@ -48,11 +48,11 @@ VertexPathPainter::~VertexPathPainter()
     clear();
 }
 
-inline void VertexPathPainter::render(sf::RenderWindow *window,
+void VertexPathPainter::render(sf::RenderWindow *window,
                                float viewPortZoom,
                                DisplayStats &stats)
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
   //  if(!m_isVisible || !m_frame.intersects_fast(renderFrame))
   //      return;
     for(auto pair   :   m_pathList)
@@ -143,7 +143,7 @@ void VertexPathPainter::clear()
 
     delete path;
 }*/
-inline void VertexPathPainter::internal_setPos(const Vector2f &pos)
+void VertexPathPainter::internal_setPos(const Vector2f &pos)
 {
     Vector2f deltaPos = pos - m_pos;
     for(auto pair   :   m_pathList)
@@ -153,11 +153,11 @@ inline void VertexPathPainter::internal_setPos(const Vector2f &pos)
     }
     internal_CalculateFrame();
 }
-inline float VertexPathPainter::internal_getRotation() const
+float VertexPathPainter::internal_getRotation() const
 {
     return m_rotation;
 }
-inline void VertexPathPainter::internal_setRotation(const Vector2f &rotPoint,float deg)
+void VertexPathPainter::internal_setRotation(const Vector2f &rotPoint,float deg)
 {
     float deltaRot = deg - m_rotation;
     Vector::rotate(m_points,rotPoint,deltaRot);
@@ -172,11 +172,11 @@ inline void VertexPathPainter::internal_setRotation(const Vector2f &rotPoint,flo
         }
     }
 }
-inline void VertexPathPainter::internal_setRotation(const float &deg)
+void VertexPathPainter::internal_setRotation(const float &deg)
 {
     internal_setRotation(m_origin,deg);
 }
-inline void VertexPathPainter::internal_UpdateOrigin()
+void VertexPathPainter::internal_UpdateOrigin()
 {
     switch(m_originType)
     {
@@ -200,15 +200,15 @@ inline void VertexPathPainter::internal_UpdateOrigin()
         break;
     }
 }
-inline void VertexPathPainter::internal_SetOrigin(const Vector2f &origin)
+void VertexPathPainter::internal_SetOrigin(const Vector2f &origin)
 {
     m_origin = origin;
 }
-inline const Vector2f &VertexPathPainter::internal_getOrigin() const
+const Vector2f &VertexPathPainter::internal_getOrigin() const
 {
     return m_origin;
 }
-inline void VertexPathPainter::internal_CalculateFrame()
+void VertexPathPainter::internal_CalculateFrame()
 {
     Vector2f TL(Vector::getMinX(m_points),Vector::getMinY(m_points));
     Vector2f BR(Vector::getMaxX(m_points),Vector::getMaxY(m_points));

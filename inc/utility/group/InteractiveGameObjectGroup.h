@@ -18,7 +18,7 @@ class InteractiveGameObjectGroup
 
         virtual void reserve(size_t size);
         virtual void add(InteractiveGameObject *obj);
-        virtual void add(GameObject *obj);
+        virtual bool add(GameObject *obj);        // returns true if added
         virtual void addToCache(GameObject *obj); //will not generate a new InteractiveGameObject.
         virtual void buildCache();                //Will generate the InteractiveGameObject with threads
 

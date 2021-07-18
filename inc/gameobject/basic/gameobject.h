@@ -14,6 +14,10 @@
 #include "colliderPainter.h"
 #include "signalSubscriber.h"
 
+#include "gameObjectDisplay_interface.h"
+
+
+
 
 
 class GameObject : private UserEventSignal, ControllerSignal
@@ -23,12 +27,16 @@ class GameObject : private UserEventSignal, ControllerSignal
         GameObject(const GameObject &other);
         GameObject(Controller *controller,
                    Collider   *collider,
-                   SpritePainter    *painter);
+                   Painter    *painter);
 
         virtual ~GameObject();
-        virtual const GameObject &operator=(const GameObject &other);
+       // virtual const GameObject &operator=(const GameObject &other);
+
 
         // Events
+        virtual void addEvent(Event *e);
+        virtual void removeEvent(Event *e);
+        void engineCalled_checkEvent();
         virtual void checkEvent();
         virtual bool hasEventsToCheck() const;
         virtual void killMe();             // Not defined jet in the engine class
@@ -36,26 +44,24 @@ class GameObject : private UserEventSignal, ControllerSignal
 
 
         // called by the Engine
-        virtual void preRun();
+        void engineCalled_setup();
+        virtual void setup();
+        void engineCalled_preTick();
         virtual void preTick();
-        virtual void tick(const Vector2i&direction);
+        void engineCalled_tick(const Vector2i &direction);
+        virtual void tick(const Vector2i &direction);
+        void engineCalled_postTick();
         virtual void postTick();
-        virtual inline void preDraw();
+        void engineCalled_preDraw();
+        virtual void preDraw();
+
         virtual unsigned int checkCollision(const vector<GameObject*> &other);
-        //virtual unsigned int checkCollision(const vector<vector<GameObject*> >&other);
         static vector<GameObject*> getCollidedObjects(GameObject *owner, Collider *collider,const vector<GameObject*> &other);
-        //virtual void draw(PixelDisplay &display);
         virtual void subscribeToDisplay(PixelDisplay &display);
         virtual void unsubscribeToDisplay(PixelDisplay &display);
         virtual void setEventHandler(GameObjectEventHandler *handler);
+        virtual void setDisplayInterface(GameObjectDisplay_Interface *display);
         virtual const GameObjectEventHandler *getEventHandler() const;
-        //virtual void setChunkID(const ChunkID &chunkID);
-        //virtual void setChunkID(const vector<ChunkID> &chunkIDList);
-        //virtual void addChunkID(const ChunkID &chunkID);
-        //virtual void removeChunkID(const ChunkID &chunkID);
-        //virtual void clearChunkList();
-        //virtual const ChunkID &getChunkID() const;
-        //virtual const vector<ChunkID> &getChunkIDList() const;
 
         // Signals
         virtual void subscribe_ObjSignal(ObjSignal *subscriber);
@@ -122,8 +128,6 @@ class GameObject : private UserEventSignal, ControllerSignal
         virtual size_t getRenderLayer() const;
         virtual void setVisibility(bool isVisible);
         virtual void setVisibility_objectTree(bool isVisible);
-        //virtual void setVisibility_chunks(bool isVisible);
-        //virtual void setVisibility_chunk(const ChunkID &id, bool isVisible);
         virtual void setVisibility_collider_hitbox(bool isVisible);
         virtual void setVisibility_collider_boundingBox(bool isVisible);
         virtual void setVisibility_collider_collisionData(bool isVisible);
@@ -131,8 +135,6 @@ class GameObject : private UserEventSignal, ControllerSignal
 
         virtual bool isVisible() const;
         virtual bool isVisible_objectTree() const;
-        //virtual bool isVisible_chunks() const;
-        //virtual bool isVisible_chunk(const ChunkID &id) const;
         virtual bool isVisible_collider_hitbox() const;
         virtual bool isVisible_collider_boundingBox() const;
         virtual bool isVisible_collider_collisionData() const;
@@ -143,13 +145,11 @@ class GameObject : private UserEventSignal, ControllerSignal
         virtual const Property::Property &getProperty() const;
 
         // Text visualisation
-        virtual void addText(TextPainter *text);
-        virtual void removeText(TextPainter *text);
-        virtual void removeText();
-        virtual void deleteText(TextPainter *text);
-        virtual void deleteText();
+        virtual void addPainter(Painter *painter);
+        virtual void removePainter(Painter *painter);
+        virtual void removePainter();
 
-        virtual const vector<TextPainter*> &getTextList();
+        virtual vector<Painter*> getPainterList();
 
         void markAsTrash(bool isTrash);
         bool isTrash() const;
@@ -157,7 +157,23 @@ class GameObject : private UserEventSignal, ControllerSignal
         void setThisInteractiveGameObject(InteractiveGameObject *parent);
         InteractiveGameObject* getThisInteractiveGameObject();
 
+        virtual void display_setPixel(const Vector2u &pos, const Color &color);
+        virtual void display_setPixel(const Pixel &pixel);
+        virtual void display_setPixel(const vector<Pixel> &pixelList);
+        virtual void display_zoomViewAt(sf::Vector2i pixel, float zoom);
+        virtual void display_setView(const RectF &frame);
+        virtual void display_setCameraZoom(float zoom);
+        virtual void display_setCameraPos(const Vector2f &pos);
+        virtual const Vector2u &display_getWindowSize() const;
+        virtual const Vector2u &display_getMapSize() const;
+
     protected:
+        virtual void display_subscribePainter(Painter *painter) ;
+        virtual void display_unsubscribePainter(Painter *painter) ;
+
+        void constructor(Controller *controller,
+                         Collider   *collider,
+                         Painter    *painter);
         virtual void event_hasCollision(vector<GameObject *> other);
 
         // Signals from UserEventSignal
@@ -168,10 +184,10 @@ class GameObject : private UserEventSignal, ControllerSignal
         virtual void moveAvailable(Controller *sender);
 
         LayerItem m_layerItem;
-        //vector<ChunkID>   m_chunkIDList;
 
         Property::Property m_property;
         GameObjectEventHandler *m_objEventHandler;
+        GameObjectDisplay_Interface *m_display_interface;
         ObjSubscriberList          m_objSubscriberList;
 
         vector<Controller*> m_controllerList;
@@ -183,27 +199,18 @@ class GameObject : private UserEventSignal, ControllerSignal
 
 
         // Painter
-        Painter       *m_painter;
-        //VertexPathPainter   *m_vertexPathPainter;
+        Painter             *m_painter;
         ColliderPainter     *m_colliderPainter;
-        PixelPainter  *m_originalPainter;
-       /* bool          m_visibility_collider_hitbox;
-        bool          m_visibility_collider_boundingBox;
-        bool          m_visibility_collider_collisionData;
-        bool          m_visibility_collider_collidingWith;*/
-        bool          m_visibility;
+        PixelPainter        *m_originalPainter;
+        bool                m_visibility;
 
-        bool          m_textureIsActiveForCollider;
-
-        vector<TextPainter* > m_textPainterList;
+        HashTable<Painter* >  m_painterList;
+        HashTable<Event*>     m_eventList;
         vector<GameObject*>   m_collidedObjects;
         InteractiveGameObject *m_thisInteractiveObject;
 
     private:
         bool m_isTrash;
-
-
-
-        //ChunkID           m_constDummy_chunkID;
+        Vector2u m_dummiVecU;
 };
 #endif // GAMEOBJECT_H

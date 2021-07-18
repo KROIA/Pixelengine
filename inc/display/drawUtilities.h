@@ -11,7 +11,7 @@ struct VertexPath
 
     ~VertexPath()
     {
-        delete this->line;
+        delete[] this->line;
     }
     const VertexPath &operator=(const VertexPath &other)
     {

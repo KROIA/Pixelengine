@@ -15,5 +15,8 @@ class GameObjectEventHandler
 
         virtual void addPainterToDisplay(Painter *painter) = 0;
         virtual void removePainterFromDisplay(Painter *painter) = 0;
+
+        virtual void addEvent(Event *event) = 0;
+        virtual void removeEvent(Event *event) = 0;
 };
 #endif // GAMEOBJECTEVENTHANDLER_H

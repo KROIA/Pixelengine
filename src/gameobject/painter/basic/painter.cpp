@@ -61,7 +61,7 @@ bool Painter::needsRendering(const RectF &renderRect)
 }
 void Painter::setPos(const Vector2f & pos)
 {
-    EASY_FUNCTION(profiler::colors::Cyan300);
+    PAINTER_FUNCTION(profiler::colors::Cyan300);
     LayerItem::setPos(pos);
     internal_setPos(m_pos);
     internal_CalculateFrame();
@@ -80,52 +80,52 @@ float Painter::getRotation() const
 }
 void Painter::setRotation(float deg)
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
     internal_setRotation(deg);
 }
 void Painter::rotate(float deg)
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
     internal_setRotation(internal_getRotation() + deg);
 }
 void Painter::rotate_90()
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
     this->rotate(90);
 }
 void Painter::rotate_180()
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
     this->rotate(180);
 }
 void Painter::rotate_270()
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
     this->rotate(270);
 }
 void Painter::setRotation(const Vector2f &rotPoint,float deg)
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
     internal_setRotation(rotPoint, deg);
 }
 void Painter::rotate(const Vector2f &rotPoint,float deg)
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
     internal_setRotation(rotPoint,internal_getRotation() + deg);
 }
 void Painter::rotate_90(const Vector2f &rotPoint)
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
     this->rotate(rotPoint,90);
 }
 void Painter::rotate_180(const Vector2f &rotPoint)
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
     this->rotate(rotPoint,180);
 }
 void Painter::rotate_270(const Vector2f &rotPoint)
 {
-    EASY_FUNCTION(profiler::colors::Cyan600);
+    PAINTER_FUNCTION(profiler::colors::Cyan600);
     this->rotate(rotPoint,270);
 }
 

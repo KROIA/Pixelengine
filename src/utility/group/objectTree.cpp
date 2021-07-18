@@ -65,7 +65,7 @@ bool ObjectTree::insert(GameObject *obj)
 {
     if(!RectF::intersects_fast(obj->getBoundingBox(),m_boundry))
         return false;
-    EASY_FUNCTION(profiler::colors::Green);
+    GAME_OBJECT_FUNCTION(profiler::colors::Green);
     if(m_objectList.size()  < m_capacity || m_disableDivider)
     {
         obj->subscribe_ObjSignal(this);
@@ -88,7 +88,7 @@ void ObjectTree::query(const RectF &region,vector<GameObject*> &buffer)
 {
     if(!RectF::intersects_fast(region,m_boundry))
         return;
-    EASY_FUNCTION(profiler::colors::Green300);
+    GAME_OBJECT_FUNCTION(profiler::colors::Green300);
     for(size_t i=0; i<m_objectList.size(); i++)
     {
 
@@ -117,7 +117,7 @@ void ObjectTree::query(const RectF &region,vector<GameObject*> &buffer)
 }
 void ObjectTree::getDrawable(vector<VertexPath*> &drawable,const Color &color)
 {
-    EASY_FUNCTION(profiler::colors::Green500);
+    GAME_OBJECT_FUNCTION(profiler::colors::Green500);
     drawable.push_back(m_boundry.getDrawable(color));
     if(m_divided)
     {
@@ -130,7 +130,7 @@ void ObjectTree::getDrawable(vector<VertexPath*> &drawable,const Color &color)
 }
 /*void ObjectTree::draw(PixelDisplay &display)
 {
-    EASY_FUNCTION(profiler::colors::Green500);
+    GAME_OBJECT_FUNCTION(profiler::colors::Green500);
     display.addVertexLine(m_boundry.getDrawable(Color(255,255,255)));
     if(m_divided)
     {
@@ -142,7 +142,7 @@ void ObjectTree::getDrawable(vector<VertexPath*> &drawable,const Color &color)
 }*/
 void ObjectTree::clear()
 {
-    EASY_FUNCTION(profiler::colors::Green400);
+    GAME_OBJECT_FUNCTION(profiler::colors::Green400);
     for(size_t i=0; i<m_objectList.size(); i++)
     {
         m_objectList[i]->unsubscribe_ObjSignal(this);
@@ -203,7 +203,7 @@ bool ObjectTree::isVisible() const
 
 void ObjectTree::subdivide()
 {
-    EASY_FUNCTION(profiler::colors::Green100);
+    GAME_OBJECT_FUNCTION(profiler::colors::Green100);
     RectF newRect = m_boundry;
     newRect.setWidth(m_boundry.getSize().x/2.f);
     newRect.setHeight(m_boundry.getSize().y/2.f);
