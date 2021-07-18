@@ -13,6 +13,7 @@
 #include "textPainter.h"
 #include "colliderPainter.h"
 #include "signalSubscriber.h"
+#include "sensor.h"
 
 #include "gameObjectDisplay_interface.h"
 
@@ -20,7 +21,7 @@
 
 
 
-class GameObject : public Submodule
+class GameObject : public Submodule, private ControllerSignal, UserEventSignal
 {
     public:
         GameObject();
@@ -73,6 +74,13 @@ class GameObject : public Submodule
     //    virtual void addController(Controller *controller);
     //    virtual void clearController();
         virtual void setCollider(Collider *collider);
+        virtual void addController(Controller *controller);
+        virtual void removeController(Controller *controller);
+        virtual const vector<Controller* > &getControllerList() const;
+
+        virtual void addSensor(Sensor *sensor);
+        virtual void removeSensor(Sensor *sensor);
+        virtual const vector<Sensor*> &getSensorList() const;
     //    virtual const Collider &getCollider() const;
     //    virtual void setPainter(Painter *painter);
     //    virtual const Painter &getPainter() const;
@@ -93,10 +101,14 @@ class GameObject : public Submodule
      //   virtual void moveToPos(const int &x,const int &y,Controller::MovingMode mode = Controller::MovingMode::add);
      //  virtual void move(const Vector2i&vec,Controller::MovingMode mode = Controller::MovingMode::add);
        virtual void move(const Vector2f &vec,Controller::MovingMode mode = Controller::MovingMode::add);
-       virtual void move(const float &deltaX, const float &deltaY,Controller::MovingMode mode = Controller::MovingMode::add);
-       virtual void moveX(const float &delta,Controller::MovingMode mode = Controller::MovingMode::add);
-       virtual void moveY(const float &delta,Controller::MovingMode mode = Controller::MovingMode::add);
-    //   virtual const Vector2f &getPos() const;
+       virtual void move(float deltaX, float deltaY,Controller::MovingMode mode = Controller::MovingMode::add);
+       virtual void moveX(float delta,Controller::MovingMode mode = Controller::MovingMode::add);
+       virtual void moveY(float delta,Controller::MovingMode mode = Controller::MovingMode::add);
+
+       virtual void rotate(float deg);
+       virtual void setRotation(float deg);
+       virtual void setRotation(const Vector2f &rotationPoint,float deg);
+        //   virtual const Vector2f &getPos() const;
     //   virtual const Vector2f &getMovingVector() const;
 
      //  virtual float getRotation() const;
@@ -178,11 +190,11 @@ class GameObject : public Submodule
         virtual void event_hasCollision(vector<GameObject *> other);
 
         // Signals from UserEventSignal
-        //virtual void eventAdded(UserEventHandler *sender,  Event *e);
-        //virtual void eventRemoved(UserEventHandler *sender,  Event *e);
+        virtual void eventAdded(UserEventHandler *sender,  Event *e);
+        virtual void eventRemoved(UserEventHandler *sender,  Event *e);
 
         // Signals from Controller
-        //virtual void moveAvailable(Controller *sender);
+        virtual void moveAvailable(Controller *sender);
 
       //  LayerItem m_layerItem;
 
@@ -210,6 +222,9 @@ class GameObject : public Submodule
        // HashTable<Event*>     m_eventList;
         vector<GameObject*>   m_collidedObjects;
         InteractiveGameObject *m_thisInteractiveObject;
+
+        vector<Controller* > m_controllerList;
+        vector<Sensor* >     m_sensorList;
 
     private:
         bool m_isTrash;

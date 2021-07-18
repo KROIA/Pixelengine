@@ -44,16 +44,16 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
        // virtual void moveToPos(const int &x,const int &y,Controller::MovingMode mode = Controller::MovingMode::add);
        // virtual void move(const Vector2i&vec,Controller::MovingMode mode = Controller::MovingMode::add);
         virtual void move(const Vector2f &vec,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void move(const float &deltaX, const float &deltaY,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void moveX(const float &delta,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void moveY(const float &delta,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void move(float deltaX, float deltaY,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveX(float delta,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveY(float delta,Controller::MovingMode mode = Controller::MovingMode::add);
 
-        virtual void rotate(const float &deg);
-        virtual void setRotation(const float &deg);
+        virtual void rotate(float deg);
+        virtual void setRotation(float deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
-        virtual void setRotation(const Vector2f &rotationPoint,const float &deg);
+        virtual void setRotation(const Vector2f &rotationPoint,float deg);
         virtual void rotate_90(const Vector2f &rotationPoint);
         virtual void rotate_180(const Vector2f &rotationPoint);
         virtual void rotate_270(const Vector2f &rotationPoint);

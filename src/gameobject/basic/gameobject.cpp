@@ -52,7 +52,7 @@ void GameObject::constructor()
      Submodule::addPainter(m_colliderPainter);
 
      m_controller                               = new Controller();
-     Submodule::addController(m_controller);
+     addController(m_controller);
 
 
 
@@ -110,6 +110,9 @@ void GameObject::engineCalled_checkEvent()
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green);
     Submodule::engineCalled_checkEvent();
+    for(auto controller : m_controllerList)
+        if(controller->hasEventsToCheck())
+            controller->checkEvent();
    /* for(size_t i=0; i<m_controllerList.size(); i++)
         if(m_controllerList[i]->hasEventsToCheck())
             m_controllerList[i]->checkEvent();*/
@@ -151,6 +154,16 @@ void GameObject::engineCalled_preTick()
     size_t lastSize = m_collidedObjects.size();
     m_collidedObjects.clear();
     m_collidedObjects.reserve(lastSize+10);
+
+    for(auto sensor : m_sensorList)
+    {
+        if(sensor->getEnableRelativePosition())
+            sensor->setPos(m_pos);
+        if(sensor->getEnableRelativeRotation())
+            sensor->setRotation(m_rotation);
+        sensor->engineCalled_preTick();
+    }
+
     this->preTick();
 }
 void GameObject::preTick()
@@ -158,9 +171,9 @@ void GameObject::preTick()
 void GameObject::engineCalled_tick(const Vector2i &direction)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green300);
-    Submodule::engineCalled_tick(direction);
-   /* this->tick(direction);
-    m_layerItem.swapPosToLastPos();
+
+    this->tick(direction);
+    LayerItem::swapPosToLastPos();
     if(!m_hasMoveToMake)
         return;
     if(direction.x > 0)
@@ -176,13 +189,13 @@ void GameObject::engineCalled_tick(const Vector2i &direction)
             m_controllerList[i]->tick(); // Clears the movingVector
         }
         m_movementCoordinator.calculateMovement();
-        m_layerItem.move(Vector2f(m_movementCoordinator.getMovingVector_X(),0));
-        m_collider->setRotation(m_layerItem.getRotation());
+        LayerItem::move(Vector2f(m_movementCoordinator.getMovingVector_X(),0));
+        m_collider->setRotation(LayerItem::getRotation());
         GAME_OBJECT_END_BLOCK;
     }
     else
     {
-        m_layerItem.move(Vector2f(0,m_movementCoordinator.getMovingVector_Y()));
+        LayerItem::move(Vector2f(0,m_movementCoordinator.getMovingVector_Y()));
 
         //emit signal
         if(m_objSubscriberList.size() > 0)
@@ -197,8 +210,11 @@ void GameObject::engineCalled_tick(const Vector2i &direction)
 
 
     }
+    for(auto sensor : m_sensorList)
+        sensor->engineCalled_tick(direction);
+    Submodule::engineCalled_tick(direction);
+    //m_collider->setPos(m_pos);
 
-    m_collider->setPos(m_layerItem.getPos());*/
 }
 void GameObject::tick(const Vector2i &direction)
 {}
@@ -206,6 +222,8 @@ void GameObject::engineCalled_postTick()
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green300);
     Submodule::engineCalled_postTick();
+    for(auto sensor : m_sensorList)
+        sensor->engineCalled_postTick();
     postTick();
 }
 void GameObject::postTick()
@@ -218,6 +236,8 @@ void GameObject::engineCalled_preDraw()
     if(m_colliderPainter->isVisible())
         m_colliderPainter->update(m_collidedObjects);
     Submodule::engineCalled_preDraw();
+    for(auto sensor : m_sensorList)
+        sensor->engineCalled_preDraw();
     this->preDraw();
   /*  if(m_painter != m_originalPainter && m_painter->isVisible())
     {
@@ -235,6 +255,9 @@ void GameObject::preDraw()
 unsigned int GameObject::checkCollision(const vector<GameObject*> &other)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green400);
+    for(auto sensor : m_sensorList)
+        sensor->detectObjects(other);
+
     vector<GameObject*> collided = GameObject::getCollidedObjects(this, m_collider, other);
     for(size_t i=0; i<collided.size(); i++)
         m_collidedObjects.push_back(collided[i]);
@@ -360,6 +383,79 @@ void GameObject::setCollider(Collider *collider)
     Submodule::setCollider(collider);
     m_colliderPainter->setCollider(m_collider);
 }
+void GameObject::addController(Controller *controller)
+{
+    if(!controller)
+        return;
+    for(auto listed : m_controllerList)
+        if(listed == controller)
+            return;
+    m_controllerList.push_back(controller);
+    controller->subscribe_UserEventSignal(this);
+    controller->subscribe_ControllerSignal(this);
+    if(controller->hasEventsToCheck())
+        m_hasEventsToCheck = true;
+}
+void GameObject::removeController(Controller *controller)
+{
+    for(size_t i=0; i<m_eventList.size(); i++)
+    {
+        if(m_controllerList[i] == controller)
+        {
+            m_controllerList.erase(m_controllerList.begin() + i);
+            controller->unsubscribe_UserEventSignal(this);
+            controller->unsubscribe_ControllerSignal(this);
+            return;
+        }
+    }
+}
+const vector<Controller* > &GameObject::getControllerList() const
+{
+    return m_controllerList;
+}
+
+void GameObject::addSensor(Sensor *sensor)
+{
+    if(!sensor)
+        return;
+    for(auto listed : m_sensorList)
+        if(listed == sensor)
+            return;
+    m_sensorList.push_back(sensor);
+
+    vector<Event*> eList = sensor->getEventList();
+    vector<Painter*> pList = sensor->getPainterList();
+
+    for(auto e : eList)
+        this->addEvent(e);
+
+    for(auto p : pList)
+        this->addPainter(p);
+}
+void GameObject::removeSensor(Sensor *sensor)
+{
+    for(size_t i=0; i<m_sensorList.size(); i++)
+    {
+        if(m_sensorList[i] == sensor)
+        {
+            m_sensorList.erase(m_sensorList.begin() + i);
+
+            vector<Event*> eList = sensor->getEventList();
+            vector<Painter*> pList = sensor->getPainterList();
+
+            for(auto e : eList)
+                this->removeEvent(e);
+
+            for(auto p : pList)
+                this->removePainter(p);
+            return;
+        }
+    }
+}
+const vector<Sensor*> &GameObject::getSensorList() const
+{
+    return m_sensorList;
+}
 /*
 const Collider &GameObject::getCollider() const
 {
@@ -449,21 +545,44 @@ void GameObject::move(const Vector2f &vec,Controller::MovingMode mode)
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
     m_controller->move(vec,mode);
 }
-void GameObject::move(const float &deltaX, const float &deltaY,Controller::MovingMode mode)
+void GameObject::move(float deltaX, float deltaY,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
     m_controller->move(deltaX,deltaY,mode);
 }
-void GameObject::moveX(const float &delta,Controller::MovingMode mode)
+void GameObject::moveX(float delta,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
     m_controller->moveX(delta,mode);
 }
-void GameObject::moveY(const float &delta,Controller::MovingMode mode)
+void GameObject::moveY(float delta,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
     m_controller->moveY(delta,mode);
 }
+void GameObject::rotate(float deg)
+{
+    if((int)(deg*1000) % 360000 == 0)
+        return;
+
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_controllerList[i]->rotate(deg);
+    Submodule::rotate(deg);
+}
+void GameObject::setRotation(float deg)
+{
+    if(m_rotation == deg)
+        return;
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_controllerList[i]->setRotation(deg);
+    Submodule::setRotation(deg);
+}
+
+void GameObject::setRotation(const Vector2f &rotationPoint,float deg)
+{
+    Submodule::setRotation(rotationPoint,deg);
+}
+
 /*
 const Vector2f &GameObject::getPos() const
 {
@@ -801,7 +920,7 @@ void GameObject::event_hasCollision(vector<GameObject *> other)
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->setRotation(m_layerItem.getRotation());*/
 }
-/*
+
 void GameObject::eventAdded(UserEventHandler *sender,  Event *e)
 {
     m_hasEventsToCheck = true;
@@ -815,6 +934,6 @@ void GameObject::eventRemoved(UserEventHandler *sender,  Event *e)
 void GameObject::moveAvailable(Controller *sender)
 {
     m_hasMoveToMake = true;
-}*/
+}
 
 

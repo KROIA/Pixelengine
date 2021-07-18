@@ -3,8 +3,8 @@
 Submodule::Submodule()
 {
 
-    m_hasMoveToMake                             = false;
-    m_hasEventsToCheck                          = false;
+    m_hasMoveToMake     = false;
+    m_hasEventsToCheck  = false;
 }
 Submodule::~Submodule()
 {
@@ -22,64 +22,27 @@ bool Submodule::hasEventsToCheck() const
 }
 void Submodule::engineCalled_checkEvent()
 {
-     for(auto controller : m_controllerList)
-         if(controller->hasEventsToCheck())
-             controller->checkEvent();
+    SUBMODULE_FUNCTION(profiler::colors::Red);
      for(auto event  : m_eventList)
          event->checkEvent();
 }
 void Submodule::engineCalled_preTick()
 {
+    SUBMODULE_FUNCTION(profiler::colors::Red100);
 
 }
 void Submodule::engineCalled_tick(const Vector2i &direction)
 {
-    LayerItem::swapPosToLastPos();
-    if(!m_hasMoveToMake)
-        return;
-    if(direction.x > 0)
-    {
-        m_collider->tick();
-        m_movementCoordinator.clearMovement();
-        SUBMODULE_BLOCK("for(size_t i=0; i<m_controllerList.size(); i++)",profiler::colors::Green300);
-        for(size_t i=0; i<m_controllerList.size(); i++)
-        {
-            if(m_controllerList[i]->getMovingMode() == Controller::MovingMode::override)
-                m_movementCoordinator.clearMovement();
-            m_movementCoordinator.addMovement(m_controllerList[i]->getMovingVector());
-            m_controllerList[i]->tick(); // Clears the movingVector
-        }
-        m_movementCoordinator.calculateMovement();
-        LayerItem::move(Vector2f(m_movementCoordinator.getMovingVector_X(),0));
-        m_collider->setRotation(LayerItem::getRotation());
-        SUBMODULE_END_BLOCK;
-    }
-    else
-    {
-        LayerItem::move(Vector2f(0,m_movementCoordinator.getMovingVector_Y()));
-
-        //emit signal
-        if(m_submoduleSubscriberList.size() > 0)
-            if(Vector::length(m_movementCoordinator.getMovingVector()) != 0)
-                m_submoduleSubscriberList.moved(this,m_movementCoordinator.getMovingVector());
-
-        m_movementCoordinator.tick();
-        LayerItem::swapRotationToLastRotation();
-    //    m_painter->setPos(LayerItem::getPos());
-    //    m_painter->setRotation(LayerItem::getRotation());
-        m_hasMoveToMake    = false;
-
-
-    }
-
+    SUBMODULE_FUNCTION(profiler::colors::Red200);
     m_collider->setPos(m_pos);
 }
 void Submodule::engineCalled_postTick()
 {
-
+    SUBMODULE_FUNCTION(profiler::colors::Red300);
 }
 void Submodule::engineCalled_preDraw()
 {
+    SUBMODULE_FUNCTION(profiler::colors::Red400);
     for(auto p : m_painterList)
     {
         if(p->getEnableRelativePosition())
@@ -89,88 +52,69 @@ void Submodule::engineCalled_preDraw()
     }
 }
 
+
+
 void Submodule::setPosInitial(const Vector2f &pos)
 {
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
+    SUBMODULE_FUNCTION(profiler::colors::RedA700);
     LayerItem::setPosInitial(pos);
     m_collider->setPosInitial(pos);
- /*   if(m_painter != nullptr)
-        m_painter->setPosInitial(pos);*/
 }
-/*void Submodule::setPos(int x,int y)
-{
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
-    LayerItem::setPos(x,y);
-}
-void Submodule::setPos(const Vector2i &pos)
-{
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
-    LayerItem::setPos(pos);
-}*/
 void Submodule::setPos(float x, float y)
 {
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
+    SUBMODULE_FUNCTION(profiler::colors::RedA700);
     LayerItem::setPos(x,y);
 }
 void Submodule::setPos(const Vector2f &pos)
 {
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
+    SUBMODULE_FUNCTION(profiler::colors::RedA700);
     LayerItem::setPos(pos);
 }
-/*void Submodule::setX(int x)
-{
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
-    LayerItem::setX(x);
-}
-void Submodule::setY(int y)
-{
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
-    LayerItem::setY(y);
-*/
+
 void Submodule::setX(float x)
 {
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
+    SUBMODULE_FUNCTION(profiler::colors::RedA700);
     LayerItem::setX(x);
 }
 void Submodule::setY(float y)
 {
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
+    SUBMODULE_FUNCTION(profiler::colors::RedA700);
     LayerItem::setY(y);
 }
 
 /*void Submodule::moveToPos(const Vector2i&destination,Controller::MovingMode mode)
 {
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
+    SUBMODULE_FUNCTION(profiler::colors::RedA700);
     m_controllerList[0]->moveToPos(LayerItem::getPosI(),destination,mode);
 }
 void Submodule::moveToPos(const int &x,const int &y,Controller::MovingMode mode)
 {
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
+    SUBMODULE_FUNCTION(profiler::colors::RedA700);
     m_controllerList[0]->moveToPos(LayerItem::getXI(),LayerItem::getYI(),x,y,mode);
 }
 void Submodule::move(const Vector2i&vec,Controller::MovingMode mode)
 {
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
+    SUBMODULE_FUNCTION(profiler::colors::RedA700);
     m_controllerList[0]->move(vec,mode);
 }
 void Submodule::move(const Vector2f &vec,Controller::MovingMode mode)
 {
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
+    SUBMODULE_FUNCTION(profiler::colors::RedA700);
     m_controllerList[0]->move(vec,mode);
 }
 void Submodule::move(const float &deltaX, const float &deltaY,Controller::MovingMode mode)
 {
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
+    SUBMODULE_FUNCTION(profiler::colors::RedA700);
     m_controllerList[0]->move(deltaX,deltaY,mode);
 }
 void Submodule::moveX(const float &delta,Controller::MovingMode mode)
 {
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
+    SUBMODULE_FUNCTION(profiler::colors::RedA700);
     m_controllerList[0]->moveX(delta,mode);
 }
 void Submodule::moveY(const float &delta,Controller::MovingMode mode)
 {
-    SUBMODULE_FUNCTION(profiler::colors::GreenA700);
+    SUBMODULE_FUNCTION(profiler::colors::RedA700);
     m_controllerList[0]->moveY(delta,mode);
 }
 
@@ -185,11 +129,10 @@ const Vector2f &Submodule::getMovingVector() const
 
 void Submodule::rotate(float deg)
 {
-    SUBMODULE_FUNCTION(profiler::colors::Green);
+    SUBMODULE_FUNCTION(profiler::colors::Red);
     if((int)(deg*1000) % 360000 == 0)
         return;
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->rotate(deg);
+
     LayerItem::rotate(deg);
     if(m_submoduleSubscriberList.size() > 0)
         m_submoduleSubscriberList.rotated(this,deg);
@@ -201,12 +144,11 @@ void Submodule::rotate(float deg)
 }*/
 void Submodule::setRotation(float deg)
 {
-    SUBMODULE_FUNCTION(profiler::colors::Green);
+    SUBMODULE_FUNCTION(profiler::colors::Red);
     if(m_rotation == deg)
         return;
     float deltaAngle = deg - m_rotation;
-    for(size_t i=0; i<m_controllerList.size(); i++)
-        m_controllerList[i]->setRotation(deg);
+
     LayerItem::setRotation(deg);
 
     if(m_submoduleSubscriberList.size() > 0)
@@ -214,43 +156,43 @@ void Submodule::setRotation(float deg)
 }
 void Submodule::rotate_90()
 {
-    SUBMODULE_FUNCTION(profiler::colors::Green);
+    SUBMODULE_FUNCTION(profiler::colors::Red);
     rotate(90);
 }
 void Submodule::rotate_180()
 {
-    SUBMODULE_FUNCTION(profiler::colors::Green);
+    SUBMODULE_FUNCTION(profiler::colors::Red);
     rotate(180);
 }
 void Submodule::rotate_270()
 {
     rotate(270);
-    SUBMODULE_FUNCTION(profiler::colors::Green);
+    SUBMODULE_FUNCTION(profiler::colors::Red);
 }
-void Submodule::setRotation(const Vector2f &rotationPoint,const float &deg)
+void Submodule::setRotation(const Vector2f &rotationPoint,float deg)
 {
-    SUBMODULE_FUNCTION(profiler::colors::Green);
+    SUBMODULE_FUNCTION(profiler::colors::Red);
     Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,deg);
     this->setPos(newPos);
     rotate(deg);
 }
 void Submodule::rotate_90(const Vector2f &rotationPoint)
 {
-    SUBMODULE_FUNCTION(profiler::colors::Green);
+    SUBMODULE_FUNCTION(profiler::colors::Red);
     Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,90);
     this->setPos(newPos);
     rotate(90);
 }
 void Submodule::rotate_180(const Vector2f &rotationPoint)
 {
-    SUBMODULE_FUNCTION(profiler::colors::Green);
+    SUBMODULE_FUNCTION(profiler::colors::Red);
     Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,180);
     this->setPos(newPos);
     rotate(180);
 }
 void Submodule::rotate_270(const Vector2f &rotationPoint)
 {
-    SUBMODULE_FUNCTION(profiler::colors::Green);
+    SUBMODULE_FUNCTION(profiler::colors::Red);
     Vector2f newPos = Vector::getRotated(Vector2f(this->getPos()),rotationPoint,270);
     this->setPos(newPos);
     rotate(270);
@@ -283,10 +225,6 @@ const vector<Event* > &Submodule::getEventList() const
 const vector<Painter* > &Submodule::getPainterList() const
 {
     return m_painterList;
-}
-const vector<Controller* > &Submodule::getControllerList() const
-{
-    return m_controllerList;
 }
 Collider* Submodule::getCollider()
 {
@@ -352,49 +290,10 @@ void Submodule::removePainter(Painter *painter)
         }
     }
 }
-void Submodule::addController(Controller *controller)
-{
-    if(!controller)
-        return;
-    for(auto listed : m_controllerList)
-        if(listed == controller)
-            return;
-    m_controllerList.push_back(controller);
-    controller->subscribe_UserEventSignal(this);
-    controller->subscribe_ControllerSignal(this);
-    if(controller->hasEventsToCheck())
-        m_hasEventsToCheck = true;
-}
-void Submodule::removeController(Controller *controller)
-{
-    for(size_t i=0; i<m_eventList.size(); i++)
-    {
-        if(m_controllerList[i] == controller)
-        {
-            m_controllerList.erase(m_controllerList.begin() + i);
-            controller->unsubscribe_UserEventSignal(this);
-            controller->unsubscribe_ControllerSignal(this);
-            return;
-        }
-    }
-}
+
 void Submodule::setCollider(Collider *collider)
 {
     m_collider = collider;
 }
 
-void Submodule::eventAdded(UserEventHandler *sender,  Event *e)
-{
-    m_hasEventsToCheck = true;
-}
-void Submodule::eventRemoved(UserEventHandler *sender,  Event *e)
-{
-    m_hasEventsToCheck = false;
-    for(auto event : m_controllerList)
-        m_hasEventsToCheck |= event->hasEventsToCheck();
-}
-void Submodule::moveAvailable(Controller *sender)
-{
-    m_hasMoveToMake = true;
-}
 

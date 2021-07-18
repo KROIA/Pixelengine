@@ -216,32 +216,32 @@ void GameObjectGroup::move(const Vector2f &vec,Controller::MovingMode mode)
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->move(vec,mode);
 }
-void GameObjectGroup::move(const float &deltaX, const float &deltaY, Controller::MovingMode mode)
+void GameObjectGroup::move(float deltaX, float deltaY, Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->move(deltaX,deltaY,mode);
 }
-void GameObjectGroup::moveX(const float &delta,Controller::MovingMode mode)
+void GameObjectGroup::moveX(float delta,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->moveX(delta,mode);
 }
-void GameObjectGroup::moveY(const float &delta,Controller::MovingMode mode)
+void GameObjectGroup::moveY(float delta,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->moveY(delta,mode);
 }
 
-void GameObjectGroup::rotate(const float &deg)
+void GameObjectGroup::rotate(float deg)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->rotate(deg);
 }
-void GameObjectGroup::setRotation(const float &deg)
+void GameObjectGroup::setRotation(float deg)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_isInList.size(); i++)
@@ -265,7 +265,7 @@ void GameObjectGroup::rotate_270()
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->rotate_270();
 }
-void GameObjectGroup::setRotation(const Vector2f &rotationPoint,const float &deg)
+void GameObjectGroup::setRotation(const Vector2f &rotationPoint,float deg)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_isInList.size(); i++)

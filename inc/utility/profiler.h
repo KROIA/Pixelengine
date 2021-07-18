@@ -13,6 +13,7 @@
 
   // #define GAME_OBJECT_PROFILER
   // #define SUBMODULE_PROFILER
+  // #define SENSOR_PROFILER
   // #define PAINTER_PROFILER
   // #define TEXTURE_PROFILER
   // #define COLLIDER_PROFILER
@@ -61,6 +62,16 @@
     #define SUBMODULE_FUNCTION(...)
     #define SUBMODULE_BLOCK(...)
     #define SUBMODULE_END_BLOCK
+#endif
+
+#if defined(SENSOR_PROFILER) || defined(PROFILE_ALL)
+    #define SENSOR_FUNCTION(...) EASY_FUNCTION(EASY_FUNC_NAME, ## __VA_ARGS__)
+    #define SENSOR_BLOCK(name, ...) EASY_BLOCK(name,  ## __VA_ARGS__)
+    #define SENSOR_END_BLOCK EASY_END_BLOCK
+#else
+    #define SENSOR_FUNCTION(...)
+    #define SENSOR_BLOCK(...)
+    #define SENSOR_END_BLOCK
 #endif
 
 #if defined(PAINTER_PROFILER) || defined(PROFILE_ALL)

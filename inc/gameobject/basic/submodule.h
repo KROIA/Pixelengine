@@ -10,7 +10,7 @@
 #include "signalSubscriber.h"
 
 
-class Submodule :   public LayerItem, private ControllerSignal, UserEventSignal
+class Submodule :   public LayerItem
 {
     public:
         Submodule();
@@ -25,7 +25,6 @@ class Submodule :   public LayerItem, private ControllerSignal, UserEventSignal
         void engineCalled_tick(const Vector2i &direction);
         void engineCalled_postTick();
         void engineCalled_preDraw();
-
 
         virtual void setPosInitial(const Vector2f &pos);
       //  virtual void setPos(int x, int y);
@@ -54,7 +53,7 @@ class Submodule :   public LayerItem, private ControllerSignal, UserEventSignal
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
-        virtual void setRotation(const Vector2f &rotationPoint,const float &deg);
+        virtual void setRotation(const Vector2f &rotationPoint,float deg);
         virtual void rotate_90(const Vector2f &rotationPoint);
         virtual void rotate_180(const Vector2f &rotationPoint);
         virtual void rotate_270(const Vector2f &rotationPoint);
@@ -69,7 +68,7 @@ class Submodule :   public LayerItem, private ControllerSignal, UserEventSignal
 
         virtual const vector<Event* > &getEventList() const;
         virtual const vector<Painter* > &getPainterList() const;
-        virtual const vector<Controller* > &getControllerList() const;
+
         virtual Collider* getCollider();
         virtual const Vector2f &getMovingVector() const;
 
@@ -83,16 +82,14 @@ class Submodule :   public LayerItem, private ControllerSignal, UserEventSignal
         virtual void removeEvent(Event *e);
         virtual void addPainter(Painter *painter);
         virtual void removePainter(Painter *painter);
-        virtual void addController(Controller *controller);
-        virtual void removeController(Controller *controller);
         virtual void setCollider(Collider *collider);
 
-        // Signals from UserEventSignal
+   /*     // Signals from UserEventSignal
         virtual void eventAdded(UserEventHandler *sender,  Event *e);
         virtual void eventRemoved(UserEventHandler *sender,  Event *e);
 
         // Signals from Controller
-        virtual void moveAvailable(Controller *sender);
+        virtual void moveAvailable(Controller *sender);*/
 
       //  virtual void event_hasCollision(vector<GameObject *> other) = 0;
 
@@ -103,7 +100,7 @@ class Submodule :   public LayerItem, private ControllerSignal, UserEventSignal
 
         vector<Event* >     m_eventList;
         vector<Painter* >   m_painterList;
-        vector<Controller* > m_controllerList;
+
         Collider*           m_collider;
 
         DynamicCoordinator  m_movementCoordinator;

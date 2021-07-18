@@ -101,6 +101,7 @@ namespace Property
     class Property;
 };
 class Sensor;
+class RectSensor;
 
 class Texture;
 class AnimatedTexture;
