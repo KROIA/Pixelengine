@@ -24,6 +24,7 @@ void PixelDisplay::constructor(const Settings &settings)
     m_windowSize    = settings.windowSize;
     m_pixelMapSize  = settings.pixelMapSize;
     m_dragMap       = false;
+    m_mutex         = PTHREAD_MUTEX_INITIALIZER;
 
    /* sf::ContextSettings settings;
     settings.antialiasingLevel = 8;*/
@@ -378,13 +379,19 @@ void PixelDisplay::renderLayerChanged(Painter *sender, size_t lastLayer, size_t 
 }
 void PixelDisplay::isInvisible(Painter *sender)
 {
-    m_renderLayerList[sender->getRenderLayer()].table.erase(sender);
-    m_stats.avtivePaintersInLayer[sender->getRenderLayer()]--;
+    size_t layer = sender->getRenderLayer();
+    pthread_mutex_lock(&m_mutex);
+    m_renderLayerList[layer].table.erase(sender);
+    m_stats.avtivePaintersInLayer[layer]--;
     m_stats.activePainters--;
+    pthread_mutex_unlock(&m_mutex);
 }
 void PixelDisplay::isVisible(Painter *sender)
 {
-    m_renderLayerList[sender->getRenderLayer()].table.insert({sender,sender});
-    m_stats.avtivePaintersInLayer[sender->getRenderLayer()]++;
+    size_t layer = sender->getRenderLayer();
+    pthread_mutex_lock(&m_mutex);
+    m_renderLayerList[layer].table.insert({sender,sender});
+    m_stats.avtivePaintersInLayer[layer]++;
     m_stats.activePainters++;
+    pthread_mutex_unlock(&m_mutex);
 }

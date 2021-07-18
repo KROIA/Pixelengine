@@ -118,7 +118,7 @@ class PixelDisplay  : private PainterSignal, public GameObjectDisplay_Interface
         float               m_viewPortZoom;
 
         DisplayStats        m_stats;
-
+        pthread_mutex_t     m_mutex;
 
 };
 #endif // PIXELDISPLAY_H

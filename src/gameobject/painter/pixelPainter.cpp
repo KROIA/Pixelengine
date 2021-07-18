@@ -5,12 +5,16 @@ PixelPainter::PixelPainter()
 {
     m_texture   = new sf::Texture;
     m_image     = new sf::Image;
+  /*  m_pixels    = nullptr;
+    m_width     = 0;
+    m_height    = 0;*/
 
 }
 PixelPainter::~PixelPainter()
 {
     delete m_texture;
     delete m_image;
+    //delete[] m_pixels;
 }
 
 void PixelPainter::render(sf::RenderWindow *window,
@@ -27,6 +31,9 @@ void PixelPainter::setPixel(const Pixel &pixel)
         return;
     if(unsigned(pixel.getPos().x) >= m_image->getSize().x || unsigned(pixel.getPos().y) >= m_image->getSize().y)
         return;
+    if(m_image->getPixel(pixel.getPos().x,pixel.getPos().y) == pixel)
+        return;
+    m_needsUpdate = true;
     m_image->setPixel(pixel.getPos().x,pixel.getPos().y,pixel);
 }
 void PixelPainter::setPixel(const vector<Pixel> &pixelList)
@@ -34,7 +41,7 @@ void PixelPainter::setPixel(const vector<Pixel> &pixelList)
     PAINTER_FUNCTION(profiler::colors::Cyan);
     internalSetPixel(pixelList);
 }
-void PixelPainter::addPixel(unsigned int x, unsigned int y, Color color)
+/*void PixelPainter::addPixel(unsigned int x, unsigned int y, Color color)
 {
     PAINTER_FUNCTION(profiler::colors::Cyan);
     Pixel p;
@@ -52,7 +59,7 @@ void PixelPainter::addPixel(const vector<Pixel> &pixelList)
     PAINTER_FUNCTION(profiler::colors::Cyan);
     for(const Pixel &p : pixelList)
         internalAddPixel(p);
-}
+}*/
 const Pixel PixelPainter::getPixel(const Vector2u &pixelPos) const
 {
     Pixel p;
@@ -70,10 +77,19 @@ const Pixel PixelPainter::getPixel(unsigned int x,unsigned int y) const
 
 void PixelPainter::update()
 {
-    PAINTER_BLOCK("PixelPainter::update() loadFromImage",profiler::colors::Cyan900);
-    m_texture->loadFromImage(*m_image);
-    m_sprite->setTexture(*m_texture);
+    if(!m_needsUpdate)
+        return;
+    PAINTER_BLOCK("PixelPainter::update() glBindTexture",profiler::colors::Cyan900);
+   glBindTexture(GL_TEXTURE_2D, m_texture->getNativeHandle());
+   PAINTER_BLOCK("PixelPainter::update() glTexSubImage2D",profiler::colors::Cyan900);
+   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_image->getSize().x, m_image->getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, m_image->getPixelsPtr());
+   PAINTER_BLOCK("PixelPainter::update() glTexParameteri",profiler::colors::Cyan900);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_texture->isSmooth() ? GL_LINEAR : GL_NEAREST);
 
+   //m_texture->loadFromImage(*m_image);
+    PAINTER_BLOCK("PixelPainter::update() setTexture",profiler::colors::Cyan900);
+    m_sprite->setTexture(*m_texture);
+    m_needsUpdate = false;
 }
 void PixelPainter::resize(Vector2u size)
 {
@@ -82,6 +98,11 @@ void PixelPainter::resize(Vector2u size)
     m_image->create(size.x,size.y,Color(0,0,0,0));
     m_image->copy(tmp,0,0,sf::IntRect(0,0,tmp.getSize().x,tmp.getSize().y),true);
     m_texture->create(size.x,size.y);
+   /* if(m_pixels != nullptr)
+        delete[] m_pixels;
+    m_width = size.x;
+    m_height = size.y;
+    m_pixels = new Uint8[m_width*m_height*4];*/
     internal_UpdateOrigin();
 }
 void PixelPainter::clear()
@@ -115,9 +136,24 @@ void PixelPainter::clear()
 
 void PixelPainter::setPixelColor(const Vector2u & pixelPos, const Color &color)
 {
-    //PAINTER_FUNCTION(profiler::colors::Cyan100);
-    if(pixelPos.x >= m_image->getSize().x || pixelPos.y >= m_image->getSize().y)
+    PAINTER_FUNCTION(profiler::colors::Cyan100);
+   /* if(pixelPos.x >= m_image->getSize().x || pixelPos.y >= m_image->getSize().y)
         return;
+    if(m_image->getPixel(pixelPos.x,pixelPos.y) == color)
+        return;*/
+    /*m_pixels[pixelPos.x + pixelPos.y * m_width] = color.r;
+    m_pixels[pixelPos.x + pixelPos.y * m_width] = color.g;
+    m_pixels[pixelPos.x + pixelPos.y * m_width] = color.b;
+    m_pixels[pixelPos.x + pixelPos.y * m_width] = color.a;*/
+/*
+            Uint8* pixel = &m_pixels[(x + y * m_size.x) * 4];
+            *pixel++ = color.r;
+            *pixel++ = color.g;
+            *pixel++ = color.b;
+            *pixel++ = color.a;
+
+*/
+    m_needsUpdate = true;
     m_image->setPixel(pixelPos.x,pixelPos.y,color);
 }
 void PixelPainter::setPixelColor(unsigned int x,unsigned int y, const Color &color)
@@ -125,7 +161,20 @@ void PixelPainter::setPixelColor(unsigned int x,unsigned int y, const Color &col
     PAINTER_FUNCTION(profiler::colors::Cyan100);
     if(x >= m_image->getSize().x || y >= m_image->getSize().y)
         return;
+    if(m_image->getPixel(x,y) == color)
+        return;
+    m_needsUpdate = true;
     m_image->setPixel(x,y,color);
+
+}
+const Uint8* PixelPainter::getPixelsPtr() const
+{
+    return m_image->getPixelsPtr();
+}
+const Uint8* PixelPainter::getPixelsPtr(unsigned int x,unsigned int y) const
+{
+    const Uint8* px = m_image->getPixelsPtr();
+    return px+(x + y * m_image->getSize().x) * 4;
 }
 void PixelPainter::internalSetPixel(const vector<Pixel> &pixelList)
 {
@@ -143,15 +192,16 @@ void PixelPainter::internalSetPixel(const vector<Pixel> &pixelList)
             newSize.y = pixel.getY()+1;
         }
     }
-
-    m_image->create(newSize.x,newSize.y);
+    if(imageSize.x < newSize.x || imageSize.y < newSize.y)
+        m_image->create(newSize.x,newSize.y);
     for(const Pixel &pixel : pixelList)
     {
         m_image->setPixel(pixel.getX(),pixel.getY(),pixel);
-        m_texture->loadFromImage(*m_image);
+       // m_texture->loadFromImage(*m_image);
     }
+    m_needsUpdate = true;
 }
-void PixelPainter::internalAddPixel(const Pixel &pixel)
+/*void PixelPainter::internalAddPixel(const Pixel &pixel)
 {
     PAINTER_FUNCTION(profiler::colors::Cyan800);
     Vector2u newSize(m_image->getSize().x,m_image->getSize().y);
@@ -177,4 +227,4 @@ void PixelPainter::internalAddPixel(const vector<Pixel> &pixelList)
     PAINTER_FUNCTION(profiler::colors::Cyan800);
     for(const Pixel &p : pixelList)
         internalAddPixel(p);
-}
+}*/
