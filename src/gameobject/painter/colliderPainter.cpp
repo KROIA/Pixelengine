@@ -11,6 +11,7 @@ ColliderPainter::ColliderPainter()
     setVisibility_collisionData(false);
     m_dummyColor = Color(0,0,0);
     m_collidedObjectsColor = Color(255,50,0);
+    setEnableRelativePosition(true);
 }
 ColliderPainter::ColliderPainter(Collider *collider)
     :   VertexPathPainter()
@@ -27,7 +28,7 @@ void ColliderPainter::setCollider(Collider *collider)
 void ColliderPainter::update(const vector<GameObject* > &collided)
 {
     PAINTER_FUNCTION(profiler::colors::Cyan200);
-    if(!m_isVisible)
+    if(!m_isVisible || !m_collider)
         return;
 
     size_t hashedList = Hash::getHashOfList(collided);
@@ -49,7 +50,7 @@ void ColliderPainter::update(const vector<GameObject* > &collided)
     }
     if(m_visibility_collidedObjects)
         for(size_t i=0; i<collided.size(); i++)
-            VertexPathPainter::addPath(collided[i]->getCollider().getBoundingBox().getDrawable(m_collidedObjectsColor));
+            VertexPathPainter::addPath(collided[i]->getCollider()->getBoundingBox().getDrawable(m_collidedObjectsColor));
 
 }
 void ColliderPainter::setVisibility_boundingBox(bool isVisible)
@@ -155,3 +156,24 @@ void ColliderPainter::checkIfPainterIsVisible()
     if(v != m_isVisible)
         VertexPathPainter::setVisibility(v);
 }
+
+void ColliderPainter::setRotation(float deg)
+{}
+void ColliderPainter::rotate(float deg)
+{}
+void ColliderPainter::rotate_90()
+{}
+void ColliderPainter::rotate_180()
+{}
+void ColliderPainter::rotate_270()
+{}
+void ColliderPainter::setRotation(const Vector2f &rotPoint,float deg)
+{}
+void ColliderPainter::rotate(const Vector2f &rotPoint,float deg)
+{}
+void ColliderPainter::rotate_90(const Vector2f &rotPoint)
+{}
+void ColliderPainter::rotate_180(const Vector2f &rotPoint)
+{}
+void ColliderPainter::rotate_270(const Vector2f &rotPoint)
+{}

@@ -365,6 +365,16 @@ void PixelDisplay::unsubscribePainter(Painter *painter)
     }
     painter->unsubscribe_painterSignal(this);
 }
+void PixelDisplay::subscribePainter(const vector<Painter *> painterList)
+{
+    for(auto p : painterList)
+        subscribePainter(p);
+}
+void PixelDisplay::unsubscribePainter(const vector<Painter *> painterList)
+{
+    for(auto p : painterList)
+        unsubscribePainter(p);
+}
 void PixelDisplay::renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer)
 {
     if(newLayer >= m_maxRenderLayers)

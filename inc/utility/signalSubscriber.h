@@ -4,6 +4,28 @@
 
 
 // Signals for GameObjects
+class SubmoduleSignal
+{
+    public:
+        SubmoduleSignal(){}
+
+        virtual void moved(Submodule* sender,const Vector2f &move) = 0;
+        virtual void rotated(Submodule* sender,const float deltaAngle) = 0;
+    protected:
+
+};
+// Vector of Signals
+class SubmoduleSubscriberList    : public HashTable<SubmoduleSignal*>
+{
+    public:
+        SubmoduleSubscriberList();
+        virtual void insert(SubmoduleSignal* signal);
+
+        virtual void moved(Submodule* sender,const Vector2f &move);
+        virtual void rotated(Submodule* sender,const float deltaAngle);
+    protected:
+};
+// Signals for GameObjects
 class ObjSignal
 {
     public:

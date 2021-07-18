@@ -142,9 +142,9 @@ void GameObjectGroup::setPosInital(const Vector2f &pos)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
-        m_isInList[i]->setPosInital(pos);
+        m_isInList[i]->setPosInitial(pos);
 }
-void GameObjectGroup::setPos(int x,int y)
+/*void GameObjectGroup::setPos(int x,int y)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
@@ -155,7 +155,7 @@ void GameObjectGroup::setPos(const Vector2i &pos)
     GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setPos(pos);
-}
+}*/
 void GameObjectGroup::setPos(float x, float y)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
@@ -168,7 +168,7 @@ void GameObjectGroup::setPos(const Vector2f &pos)
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setPos(pos);
 }
-void GameObjectGroup::setX(int x)
+/*void GameObjectGroup::setX(int x)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
@@ -179,7 +179,7 @@ void GameObjectGroup::setY(int y)
     GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setY(y);
-}
+}*/
 void GameObjectGroup::setX(float x)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
@@ -192,7 +192,7 @@ void GameObjectGroup::setY(float y)
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->setY(y);
 }
-void GameObjectGroup::moveToPos(const Vector2i&destination,Controller::MovingMode mode)
+/*void GameObjectGroup::moveToPos(const Vector2i&destination,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
@@ -209,7 +209,7 @@ void GameObjectGroup::move(const Vector2i&vec,Controller::MovingMode mode)
     GAME_OBJECT_FUNCTION(profiler::colors::Purple300);
     for(size_t i=0; i<m_isInList.size(); i++)
         m_isInList[i]->move(vec,mode);
-}
+}*/
 void GameObjectGroup::move(const Vector2f &vec,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple300);

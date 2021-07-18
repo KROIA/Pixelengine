@@ -8,6 +8,8 @@ Painter::Painter()
     m_originType = Origin::middle;
     setRenderLayer(0);
     m_frame = RectF(0,0,0,0);
+    setEnableRelativeRotation(false);
+    setEnableRelativePosition(false);
     //m_display   = nullptr;
 }
 Painter::Painter(const Painter &other)
@@ -59,14 +61,14 @@ bool Painter::needsRendering(const RectF &renderRect)
         return false;
     return m_frame.intersects_fast(renderRect);
 }
-void Painter::setPos(const Vector2f & pos)
+void Painter::setPos(const Vector2f &pos)
 {
     PAINTER_FUNCTION(profiler::colors::Cyan300);
     LayerItem::setPos(pos);
     internal_setPos(m_pos);
     internal_CalculateFrame();
 }
-void Painter::move(const Vector2f vec)
+void Painter::move(const Vector2f &vec)
 {
     LayerItem::move(vec);
     internal_setPos(m_pos);
@@ -174,4 +176,21 @@ void Painter::unsubscribe_painterSignal(PainterSignal *subscriber)
 void Painter::unsubscribeAll_painterSignal()
 {
     m_signalSubscriber.clear();
+}
+
+void Painter::setEnableRelativeRotation(bool enable)
+{
+    m_enableRelativeRotation = enable;
+}
+void Painter::setEnableRelativePosition(bool enable)
+{
+    m_enableRelativePosition = enable;
+}
+bool Painter::getEnableRelativeRotation() const
+{
+    return m_enableRelativeRotation;
+}
+bool Painter::getEnableRelativePosition() const
+{
+    return m_enableRelativePosition;
 }

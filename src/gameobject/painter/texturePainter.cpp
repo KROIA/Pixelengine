@@ -5,6 +5,8 @@ TexturePainter::TexturePainter()
 {
     m_textureObj    = nullptr;
     m_texture       = nullptr;
+    setEnableRelativePosition(true);
+    setEnableRelativeRotation(true);
 }
 
 TexturePainter::~TexturePainter()

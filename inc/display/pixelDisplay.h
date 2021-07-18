@@ -85,6 +85,8 @@ class PixelDisplay  : private PainterSignal, public GameObjectDisplay_Interface
 
         virtual void subscribePainter(Painter *painter);
         virtual void unsubscribePainter(Painter *painter);
+        virtual void subscribePainter(const vector<Painter *> painterList);
+        virtual void unsubscribePainter(const vector<Painter *> painterList);
 
 
     protected:

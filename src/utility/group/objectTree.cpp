@@ -63,7 +63,7 @@ ObjectTree::~ObjectTree()
 
 bool ObjectTree::insert(GameObject *obj)
 {
-    if(!RectF::intersects_fast(obj->getBoundingBox(),m_boundry))
+    if(!RectF::intersects_fast(obj->getCollider()->getBoundingBox(),m_boundry))
         return false;
     GAME_OBJECT_FUNCTION(profiler::colors::Green);
     if(m_objectList.size()  < m_capacity || m_disableDivider)
@@ -92,7 +92,7 @@ void ObjectTree::query(const RectF &region,vector<GameObject*> &buffer)
     for(size_t i=0; i<m_objectList.size(); i++)
     {
 
-        if(RectF::intersects_fast(m_objectList[i]->getBoundingBox(),region))
+        if(RectF::intersects_fast(m_objectList[i]->getCollider()->getBoundingBox(),region))
         {
             for(size_t j=0; j<buffer.size(); j++)
             {

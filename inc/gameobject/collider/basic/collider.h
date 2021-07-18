@@ -46,8 +46,8 @@ class Collider  :   public LayerItem
         virtual const RectF &getHitbox(const unsigned int &index) const;
         virtual const vector<RectF> &getHitbox() const;
 
-        virtual bool intersectsBoundingBox(const Collider &other);
-        virtual bool collides(const Collider &other);
+        virtual bool intersectsBoundingBox(const Collider *other);
+        virtual bool collides(const Collider *other);
 
         virtual void tick();
 

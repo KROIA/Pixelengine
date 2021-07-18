@@ -37,6 +37,17 @@ class ColliderPainter   :   public VertexPathPainter
         const Color &getColor_collidedObjects() const;
 
     protected:
+        void setRotation(float deg);
+        void rotate(float deg);
+        void rotate_90();
+        void rotate_180();
+        void rotate_270();
+        void setRotation(const Vector2f &rotPoint,float deg);
+        void rotate(const Vector2f &rotPoint,float deg);
+        void rotate_90(const Vector2f &rotPoint);
+        void rotate_180(const Vector2f &rotPoint);
+        void rotate_270(const Vector2f &rotPoint);
+
         void checkIfPainterIsVisible();
         Collider *m_collider;
         bool m_visibility_boundingBox;

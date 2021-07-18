@@ -92,6 +92,7 @@ void VertexPathPainter::addPath(const vector<Vector2f> &points, const Color &col
     path->setColor(color);
     internal_addPath(path);
 }
+
 void VertexPathPainter::internal_addPath(VertexPath *path)
 {
     m_pathList.insert({path,path});

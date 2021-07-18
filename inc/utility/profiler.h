@@ -12,6 +12,7 @@
 
 
   // #define GAME_OBJECT_PROFILER
+  // #define SUBMODULE_PROFILER
   // #define PAINTER_PROFILER
   // #define TEXTURE_PROFILER
   // #define COLLIDER_PROFILER
@@ -50,6 +51,16 @@
     #define GAME_OBJECT_FUNCTION(...)
     #define GAME_OBJECT_BLOCK(...)
     #define GAME_OBJECT_END_BLOCK
+#endif
+
+#if defined(SUBMODULE_PROFILER) || defined(PROFILE_ALL)
+    #define SUBMODULE_FUNCTION(...) EASY_FUNCTION(EASY_FUNC_NAME, ## __VA_ARGS__)
+    #define SUBMODULE_BLOCK(name, ...) EASY_BLOCK(name,  ## __VA_ARGS__)
+    #define SUBMODULE_END_BLOCK EASY_END_BLOCK
+#else
+    #define SUBMODULE_FUNCTION(...)
+    #define SUBMODULE_BLOCK(...)
+    #define SUBMODULE_END_BLOCK
 #endif
 
 #if defined(PAINTER_PROFILER) || defined(PROFILE_ALL)

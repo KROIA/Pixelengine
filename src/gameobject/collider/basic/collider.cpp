@@ -202,14 +202,14 @@ const vector<RectF> &Collider::getHitbox() const
 }
 
 
-bool Collider::intersectsBoundingBox(const Collider &other)
+bool Collider::intersectsBoundingBox(const Collider *other)
 {
     COLLIDER_FUNCTION(profiler::colors::Red200);
     /*if(LayerItem::getLastPos()       == LayerItem::getPos()      && other.LayerItem::getLastPos()      == other.LayerItem::getPos() &&
        LayerItem::getLastRotation()  == LayerItem::getRotation() && other.LayerItem::getLastRotation() == other.LayerItem::getRotation())
         return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben*/
 
-    bool intersects = this->m_boundingBox.intersects_fast(other.m_boundingBox);
+    bool intersects = this->m_boundingBox.intersects_fast(other->m_boundingBox);
     stats_checkIntersectCounter += this->m_boundingBox.stats_intersectionCheckCounter;
     if(intersects)
     {
@@ -219,7 +219,7 @@ bool Collider::intersectsBoundingBox(const Collider &other)
     return intersects;
 }
 
-bool Collider::collides(const Collider &other)
+bool Collider::collides(const Collider *other)
 {
     COLLIDER_FUNCTION(profiler::colors::Red300);
     /*if(LayerItem::getLastPos()       == LayerItem::getPos()      && other.LayerItem::getLastPos()      == other.LayerItem::getPos() &&
@@ -230,11 +230,11 @@ bool Collider::collides(const Collider &other)
     for(size_t x=0; x<this->m_hitboxList.size(); x++)
     {
         COLLIDER_BLOCK("for(size_t y=0; y<other.m_hitboxList.size(); y++)",profiler::colors::Red500);
-        for(size_t y=0; y<other.m_hitboxList.size(); y++)
+        for(size_t y=0; y<other->m_hitboxList.size(); y++)
         {
             COLLIDER_BLOCK("this->m_hitboxList[x].intersects(other.m_hitboxList[y])",profiler::colors::Red600);
             //Vector::Func2f colliderFunc;
-            if(this->m_hitboxList[x].intersects(other.m_hitboxList[y]))
+            if(this->m_hitboxList[x].intersects(other->m_hitboxList[y]))
             {
                 stats_checkCollisionCounter += this->m_hitboxList[x].stats_intersectionCheckCounter;
                 stats_doesCollideCounter++;

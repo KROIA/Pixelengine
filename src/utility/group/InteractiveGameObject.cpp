@@ -288,7 +288,7 @@ const vector<GameObject*> InteractiveGameObject::getInteractiveObjects()
     }*/
     vector<GameObject*> possibleInteractionList;
     possibleInteractionList.reserve(m_interactorAmount);
-    m_objectTree->query(m_gameObject->getBoundingBox(),possibleInteractionList);
+    m_objectTree->query(m_gameObject->getCollider()->getBoundingBox(),possibleInteractionList);
 
     return possibleInteractionList;
     //return m_interactiveObjectsChunkMap->getGameObjectGroup(m_gameObject->getChunkIDList());

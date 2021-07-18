@@ -244,12 +244,14 @@ void PixelEngine::setup()
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
     {
         obj = m_masterGameObjectGroup[i]->getGameObject();
-        if(!obj->isBoundingBoxUpdated())
-            obj->updateBoundingBox();
+
         obj->setEventHandler(this);
         obj->setDisplayInterface(m_display);
-        m_masterGameObjectGroup[i]->subscribeToDisplay(*m_display);
+
         obj->engineCalled_setup();
+        m_masterGameObjectGroup[i]->subscribeToDisplay(*m_display);
+        if(!obj->getCollider()->isBoundingBoxUpdated())
+            obj->getCollider()->updateBoundingBox();
     }
 
     m_setupDone = true;
@@ -863,8 +865,8 @@ void PixelEngine::addGameObject(GameObject *obj)
     {
         if(m_masterGameObjectGroup.add(obj))
         {
-            if(!obj->isBoundingBoxUpdated())
-                obj->updateBoundingBox();
+            if(!obj->getCollider()->isBoundingBoxUpdated())
+                obj->getCollider()->updateBoundingBox();
             obj->setEventHandler(this);
             obj->setDisplayInterface(m_display);
             m_masterGameObjectGroup[m_masterGameObjectGroup.size()-1]->subscribeToDisplay(*m_display);

@@ -1,5 +1,28 @@
 #include "signalSubscriber.h"
 
+SubmoduleSubscriberList::SubmoduleSubscriberList()
+    :   HashTable<SubmoduleSignal *>()
+{}
+
+void SubmoduleSubscriberList::insert(SubmoduleSignal* signal)
+{
+    HashTable<SubmoduleSignal *>::insert({signal,signal});
+}
+
+void SubmoduleSubscriberList::moved(Submodule* sender,const Vector2f &move)
+{
+    for(auto pair : *this)
+    {
+        pair.second->moved(sender,move);
+    }
+}
+void SubmoduleSubscriberList::rotated(Submodule* sender,const float deltaAngle)
+{
+    for(auto pair : *this)
+    {
+        pair.second->rotated(sender,deltaAngle);
+    }
+}
 ObjSubscriberList::ObjSubscriberList()
     :   HashTable<ObjSignal *>()
 {}

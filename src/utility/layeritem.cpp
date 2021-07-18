@@ -80,6 +80,16 @@ void LayerItem::setPosInitial(float x, float y)
     this->swapPosToLastPos();
 }
 
+void LayerItem::setPos(int x, int y)
+{
+    m_pos.x  = x;
+    m_pos.y  = y;
+}
+void LayerItem::setPos(float x, float y)
+{
+    m_pos.x  = x;
+    m_pos.y  = y;
+}
 void LayerItem::setPos(const Vector2f &pos)
 {
     m_pos = pos;
