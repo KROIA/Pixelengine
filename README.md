@@ -112,7 +112,7 @@ GameObject *buildPlayer(int up, int left, int down, int right)
     controller->setStepSize(1);
 
     // Set the painter and controller to the object
-    player->setPainter(painter);
+    player->addPainter(painter);
     player->addController(controller);
 
     return player;
@@ -171,9 +171,9 @@ in: GameObject *buildPlayer(...):
     player->setCollider(collider);
 
     // For debuging you can use this functions:
-    player->setVisibility_collider_hitbox(true);
+    player->getColliderPainter()->setVisibility_hitBox(true);
     // The BoundingBox is the rectangle which includes all hitboxes
-    player->setVisibility_collider_boundingBox(true);
+    player->getColliderPainter()->setVisibility_boundingBox(true);
 ...
 ```
 in the main(...):
