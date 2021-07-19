@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 ```
-This will create a running empty engine. Now we want to add content to it.
+This will create a running empty engine. Now we want to add content to it.<br>
 Every element in the engine will a GameObject *.
 ### Create a simple player
 ```c++
@@ -118,7 +118,7 @@ GameObject *buildPlayer(int up, int left, int down, int right)
     return player;
 }
 ```
-We created a function which will generate a player object.
+We created a function which will generate a player object.<br>
 We implement this in the main().
 ```c++
     ...
