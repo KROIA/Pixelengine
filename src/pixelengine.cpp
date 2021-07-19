@@ -626,12 +626,12 @@ void *PixelEngine::thread_tick(void *p)
 #endif
 #ifdef PIXELENGINE_ENABLE_COLLISION
    #ifdef PIXELENGINE_STATISTICS
-            stats_timer_start = std::chrono::system_clock::now();
-            if(interactiveObject->doesInteractWithOther())
-            {
-                vector<GameObject*> other = interactiveObject->getInteractiveObjects();
-                collisionsPerTick += obj->checkCollision(other);
-            }
+        stats_timer_start = std::chrono::system_clock::now();
+        if(interactiveObject->doesInteractWithOther())
+        {
+            vector<GameObject*> other = interactiveObject->getInteractiveObjects();
+            collisionsPerTick += obj->checkCollision(other);
+        }
         stats_timer_end     = std::chrono::system_clock::now();
         stats_time_span     = stats_timer_end - stats_timer_start;
         collisionCheckTime += stats_time_span.count();
