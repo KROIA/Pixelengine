@@ -88,7 +88,7 @@ void ColliderPainter::setVisibility_collidedObjects_boundingBox(bool isVisible)
 void ColliderPainter::setVisibility_collidedObjects_hitBox(bool isVisible)
 {
     PAINTER_FUNCTION(profiler::colors::Cyan300);
-    m_visibility_collidedObjects_hitBox= isVisible;
+    m_visibility_collidedObjects_hitBox = isVisible;
     checkIfPainterIsVisible();
 }
 bool ColliderPainter::isVisible_boundingBox()

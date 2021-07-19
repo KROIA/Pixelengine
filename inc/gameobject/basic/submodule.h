@@ -77,13 +77,16 @@ class Submodule :   public LayerItem
         virtual void unsubscribe_SubmoduleSignal(SubmoduleSignal *subscriber);
         virtual void unsubscribeAll_SubmoduleSignal();
 
-    protected:
-
         virtual void addEvent(Event *e);
         virtual void removeEvent(Event *e);
         virtual void addPainter(Painter *painter);
         virtual void removePainter(Painter *painter);
         virtual void setCollider(Collider *collider);
+        virtual Collider *getCollider() const;
+
+    protected:
+
+
 
    /*     // Signals from UserEventSignal
         virtual void eventAdded(UserEventHandler *sender,  Event *e);
@@ -103,6 +106,7 @@ class Submodule :   public LayerItem
         vector<Painter* >   m_painterList;
 
         Collider*           m_collider;
+        Collider*           m_originalCollider;
 
         DynamicCoordinator  m_movementCoordinator;
 

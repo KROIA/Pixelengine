@@ -5,10 +5,12 @@ Submodule::Submodule()
 
     m_hasMoveToMake     = false;
     m_hasEventsToCheck  = false;
+    m_originalCollider  = new Collider();
+    this->setCollider(m_originalCollider);
 }
 Submodule::~Submodule()
 {
-
+    delete m_originalCollider;
 }
 
 void Submodule::engineCalled_setup()
@@ -29,16 +31,20 @@ void Submodule::engineCalled_checkEvent()
 void Submodule::engineCalled_preTick()
 {
     SUBMODULE_FUNCTION(profiler::colors::Red100);
+    m_collider->tick();
 
 }
 void Submodule::engineCalled_tick(const Vector2i &direction)
 {
     SUBMODULE_FUNCTION(profiler::colors::Red200);
     m_collider->setPos(m_pos);
+    m_collider->setRotation(m_rotation);
 }
 void Submodule::engineCalled_postTick()
 {
     SUBMODULE_FUNCTION(profiler::colors::Red300);
+    m_collider->setPos(m_pos);
+    m_collider->setRotation(m_rotation);
 }
 void Submodule::engineCalled_postNoThreadTick()
 {
@@ -305,6 +311,10 @@ void Submodule::setCollider(Collider *collider)
 {
     m_collider = collider;
     m_collider->setPos(m_pos);
+}
+Collider *Submodule::getCollider() const
+{
+    return m_collider;
 }
 
 
