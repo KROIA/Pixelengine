@@ -104,7 +104,8 @@ const Vector2f &SpritePainter::internal_getOrigin() const
 }
 void SpritePainter::internal_CalculateFrame()
 {
-    Vector2f offset(5,5);
-    m_frame.setPos(m_sprite->getPosition() - m_sprite->getOrigin()-offset);
-    m_frame.setSize(Vector2f(m_texture->getSize())+offset*2.f);
+    if(!m_texture)
+        return;
+    m_frame.setPos(m_sprite->getPosition() - m_sprite->getOrigin());
+    m_frame.setSize(Vector2f(m_texture->getSize()));
 }

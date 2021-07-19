@@ -30,30 +30,30 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
 
         // GameObject stuff
         virtual void setPosInital(const Vector2f &pos);
-        virtual void setPos(int x, int y);
-        virtual void setPos(const Vector2i &pos);
+      //  virtual void setPos(int x, int y);
+      //  virtual void setPos(const Vector2i &pos);
         virtual void setPos(float x, float y);
         virtual void setPos(const Vector2f &pos);
 
-        virtual void setX(int x);
-        virtual void setY(int y);
+//        virtual void setX(int x);
+      //  virtual void setY(int y);
         virtual void setX(float x);
         virtual void setY(float y);
 
-        virtual void moveToPos(const Vector2i&destination,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void moveToPos(const int &x,const int &y,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void move(const Vector2i&vec,Controller::MovingMode mode = Controller::MovingMode::add);
+       // virtual void moveToPos(const Vector2i&destination,Controller::MovingMode mode = Controller::MovingMode::add);
+       // virtual void moveToPos(const int &x,const int &y,Controller::MovingMode mode = Controller::MovingMode::add);
+       // virtual void move(const Vector2i&vec,Controller::MovingMode mode = Controller::MovingMode::add);
         virtual void move(const Vector2f &vec,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void move(const float &deltaX, const float &deltaY,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void moveX(const float &delta,Controller::MovingMode mode = Controller::MovingMode::add);
-        virtual void moveY(const float &delta,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void move(float deltaX, float deltaY,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveX(float delta,Controller::MovingMode mode = Controller::MovingMode::add);
+        virtual void moveY(float delta,Controller::MovingMode mode = Controller::MovingMode::add);
 
-        virtual void rotate(const float &deg);
-        virtual void setRotation(const float &deg);
+        virtual void rotate(float deg);
+        virtual void setRotation(float deg);
         virtual void rotate_90();
         virtual void rotate_180();
         virtual void rotate_270();
-        virtual void setRotation(const Vector2f &rotationPoint,const float &deg);
+        virtual void setRotation(const Vector2f &rotationPoint,float deg);
         virtual void rotate_90(const Vector2f &rotationPoint);
         virtual void rotate_180(const Vector2f &rotationPoint);
         virtual void rotate_270(const Vector2f &rotationPoint);
@@ -65,7 +65,8 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         virtual void setVisibility_collider_hitbox(bool isVisible);
         virtual void setVisibility_collider_boundingBox(bool isVisible);
         virtual void setVisibility_collider_collisionData(bool isVisible);
-        virtual void setVisibility_collider_isCollidingWith(bool isVisible);
+        virtual void setVisibility_collider_isCollidingWith_boundingBox(bool isVisible);
+        virtual void setVisibility_collider_isCollidingWith_hitBox(bool isVisible);
 
         virtual bool isVisible() const;
         virtual bool isVisible_objectTree() const;
@@ -73,7 +74,8 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
        // virtual bool isVisible_collider_hitbox() const;
         virtual bool isVisible_collider_boundingBox() const;
         virtual bool isVisible_collider_collisionData() const;
-        virtual bool isVisible_collider_isCollidingWith() const;
+        virtual bool isVisible_collider_isCollidingWith_boundingBox() const;
+        virtual bool isVisible_collider_isCollidingWith_hitBox() const;
 
         virtual long long indexOf(const GameObject* obj);
         static  long long indexOf(const vector<GameObject *> list,const GameObject* obj);
@@ -99,7 +101,8 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         bool          m_visibility_collider_hitbox;
         bool          m_visibility_collider_boundingBox;
         bool          m_visibility_collider_collisionData;
-        bool          m_visibility_collider_collidingWith;
+        bool          m_visibility_collider_collidingWith_boundingBox;
+        bool          m_visibility_collider_collidingWith_hitBox;
         bool          m_visibility_objectTree;
         //bool          m_visibility_chunks;
 

@@ -9,7 +9,7 @@ Wall::Wall()
 
     this->setCollider(m_collider);
     this->addController(m_controller);
-    this->setPainter(m_painter);
+    //this->setPainter(m_painter);
 
     this->setColor(Color(0,0,0));
     this->setDimension(1,1);

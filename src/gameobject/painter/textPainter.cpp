@@ -41,6 +41,7 @@ void TextPainter::constructor(const Settings &settings)
     m_text.setOrigin(0,0);
     Painter::setRenderLayer(settings.renderLayer);
     setScale(Vector2f(0.1,0.1));
+    setEnableRelativePosition(true);
 }
 TextPainter::~TextPainter()
 {

@@ -4,6 +4,33 @@
 
 
 // Signals for GameObjects
+class SubmoduleSignal
+{
+    public:
+        SubmoduleSignal(){}
+
+        virtual void moved(Submodule* sender,const Vector2f &move) = 0;
+        virtual void rotated(Submodule* sender,const float deltaAngle) = 0;
+    protected:
+
+};
+// Vector of Signals
+class SubmoduleSubscriberList    : public HashTable<SubmoduleSignal*>
+{
+    public:
+        SubmoduleSubscriberList();
+        virtual void insert(SubmoduleSignal* signal);
+        virtual void erase(SubmoduleSignal* signal);
+
+        virtual void moved(Submodule* sender,const Vector2f &move);
+        virtual void rotated(Submodule* sender,const float deltaAngle);
+    protected:
+        void updateList();
+        bool m_emiterCallActive;
+        HashTable<SubmoduleSignal*> toRemove;
+        HashTable<SubmoduleSignal*> toInsert;
+};
+// Signals for GameObjects
 class ObjSignal
 {
     public:
@@ -20,11 +47,17 @@ class ObjSubscriberList    : public HashTable<ObjSignal*>
     public:
         ObjSubscriberList();
         virtual void insert(ObjSignal* signal);
+        virtual void erase(ObjSignal* signal);
 
         virtual void moved(GameObject* sender,const Vector2f &move);
         virtual void rotated(GameObject* sender,const float deltaAngle);
     protected:
+        void updateList();
+        bool m_emiterCallActive;
+        HashTable<ObjSignal*> toRemove;
+        HashTable<ObjSignal*> toInsert;
 };
+
 
 
 // Signals for GameObjectGroups

@@ -244,12 +244,14 @@ void PixelEngine::setup()
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
     {
         obj = m_masterGameObjectGroup[i]->getGameObject();
-        if(!obj->isBoundingBoxUpdated())
-            obj->updateBoundingBox();
+
         obj->setEventHandler(this);
         obj->setDisplayInterface(m_display);
-        m_masterGameObjectGroup[i]->subscribeToDisplay(*m_display);
+
         obj->engineCalled_setup();
+        m_masterGameObjectGroup[i]->subscribeToDisplay(*m_display);
+        if(!obj->getCollider()->isBoundingBoxUpdated())
+            obj->getCollider()->updateBoundingBox();
     }
 
     m_setupDone = true;
@@ -374,7 +376,10 @@ void PixelEngine::tick()
     tickX();
     tickY();
     ENGINE_DEEP_TICK_END_BLOCK;
-
+    ENGINE_DEEP_TICK_BLOCK("postNoThreadTick",profiler::colors::Orange200);
+    for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
+        m_masterGameObjectGroup[i]->getGameObject()->engineCalled_postNoThreadTick();
+    ENGINE_DEEP_TICK_END_BLOCK;
 #ifdef PIXELENGINE_STATISTICS
     m_statistics.intersectionCheckPerTick   = Collider::stats_checkIntersectCounter;
     m_statistics.doesIntersectPerTick       = Collider::stats_doesIntersectCounter;
@@ -621,12 +626,12 @@ void *PixelEngine::thread_tick(void *p)
 #endif
 #ifdef PIXELENGINE_ENABLE_COLLISION
    #ifdef PIXELENGINE_STATISTICS
-            stats_timer_start = std::chrono::system_clock::now();
-            if(interactiveObject->doesInteractWithOther())
-            {
-                vector<GameObject*> other = interactiveObject->getInteractiveObjects();
-                collisionsPerTick += obj->checkCollision(other);
-            }
+        stats_timer_start = std::chrono::system_clock::now();
+        if(interactiveObject->doesInteractWithOther())
+        {
+            vector<GameObject*> other = interactiveObject->getInteractiveObjects();
+            collisionsPerTick += obj->checkCollision(other);
+        }
         stats_timer_end     = std::chrono::system_clock::now();
         stats_time_span     = stats_timer_end - stats_timer_start;
         collisionCheckTime += stats_time_span.count();
@@ -863,8 +868,8 @@ void PixelEngine::addGameObject(GameObject *obj)
     {
         if(m_masterGameObjectGroup.add(obj))
         {
-            if(!obj->isBoundingBoxUpdated())
-                obj->updateBoundingBox();
+            if(!obj->getCollider()->isBoundingBoxUpdated())
+                obj->getCollider()->updateBoundingBox();
             obj->setEventHandler(this);
             obj->setDisplayInterface(m_display);
             m_masterGameObjectGroup[m_masterGameObjectGroup.size()-1]->subscribeToDisplay(*m_display);

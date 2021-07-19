@@ -27,7 +27,7 @@ class Painter   :   public  LayerItem
                             DisplayStats &stats) = 0;
 
         virtual void setPos(const Vector2f &pos);
-        virtual void move(const Vector2f vec);
+        virtual void move(const Vector2f &vec);
 
         float getRotation() const;
         void setRotation(float deg);
@@ -54,6 +54,11 @@ class Painter   :   public  LayerItem
         void unsubscribe_painterSignal(PainterSignal *subscriber);
         void unsubscribeAll_painterSignal();
 
+        void setEnableRelativeRotation(bool enable);
+        void setEnableRelativePosition(bool enable);
+        bool getEnableRelativeRotation() const;
+        bool getEnableRelativePosition() const;
+
 
     protected:
         virtual void internal_setPos(const Vector2f &pos) = 0;
@@ -74,6 +79,9 @@ class Painter   :   public  LayerItem
         size_t      m_renderlayer;
 
         PainterSubscriberList m_signalSubscriber;
+
+        bool        m_enableRelativeRotation;
+        bool        m_enableRelativePosition;
       //  PixelDisplay    *m_display;
 
     private:

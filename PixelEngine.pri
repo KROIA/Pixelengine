@@ -54,6 +54,8 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/display
 
 SOURCES += \
+        $$PWD/src/gameobject/basic/submodule.cpp \
+        $$PWD/src/gameobject/sensor/rectSensor.cpp \
         $$PixelEngine_srcPath/gameobject/painter/colliderPainter.cpp \
         $$PixelEngine_srcPath/gameobject/painter/textPainter.cpp \
         $$PixelEngine_srcPath/gameobject/painter/vertexPathPainter.cpp \
@@ -88,6 +90,8 @@ SOURCES += \
 
 HEADERS += \
         $$PWD/inc/display/gameObjectDisplay_interface.h \
+        $$PWD/inc/gameobject/basic/submodule.h \
+        $$PWD/inc/gameobject/sensor/rectSensor.h \
         $$PixelEngine_incPath/gameobject/painter/colliderPainter.h \
         $$PixelEngine_incPath/gameobject/painter/textPainter.h \
         $$PixelEngine_incPath/gameobject/painter/vertexPathPainter.h \

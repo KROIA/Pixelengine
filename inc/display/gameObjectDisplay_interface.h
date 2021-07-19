@@ -22,5 +22,7 @@ class GameObjectDisplay_Interface
         virtual const Vector2u &getMapSize() const= 0;
         virtual void subscribePainter(Painter *painter) = 0;
         virtual void unsubscribePainter(Painter *painter) = 0;
+        virtual void subscribePainter(vector<Painter *> painterList) = 0;
+        virtual void unsubscribePainter(vector<Painter *> painterList) = 0;
 };
 #endif // GAMEOBJECTDISPLAY_INTERFACE_H

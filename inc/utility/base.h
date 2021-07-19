@@ -87,6 +87,7 @@ struct DisplayStats
 };
 
 class GameObjectEngine_Interface;
+class Submodule;
 class GameObject;
 class Collider;
 class Controller;
@@ -100,6 +101,7 @@ namespace Property
     class Property;
 };
 class Sensor;
+class RectSensor;
 
 class Texture;
 class AnimatedTexture;
@@ -118,8 +120,8 @@ class Timer;
 class UserEventHandler;
 
 
-class ObjSignal;
-class ObjSubscriberList;
+class SubmoduleSignal;
+class SubmoduleSubscriberList;
 
 class GroupSignal;
 class GroupSubscriberList;
