@@ -173,54 +173,53 @@ void GameObject::engineCalled_tick(const Vector2i &direction)
 
     this->tick(direction);
     LayerItem::swapPosToLastPos();
-    if(m_hasMoveToMake)
+    if(!m_hasMoveToMake)
+        return;
+    if(direction.x > 0)
     {
-        if(direction.x > 0)
+        m_collider->tick();
+        //m_movementCoordinator.clearMovement();
+        m_movingVector.x = 0;
+        m_movingVector.y = 0;
+        GAME_OBJECT_BLOCK("for(size_t i=0; i<m_controllerList.size(); i++)",profiler::colors::Green300);
+        for(size_t i=0; i<m_controllerList.size(); i++)
         {
-            m_collider->tick();
-            //m_movementCoordinator.clearMovement();
-            m_movingVector.x = 0;
-            m_movingVector.y = 0;
-            GAME_OBJECT_BLOCK("for(size_t i=0; i<m_controllerList.size(); i++)",profiler::colors::Green300);
-            for(size_t i=0; i<m_controllerList.size(); i++)
+            if(m_controllerList[i]->getMovingMode() == Controller::MovingMode::override)
             {
-                if(m_controllerList[i]->getMovingMode() == Controller::MovingMode::override)
-                {
-                    //m_movementCoordinator.clearMovement();
-                    m_movingVector.x = 0;
-                    m_movingVector.y = 0;
-                }
-                //m_movementCoordinator.addMovement(m_controllerList[i]->getMovingVector());
-                m_movingVector += m_controllerList[i]->getMovingVector();
-
-                m_controllerList[i]->tick(); // Clears the movingVector
+                //m_movementCoordinator.clearMovement();
+                m_movingVector.x = 0;
+                m_movingVector.y = 0;
             }
-            //m_movementCoordinator.calculateMovement();
-            //LayerItem::move(Vector2f(m_movementCoordinator.getMovingVector_X(),0));
-            LayerItem::moveX(m_movingVector.x);
+            //m_movementCoordinator.addMovement(m_controllerList[i]->getMovingVector());
+            m_movingVector += m_controllerList[i]->getMovingVector();
 
-            m_collider->setRotation(LayerItem::getRotation());
-            GAME_OBJECT_END_BLOCK;
+            m_controllerList[i]->tick(); // Clears the movingVector
         }
-        else
+        //m_movementCoordinator.calculateMovement();
+        //LayerItem::move(Vector2f(m_movementCoordinator.getMovingVector_X(),0));
+        LayerItem::moveX(m_movingVector.x);
+
+        m_collider->setRotation(LayerItem::getRotation());
+        GAME_OBJECT_END_BLOCK;
+    }
+    else
+    {
+        //LayerItem::move(Vector2f(0,m_movementCoordinator.getMovingVector_Y()));
+        LayerItem::moveY(m_movingVector.y);
+
+        //emit signal
+        /*if(m_objSubscriberList.size() > 0)
+            if(Vector::length(m_movementCoordinator.getMovingVector()) != 0)
+                m_objSubscriberList.moved(this,m_movementCoordinator.getMovingVector());
+
+        m_movementCoordinator.tick();
+        if(m_lastRotation != m_rotation)
         {
-            //LayerItem::move(Vector2f(0,m_movementCoordinator.getMovingVector_Y()));
-            LayerItem::moveY(m_movingVector.y);
-
-            //emit signal
-            /*if(m_objSubscriberList.size() > 0)
-                if(Vector::length(m_movementCoordinator.getMovingVector()) != 0)
-                    m_objSubscriberList.moved(this,m_movementCoordinator.getMovingVector());
-
-            m_movementCoordinator.tick();
-            if(m_lastRotation != m_rotation)
-            {
-                if(m_objSubscriberList.size() > 0)
-                    m_objSubscriberList.rotated(this,m_rotation-m_lastRotation);
-                Submodule::swapRotationToLastRotation();
-            }*/
-            m_hasMoveToMake    = false;
-        }
+            if(m_objSubscriberList.size() > 0)
+                m_objSubscriberList.rotated(this,m_rotation-m_lastRotation);
+            Submodule::swapRotationToLastRotation();
+        }*/
+        m_hasMoveToMake    = false;
     }
     for(auto sensor : m_sensorList)
         sensor->engineCalled_tick(direction);
