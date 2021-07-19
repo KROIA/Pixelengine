@@ -15,14 +15,17 @@ class ObjectTree    :   private ObjSignal
         {
             RectF boundry;
             size_t maxObjects;
-            size_t maxDepth;
-            size_t parentDepth;
+            int maxDepth;
+            int parentDepth;
         };
         static Settings __defaultSettings;
         ObjectTree(const Settings &settings);
-        ObjectTree(const RectF &boundry, size_t maxObjects,size_t maxDepth, size_t parentDepth = 0);
+        ObjectTree(const RectF &boundry, size_t maxObjects,int maxDepth, int parentDepth = 0);
         ObjectTree(const ObjectTree &other);
         virtual ~ObjectTree();
+        const ObjectTree &operator=(const ObjectTree &other);
+
+        virtual void setAsRoot(bool isRoot);
 
         virtual bool insert(GameObject *obj);
         virtual void query(const RectF &region,vector<GameObject*> &buffer);
@@ -39,8 +42,10 @@ class ObjectTree    :   private ObjSignal
 
 
     private:
+        void setRoot(ObjectTree *root);
         void constructor(const Settings &settings);
         void subdivide();
+        void subdivideReverse(GameObject *obj);
 
 
         // Signals from obj's
@@ -53,14 +58,18 @@ class ObjectTree    :   private ObjSignal
         vector<GameObject*> m_objectList;
         bool m_divided;
         bool m_disableDivider;
-        size_t m_depth;
-        size_t m_maxDepth;
+        int m_depth;
+        int m_maxDepth;
 
 
         ObjectTree *TL;
         ObjectTree *TR;
         ObjectTree *BL;
         ObjectTree *BR;
+
+        ObjectTree *ROOT;
+
+        bool m_isRoot;
 
        // VertexPathPainter *m_painter;
 };

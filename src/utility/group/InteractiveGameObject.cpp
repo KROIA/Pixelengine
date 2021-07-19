@@ -24,6 +24,7 @@ void InteractiveGameObject::constructor(const Settings &settings)
     m_objectTreePainter             = new VertexPathPainter();
     m_objectTreePainter->setVisibility(false);
     m_objectTree                    = new ObjectTree(settings.objectTree);
+    m_objectTree->setAsRoot(true);
 
     m_interactsWithObjectsList.push_back(new GameObjectGroup());
 }
@@ -353,11 +354,11 @@ bool InteractiveGameObject::isVisible_chunks() const
 void InteractiveGameObject::moved(GameObject* sender,const Vector2f &move)
 {
     //qDebug() << "sender: "<<sender << " moved: "<<Vector::toString(move).c_str();
-    m_objectTree->insert(sender);
+    //m_objectTree->insert(sender);
 }
 void InteractiveGameObject::rotated(GameObject* sender,const float deltaAngle)
 {
-    m_objectTree->insert(sender);
+   // m_objectTree->insert(sender);
 }
 
 // Signals from GameObjectGroup
