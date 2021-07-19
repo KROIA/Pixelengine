@@ -7,6 +7,7 @@
 #include "userEventHandler.h"
 #include "event.h"
 #include "signalSubscriber.h"
+#include "mathFunctions.h"
 
 using std::vector;
 using sf::Vector2f;
@@ -39,7 +40,7 @@ class Controller    :   public UserEventHandler
         virtual void moveX(float x,MovingMode mode = MovingMode::add);
         virtual void moveY(float y,MovingMode mode = MovingMode::add);
 
-        virtual const Vector2f &getMovingVector() const;
+        virtual Vector2f getMovingVector() const;
 
         virtual void setRotation(const float &deg);
         virtual void rotate(const float &deg);

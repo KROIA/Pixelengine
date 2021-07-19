@@ -40,9 +40,17 @@ void Submodule::engineCalled_postTick()
 {
     SUBMODULE_FUNCTION(profiler::colors::Red300);
 }
-void Submodule::engineCalled_preDraw()
+void Submodule::engineCalled_postNoThreadTick()
 {
     SUBMODULE_FUNCTION(profiler::colors::Red400);
+    if(m_rotation != m_lastRotation)
+        if(m_submoduleSubscriberList.size() > 0)
+            m_submoduleSubscriberList.rotated(this,m_rotation-m_lastRotation);
+}
+
+void Submodule::engineCalled_preDraw()
+{
+    SUBMODULE_FUNCTION(profiler::colors::Red500);
     for(auto p : m_painterList)
     {
         if(p->getEnableRelativePosition())
@@ -134,8 +142,8 @@ void Submodule::rotate(float deg)
         return;
 
     LayerItem::rotate(deg);
-    if(m_submoduleSubscriberList.size() > 0)
-        m_submoduleSubscriberList.rotated(this,deg);
+   // if(m_submoduleSubscriberList.size() > 0)
+   //     m_submoduleSubscriberList.rotated(this,deg);
 }
 
 /*float Submodule::getRotation() const
@@ -151,8 +159,8 @@ void Submodule::setRotation(float deg)
 
     LayerItem::setRotation(deg);
 
-    if(m_submoduleSubscriberList.size() > 0)
-        m_submoduleSubscriberList.rotated(this,deltaAngle);
+  //  if(m_submoduleSubscriberList.size() > 0)
+   //     m_submoduleSubscriberList.rotated(this,deltaAngle);
 }
 void Submodule::rotate_90()
 {
@@ -232,7 +240,8 @@ Collider* Submodule::getCollider()
 }
 const Vector2f &Submodule::getMovingVector() const
 {
-    return m_movementCoordinator.getMovingVector();
+    return m_movingVector;
+    //return m_movementCoordinator.getMovingVector();
 }
 void Submodule::subscribe_SubmoduleSignal(SubmoduleSignal *subscriber)
 {
@@ -278,6 +287,7 @@ void Submodule::addPainter(Painter *painter)
         if(listed == painter)
             return;
     m_painterList.push_back(painter);
+    painter->setPos(m_pos);
 }
 void Submodule::removePainter(Painter *painter)
 {
@@ -294,6 +304,7 @@ void Submodule::removePainter(Painter *painter)
 void Submodule::setCollider(Collider *collider)
 {
     m_collider = collider;
+    m_collider->setPos(m_pos);
 }
 
 

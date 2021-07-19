@@ -9,7 +9,8 @@ RectSensor::RectSensor()
     m_sensorPainter->setVisibility(true);
     m_sensorPainter->setVisibility_boundingBox(false);
     m_sensorPainter->setVisibility_hitBox(true);
-    m_sensorPainter->setVisibility_collidedObjects(true);
+    m_sensorPainter->setVisibility_collidedObjects_boundingBox(false);
+    m_sensorPainter->setVisibility_collidedObjects_hitBox(true);
 
     setDetectedColor(Color(0,100,255));
     setSensorColor(Color(0,255,0));
@@ -85,11 +86,15 @@ void RectSensor::detectObjects(const vector<GameObject*> &other)
 void RectSensor::setDetectedColor(const Color &color)
 {
     m_detectedColor = color;
-    m_sensorPainter->setColor_collidedObjects(m_detectedColor);
+    m_sensorPainter->setColor_collidedObjects_boundingBox(m_detectedColor);
 }
 void RectSensor::setSensorColor(const Color &color)
 {
     m_sensorColor = color;
     m_sensorPainter->setColor_hitBox_colliding(m_sensorColor);
     m_sensorPainter->setColor_hitBox_noCollision(m_sensorColor);
+}
+ColliderPainter *RectSensor::getColliderPainter() const
+{
+    return m_sensorPainter;
 }

@@ -53,6 +53,7 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal
         virtual void tick(const Vector2i &direction);
         void engineCalled_postTick();
         virtual void postTick();
+        void engineCalled_postNoThreadTick();
         void engineCalled_preDraw();
         virtual void preDraw();
 
@@ -138,19 +139,22 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal
         // Painter
 //        virtual void setRenderLayer(size_t layer);
 //        virtual size_t getRenderLayer() const;
+        ColliderPainter *getColliderPainter() const;
         virtual void setVisibility(bool isVisible);
         virtual void setVisibility_objectTree(bool isVisible);
-        virtual void setVisibility_collider_hitbox(bool isVisible);
+       /* virtual void setVisibility_collider_hitbox(bool isVisible);
         virtual void setVisibility_collider_boundingBox(bool isVisible);
         virtual void setVisibility_collider_collisionData(bool isVisible);
-        virtual void setVisibility_collider_isCollidingWith(bool isVisible);
+        virtual void setVisibility_collider_isCollidingWith_boundingBox(bool isVisible);
+        virtual void setVisibility_collider_isCollidingWith_hitBox(bool isVisible);*/
 
         virtual bool isVisible() const;
         virtual bool isVisible_objectTree() const;
-        virtual bool isVisible_collider_hitbox() const;
+       /* virtual bool isVisible_collider_hitbox() const;
         virtual bool isVisible_collider_boundingBox() const;
         virtual bool isVisible_collider_collisionData() const;
-        virtual bool isVisible_collider_isCollidingWith() const;
+        virtual bool isVisible_collider_isCollidingWith_boundingBox() const;
+        virtual bool isVisible_collider_isCollidingWith_hitBox() const;*/
 
         // Properties
         virtual void setProperty(const Property::Property &property);

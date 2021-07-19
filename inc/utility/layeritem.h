@@ -45,7 +45,8 @@ class LayerItem
         virtual int getYI() const;
 
         virtual void move(const Vector2f &vec);
-        virtual void move(const Vector2i &vec);
+        virtual void moveX(float delta);
+        virtual void moveY(float delta);
 
 
         virtual void rotate(float deg);

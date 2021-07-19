@@ -25,6 +25,8 @@ class RectSensor    :   public Sensor
         void setDetectedColor(const Color &color);
         void setSensorColor(const Color &color);
 
+        ColliderPainter *getColliderPainter() const;
+
     protected:
         Collider *m_sensorCollider;
         ColliderPainter *m_sensorPainter;

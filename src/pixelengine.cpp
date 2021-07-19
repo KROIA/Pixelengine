@@ -376,7 +376,10 @@ void PixelEngine::tick()
     tickX();
     tickY();
     ENGINE_DEEP_TICK_END_BLOCK;
-
+    ENGINE_DEEP_TICK_BLOCK("postNoThreadTick",profiler::colors::Orange200);
+    for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
+        m_masterGameObjectGroup[i]->getGameObject()->engineCalled_postNoThreadTick();
+    ENGINE_DEEP_TICK_END_BLOCK;
 #ifdef PIXELENGINE_STATISTICS
     m_statistics.intersectionCheckPerTick   = Collider::stats_checkIntersectCounter;
     m_statistics.doesIntersectPerTick       = Collider::stats_doesIntersectCounter;

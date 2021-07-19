@@ -152,9 +152,13 @@ void LayerItem::move(const Vector2f &vec)
 {
     m_pos += vec;
 }
-void LayerItem::move(const Vector2i &vec)
+void LayerItem::moveX(float delta)
 {
-    m_pos += Vector2f(vec);
+    m_pos.x += delta;
+}
+void LayerItem::moveY(float delta)
+{
+    m_pos.y += delta;
 }
 void LayerItem::rotate(float deg)
 {

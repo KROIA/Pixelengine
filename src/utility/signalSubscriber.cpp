@@ -2,49 +2,105 @@
 
 SubmoduleSubscriberList::SubmoduleSubscriberList()
     :   HashTable<SubmoduleSignal *>()
-{}
+{
+    m_emiterCallActive = false;
+}
 
 void SubmoduleSubscriberList::insert(SubmoduleSignal* signal)
 {
-    HashTable<SubmoduleSignal *>::insert({signal,signal});
+    if(m_emiterCallActive)
+        toInsert.insert({signal,signal});
+    else
+        HashTable<SubmoduleSignal *>::insert({signal,signal});
 }
+void SubmoduleSubscriberList::erase(SubmoduleSignal* signal)
+{
+    if(m_emiterCallActive)
+        toRemove.insert({signal,signal});
+    else
+        HashTable<SubmoduleSignal*>::erase(signal);
+}
+void SubmoduleSubscriberList::updateList()
+{
+    for(auto pair : toRemove)
+        HashTable<SubmoduleSignal*>::erase(pair.second);
+    toRemove.clear();
+    for(auto pair : toInsert)
+        HashTable<SubmoduleSignal*>::insert(pair);
+    toInsert.clear();
+}
+
 
 void SubmoduleSubscriberList::moved(Submodule* sender,const Vector2f &move)
 {
+    m_emiterCallActive = true;
     for(auto pair : *this)
     {
         pair.second->moved(sender,move);
     }
+    m_emiterCallActive = false;
+    updateList();
 }
 void SubmoduleSubscriberList::rotated(Submodule* sender,const float deltaAngle)
 {
+    m_emiterCallActive = true;
     for(auto pair : *this)
     {
         pair.second->rotated(sender,deltaAngle);
     }
+    m_emiterCallActive = false;
+    updateList();
 }
 ObjSubscriberList::ObjSubscriberList()
     :   HashTable<ObjSignal *>()
-{}
+{
+    m_emiterCallActive = false;
+}
 
 void ObjSubscriberList::insert(ObjSignal* signal)
 {
-    HashTable<ObjSignal *>::insert({signal,signal});
+
+    if(m_emiterCallActive)
+        toInsert.insert({signal,signal});
+    else
+        HashTable<ObjSignal *>::insert({signal,signal});
+}
+void ObjSubscriberList::erase(ObjSignal* signal)
+{
+    if(m_emiterCallActive)
+        toRemove.insert({signal,signal});
+    else
+        HashTable<ObjSignal*>::erase(signal);
+}
+void ObjSubscriberList::updateList()
+{
+    for(auto pair : toRemove)
+        HashTable<ObjSignal*>::erase(pair.second);
+    toRemove.clear();
+    for(auto pair : toInsert)
+        HashTable<ObjSignal*>::insert(pair);
+    toInsert.clear();
 }
 
 void ObjSubscriberList::moved(GameObject* sender,const Vector2f &move)
 {
+    m_emiterCallActive = true;
     for(auto pair : *this)
     {
         pair.second->moved(sender,move);
     }
+    m_emiterCallActive = false;
+    updateList();
 }
 void ObjSubscriberList::rotated(GameObject* sender,const float deltaAngle)
 {
+    m_emiterCallActive = true;
     for(auto pair : *this)
     {
         pair.second->rotated(sender,deltaAngle);
     }
+    m_emiterCallActive = false;
+    updateList();
 }
 
 

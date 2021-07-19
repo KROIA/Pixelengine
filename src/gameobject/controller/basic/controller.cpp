@@ -95,8 +95,10 @@ void Controller::moveY(float y,MovingMode mode)
     setMovingMode(mode);
     m_controllerSubscriberList.moveAvailable(this);
 }
-const Vector2f &Controller::getMovingVector() const
+Vector2f Controller::getMovingVector() const
 {
+    if(m_rotationDeg != 0)
+        return Vector::getRotated(m_currentDeltaMove,m_rotationDeg);
     return m_currentDeltaMove;
 }
 

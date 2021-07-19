@@ -65,7 +65,8 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         virtual void setVisibility_collider_hitbox(bool isVisible);
         virtual void setVisibility_collider_boundingBox(bool isVisible);
         virtual void setVisibility_collider_collisionData(bool isVisible);
-        virtual void setVisibility_collider_isCollidingWith(bool isVisible);
+        virtual void setVisibility_collider_isCollidingWith_boundingBox(bool isVisible);
+        virtual void setVisibility_collider_isCollidingWith_hitBox(bool isVisible);
 
         virtual bool isVisible() const;
         virtual bool isVisible_objectTree() const;
@@ -73,7 +74,8 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
        // virtual bool isVisible_collider_hitbox() const;
         virtual bool isVisible_collider_boundingBox() const;
         virtual bool isVisible_collider_collisionData() const;
-        virtual bool isVisible_collider_isCollidingWith() const;
+        virtual bool isVisible_collider_isCollidingWith_boundingBox() const;
+        virtual bool isVisible_collider_isCollidingWith_hitBox() const;
 
         virtual long long indexOf(const GameObject* obj);
         static  long long indexOf(const vector<GameObject *> list,const GameObject* obj);
@@ -99,7 +101,8 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         bool          m_visibility_collider_hitbox;
         bool          m_visibility_collider_boundingBox;
         bool          m_visibility_collider_collisionData;
-        bool          m_visibility_collider_collidingWith;
+        bool          m_visibility_collider_collidingWith_boundingBox;
+        bool          m_visibility_collider_collidingWith_hitBox;
         bool          m_visibility_objectTree;
         //bool          m_visibility_chunks;
 

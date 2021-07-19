@@ -24,6 +24,7 @@ class Submodule :   public LayerItem
         void engineCalled_preTick();
         void engineCalled_tick(const Vector2i &direction);
         void engineCalled_postTick();
+        void engineCalled_postNoThreadTick();
         void engineCalled_preDraw();
 
         virtual void setPosInitial(const Vector2f &pos);
@@ -107,6 +108,8 @@ class Submodule :   public LayerItem
 
         bool           m_hasEventsToCheck;
         bool           m_hasMoveToMake;
+
+        Vector2f       m_movingVector;
 
     private:
 };

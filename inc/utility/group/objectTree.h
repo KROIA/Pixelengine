@@ -32,8 +32,8 @@ class ObjectTree    :   private ObjSignal
         virtual void getDrawable(vector<VertexPath*> &drawable,const Color &color = Color(255,255,255));
         //virtual void draw(PixelDisplay &display);
         virtual void clear();
-        virtual void removeInLeaf(GameObject *obj);
-        virtual void removeRecursive(GameObject *obj);
+        virtual bool removeInLeaf(GameObject *obj);
+        virtual bool removeRecursive(GameObject *obj);
 
         /*virtual void subscribeToDisplay(PixelDisplay &display);
         virtual void unsubscribeToDisplay(PixelDisplay &display);
@@ -68,6 +68,8 @@ class ObjectTree    :   private ObjSignal
         ObjectTree *BR;
 
         ObjectTree *ROOT;
+        ObjectTree *PARENT;
+        ObjectTree *GRANDPARENT;
 
         bool m_isRoot;
 

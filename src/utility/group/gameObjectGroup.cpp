@@ -3,8 +3,13 @@
 GameObjectGroup::GameObjectGroup()
     :   ObjSignal()
 {
-    this->m_visibility       = true;
-    this->m_visibility_collider_hitbox = false;
+    this->m_visibility                                      = true;
+    this->m_visibility_collider_hitbox                      = false;
+    this->m_visibility_collider_boundingBox                 = false;
+    this->m_visibility_collider_collisionData               = false;
+    this->m_visibility_collider_collidingWith_boundingBox   = false;
+    this->m_visibility_collider_collidingWith_hitBox        = false;
+    this->m_visibility_objectTree                           = false;
 }
 GameObjectGroup::GameObjectGroup(const GameObjectGroup &other)
     :   ObjSignal()
@@ -361,7 +366,7 @@ void GameObjectGroup::setVisibility_collider_hitbox(bool isVisible)
     m_visibility_collider_hitbox = isVisible;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
-        m_isInList[i]->setVisibility_collider_hitbox(m_visibility_collider_hitbox);
+        m_isInList[i]->getColliderPainter()->setVisibility_hitBox(m_visibility_collider_hitbox);
     }
 }
 void GameObjectGroup::setVisibility_collider_boundingBox(bool isVisible)
@@ -370,7 +375,7 @@ void GameObjectGroup::setVisibility_collider_boundingBox(bool isVisible)
     m_visibility_collider_boundingBox = isVisible;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
-        m_isInList[i]->setVisibility_collider_boundingBox(m_visibility_collider_boundingBox);
+        m_isInList[i]->getColliderPainter()->setVisibility_boundingBox(m_visibility_collider_boundingBox);
     }
 }
 void GameObjectGroup::setVisibility_collider_collisionData(bool isVisible)
@@ -379,16 +384,25 @@ void GameObjectGroup::setVisibility_collider_collisionData(bool isVisible)
     m_visibility_collider_collisionData = isVisible;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
-        m_isInList[i]->setVisibility_collider_collisionData(m_visibility_collider_collisionData);
+        m_isInList[i]->getColliderPainter()->setVisibility_collisionData(m_visibility_collider_collisionData);
     }
 }
-void GameObjectGroup::setVisibility_collider_isCollidingWith(bool isVisible)
+void GameObjectGroup::setVisibility_collider_isCollidingWith_boundingBox(bool isVisible)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple500);
-    m_visibility_collider_collidingWith = isVisible;
+    m_visibility_collider_collidingWith_boundingBox = isVisible;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
-        m_isInList[i]->setVisibility_collider_isCollidingWith(m_visibility_collider_collidingWith);
+        m_isInList[i]->getColliderPainter()->setVisibility_collidedObjects_boundingBox(m_visibility_collider_collidingWith_boundingBox);
+    }
+}
+void GameObjectGroup::setVisibility_collider_isCollidingWith_hitBox(bool isVisible)
+{
+    GAME_OBJECT_FUNCTION(profiler::colors::Purple500);
+    m_visibility_collider_collidingWith_hitBox = isVisible;
+    for(size_t i=0; i<m_isInList.size(); i++)
+    {
+        m_isInList[i]->getColliderPainter()->setVisibility_collidedObjects_hitBox(m_visibility_collider_collidingWith_hitBox);
     }
 }
 bool GameObjectGroup::isVisible() const
@@ -415,9 +429,13 @@ bool GameObjectGroup::isVisible_collider_collisionData() const
 {
     return m_visibility_collider_collisionData;
 }
-bool GameObjectGroup::isVisible_collider_isCollidingWith() const
+bool GameObjectGroup::isVisible_collider_isCollidingWith_boundingBox() const
 {
-    return m_visibility_collider_collidingWith;
+    return m_visibility_collider_collidingWith_boundingBox;
+}
+bool GameObjectGroup::isVisible_collider_isCollidingWith_hitBox() const
+{
+    return m_visibility_collider_collidingWith_hitBox;
 }
 long long GameObjectGroup::indexOf(const GameObject* obj)
 {
