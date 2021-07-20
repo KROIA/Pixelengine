@@ -25,7 +25,7 @@ class Controller    :   public UserEventHandler
         virtual  ~Controller();
         virtual const Controller &operator=(const Controller &other);
 
-        virtual void checkEvent();
+        virtual void checkEvent(float deltaTime);
         virtual void tick();
 
         virtual void setMovingMode(MovingMode mode);
@@ -67,9 +67,11 @@ class Controller    :   public UserEventHandler
 
         Vector2f m_currentDeltaMove;
         bool     m_overwritable;
-        int m_rotationDeg;
+        float m_rotationDeg;
         MovingMode m_movingMode;
         //bool m_nothingToDo;
+
+        float m_deltaTime;
 
         ControllerSubscriberList m_controllerSubscriberList;
 

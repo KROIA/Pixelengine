@@ -16,16 +16,25 @@ class RectSensor    :   public Sensor
        /* void engineCalled_preTick();
         void engineCalled_tick(const Vector2i &direction);
         void engineCalled_postTick();*/
-        void engineCalled_preDraw();
+
 
         void setRect(const RectF rect);
 
+        void engineCalled_preTick();
         void detectObjects(const vector<GameObject*> &other);
+        void engineCalled_postTick();
+        void engineCalled_preDraw();
 
         void setDetectedColor(const Color &color);
         void setSensorColor(const Color &color);
 
-        ColliderPainter *getColliderPainter() const;
+        void setVisibility(bool isVisible);
+        void setVisibility_detectedObjects(bool isVisible);
+
+        bool isVisible() const;
+        bool isVisible_detectedObjects() const;
+
+        //ColliderPainter *getColliderPainter() const;
 
     protected:
         Collider *m_sensorCollider;

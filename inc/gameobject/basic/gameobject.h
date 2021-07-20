@@ -14,14 +14,13 @@
 #include "colliderPainter.h"
 #include "signalSubscriber.h"
 #include "sensor.h"
-
-#include "gameObjectDisplay_interface.h"
-
+#include "displayInterface.h"
 
 
 
 
-class GameObject : public Submodule, private ControllerSignal, UserEventSignal
+
+class GameObject : public Submodule, private ControllerSignal, UserEventSignal, ColliderSignal
 {
     public:
         GameObject();
@@ -59,11 +58,9 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal
 
         virtual unsigned int checkCollision(const vector<GameObject*> &other);
         static vector<GameObject*> getCollidedObjects(GameObject *owner, Collider *collider,const vector<GameObject*> &other);
-        virtual void subscribeToDisplay(PixelDisplay &display);
-        virtual void unsubscribeToDisplay(PixelDisplay &display);
-        virtual void setEventHandler(GameObjectEventHandler *handler);
-        virtual void setDisplayInterface(GameObjectDisplay_Interface *display);
-        virtual const GameObjectEventHandler *getEventHandler() const;
+       // virtual void subscribeToDisplay(PixelDisplay &display);
+       // virtual void unsubscribeToDisplay(PixelDisplay &display);
+        virtual void setDisplayInterface(DisplayInterface *display);
 
         // Signals
         virtual void subscribe_ObjSignal(ObjSignal *subscriber);
@@ -75,6 +72,10 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal
     //    virtual void addController(Controller *controller);
     //    virtual void clearController();
         virtual void setCollider(Collider *collider);
+        virtual Collider *getCollider() const;
+        virtual void setCollisionSeachRadius(float radius);
+        virtual float getCollisionSeachRadius() const;
+        virtual const RectF &getCollisionSeachRect() const;
         virtual void addController(Controller *controller);
         virtual void removeController(Controller *controller);
         virtual const vector<Controller* > &getControllerList() const;
@@ -87,7 +88,7 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal
     //    virtual const Painter &getPainter() const;
 
 
-      // virtual void setPosInital(const Vector2f &pos);
+       virtual void setPosInitial(const Vector2f &pos);
       //// virtual void setPos(int x, int y);
 //    //   virtual void setPos(const Vector2i &pos);
       // virtual void setPos(float x, float y);
@@ -142,6 +143,7 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal
         ColliderPainter *getColliderPainter() const;
         virtual void setVisibility(bool isVisible);
         virtual void setVisibility_objectTree(bool isVisible);
+        virtual void setVisibility_colliderSearchRect(bool isVisible);
        /* virtual void setVisibility_collider_hitbox(bool isVisible);
         virtual void setVisibility_collider_boundingBox(bool isVisible);
         virtual void setVisibility_collider_collisionData(bool isVisible);
@@ -150,6 +152,7 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal
 
         virtual bool isVisible() const;
         virtual bool isVisible_objectTree() const;
+        virtual bool isVisible_colliderSearchRect() const;
        /* virtual bool isVisible_collider_hitbox() const;
         virtual bool isVisible_collider_boundingBox() const;
         virtual bool isVisible_collider_collisionData() const;
@@ -187,6 +190,8 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal
         virtual void display_subscribePainter(Painter *painter) ;
         virtual void display_unsubscribePainter(Painter *painter) ;
 
+        void checkIfUtilityPainterIsUsed();
+
         void constructor();
         void constructor(Controller *controller,
                          Collider   *collider,
@@ -200,26 +205,38 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal
         // Signals from Controller
         virtual void moveAvailable(Controller *sender);
 
+        // Signals from Collider
+        virtual void boundingBoxChanged(Collider* sender);
+
+
       //  LayerItem m_layerItem;
 
         Property::Property m_property;
-        GameObjectEventHandler *m_objEventHandler;
-        GameObjectDisplay_Interface *m_display_interface;
+        EngineInterface  *m_engine_interface;
+        DisplayInterface *m_display_interface;
         ObjSubscriberList m_objSubscriberList;
 
       //  vector<Controller*> m_controllerList;
       //  bool           m_hasEventsToCheck;
       //  bool           m_hasMoveToMake;
         DynamicCoordinator m_movementCoordinator;
-      //  Collider      *m_collider;
-      //  Collider      *m_originalCollider;
+        Collider      *m_collider;
+        Collider      *m_originalCollider;
+        RectF         m_colliderSearchBox;
+        Vector2f      m_colliderSearchBoxRelativePos;
+        float         m_colliderSearchBoxRadius;
+
 
 
         // Painter
       //  Painter             *m_painter;
         Controller          *m_controller;
         ColliderPainter     *m_colliderPainter;
+        VertexPathPainter   *m_utilityPainter;
+        bool                 m_visibility_colliderSearchBox;
+
      //   PixelPainter        *m_originalPainter;
+
         bool                m_visibility;
 
        // HashTable<Painter* >  m_painterList;

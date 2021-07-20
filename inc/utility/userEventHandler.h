@@ -6,7 +6,28 @@
 #include "event.h"
 #include "signalSubscriber.h"
 
-using std::vector;
+// Signals for User Events
+class UserEventSignal
+{
+    public:
+        UserEventSignal(){}
+
+        virtual void eventAdded(UserEventHandler *sender,  Event *e) = 0;
+        virtual void eventRemoved(UserEventHandler *sender,  Event *e) = 0;
+    protected:
+
+};
+// Vector of Signals
+class UserEventSubscriberList    : public SubscriberList<UserEventSignal>
+{
+    public:
+        UserEventSubscriberList();
+
+        virtual void eventAdded(UserEventHandler *sender,  Event *e);
+        virtual void eventRemoved(UserEventHandler *sender,  Event *e);
+    protected:
+
+};
 
 class UserEventHandler
 {

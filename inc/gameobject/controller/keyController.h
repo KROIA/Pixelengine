@@ -5,6 +5,7 @@
 #include "controller.h"
 #include "mathFunctions.h"
 
+
 class KeyController     :   public Controller
 {
     public:
@@ -15,7 +16,7 @@ class KeyController     :   public Controller
         virtual const KeyController &operator=(const KeyController &other);
 
         // From Controller
-        virtual void checkEvent();
+        virtual void checkEvent(float deltaTime);
         virtual void tick();
         virtual void rotate(const float &deg);
         virtual void setRotation(const float &deg);
@@ -54,6 +55,7 @@ class KeyController     :   public Controller
         Vector2f m_currentMovingVec;
 
         float m_stepSize;
+
         Vector2f m_stepUp;
         Vector2f m_stepLeft;
         Vector2f m_stepDown;

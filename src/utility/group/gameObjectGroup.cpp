@@ -1,5 +1,65 @@
 #include "gameObjectGroup.h"
 
+GroupSubscriberList::GroupSubscriberList()
+    :   SubscriberList<GroupSignal>()
+{
+
+}
+void GroupSubscriberList::adding(GameObjectGroup *sender,GameObject* obj)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->adding(sender,obj);
+    }
+    emitEnd();
+}
+void GroupSubscriberList::adding(GameObjectGroup *sender,GameObjectGroup* group)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->adding(sender,group);
+    }
+    emitEnd();
+}
+void GroupSubscriberList::removing(GameObjectGroup *sender,GameObject* obj)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->removing(sender,obj);
+    }
+    emitEnd();
+}
+void GroupSubscriberList::removing(GameObjectGroup *sender,GameObjectGroup* group)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->removing(sender,group);
+    }
+    emitEnd();
+}
+void GroupSubscriberList::willBeCleared(GameObjectGroup* sender)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->willBeCleared(sender);
+    }
+    emitEnd();
+}
+void GroupSubscriberList::cleared(GameObjectGroup* sender)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->cleared(sender);
+    }
+    emitEnd();
+}
+
 GameObjectGroup::GameObjectGroup()
     :   ObjSignal()
 {

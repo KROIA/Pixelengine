@@ -73,6 +73,8 @@ class ObjectTree    :   private ObjSignal
 
         bool m_isRoot;
 
+        Color m_color;
+
        // VertexPathPainter *m_painter;
 };
 #endif // OBJECTTREE_H

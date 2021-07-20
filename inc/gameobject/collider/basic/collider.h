@@ -12,6 +12,32 @@
 using std::vector;
 using sf::Vector2f;
 
+// Signals for GameObjects
+class ColliderSignal
+{
+    public:
+        ColliderSignal(){}
+
+        virtual void boundingBoxChanged(Collider* sender) = 0;
+    protected:
+
+};
+// Vector of Signals
+class ColliderSubscriberList    : public HashTable<ColliderSignal*>
+{
+    public:
+        ColliderSubscriberList();
+        virtual void insert(ColliderSignal* signal);
+        virtual void erase(ColliderSignal* signal);
+
+        virtual void boundingBoxChanged(Collider* sender);
+    protected:
+        void updateList();
+        bool m_emiterCallActive;
+        HashTable<ColliderSignal*> toRemove;
+        HashTable<ColliderSignal*> toInsert;
+};
+
 class Collider  :   public LayerItem
 {
     public:
@@ -96,6 +122,11 @@ class Collider  :   public LayerItem
 
         void resetStateChanged();
         bool stateChanged() const;
+
+        // Signals
+        virtual void subscribe_ColliderSignal(ColliderSignal *subscriber);
+        virtual void unsubscribe_ColliderSignal(ColliderSignal *subscriber);
+        virtual void unsubscribeAll_ColliderSignal();
     protected:
 
         virtual void setBoundingBox();
@@ -124,6 +155,8 @@ class Collider  :   public LayerItem
         vector<VertexPath*> m_collisionData;
 
         bool m_stateChanged;
+
+        ColliderSubscriberList m_colliderSubscriber;
     private:
 
         virtual void internalRotate(const Vector2f &rotPoint,const float &deg);

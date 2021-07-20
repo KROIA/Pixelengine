@@ -1,5 +1,47 @@
 #include "collider.h"
 
+ColliderSubscriberList::ColliderSubscriberList()
+    :   HashTable<ColliderSignal *>()
+{
+    m_emiterCallActive = false;
+}
+
+void ColliderSubscriberList::insert(ColliderSignal* signal)
+{
+    if(m_emiterCallActive)
+        toInsert.insert({signal,signal});
+    else
+        HashTable<ColliderSignal *>::insert({signal,signal});
+}
+void ColliderSubscriberList::erase(ColliderSignal* signal)
+{
+    if(m_emiterCallActive)
+        toRemove.insert({signal,signal});
+    else
+        HashTable<ColliderSignal*>::erase(signal);
+}
+void ColliderSubscriberList::updateList()
+{
+    for(auto pair : toRemove)
+        HashTable<ColliderSignal*>::erase(pair.second);
+    toRemove.clear();
+    for(auto pair : toInsert)
+        HashTable<ColliderSignal*>::insert(pair);
+    toInsert.clear();
+}
+
+
+void ColliderSubscriberList::boundingBoxChanged(Collider* sender)
+{
+    m_emiterCallActive = true;
+    for(auto pair : *this)
+    {
+        pair.second->boundingBoxChanged(sender);
+    }
+    m_emiterCallActive = false;
+    updateList();
+}
+
 unsigned long long Collider::stats_checkIntersectCounter = 0;
 unsigned long long Collider::stats_doesIntersectCounter  = 0;
 unsigned long long Collider::stats_checkCollisionCounter = 0;
@@ -303,6 +345,7 @@ void Collider::setBoundingBox(const RectF &box)
     m_boundingBox = box;
     m_boundingBoxUpdated = true;
     m_stateChanged = true;
+    m_colliderSubscriber.boundingBoxChanged(this);
 }
 
 void Collider::setBoundingBox(const int &x,const int &y,
@@ -313,6 +356,7 @@ void Collider::setBoundingBox(const int &x,const int &y,
     m_boundingBox.setSize(width,height);
     m_boundingBoxUpdated = true;
     m_stateChanged = true;
+    m_colliderSubscriber.boundingBoxChanged(this);
 }
 
 
@@ -458,6 +502,21 @@ bool Collider::stateChanged() const
 {
     return m_stateChanged;
 }
+void Collider::subscribe_ColliderSignal(ColliderSignal *subscriber)
+{
+    if(subscriber == nullptr)
+        return;
+    m_colliderSubscriber.insert(subscriber);
+}
+void Collider::unsubscribe_ColliderSignal(ColliderSignal *subscriber)
+{
+    m_colliderSubscriber.erase(subscriber);
+}
+void Collider::unsubscribeAll_ColliderSignal()
+{
+    m_colliderSubscriber.clear();
+}
+
 void Collider::stats_reset()
 {
     stats_checkIntersectCounter = 0;

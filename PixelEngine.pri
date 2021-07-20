@@ -55,6 +55,7 @@ INCLUDEPATH += $$incPath \
 
 SOURCES += \
         $$PWD/src/gameobject/basic/submodule.cpp \
+        $$PWD/src/gameobject/sensor/laserSensor.cpp \
         $$PWD/src/gameobject/sensor/rectSensor.cpp \
         $$PixelEngine_srcPath/gameobject/painter/colliderPainter.cpp \
         $$PixelEngine_srcPath/gameobject/painter/textPainter.cpp \
@@ -89,8 +90,9 @@ SOURCES += \
         $$PixelEngine_srcPath/utility/layeritem.cpp
 
 HEADERS += \
-        $$PWD/inc/display/gameObjectDisplay_interface.h \
+        $$PWD/inc/display/displayInterface.h \
         $$PWD/inc/gameobject/basic/submodule.h \
+        $$PWD/inc/gameobject/sensor/laserSensor.h \
         $$PWD/inc/gameobject/sensor/rectSensor.h \
         $$PixelEngine_incPath/gameobject/painter/colliderPainter.h \
         $$PixelEngine_incPath/gameobject/painter/textPainter.h \
@@ -111,7 +113,7 @@ HEADERS += \
         $$PixelEngine_incPath/gameobject/property/food.h \
         $$PixelEngine_incPath/gameobject/property/mood.h \
         $$PixelEngine_incPath/gameobject/property/objectType.h \
-        $$PixelEngine_incPath/utility/gameObjectEventHandler.h \
+        $$PixelEngine_incPath/utility/engineInterface.h \
         $$PixelEngine_incPath/pixelengine.h \
         $$PixelEngine_incPath/display/pixelDisplay.h \
         $$PixelEngine_incPath/display/pixel.h \

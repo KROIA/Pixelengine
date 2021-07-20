@@ -1,5 +1,37 @@
 #include "spritePainter.h"
 
+PainterSubscriberList::PainterSubscriberList()
+    :   SubscriberList<PainterSignal>()
+{}
+void PainterSubscriberList::renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->renderLayerChanged(sender,lastLayer,newLayer);
+    }
+    emitEnd();
+}
+void PainterSubscriberList::isInvisible(Painter *sender)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->isInvisible(sender);
+    }
+    emitEnd();
+}
+void PainterSubscriberList::isVisible(Painter *sender)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->isVisible(sender);
+    }
+    emitEnd();
+}
+
+
 Painter::Painter()
     :   LayerItem()
 {

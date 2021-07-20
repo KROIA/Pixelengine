@@ -58,6 +58,8 @@ void ObjectTree::constructor(const Settings &settings)
 
     PARENT              = nullptr;
     GRANDPARENT         = nullptr;
+
+    m_color = Color((rand()%155)+100,(rand()%155)+100,(rand()%155)+100);
 }
 ObjectTree::~ObjectTree()
 {
@@ -106,7 +108,11 @@ void ObjectTree::setAsRoot(bool isRoot)
 {
     m_isRoot = isRoot;
     if(m_isRoot)
+    {
         ROOT = this;
+        PARENT = this;
+        GRANDPARENT = this;
+    }
     else
         ROOT = nullptr;
 }
@@ -139,13 +145,13 @@ bool ObjectTree::insert(GameObject *obj)
     }
     else
     {
-        bool ret = true;
+        bool ret = false;
         if(!m_divided)
             subdivide();
-        ret &= TL->insert(obj);
-        ret &= TR->insert(obj);
-        ret &= BL->insert(obj);
-        ret &= BR->insert(obj);
+        ret |= TL->insert(obj);
+        ret |= TR->insert(obj);
+        ret |= BL->insert(obj);
+        ret |= BR->insert(obj);
         //if(m_isRoot && ret)
         //    obj->subscribe_ObjSignal(this);
         return ret;
@@ -185,6 +191,15 @@ void ObjectTree::query(const RectF &region,vector<GameObject*> &buffer)
 void ObjectTree::getDrawable(vector<VertexPath*> &drawable,const Color &color)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green500);
+
+/*
+        drawable.reserve(drawable.size()+m_objectList.size());
+        for(size_t i=0; i<m_objectList.size();i++)
+        {
+            drawable.push_back(m_objectList[i]->getCollider()->getBoundingBox().getDrawable(m_color));
+        }
+
+*/
     drawable.push_back(m_boundry.getDrawable(color));
     if(m_divided)
     {

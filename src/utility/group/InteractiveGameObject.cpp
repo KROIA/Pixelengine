@@ -109,11 +109,13 @@ void InteractiveGameObject::setGameObject(GameObject *obj)
     {
         m_gameObject->unsubscribe_ObjSignal(this);
         m_gameObject->setThisInteractiveGameObject(nullptr);
+        m_gameObject->removePainter(m_objectTreePainter);
        // m_gameObjectChunkMap->remove(m_gameObject);
     }
     m_gameObject = obj;
     //m_gameObject->subscribe(this);
     m_gameObject->setThisInteractiveGameObject(this);
+    m_gameObject->addPainter(m_objectTreePainter);
   //  m_gameObjectChunkMap->add(m_gameObject);
     //m_interactiveObjectsChunkMap->add(m_gameObject);
 }
@@ -289,7 +291,7 @@ const vector<GameObject*> InteractiveGameObject::getInteractiveObjects()
     }*/
     vector<GameObject*> possibleInteractionList;
     possibleInteractionList.reserve(m_interactorAmount);
-    m_objectTree->query(m_gameObject->getCollider()->getBoundingBox(),possibleInteractionList);
+    m_objectTree->query(m_gameObject->getCollisionSeachRect(),possibleInteractionList);
 
     return possibleInteractionList;
     //return m_interactiveObjectsChunkMap->getGameObjectGroup(m_gameObject->getChunkIDList());
@@ -301,7 +303,7 @@ const vector<GameObject*> InteractiveGameObject::getInteractiveObjects()
        return;
     m_objectTree->draw(display);
 }*/
-void InteractiveGameObject::subscribeToDisplay(PixelDisplay &display)
+/*void InteractiveGameObject::subscribeToDisplay(PixelDisplay &display)
 {
     display.subscribePainter(m_objectTreePainter);
     m_gameObject->subscribeToDisplay(display);
@@ -310,7 +312,7 @@ void InteractiveGameObject::unsubscribeToDisplay(PixelDisplay &display)
 {
     display.unsubscribePainter(m_objectTreePainter);
     m_gameObject->unsubscribeToDisplay(display);
-}
+}*/
 void InteractiveGameObject::setVisibility_objectTree(bool isVisible)
 {
     //m_drawingIsDisabled = !isVisible;

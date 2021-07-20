@@ -3,9 +3,32 @@
 
 #include "base.h"
 #include "layeritem.h"
-//#include "pixelDisplay.h"
 #include "signalSubscriber.h"
 #include "texture.h"
+
+// Signals from Painter
+class PainterSignal
+{
+    public:
+        PainterSignal(){}
+
+        virtual void renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer) = 0;
+        virtual void isInvisible(Painter *sender) = 0;
+        virtual void isVisible(Painter *sender) = 0;
+};
+
+// Vector of Signals
+class PainterSubscriberList    : public SubscriberList<PainterSignal>
+{
+    public:
+        PainterSubscriberList();
+
+        virtual void renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer);
+        virtual void isInvisible(Painter *sender);
+        virtual void isVisible(Painter *sender);
+    protected:
+
+};
 
 class Painter   :   public  LayerItem
 {

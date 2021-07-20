@@ -6,6 +6,7 @@
 #include "collider.h"
 #include "controller.h"
 #include "painter.h"
+#include "engineInterface.h"
 
 #include "signalSubscriber.h"
 
@@ -14,9 +15,13 @@ class Submodule :   public LayerItem
 {
     public:
         Submodule();
+        Submodule(const Submodule &other);
         ~Submodule();
+        const Submodule &operator=(const Submodule &other);
 
         void engineCalled_setup();
+        void setEngineInterface(EngineInterface *engine);
+        EngineInterface *getEngineInterface() const;
 
 
         bool hasEventsToCheck() const;
@@ -70,7 +75,7 @@ class Submodule :   public LayerItem
         virtual const vector<Event* > &getEventList() const;
         virtual const vector<Painter* > &getPainterList() const;
 
-        virtual Collider* getCollider();
+        //virtual Collider* getCollider();
         virtual const Vector2f &getMovingVector() const;
 
         virtual void subscribe_SubmoduleSignal(SubmoduleSignal *subscriber);
@@ -81,8 +86,10 @@ class Submodule :   public LayerItem
         virtual void removeEvent(Event *e);
         virtual void addPainter(Painter *painter);
         virtual void removePainter(Painter *painter);
-        virtual void setCollider(Collider *collider);
-        virtual Collider *getCollider() const;
+        //virtual void setCollider(Collider *collider);
+        //virtual Collider *getCollider() const;
+
+        virtual float getEngine_deltaTime() const;
 
     protected:
 
@@ -100,13 +107,15 @@ class Submodule :   public LayerItem
 
         SubmoduleSubscriberList m_submoduleSubscriberList;
 
+        EngineInterface  *m_engine_interface;
+
         //bool      m_visibility;
 
         vector<Event* >     m_eventList;
         vector<Painter* >   m_painterList;
 
-        Collider*           m_collider;
-        Collider*           m_originalCollider;
+        //Collider*           m_collider;
+        //Collider*           m_originalCollider;
 
         DynamicCoordinator  m_movementCoordinator;
 
@@ -114,7 +123,7 @@ class Submodule :   public LayerItem
         bool           m_hasMoveToMake;
 
         Vector2f       m_movingVector;
-
+        float          m_engine_deltaTime;
     private:
 };
 #endif // SUBMODULE_H

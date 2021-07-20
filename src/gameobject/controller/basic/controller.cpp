@@ -1,5 +1,19 @@
 #include "controller.h"
 
+ControllerSubscriberList::ControllerSubscriberList()
+    :   SubscriberList<ControllerSignal>()
+{}
+
+void ControllerSubscriberList::moveAvailable(Controller *sender)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->moveAvailable(sender);
+    }
+    emitEnd();
+}
+
 Controller::Controller()
     :   UserEventHandler()//, LayerItem()
 {
@@ -27,11 +41,13 @@ const Controller &Controller::operator=(const Controller &other)
     this->m_rotationDeg        = other.m_rotationDeg;
     return *this;
 }
-void Controller::checkEvent()
+void Controller::checkEvent(float deltaTime)
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink);
     if(m_overwritable)
         reset();
+    m_deltaTime = deltaTime;
+   // qDebug() <<m_deltaTime;
     UserEventHandler::checkEvent();
 }
 void Controller::tick()
@@ -97,15 +113,16 @@ void Controller::moveY(float y,MovingMode mode)
 }
 Vector2f Controller::getMovingVector() const
 {
+
     if(m_rotationDeg != 0)
-        return Vector::getRotated(m_currentDeltaMove,m_rotationDeg);
-    return m_currentDeltaMove;
+        return Vector::getRotated(m_currentDeltaMove,m_rotationDeg) * m_deltaTime;
+    return m_currentDeltaMove * m_deltaTime;
 }
 
 void Controller::setRotation(const float &deg)
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink300);
-    m_rotationDeg = int(deg) % 360;
+    m_rotationDeg = float(int(1000*deg) % 360000)/1000.f;
     m_controllerSubscriberList.moveAvailable(this);
 }
 void Controller::rotate(const float &deg)
@@ -122,21 +139,21 @@ void Controller::rotate_90()
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink300);
     m_rotationDeg += 90;
-    m_rotationDeg = m_rotationDeg % 360;
+    m_rotationDeg = float(int(1000*m_rotationDeg) % 360000)/1000.f;
     m_controllerSubscriberList.moveAvailable(this);
 }
 void Controller::rotate_180()
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink300);
     m_rotationDeg += 180;
-    m_rotationDeg = m_rotationDeg % 360;
+    m_rotationDeg = float(int(1000*m_rotationDeg) % 360000)/1000.f;
     m_controllerSubscriberList.moveAvailable(this);
 }
 void Controller::rotate_270()
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink300);
     m_rotationDeg += 270;
-    m_rotationDeg = m_rotationDeg % 360;
+    m_rotationDeg = float(int(1000*m_rotationDeg) % 360000)/1000.f;
     m_controllerSubscriberList.moveAvailable(this);
 }
 // Eventhandler

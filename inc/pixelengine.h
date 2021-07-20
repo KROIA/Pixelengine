@@ -11,7 +11,7 @@
 #include "InteractiveGameObject.h"
 #include "InteractiveGameObjectGroup.h"
 #include "groupManagerInterface.h"
-#include "gameObjectEventHandler.h"
+#include "engineInterface.h"
 
 #include "collider.h"
 #include "controller.h"
@@ -50,7 +50,7 @@ typedef  void (*p_eventFunc)(float,unsigned long long,const vector<sf::Event>&);
 typedef  void (*p_displayFunc)(float,unsigned long long,PixelDisplay&);
 
 
-class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
+class PixelEngine   :   public EngineInterface, private GroupSignal
 {
 
 
@@ -172,7 +172,7 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         virtual void setLayerVisibility(size_t layer, bool visibility);
         virtual bool getLayerVisibility(size_t layer);
 
-        // GameObject Events from GameObjectEventHandler
+        // GameObject Events from EngineInterface
         // These functions will be called from the GameObject's
         virtual void kill(GameObject *obj);
         virtual void removeFromEngine(GameObject *obj);
@@ -181,6 +181,7 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         virtual void removePainterFromDisplay(Painter *painter);
         virtual void addEvent(Event *event);
         virtual void removeEvent(Event *event);
+        virtual float getDeltaTime() const;
 
         // General functions
         static float random(float min, float max);
@@ -204,7 +205,9 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         void constructor(const Settings &settings);
 
         virtual void addGameObjectIntern(const vector<GameObject *> &list);
-        virtual void removeGameObjectsIntern();
+        virtual void setupObject(InteractiveGameObject *interObj);
+        virtual void runtime_addGameObjectIntern();
+        virtual void runtime_removeGameObjectsIntern();
 
 
         static void removeObjectFromList(GameObjectGroup &group,GameObject* obj);
@@ -247,7 +250,8 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         InteractiveGameObjectGroup  m_masterGameObjectGroup;
         HashTable<Event*>           m_eventContainer;
 
-        vector<GameObject* >        m_removeLaterObjectGroup;
+        HashTable<GameObject* >     m_addLaterObjectGroup;
+        HashTable<GameObject* >     m_removeLaterObjectGroup;
 
         vector<GameObjectGroup>     m_renderLayer;
         InteractiveGameObjectGroup  m_trashList;
@@ -259,6 +263,8 @@ class PixelEngine   :   public GameObjectEventHandler, private GroupSignal
         p_tickFunc m_p_func_userTickLoop;
 
         unsigned long long m_tick;
+        Timer m_mesureTickIntervalTimer;
+        float m_realTickInterval;
         bool m_setupDone;
 
         // Statistics

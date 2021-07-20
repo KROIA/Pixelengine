@@ -38,7 +38,13 @@ namespace Vector{
                               const Vector2<T> &directionVector_2);
     template <typename T>
     inline Vector2<T> getIntersection(const Vector2<T> &supportVector_1,const Vector2<T> &directionVector_1,
-                                 const Vector2<T> &supportVector_2,const Vector2<T> &directionVector_2);
+                                      const Vector2<T> &supportVector_2,const Vector2<T> &directionVector_2);
+
+    template <typename T>
+    inline Vector2<T> getCollisionPoint(const Vector2<T> &supportVector_1,const Vector2<T> &directionVector_1,
+                                        const Vector2<T> &supportVector_2,const Vector2<T> &directionVector_2,
+                                        bool &doesColide, Vector2<T> &vectorFactor);
+
     template <typename T>
     inline T getDotProduct(const Vector2<T> &vec1,const Vector2<T> &vec2);
     template <typename T>
@@ -170,6 +176,26 @@ namespace Vector{
         return Vector2<T>(factorA,factorB);
 
     }
+    template <typename T>
+    inline Vector2<T> getCollisionPoint(const Vector2<T> &supportVector_1,const Vector2<T> &directionVector_1,
+                                        const Vector2<T> &supportVector_2,const Vector2<T> &directionVector_2,
+                                        bool &doesColide, Vector2<T> &vectorFactor)
+    {
+        doesColide = false;
+        if(Vector::doesIntersect(directionVector_1,directionVector_2))
+        {
+            vectorFactor = Vector::getIntersection(supportVector_1,directionVector_1,
+                                                   supportVector_2,directionVector_2);
+            if(vectorFactor.x >= 0 && vectorFactor.x <= 1.f &&
+               vectorFactor.y >= 0 && vectorFactor.y <= 1.f)
+            {
+                doesColide = true;
+                return supportVector_1 + directionVector_1 * vectorFactor.x;
+            }
+        }
+        return Vector2<T>(0,0);
+    }
+
     template <typename T>
     inline T getDotProduct(const Vector2<T> &vec1,const Vector2<T> &vec2)
     {

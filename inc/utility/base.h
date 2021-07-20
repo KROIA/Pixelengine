@@ -86,7 +86,7 @@ struct DisplayStats
     vector<unsigned long long> avtivePaintersInLayer;
 };
 
-class GameObjectEngine_Interface;
+//class GameObjectEngine_Interface;
 class Submodule;
 class GameObject;
 class Collider;
@@ -115,7 +115,7 @@ class Event;
 class LayerItem;
 template<class T>
 class GeneralRect;
-class GameObjectEventHandler;
+class EngineInterface;
 class Timer;
 class UserEventHandler;
 

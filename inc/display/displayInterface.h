@@ -1,15 +1,15 @@
-#ifndef GAMEOBJECTDISPLAY_INTERFACE_H
-#define GAMEOBJECTDISPLAY_INTERFACE_H
+#ifndef DISPLAYINTERFACE_H
+#define DISPLAYINTERFACE_H
 
 #include "base.h"
 #include "rect.h"
 #include "painter.h"
 #include "pixel.h"
 
-class GameObjectDisplay_Interface
+class DisplayInterface
 {
     public:
-        GameObjectDisplay_Interface(){}
+        DisplayInterface(){}
 
         virtual void setPixel(const Vector2u &pos, const Color &color)= 0;
         virtual void setPixel(const Pixel &pixel)= 0;
@@ -25,4 +25,4 @@ class GameObjectDisplay_Interface
         virtual void subscribePainter(vector<Painter *> painterList) = 0;
         virtual void unsubscribePainter(vector<Painter *> painterList) = 0;
 };
-#endif // GAMEOBJECTDISPLAY_INTERFACE_H
+#endif // DISPLAYINTERFACE_H

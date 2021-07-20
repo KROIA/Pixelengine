@@ -16,6 +16,8 @@ KeyController::KeyController()
     m_key_forMove_DOWN_event    = nullptr;
     m_key_forMove_RIGHT_event   = nullptr;
 
+    m_stepSize      = 10;
+
     m_stepUp        = Vector2f(0,-m_stepSize);
     m_stepDown      = Vector2f(0,m_stepSize);
     m_stepLeft      = Vector2f(-m_stepSize,0);
@@ -56,14 +58,14 @@ const KeyController &KeyController::operator=(const KeyController &other)
     return *this;
 }
 // From Controller
-void KeyController::checkEvent()
+void KeyController::checkEvent(float deltaTime)
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink);
     // KeyController::tick gets called 2 times per GameTick,
     // so only handle events once per GameTick
     m_currentMovingVec.x = 0;
     m_currentMovingVec.y = 0;
-    Controller::checkEvent();
+    Controller::checkEvent(deltaTime);
     if(Vector::length(m_currentMovingVec) > 0)
         this->move(m_currentMovingVec);
 }

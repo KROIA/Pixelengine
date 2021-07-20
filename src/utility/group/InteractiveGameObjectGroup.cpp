@@ -39,11 +39,15 @@ void InteractiveGameObjectGroup::reserve(size_t size)
     m_cacheObjectsList.reserve(m_cacheObjectsList.size()+size);
     m_cacheInteractiveObjectsList.reserve(m_cacheInteractiveObjectsList.size()+size);
 }
-void InteractiveGameObjectGroup::add(InteractiveGameObject *obj)
+bool InteractiveGameObjectGroup::add(InteractiveGameObject *obj)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple50);
+    if(m_objectsList[obj->getGameObject()] != nullptr) // GameObject is already added to the Group
+        return false;
+
     m_interactiveObjectsList.push_back(obj);
     m_objectsList.insert({obj->getGameObject(),obj->getGameObject()});
+    return true;
 }
 bool InteractiveGameObjectGroup::add(GameObject *obj)
 {

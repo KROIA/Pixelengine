@@ -1,6 +1,31 @@
 #include "gameobject.h"
-#include "gameObjectEventHandler.h"
+#include "engineInterface.h"
 #include "InteractiveGameObject.h"
+
+
+ObjSubscriberList::ObjSubscriberList()
+    :   SubscriberList<ObjSignal>()
+{}
+
+
+void ObjSubscriberList::moved(GameObject* sender,const Vector2f &move)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->moved(sender,move);
+    }
+    emitEnd();
+}
+void ObjSubscriberList::rotated(GameObject* sender,const float deltaAngle)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->rotated(sender,deltaAngle);
+    }
+    emitEnd();
+}
 
 GameObject::GameObject()
 {
@@ -26,7 +51,7 @@ GameObject::GameObject()
     this->m_layerItem           = other.m_layerItem;
     this->m_property            = other.m_property;
 
-    this->m_objEventHandler     = other.m_objEventHandler;
+    this->m_engine_interface     = other.m_engine_interface;
     this->m_display_interface   = other.m_display_interface;
     this->m_controllerList      = other.m_controllerList;
     this->m_hasEventsToCheck    = other.m_hasEventsToCheck;
@@ -43,20 +68,26 @@ void GameObject::constructor()
 {
 
     // m_painter                                   = nullptr;
-    // m_collider                                  = nullptr;
-     m_objEventHandler                           = nullptr;
-     m_display_interface                         = nullptr;
-     m_thisInteractiveObject                     = nullptr;
+     m_collider                                 = nullptr;
+     m_engine_interface                          = nullptr;
+     m_display_interface                        = nullptr;
+     m_thisInteractiveObject                    = nullptr;
 
-     m_colliderPainter                           = new ColliderPainter();
+     m_colliderPainter                          = new ColliderPainter();
      Submodule::addPainter(m_colliderPainter);
 
      m_controller                               = new Controller();
      addController(m_controller);
 
+     m_originalCollider                         = new Collider();
+     this->setCollider(m_originalCollider);
+     m_utilityPainter                           = new VertexPathPainter();
+     Submodule::addPainter(m_utilityPainter);
+
 
 
     this->m_visibility                          = true;
+    setVisibility_colliderSearchRect(false);
     m_hasEventsToCheck                          = false;
     m_hasMoveToMake                             = false;
     m_isTrash                                   = false;
@@ -83,6 +114,7 @@ GameObject::~GameObject()
     //delete m_originalCollider;
     //delete m_originalPainter;
     delete m_colliderPainter;
+    delete m_originalCollider;
 }
 /*const GameObject &GameObject::operator=(const GameObject &other)
 {
@@ -91,7 +123,7 @@ GameObject::~GameObject()
     this->m_painter             = other.m_painter;
     *this->m_colliderPainter    = *other.m_colliderPainter;
     this->m_property            = other.m_property;
-    this->m_objEventHandler     = other.m_objEventHandler;
+    this->m_engine_interface     = other.m_engine_interface;
     this->m_display_interface   = other.m_display_interface;
     this->m_thisInteractiveObject = other.m_thisInteractiveObject;
     this->m_visibility          = other.m_visibility;
@@ -112,7 +144,7 @@ void GameObject::engineCalled_checkEvent()
     Submodule::engineCalled_checkEvent();
     for(auto controller : m_controllerList)
         if(controller->hasEventsToCheck())
-            controller->checkEvent();
+            controller->checkEvent(m_engine_deltaTime);
    /* for(size_t i=0; i<m_controllerList.size(); i++)
         if(m_controllerList[i]->hasEventsToCheck())
             m_controllerList[i]->checkEvent();*/
@@ -131,38 +163,40 @@ void GameObject::checkEvent()
 void GameObject::killMe()
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green50);
-    if(m_objEventHandler != nullptr)
-        m_objEventHandler->kill(this);
+    if(m_engine_interface != nullptr)
+        m_engine_interface->kill(this);
 }
 void GameObject::removeMeFromEngine()
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green100);
-    if(m_objEventHandler != nullptr)
-        m_objEventHandler->removeFromEngine(this);
+    if(m_engine_interface != nullptr)
+        m_engine_interface->removeFromEngine(this);
 }
 void GameObject::engineCalled_setup()
 {
     GAME_OBJECT_FUNCTION("GameObject::setup()",profiler::colors::Green300);
     this->setup();
-    Submodule::setPosInitial(m_pos);
+    this->setPosInitial(m_pos);
 }
 void GameObject::setup()
 {}
 void GameObject::engineCalled_preTick()
 {
     Submodule::engineCalled_preTick();
+    m_collider->tick();
     size_t lastSize = m_collidedObjects.size();
     m_collidedObjects.clear();
     m_collidedObjects.reserve(lastSize+10);
 
-    for(auto sensor : m_sensorList)
+    /*for(auto sensor : m_sensorList)
     {
         if(sensor->getEnableRelativePosition())
             sensor->setPos(m_pos);
         if(sensor->getEnableRelativeRotation())
             sensor->setRotation(m_rotation);
         sensor->engineCalled_preTick();
-    }
+    }*/
+
     this->preTick();
 }
 void GameObject::preTick()
@@ -177,7 +211,7 @@ void GameObject::engineCalled_tick(const Vector2i &direction)
     {
         if(direction.x > 0)
         {
-            m_collider->tick();
+            //m_collider->tick();
             //m_movementCoordinator.clearMovement();
             m_movingVector.x = 0;
             m_movingVector.y = 0;
@@ -225,6 +259,17 @@ void GameObject::engineCalled_tick(const Vector2i &direction)
     for(auto sensor : m_sensorList)
         sensor->engineCalled_tick(direction);
     Submodule::engineCalled_tick(direction);
+    m_collider->setPos(m_pos);
+    m_collider->setRotation(m_rotation);
+    m_colliderSearchBox.setPos(m_pos+m_colliderSearchBoxRelativePos);
+    for(auto sensor : m_sensorList)
+    {
+        if(sensor->getEnableRelativePosition())
+            sensor->setPos(m_pos);
+        if(sensor->getEnableRelativeRotation())
+            sensor->setRotation(m_rotation);
+        sensor->engineCalled_preTick();
+    }
     //m_collider->setPos(m_pos);
 
 }
@@ -234,6 +279,19 @@ void GameObject::engineCalled_postTick()
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green300);
     Submodule::engineCalled_postTick();
+    m_collider->setPos(m_pos);
+    m_collider->setRotation(m_rotation);
+    m_colliderSearchBox.setPos(m_pos+m_colliderSearchBoxRelativePos);
+
+    for(auto sensor : m_sensorList)
+    {
+        if(sensor->getEnableRelativePosition())
+            sensor->setPos(m_pos);
+        if(sensor->getEnableRelativeRotation())
+            sensor->setRotation(m_rotation);
+        sensor->engineCalled_preTick();
+    }
+
     for(auto sensor : m_sensorList)
         sensor->engineCalled_postTick();
 
@@ -255,7 +313,7 @@ void GameObject::engineCalled_postNoThreadTick()
     {
         if(m_objSubscriberList.size() > 0)
             m_objSubscriberList.rotated(this,m_rotation-m_lastRotation);
-        Submodule::swapRotationToLastRotation();
+        LayerItem::swapRotationToLastRotation();
     }
 }
 void GameObject::engineCalled_preDraw()
@@ -263,12 +321,14 @@ void GameObject::engineCalled_preDraw()
     GAME_OBJECT_FUNCTION(profiler::colors::Green300);
     if(!m_visibility)
         return;
-    if(m_colliderPainter->isVisible())
-        m_colliderPainter->update(m_collidedObjects);
+    m_colliderPainter->update(m_collidedObjects);
     Submodule::engineCalled_preDraw();
     for(auto sensor : m_sensorList)
         sensor->engineCalled_preDraw();
     this->preDraw();
+    m_utilityPainter->clear();
+    if(m_visibility_colliderSearchBox)
+        m_utilityPainter->addPath(m_colliderSearchBox.getDrawable(Color(255,255,0)));
   /*  if(m_painter != m_originalPainter && m_painter->isVisible())
     {
         m_painter->setPos(m_layerItem.getPos());
@@ -316,35 +376,16 @@ vector<GameObject*> GameObject::getCollidedObjects(GameObject *owner, Collider *
     return collided;
 }
 
-void GameObject::subscribeToDisplay(PixelDisplay &display)
+/*void GameObject::subscribeToDisplay(PixelDisplay &display)
 {
     display.subscribePainter(m_painterList);
 }
 void GameObject::unsubscribeToDisplay(PixelDisplay &display)
 {
     display.unsubscribePainter(m_painterList);
-}
-void GameObject::setEventHandler(GameObjectEventHandler *handler)
-{
-    GAME_OBJECT_FUNCTION(profiler::colors::GreenA400);
-    if(m_objEventHandler ==  handler)
-        return;
+}*/
 
-    if(handler == nullptr)
-    {
-        /*for(auto pair : m_painterList)
-            m_objEventHandler->removePainterFromDisplay(m_painterList);*/
-        /*for(auto pair : m_eventList)
-            m_objEventHandler->removeEvent(pair.second);*/
-    }
-
-    m_objEventHandler = handler;
-  /*  for(auto pair : m_painterList)
-        m_objEventHandler->addPainterToDisplay(pair.second);*/
-   /* for(auto pair : m_eventList)
-        m_objEventHandler->addEvent(pair.second);*/
-}
-void GameObject::setDisplayInterface(GameObjectDisplay_Interface *display)
+void GameObject::setDisplayInterface(DisplayInterface *display)
 {
     if(m_display_interface && !display)
         m_display_interface->unsubscribePainter(m_painterList);
@@ -354,10 +395,7 @@ void GameObject::setDisplayInterface(GameObjectDisplay_Interface *display)
     if(m_display_interface)
         m_display_interface->subscribePainter(m_painterList);
 }
-const GameObjectEventHandler *GameObject::getEventHandler() const
-{
-    return m_objEventHandler;
-}
+
 
 void GameObject::subscribe_ObjSignal(ObjSignal *subscriber)
 {
@@ -374,7 +412,7 @@ void GameObject::unsubscribeAll_ObjSignal()
     m_objSubscriberList.clear();
 }
 
-/*void GameObject::addController(Controller *controller)
+/*void GameObject::addController(CgetEngineInterfaceroller)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green800);
     if(controller == nullptr)
@@ -408,10 +446,35 @@ void GameObject::setCollider(Collider *collider)
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA100);
     if(m_collider == collider || collider == nullptr)
         return;
-    //if(m_collider != nullptr)
-    //    delete m_collider;
-    Submodule::setCollider(collider);
+    if(m_collider)
+        m_collider->unsubscribe_ColliderSignal(this);
+    m_collider = collider;
+    m_collider->setPos(m_pos);
     m_colliderPainter->setCollider(m_collider);
+    m_collider->subscribe_ColliderSignal(this);
+    m_colliderSearchBox = m_collider->getBoundingBox();
+    m_colliderSearchBoxRelativePos = m_colliderSearchBox.getPos() - m_pos;
+    boundingBoxChanged(m_collider);
+}
+Collider *GameObject::getCollider() const
+{
+    return m_collider;
+}
+void GameObject::setCollisionSeachRadius(float radius)
+{
+    m_colliderSearchBoxRadius = radius;
+    m_colliderSearchBoxRelativePos = Vector2f(-radius,-radius);
+    m_colliderSearchBox.setPos(m_pos + m_colliderSearchBoxRelativePos);
+    m_colliderSearchBox.setSize(m_colliderSearchBoxRelativePos * -2.f);
+
+}
+float GameObject::getCollisionSeachRadius() const
+{
+    return m_colliderSearchBoxRadius;
+}
+const RectF &GameObject::getCollisionSeachRect() const
+{
+    return m_colliderSearchBox;
 }
 void GameObject::addController(Controller *controller)
 {
@@ -451,6 +514,7 @@ void GameObject::addSensor(Sensor *sensor)
     for(auto listed : m_sensorList)
         if(listed == sensor)
             return;
+    sensor->setOwner(this);
     m_sensorList.push_back(sensor);
 
     vector<Event*> eList = sensor->getEventList();
@@ -461,6 +525,7 @@ void GameObject::addSensor(Sensor *sensor)
 
     for(auto p : pList)
         this->addPainter(p);
+
 }
 void GameObject::removeSensor(Sensor *sensor)
 {
@@ -478,6 +543,7 @@ void GameObject::removeSensor(Sensor *sensor)
 
             for(auto p : pList)
                 this->removePainter(p);
+            sensor->setOwner(nullptr);
             return;
         }
     }
@@ -505,15 +571,15 @@ const Painter &GameObject::getPainter() const
 {
     return *m_painter;
 }*/
-/*
-void GameObject::setPosInital(const Vector2f &pos)
+
+void GameObject::setPosInitial(const Vector2f &pos)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
-    m_layerItem.setPosInitial(pos);
+    Submodule::setPosInitial(pos);
     m_collider->setPosInitial(pos);
-    if(m_painter != nullptr)
-        m_painter->setPosInitial(pos);
-}*//*
+    m_colliderSearchBox.setPos(m_pos+m_colliderSearchBoxRelativePos);
+}
+/*
 void GameObject::setPos(int x,int y)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
@@ -746,6 +812,26 @@ size_t GameObject::getRenderLayer() const
 {
     m_painter->getRenderLayer();
 }*/
+bool GameObject::addPainter(Painter *painter)
+{
+    if(Submodule::addPainter(painter))
+    {
+        if(m_display_interface)
+            m_display_interface->subscribePainter(painter);
+        return true;
+    }
+    return false;
+}
+bool GameObject::removePainter(Painter *painter)
+{
+    if(Submodule::removePainter(painter))
+    {
+        if(m_display_interface)
+            m_display_interface->unsubscribePainter(painter);
+        return true;
+    }
+    return false;
+}
 ColliderPainter *GameObject::getColliderPainter() const
 {
     return m_colliderPainter;
@@ -759,6 +845,15 @@ void GameObject::setVisibility_objectTree(bool isVisible)
 {
     if(m_thisInteractiveObject != nullptr)
         m_thisInteractiveObject->setVisibility_objectTree(isVisible);
+}
+void GameObject::setVisibility_colliderSearchRect(bool isVisible)
+{
+    m_visibility_colliderSearchBox = isVisible;
+    checkIfUtilityPainterIsUsed();
+}
+void GameObject::checkIfUtilityPainterIsUsed()
+{
+    m_utilityPainter->setVisibility(m_visibility_colliderSearchBox);
 }
 
 /*
@@ -799,6 +894,10 @@ bool GameObject::isVisible_objectTree() const
         return m_thisInteractiveObject->isVisible_objectTree();
     return false;
 }
+bool GameObject::isVisible_colliderSearchRect() const
+{
+    return m_visibility_colliderSearchBox;
+}
 /*
 bool GameObject::isVisible_collider_hitbox() const
 {
@@ -834,16 +933,16 @@ void GameObject::addPainter(Painter *painter)
         return;
 
     m_painterList.insert({painter,painter});
-    if(m_objEventHandler != nullptr)
-        m_objEventHandler->addPainterToDisplay(painter);
+    if(m_engine_interface != nullptr)
+        m_engine_interface->addPainterToDisplay(painter);
 }
 void GameObject::removePainter(Painter *painter)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
     if(painter == nullptr)
         return;
-    if(m_objEventHandler != nullptr)
-        m_objEventHandler->removePainterFromDisplay(painter);
+    if(m_engine_interface != nullptr)
+        m_engine_interface->removePainterFromDisplay(painter);
     m_painterList.erase(painter);
 }
 void GameObject::removePainter()
@@ -888,67 +987,67 @@ InteractiveGameObject* GameObject::getThisInteractiveGameObject()
 }
 void GameObject::display_setPixel(const Vector2u &pos, const Color &color)
 {
-    if(m_display_interface != nullptr)
+    if(m_display_interface)
         m_display_interface->setPixel(pos,color);
 }
 void GameObject::display_setPixel(const Pixel &pixel)
 {
-    if(m_display_interface != nullptr)
+    if(m_display_interface)
         m_display_interface->setPixel(pixel);
 }
 void GameObject::display_setPixel(const vector<Pixel> &pixelList)
 {
-    if(m_display_interface != nullptr)
+    if(m_display_interface)
         m_display_interface->setPixel(pixelList);
 }
 void GameObject::display_zoomViewAt(sf::Vector2i pixel, float zoom)
 {
-    if(m_display_interface != nullptr)
+    if(m_display_interface)
         m_display_interface->zoomViewAt(pixel,zoom);
 }
 void GameObject::display_setView(const RectF &frame)
 {
-    if(m_display_interface != nullptr)
+    if(m_display_interface)
         m_display_interface->setView(frame);
 }
 void GameObject::display_setCameraZoom(float zoom)
 {
-    if(m_display_interface != nullptr)
+    if(m_display_interface)
         m_display_interface->setCameraZoom(zoom);
 }
 void GameObject::display_setCameraPos(const Vector2f &pos)
 {
-    if(m_display_interface != nullptr)
+    if(m_display_interface)
         m_display_interface->setCameraPos(pos);
 }
 const Vector2u &GameObject::display_getWindowSize() const
 {
-    if(m_display_interface != nullptr)
+    if(m_display_interface)
         return m_display_interface->getWindowSize();
     return m_dummiVecU;
 }
 const Vector2u &GameObject::display_getMapSize() const
 {
-    if(m_display_interface != nullptr)
+    if(m_display_interface)
         return m_display_interface->getMapSize();
     return m_dummiVecU;
 }
 void GameObject::display_subscribePainter(Painter *painter)
 {
-    if(m_display_interface != nullptr)
+    if(m_display_interface)
         m_display_interface->subscribePainter(painter);
 }
 void GameObject::display_unsubscribePainter(Painter *painter)
 {
-    if(m_display_interface != nullptr)
+    if(m_display_interface)
         m_display_interface->unsubscribePainter(painter);
 }
 
 void GameObject::event_hasCollision(vector<GameObject *> other)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green100);
-    if(m_objEventHandler != nullptr)
-        m_objEventHandler->collisionOccured(this,other);
+    if(m_engine_interface != nullptr)
+        m_engine_interface->collisionOccured(this,other);
     Submodule::setToLastPos();
     LayerItem::setToLastRotation();
 
@@ -974,6 +1073,35 @@ void GameObject::eventRemoved(UserEventHandler *sender,  Event *e)
 void GameObject::moveAvailable(Controller *sender)
 {
     m_hasMoveToMake = true;
+}
+void GameObject::boundingBoxChanged(Collider* sender)
+{
+    if(RectF::intersects_inverseOf_fast(sender->getBoundingBox(),m_colliderSearchBox))
+    {
+        // BoundingBox of Collider is outside or at the edge of the m_colliderSearchBox
+        Vector2f min;
+        min.x = RectF::getMinX({sender->getBoundingBox(),m_colliderSearchBox});
+        min.y = RectF::getMinY({sender->getBoundingBox(),m_colliderSearchBox});
+
+        Vector2f max;
+        max.x = RectF::getMaxX({sender->getBoundingBox(),m_colliderSearchBox});
+        max.y = RectF::getMaxY({sender->getBoundingBox(),m_colliderSearchBox});
+
+        Vector2f relativeMin = m_pos - min;
+        Vector2f relativeMax = m_pos - max;
+
+        float radius = abs(relativeMin.x);
+        if(radius<abs(relativeMin.y))
+            radius = abs(relativeMin.y);
+        if(radius<abs(relativeMax.x))
+            radius = abs(relativeMax.x);
+        if(radius<abs(relativeMax.y))
+            radius = abs(relativeMax.y);
+
+
+
+        setCollisionSeachRadius(radius);
+    }
 }
 
 

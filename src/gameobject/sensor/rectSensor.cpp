@@ -16,17 +16,20 @@ RectSensor::RectSensor()
     setSensorColor(Color(0,255,0));
 
     setRect(RectF(0,0,1,1));
-    Submodule::setCollider(m_sensorCollider);
     Submodule::addPainter(m_sensorPainter);
 }
 RectSensor::RectSensor(const RectSensor &other)
 {
     m_sensorCollider = new Collider();
-    Submodule::setCollider(m_sensorCollider);
     this->operator=(other);
 }
 RectSensor::~RectSensor()
 {
+    if(m_owner)
+    {
+        m_owner->removeSensor(this);
+    }
+    Submodule::removePainter(m_sensorPainter);
     delete m_sensorCollider;
 }
 const RectSensor &RectSensor::operator=(const RectSensor &other)
@@ -48,11 +51,7 @@ void RectSensor::engineCalled_postTick()
 {
     SENSOR_FUNCTION(profiler::colors::Yellow200);
 }*/
-void RectSensor::engineCalled_preDraw()
-{
-    SENSOR_FUNCTION(profiler::colors::Yellow300);
-    m_sensorPainter->update(m_detected);
-}
+
 
 
 void RectSensor::setRect(const RectF rect)
@@ -60,7 +59,10 @@ void RectSensor::setRect(const RectF rect)
     m_sensorCollider->clear();
     m_sensorCollider->addHitbox(rect);
 }
-
+void RectSensor::engineCalled_preTick()
+{
+    m_sensorCollider->tick();
+}
 void RectSensor::detectObjects(const vector<GameObject*> &other)
 {
     SENSOR_FUNCTION(profiler::colors::Yellow400);
@@ -83,10 +85,20 @@ void RectSensor::detectObjects(const vector<GameObject*> &other)
 
 
 }
+void RectSensor::engineCalled_postTick()
+{
+    m_sensorCollider->setPos(m_pos);
+    m_sensorCollider->setRotation(m_rotation);
+}
+void RectSensor::engineCalled_preDraw()
+{
+    SENSOR_FUNCTION(profiler::colors::Yellow300);
+    m_sensorPainter->update(m_detected);
+}
 void RectSensor::setDetectedColor(const Color &color)
 {
     m_detectedColor = color;
-    m_sensorPainter->setColor_collidedObjects_boundingBox(m_detectedColor);
+    m_sensorPainter->setColor_collidedObjects_hitBox(m_detectedColor);
 }
 void RectSensor::setSensorColor(const Color &color)
 {
@@ -94,7 +106,26 @@ void RectSensor::setSensorColor(const Color &color)
     m_sensorPainter->setColor_hitBox_colliding(m_sensorColor);
     m_sensorPainter->setColor_hitBox_noCollision(m_sensorColor);
 }
+void RectSensor::setVisibility(bool isVisible)
+{
+    m_sensorPainter->setVisibility_hitBox(isVisible);
+}
+void RectSensor::setVisibility_detectedObjects(bool isVisible)
+{
+    m_sensorPainter->setVisibility_collidedObjects_hitBox(isVisible);
+}
+
+bool RectSensor::isVisible() const
+{
+    return m_sensorPainter->isVisible_collidedObjects_hitBox();
+}
+bool RectSensor::isVisible_detectedObjects() const
+{
+    return m_sensorPainter->isVisible_collidedObjects_hitBox();
+}
+/*
 ColliderPainter *RectSensor::getColliderPainter() const
 {
     return m_sensorPainter;
 }
+*/

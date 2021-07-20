@@ -16,7 +16,8 @@ public:
     // Starts the timer.
     // Returns true, if the time is over, otherwise false
     bool start(float sec);
-    void stop();
+    void startInfinite();
+    float stop();
 
     bool update();
 
@@ -31,6 +32,7 @@ private:
     float m_runtime;
     bool m_timerStarted;
     bool m_autorestart;
+    bool m_infiniteMode;
 
     std::chrono::high_resolution_clock::time_point m_timer_start;
     std::chrono::high_resolution_clock::time_point m_timer_end;

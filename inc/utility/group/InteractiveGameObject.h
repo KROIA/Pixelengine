@@ -51,8 +51,8 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
 
 
         //virtual void drawObjectTree(PixelDisplay &display);
-        virtual void subscribeToDisplay(PixelDisplay &display);
-        virtual void unsubscribeToDisplay(PixelDisplay &display);
+       // virtual void subscribeToDisplay(PixelDisplay &display);
+       // virtual void unsubscribeToDisplay(PixelDisplay &display);
         virtual void setVisibility_objectTree(bool isVisible);
         virtual bool isVisible_objectTree() const;
         /*virtual void draw_chunks(PixelDisplay &display);

@@ -1,21 +1,82 @@
 #include "submodule.h"
 
-Submodule::Submodule()
+SubmoduleSubscriberList::SubmoduleSubscriberList()
+    :   SubscriberList<SubmoduleSignal>()
+{}
+void SubmoduleSubscriberList::moved(Submodule* sender,const Vector2f &move)
 {
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->moved(sender,move);
+    }
+    emitEnd();
+}
+void SubmoduleSubscriberList::rotated(Submodule* sender,const float deltaAngle)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->rotated(sender,deltaAngle);
+    }
+    emitEnd();
+}
 
-    m_hasMoveToMake     = false;
+
+Submodule::Submodule()
+    :   LayerItem()
+{
     m_hasEventsToCheck  = false;
-    m_originalCollider  = new Collider();
-    this->setCollider(m_originalCollider);
+    m_hasMoveToMake     = false;
+    m_engine_deltaTime  = 1;
+
+   // m_originalCollider  = new Collider();
+   // this->setCollider(m_originalCollider);
+}
+Submodule::Submodule(const Submodule &other)
+    :   LayerItem(other)
+{
+    *this = other;
 }
 Submodule::~Submodule()
 {
-    delete m_originalCollider;
+    //delete m_originalCollider;
 }
-
+const Submodule &Submodule::operator=(const Submodule &other)
+{
+    LayerItem::operator=(other);
+    this->m_hasEventsToCheck    = other.m_hasEventsToCheck;
+    this->m_hasMoveToMake       = other.m_hasMoveToMake;
+    this->m_movingVector        = other.m_movingVector;
+    return *this;
+}
 void Submodule::engineCalled_setup()
 {
 
+}
+void Submodule::setEngineInterface(EngineInterface *engine)
+{
+    SUBMODULE_FUNCTION(profiler::colors::GreenA400);
+    if(m_engine_interface ==  engine)
+        return;
+
+    if(engine == nullptr)
+    {
+        /*for(auto pair : m_painterList)
+            m_engine_interface->removePainterFromDisplay(m_painterList);*/
+        /*for(auto pair : m_eventList)
+            m_engine_interface->removeEvent(pair.second);*/
+    }
+
+    m_engine_interface = engine;
+  /*  for(auto pair : m_painterList)
+        m_engine_interface->addPainterToDisplay(pair.second);*/
+   /* for(auto pair : m_eventList)
+        m_engine_interface->addEvent(pair.second);*/
+}
+EngineInterface *Submodule::getEngineInterface() const
+{
+    return m_engine_interface;
 }
 
 bool Submodule::hasEventsToCheck() const
@@ -25,26 +86,28 @@ bool Submodule::hasEventsToCheck() const
 void Submodule::engineCalled_checkEvent()
 {
     SUBMODULE_FUNCTION(profiler::colors::Red);
-     for(auto event  : m_eventList)
-         event->checkEvent();
+    if(m_engine_interface)
+        m_engine_deltaTime = m_engine_interface->getDeltaTime();
+    for(auto event  : m_eventList)
+        event->checkEvent();
 }
 void Submodule::engineCalled_preTick()
 {
     SUBMODULE_FUNCTION(profiler::colors::Red100);
-    m_collider->tick();
+   // m_collider->tick();
 
 }
 void Submodule::engineCalled_tick(const Vector2i &direction)
 {
     SUBMODULE_FUNCTION(profiler::colors::Red200);
-    m_collider->setPos(m_pos);
-    m_collider->setRotation(m_rotation);
+   // m_collider->setPos(m_pos);
+   // m_collider->setRotation(m_rotation);
 }
 void Submodule::engineCalled_postTick()
 {
     SUBMODULE_FUNCTION(profiler::colors::Red300);
-    m_collider->setPos(m_pos);
-    m_collider->setRotation(m_rotation);
+   // m_collider->setPos(m_pos);
+   // m_collider->setRotation(m_rotation);
 }
 void Submodule::engineCalled_postNoThreadTick()
 {
@@ -72,7 +135,7 @@ void Submodule::setPosInitial(const Vector2f &pos)
 {
     SUBMODULE_FUNCTION(profiler::colors::RedA700);
     LayerItem::setPosInitial(pos);
-    m_collider->setPosInitial(pos);
+   // m_collider->setPosInitial(pos);
 }
 void Submodule::setPos(float x, float y)
 {
@@ -161,7 +224,7 @@ void Submodule::setRotation(float deg)
     SUBMODULE_FUNCTION(profiler::colors::Red);
     if(m_rotation == deg)
         return;
-    float deltaAngle = deg - m_rotation;
+    //float deltaAngle = deg - m_rotation;
 
     LayerItem::setRotation(deg);
 
@@ -240,10 +303,10 @@ const vector<Painter* > &Submodule::getPainterList() const
 {
     return m_painterList;
 }
-Collider* Submodule::getCollider()
+/*Collider* Submodule::getCollider()
 {
     return m_collider;
-}
+}*/
 const Vector2f &Submodule::getMovingVector() const
 {
     return m_movingVector;
@@ -264,50 +327,59 @@ void Submodule::unsubscribeAll_SubmoduleSignal()
     m_submoduleSubscriberList.clear();
 }
 
-void Submodule::addEvent(Event *e)
+bool Submodule::addEvent(Event *e)
 {
     if(!e)
-        return;
+        return false;
     for(auto listed : m_eventList)
         if(listed == e)
-            return;
+            return false;
     m_hasEventsToCheck = true;
     m_eventList.push_back(e);
+    return true;
 }
-void Submodule::removeEvent(Event *e)
+bool Submodule::removeEvent(Event *e)
 {
     for(size_t i=0; i<m_eventList.size(); i++)
     {
         if(m_eventList[i] == e)
         {
             m_eventList.erase(m_eventList.begin() + i);
-            return;
+            return true;
         }
     }
+    return false;
 }
-void Submodule::addPainter(Painter *painter)
+bool Submodule::addPainter(Painter *painter)
 {
     if(!painter)
-        return;
+        return false;
     for(auto listed : m_painterList)
         if(listed == painter)
-            return;
+            return false;
     m_painterList.push_back(painter);
     painter->setPos(m_pos);
+    return true;
 }
-void Submodule::removePainter(Painter *painter)
+bool Submodule::removePainter(Painter *painter)
 {
     for(size_t i=0; i<m_eventList.size(); i++)
     {
         if(m_painterList[i] == painter)
         {
             m_painterList.erase(m_painterList.begin() + i);
-            return;
+            return true;
         }
     }
+    return false;
 }
 
-void Submodule::setCollider(Collider *collider)
+float Submodule::getEngine_deltaTime() const
+{
+    return m_engine_deltaTime;
+}
+
+/*void Submodule::setCollider(Collider *collider)
 {
     m_collider = collider;
     m_collider->setPos(m_pos);
@@ -315,6 +387,6 @@ void Submodule::setCollider(Collider *collider)
 Collider *Submodule::getCollider() const
 {
     return m_collider;
-}
+}*/
 
 

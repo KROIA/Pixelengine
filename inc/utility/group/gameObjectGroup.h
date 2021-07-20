@@ -5,6 +5,33 @@
 #include "gameobject.h"
 #include "spritePainter.h"
 
+// Signals for GameObjectGroups
+class GroupSignal
+{
+    public:
+        virtual void adding(GameObjectGroup* sender,GameObject* obj) = 0;
+        virtual void adding(GameObjectGroup* sender,GameObjectGroup* group) = 0;
+        virtual void removing(GameObjectGroup* sender,GameObject* obj) = 0;
+        virtual void removing(GameObjectGroup* sender,GameObjectGroup* group) = 0;
+        virtual void willBeCleared(GameObjectGroup* sender) = 0;
+        virtual void cleared(GameObjectGroup* sender) = 0;
+};
+
+// Vector of Signals
+class GroupSubscriberList    : public SubscriberList<GroupSignal>
+{
+    public:
+        GroupSubscriberList();
+
+        virtual void adding(GameObjectGroup* sender,GameObject* obj);
+        virtual void adding(GameObjectGroup* sender,GameObjectGroup* group);
+        virtual void removing(GameObjectGroup* sender,GameObject* obj);
+        virtual void removing(GameObjectGroup* sender,GameObjectGroup* group);
+        virtual void willBeCleared(GameObjectGroup* sender);
+        virtual void cleared(GameObjectGroup* sender);
+    protected:
+};
+
 //                         Will receive GameObject Signals
 class GameObjectGroup  :   private ObjSignal//, GroupSignal
 {

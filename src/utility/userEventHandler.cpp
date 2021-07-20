@@ -1,5 +1,29 @@
 #include "userEventHandler.h"
 
+UserEventSubscriberList::UserEventSubscriberList()
+    :   SubscriberList<UserEventSignal>()
+{
+
+}
+void UserEventSubscriberList::eventAdded(UserEventHandler *sender,  Event *e)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->eventAdded(sender,e);
+    }
+    emitEnd();
+}
+void UserEventSubscriberList::eventRemoved(UserEventHandler *sender,  Event *e)
+{
+    emitStart();
+    for(auto pair : *this)
+    {
+        pair.second->eventRemoved(sender,e);
+    }
+    emitEnd();
+}
+
 UserEventHandler::UserEventHandler()
 {
     m_hasEventsToCheck = false;

@@ -511,6 +511,28 @@ bool GeneralRect<T>::intersects(const GeneralRect<T> &other)
     {
         for(size_t j=0; j<other_frameVecList_size; j++)
         {
+            bool doesCollide;
+            Vector2<T> factor;
+            Vector2<T> collisionPoint = Vector::getCollisionPoint(
+                        *frameVecList[i].s,        *frameVecList[i].d,
+                        *other_frameVecList[j].s,  *other_frameVecList[j].d,
+                        doesCollide, factor);
+            if(doesCollide)
+            {
+                if(colliderDataEnabled)
+                {
+                    collisionData.push_back(this->getDrawable(sf::Color(0,255,0)));
+                    collisionData.push_back(other.getDrawable(sf::Color(255,0,0)));
+
+                    collisionData.push_back(Vector::getDrawableVector(*frameVecList[i].s,collisionPoint,sf::Color(0,255,255)));
+                    collisionData.push_back(Vector::getDrawableVector(*other_frameVecList[j].s,collisionPoint,sf::Color(255,0,255)));
+                }
+                return true;
+            }
+
+
+            /*
+
             if(Vector::doesIntersect(*frameVecList[i].d,*other_frameVecList[j].d))
             {
                 intersectionFac = Vector::getIntersection(*frameVecList[i].s,        *frameVecList[i].d,
@@ -529,7 +551,7 @@ bool GeneralRect<T>::intersects(const GeneralRect<T> &other)
                     }
                     return true;
                 }
-            }
+            }*/
         }
     }
     stats_intersectionCheckCounter = frameVecList_size * other_frameVecList_size/*+1*/;
