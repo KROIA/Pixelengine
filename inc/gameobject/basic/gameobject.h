@@ -17,6 +17,27 @@
 #include "displayInterface.h"
 
 
+// Signals for GameObjects
+class ObjSignal
+{
+    public:
+        ObjSignal(){}
+
+        virtual void moved(GameObject* sender,const Vector2f &move) = 0;
+        virtual void rotated(GameObject* sender,const float deltaAngle) = 0;
+    protected:
+
+};
+// Vector of Signals
+class ObjSubscriberList    : public SubscriberList<ObjSignal>
+{
+    public:
+        ObjSubscriberList();
+
+        virtual void moved(GameObject* sender,const Vector2f &move);
+        virtual void rotated(GameObject* sender,const float deltaAngle);
+    protected:
+};
 
 
 
@@ -140,6 +161,8 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal, 
         // Painter
 //        virtual void setRenderLayer(size_t layer);
 //        virtual size_t getRenderLayer() const;
+        virtual bool addPainter(Painter *painter);
+        virtual bool removePainter(Painter *painter);
         ColliderPainter *getColliderPainter() const;
         virtual void setVisibility(bool isVisible);
         virtual void setVisibility_objectTree(bool isVisible);

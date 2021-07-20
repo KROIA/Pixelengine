@@ -9,7 +9,27 @@
 #include "engineInterface.h"
 
 #include "signalSubscriber.h"
+// Signals for GameObjects
+class SubmoduleSignal
+{
+    public:
+        SubmoduleSignal(){}
 
+        virtual void moved(Submodule* sender,const Vector2f &move) = 0;
+        virtual void rotated(Submodule* sender,const float deltaAngle) = 0;
+    protected:
+
+};
+// Vector of Signals
+class SubmoduleSubscriberList    : public SubscriberList<SubmoduleSignal>
+{
+    public:
+        SubmoduleSubscriberList();
+
+        virtual void moved(Submodule* sender,const Vector2f &move);
+        virtual void rotated(Submodule* sender,const float deltaAngle);
+    protected:
+};
 
 class Submodule :   public LayerItem
 {
@@ -82,10 +102,10 @@ class Submodule :   public LayerItem
         virtual void unsubscribe_SubmoduleSignal(SubmoduleSignal *subscriber);
         virtual void unsubscribeAll_SubmoduleSignal();
 
-        virtual void addEvent(Event *e);
-        virtual void removeEvent(Event *e);
-        virtual void addPainter(Painter *painter);
-        virtual void removePainter(Painter *painter);
+        virtual bool addEvent(Event *e);
+        virtual bool removeEvent(Event *e);
+        virtual bool addPainter(Painter *painter);
+        virtual bool removePainter(Painter *painter);
         //virtual void setCollider(Collider *collider);
         //virtual Collider *getCollider() const;
 

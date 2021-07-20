@@ -102,6 +102,8 @@ namespace Property
 };
 class Sensor;
 class RectSensor;
+class Laser;
+class LaserSensor;
 
 class Texture;
 class AnimatedTexture;
@@ -123,6 +125,10 @@ class UserEventHandler;
 class SubmoduleSignal;
 class SubmoduleSubscriberList;
 
+class ObjSignal;
+class ObjSubscriberList;
+
+
 class GroupSignal;
 class GroupSubscriberList;
 
@@ -135,6 +141,8 @@ class UserEventSubscriberList;
 class PainterSignal;
 class PainterSubscriberList;
 
+class LaserSignal;
+class LaserSubscriberList;
 
 enum RenderLayerIndex
 {

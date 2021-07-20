@@ -267,6 +267,7 @@ class PixelEngine   :   public EngineInterface, private GroupSignal
         float m_realTickInterval;
         bool m_setupDone;
 
+
         // Statistics
         Statistics m_statistics;
         float m_statsFilterFactor;

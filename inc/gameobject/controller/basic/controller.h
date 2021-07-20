@@ -9,8 +9,23 @@
 #include "signalSubscriber.h"
 #include "mathFunctions.h"
 
-using std::vector;
-using sf::Vector2f;
+// Signals for Controller
+class ControllerSignal
+{
+    public:
+        ControllerSignal(){}
+
+        virtual void moveAvailable(Controller *sender) = 0;
+};
+// Vector of Signals
+class ControllerSubscriberList: public SubscriberList<ControllerSignal>
+{
+    public:
+        ControllerSubscriberList();
+
+        virtual void moveAvailable(Controller *sender);
+};
+
 
 class Controller    :   public UserEventHandler
 {
