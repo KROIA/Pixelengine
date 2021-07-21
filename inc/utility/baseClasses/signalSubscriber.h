@@ -2,6 +2,14 @@
 #define OBJSIGNAL_H
 #include "base.h"
 
+#define EMIT_SIGNAL(func,sender,...)\
+emitStart();\
+for(auto pair : *this)\
+{\
+    pair.second->func(sender, ##__VA_ARGS__);\
+}\
+emitEnd();
+
 template<class T>
 class SubscriberList    : public HashTable<T*>
 {

@@ -7,21 +7,11 @@ UserEventSubscriberList::UserEventSubscriberList()
 }
 void UserEventSubscriberList::eventAdded(UserEventHandler *sender,  Event *e)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->eventAdded(sender,e);
-    }
-    emitEnd();
+    EMIT_SIGNAL(eventAdded,sender,e);
 }
 void UserEventSubscriberList::eventRemoved(UserEventHandler *sender,  Event *e)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->eventRemoved(sender,e);
-    }
-    emitEnd();
+    EMIT_SIGNAL(eventRemoved,sender,e);
 }
 
 UserEventHandler::UserEventHandler()

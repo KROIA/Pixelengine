@@ -5,30 +5,15 @@ PainterSubscriberList::PainterSubscriberList()
 {}
 void PainterSubscriberList::renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->renderLayerChanged(sender,lastLayer,newLayer);
-    }
-    emitEnd();
+    EMIT_SIGNAL(renderLayerChanged,sender,lastLayer,newLayer);
 }
 void PainterSubscriberList::isInvisible(Painter *sender)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->isInvisible(sender);
-    }
-    emitEnd();
+    EMIT_SIGNAL(isInvisible,sender);
 }
 void PainterSubscriberList::isVisible(Painter *sender)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->isVisible(sender);
-    }
-    emitEnd();
+     EMIT_SIGNAL(isVisible,sender);
 }
 
 

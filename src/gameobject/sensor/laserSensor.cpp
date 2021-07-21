@@ -6,12 +6,7 @@ LaserSubscriberList::LaserSubscriberList()
 
 void LaserSubscriberList::changed(Laser *sender)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->changed(sender);
-    }
-    emitEnd();
+    EMIT_SIGNAL(changed,sender);
 }
 
 Laser::Laser()

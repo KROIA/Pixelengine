@@ -7,6 +7,7 @@
 #include "layeritem.h"
 #include "rect.h"
 #include "texture.h"
+#include "signalSubscriber.h"
 
 
 using std::vector;
@@ -23,19 +24,12 @@ class ColliderSignal
 
 };
 // Vector of Signals
-class ColliderSubscriberList    : public HashTable<ColliderSignal*>
+class ColliderSubscriberList    : public SubscriberList<ColliderSignal>
 {
     public:
         ColliderSubscriberList();
-        virtual void insert(ColliderSignal* signal);
-        virtual void erase(ColliderSignal* signal);
 
         virtual void boundingBoxChanged(Collider* sender);
-    protected:
-        void updateList();
-        bool m_emiterCallActive;
-        HashTable<ColliderSignal*> toRemove;
-        HashTable<ColliderSignal*> toInsert;
 };
 
 class Collider  :   public LayerItem

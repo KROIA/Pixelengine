@@ -10,21 +10,11 @@ ObjSubscriberList::ObjSubscriberList()
 
 void ObjSubscriberList::moved(GameObject* sender,const Vector2f &move)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->moved(sender,move);
-    }
-    emitEnd();
+    EMIT_SIGNAL(moved,sender,move);
 }
 void ObjSubscriberList::rotated(GameObject* sender,const float deltaAngle)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->rotated(sender,deltaAngle);
-    }
-    emitEnd();
+    EMIT_SIGNAL(rotated,sender,deltaAngle);
 }
 
 GameObject::GameObject()
@@ -578,6 +568,10 @@ void GameObject::setPosInitial(const Vector2f &pos)
     Submodule::setPosInitial(pos);
     m_collider->setPosInitial(pos);
     m_colliderSearchBox.setPos(m_pos+m_colliderSearchBoxRelativePos);
+    if(m_property.getBody().material    == Property::Material::Grass)
+    {
+    //   qDebug()<<"grass initialPosSet";
+    }
 }
 /*
 void GameObject::setPos(int x,int y)
@@ -640,21 +634,37 @@ void GameObject::move(const Vector2f &vec,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
     m_controller->move(vec,mode);
+    if(m_property.getBody().material    == Property::Material::Grass)
+    {
+        qDebug()<<"grass moved";
+    }
 }
 void GameObject::move(float deltaX, float deltaY,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
     m_controller->move(deltaX,deltaY,mode);
+    if(m_property.getBody().material    == Property::Material::Grass)
+    {
+        qDebug()<<"grass moved";
+    }
 }
 void GameObject::moveX(float delta,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
     m_controller->moveX(delta,mode);
+    if(m_property.getBody().material    == Property::Material::Grass)
+    {
+        qDebug()<<"grass moved";
+    }
 }
 void GameObject::moveY(float delta,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
     m_controller->moveY(delta,mode);
+    if(m_property.getBody().material    == Property::Material::Grass)
+    {
+        qDebug()<<"grass moved";
+    }
 }
 void GameObject::rotate(float deg)
 {

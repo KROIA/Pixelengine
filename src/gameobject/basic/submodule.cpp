@@ -5,21 +5,11 @@ SubmoduleSubscriberList::SubmoduleSubscriberList()
 {}
 void SubmoduleSubscriberList::moved(Submodule* sender,const Vector2f &move)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->moved(sender,move);
-    }
-    emitEnd();
+    EMIT_SIGNAL(moved,sender,move);
 }
 void SubmoduleSubscriberList::rotated(Submodule* sender,const float deltaAngle)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->rotated(sender,deltaAngle);
-    }
-    emitEnd();
+    EMIT_SIGNAL(rotated,sender,deltaAngle);
 }
 
 

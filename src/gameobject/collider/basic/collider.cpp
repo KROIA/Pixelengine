@@ -1,45 +1,15 @@
 #include "collider.h"
 
 ColliderSubscriberList::ColliderSubscriberList()
-    :   HashTable<ColliderSignal *>()
+    :   SubscriberList<ColliderSignal>()
 {
     m_emiterCallActive = false;
-}
-
-void ColliderSubscriberList::insert(ColliderSignal* signal)
-{
-    if(m_emiterCallActive)
-        toInsert.insert({signal,signal});
-    else
-        HashTable<ColliderSignal *>::insert({signal,signal});
-}
-void ColliderSubscriberList::erase(ColliderSignal* signal)
-{
-    if(m_emiterCallActive)
-        toRemove.insert({signal,signal});
-    else
-        HashTable<ColliderSignal*>::erase(signal);
-}
-void ColliderSubscriberList::updateList()
-{
-    for(auto pair : toRemove)
-        HashTable<ColliderSignal*>::erase(pair.second);
-    toRemove.clear();
-    for(auto pair : toInsert)
-        HashTable<ColliderSignal*>::insert(pair);
-    toInsert.clear();
 }
 
 
 void ColliderSubscriberList::boundingBoxChanged(Collider* sender)
 {
-    m_emiterCallActive = true;
-    for(auto pair : *this)
-    {
-        pair.second->boundingBoxChanged(sender);
-    }
-    m_emiterCallActive = false;
-    updateList();
+    EMIT_SIGNAL(boundingBoxChanged,sender);
 }
 
 unsigned long long Collider::stats_checkIntersectCounter = 0;

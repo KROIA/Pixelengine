@@ -31,7 +31,7 @@
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
 
-#include <QDebug>
+#include "debug.h"
 #include <profiler.h>
 
 #include <vector>
@@ -42,6 +42,7 @@
 #include <chrono>
 #include "iostream"
 #include "stdio.h"
+#include "FastNoiseLite.h"
 
 
 
@@ -121,7 +122,8 @@ class EngineInterface;
 class Timer;
 class UserEventHandler;
 
-
+template<class T>
+class SubscriberList;
 class SubmoduleSignal;
 class SubmoduleSubscriberList;
 

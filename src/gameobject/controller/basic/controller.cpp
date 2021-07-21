@@ -6,12 +6,7 @@ ControllerSubscriberList::ControllerSubscriberList()
 
 void ControllerSubscriberList::moveAvailable(Controller *sender)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->moveAvailable(sender);
-    }
-    emitEnd();
+    EMIT_SIGNAL(moveAvailable,sender);
 }
 
 Controller::Controller()

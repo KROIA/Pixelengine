@@ -7,57 +7,27 @@ GroupSubscriberList::GroupSubscriberList()
 }
 void GroupSubscriberList::adding(GameObjectGroup *sender,GameObject* obj)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->adding(sender,obj);
-    }
-    emitEnd();
+    EMIT_SIGNAL(adding,sender,obj);
 }
 void GroupSubscriberList::adding(GameObjectGroup *sender,GameObjectGroup* group)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->adding(sender,group);
-    }
-    emitEnd();
+    EMIT_SIGNAL(adding,sender,group);
 }
 void GroupSubscriberList::removing(GameObjectGroup *sender,GameObject* obj)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->removing(sender,obj);
-    }
-    emitEnd();
+    EMIT_SIGNAL(removing,sender,obj);
 }
 void GroupSubscriberList::removing(GameObjectGroup *sender,GameObjectGroup* group)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->removing(sender,group);
-    }
-    emitEnd();
+    EMIT_SIGNAL(removing,sender,group);
 }
 void GroupSubscriberList::willBeCleared(GameObjectGroup* sender)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->willBeCleared(sender);
-    }
-    emitEnd();
+    EMIT_SIGNAL(willBeCleared,sender);
 }
 void GroupSubscriberList::cleared(GameObjectGroup* sender)
 {
-    emitStart();
-    for(auto pair : *this)
-    {
-        pair.second->cleared(sender);
-    }
-    emitEnd();
+    EMIT_SIGNAL(cleared,sender);
 }
 
 GameObjectGroup::GameObjectGroup()

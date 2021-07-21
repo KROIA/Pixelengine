@@ -755,7 +755,7 @@ void PixelEngine::adding(GameObjectGroup* sender,GameObject* obj)
     ENGINE_FUNCTION(profiler::colors::OrangeA200);
     if(obj->getEngineInterface() != this && !obj->isTrash())
         this->addGameObject(obj);
-    qDebug() << "engine sender: "<<sender << " adding: "<<obj;
+  //  qDebug() << "engine sender: "<<sender << " adding: "<<obj;
 }
 
 void PixelEngine::adding(GameObjectGroup* sender,GameObjectGroup* group)
@@ -867,9 +867,9 @@ const float  &PixelEngine::get_setting_displayInterval() const
 void PixelEngine::addGameObject(GameObject *obj)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA200);
-    for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
+   /* for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
         if(m_masterGameObjectGroup[i]->getGameObject() == obj)
-            return; // Object already added to list
+            return; // Object already added to list*/
 
     if(!m_setupDone)
         m_masterGameObjectGroup.addToCache(obj);
@@ -928,6 +928,8 @@ void PixelEngine::runtime_addGameObjectIntern()
         else
             delete newIntObj;
     }
+    m_addLaterObjectGroup.clear();
+    m_addLaterObjectGroup.reserve(10);
 
 }
 void PixelEngine::runtime_removeGameObjectsIntern()

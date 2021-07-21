@@ -30,7 +30,6 @@
 #include "keyboard.h"
 #include "layeritem.h"
 #include "rect.h"
-#include "point.h"
 #include "timer.h"
 #include "userEventHandler.h"
 
@@ -39,6 +38,7 @@
 #include <thread>
 #include <chrono>
 #include <pthread.h>
+
 
 
 
