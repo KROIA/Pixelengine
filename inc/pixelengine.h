@@ -110,6 +110,9 @@ class PixelEngine   :   public EngineInterface, private GroupSignal
 
         static Settings getSettings();
         static void setSettings(const Settings &settings);
+        void setIcon(const sf::Image &image);
+        bool setIcon(const string &imagePath);
+        void setTitle(const string &title);
 
         virtual bool running(); // this returns false, if the window is closed.
         virtual void stop();
@@ -253,7 +256,7 @@ class PixelEngine   :   public EngineInterface, private GroupSignal
         HashTable<GameObject* >     m_addLaterObjectGroup;
         HashTable<GameObject* >     m_removeLaterObjectGroup;
 
-        vector<GameObjectGroup>     m_renderLayer;
+        //vector<GameObjectGroup>     m_renderLayer;
         InteractiveGameObjectGroup  m_trashList;
 
         vector<GameObjectGroup*>    m_userGroups;

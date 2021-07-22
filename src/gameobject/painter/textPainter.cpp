@@ -212,7 +212,7 @@ void TextPainter::internal_UpdateOrigin()
         case Origin::bottomRight:
             internal_SetOrigin(Vector2f(m_frame.getSize().x,m_frame.getSize().y));
         break;
-        case Origin::middle:
+        case Origin::center:
             internal_SetOrigin(Vector2f(m_frame.getSize().x/2,m_frame.getSize().y/2));
         break;
         default:

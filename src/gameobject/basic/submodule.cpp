@@ -52,6 +52,7 @@ void Submodule::setEngineInterface(EngineInterface *engine)
 
     if(engine == nullptr)
     {
+       // qDebug()<<"engineInterface == null";
         /*for(auto pair : m_painterList)
             m_engine_interface->removePainterFromDisplay(m_painterList);*/
         /*for(auto pair : m_eventList)

@@ -6,7 +6,7 @@ Texture::Texture()
     m_changesAvailable      = false;
     m_alphaThreshold        = 150;
     m_origin                = Vector2f(0,0);
-    m_originType            = Origin::middle;
+    m_originType            = Origin::center;
     m_rotation              = 0;
 
 }
@@ -112,7 +112,7 @@ void Texture::internalUpdateOrigin()
         case Origin::bottomRight:
             internalSetOrigin(Vector2f(m_image.getSize().x,m_image.getSize().y));
         break;
-        case Origin::middle:
+        case Origin::center:
             internalSetOrigin(Vector2f(m_image.getSize().x/2,m_image.getSize().y/2));
         break;
         default:

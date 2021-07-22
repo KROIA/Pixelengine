@@ -235,7 +235,6 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal, 
       //  LayerItem m_layerItem;
 
         Property::Property m_property;
-        EngineInterface  *m_engine_interface;
         DisplayInterface *m_display_interface;
         ObjSubscriberList m_objSubscriberList;
 

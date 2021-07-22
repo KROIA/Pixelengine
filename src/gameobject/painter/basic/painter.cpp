@@ -22,7 +22,7 @@ Painter::Painter()
 {
     LayerItem::setPos(Vector2f(0,0));
     setVisibility(true);
-    m_originType = Origin::middle;
+    m_originType = Origin::center;
     setRenderLayer(0);
     m_frame = RectF(0,0,0,0);
     setEnableRelativeRotation(false);

@@ -84,6 +84,26 @@ PixelDisplay::Settings PixelDisplay::getSettings() const
     settings.renderLayers       = m_maxRenderLayers;
     return settings;
 }
+void PixelDisplay::setIcon(const sf::Image &image)
+{
+    m_renderWindow->setIcon(image.getSize().x, image.getSize().y, image.getPixelsPtr());
+}
+bool PixelDisplay::setIcon(const string &imagePath)
+{
+    auto image = sf::Image{};
+    if (!image.loadFromFile(imagePath))
+    {
+        // Error handling...
+        return false;
+    }
+    setIcon(image);
+    return true;
+}
+void PixelDisplay::setTitle(const string &title)
+{
+    m_renderWindow->setTitle(title);
+}
+
 
 void PixelDisplay::display()
 {

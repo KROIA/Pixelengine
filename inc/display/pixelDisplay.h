@@ -55,6 +55,10 @@ class PixelDisplay  : private PainterSignal, public DisplayInterface
 
         virtual Settings getSettings() const;
 
+        void setIcon(const sf::Image &image);
+        bool setIcon(const string &imagePath);
+        void setTitle(const string &title);
+
         virtual void display();
         virtual void clear();
 

@@ -25,7 +25,7 @@ isEmpty(ENGINE_PATH) {
 message( "----- PixelEngine.pri ------- " )
 message( "  Path: $$ENGINE_PATH " )
 
-LIBS += -lopengl32 -lglu32
+LIBS += -lopengl32 -lglu32 -lComdlg32
 
 
 include(extern/easy_profiler.pri)
@@ -40,7 +40,8 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/utility/group \
                $$PixelEngine_incPath/utility/group/chunk \
                $$PixelEngine_incPath/utility/baseClasses \
-               $$PixelEngine_incPath/utility/extern \
+               $$PixelEngine_incPath/utility/generalFunctionality \
+               $$PixelEngine_incPath/utility/generalFunctionality/extern \
                $$PixelEngine_incPath/gameobject \
                $$PixelEngine_incPath/gameobject/basic \
                $$PixelEngine_incPath/gameobject/collider \
@@ -89,9 +90,11 @@ SOURCES += \
         $$PixelEngine_srcPath/utility/baseClasses/event.cpp \
         $$PixelEngine_srcPath/utility/baseClasses/userEventHandler.cpp \
         $$PixelEngine_srcPath/utility/baseClasses/timer.cpp \
-        $$PixelEngine_srcPath/utility/baseClasses/layeritem.cpp
+        $$PixelEngine_srcPath/utility/baseClasses/layeritem.cpp \
+        $$PixelEngine_srcPath/utility/generalFunctionality/fileBrowser.cpp
 
 HEADERS += \
+        $$PixelEngine_incPath/utility/generalFunctionality/fileBrowser.h \
         $$PixelEngine_incPath/display/displayInterface.h \
         $$PixelEngine_incPath/gameobject/basic/submodule.h \
         $$PixelEngine_incPath/gameobject/sensor/laserSensor.h \
@@ -105,7 +108,7 @@ HEADERS += \
         $$PixelEngine_incPath/utility/baseClasses/signalSubscriber.h \
         $$PixelEngine_incPath/display/drawUtilities.h \
         $$PixelEngine_incPath/gameobject/painter/texturePainter.h \
-        $$PixelEngine_incPath/utility/mathFunctions.h \
+        $$PixelEngine_incPath/utility/generalFunctionality/mathFunctions.h \
         $$PixelEngine_incPath/utility/group/InteractiveGameObject.h \
         $$PixelEngine_incPath/utility/group/InteractiveGameObjectGroup.h \
         $$PixelEngine_incPath/utility/group/groupManagerInterface.h \
@@ -138,6 +141,6 @@ HEADERS += \
         $$PixelEngine_incPath/utility/baseClasses/rect.h \
         $$PixelEngine_incPath/utility/baseClasses/keyboard.h \
         $$PixelEngine_incPath/utility/baseClasses/layeritem.h \
-        $$PixelEngine_incPath/utility/extern/FastNoiseLite.h
+        $$PixelEngine_incPath/utility/generalFunctionality/extern/FastNoiseLite.h
 
 message( "----------------------------- " )

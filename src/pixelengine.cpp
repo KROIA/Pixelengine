@@ -50,11 +50,6 @@ void PixelEngine::constructor(const Settings &settings)
     m_p_func_userTickLoop        = nullptr;
     m_setupDone                  = false;
 
-    m_renderLayer.push_back(GameObjectGroup());
-    m_renderLayer.push_back(GameObjectGroup());
-    m_renderLayer.push_back(GameObjectGroup());
-    m_renderLayer.push_back(GameObjectGroup());
-    m_renderLayer.push_back(GameObjectGroup());
 
     m_statistics.framesPerSecond        = 0;
     m_statistics.ticksPerSecond         = 0;
@@ -106,7 +101,7 @@ PixelEngine::PixelEngine(const PixelEngine &other)
 
     this->m_masterGameObjectGroup  = other.m_masterGameObjectGroup;
 
-    this->m_renderLayer            = other.m_renderLayer;
+    //this->m_renderLayer            = other.m_renderLayer;
 
     this->m_userGroups             = other.m_userGroups;
 
@@ -132,7 +127,7 @@ PixelEngine::~PixelEngine()
     {
         delete m_userGroups[i];
     }
-    m_renderLayer.clear();
+    //m_renderLayer.clear();
     vector<GameObject*>objList;
     objList.reserve(m_masterGameObjectGroup.size()+m_trashList.size());
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
@@ -153,7 +148,7 @@ PixelEngine::~PixelEngine()
     {
         delete objList[i];
     }
-
+    objList.clear();
 
     delete m_display;
     delete m_eventTimer;
@@ -183,6 +178,18 @@ void PixelEngine::setSettings(const Settings &settings)
     PixelDisplay::__defaultSettings             = settings.display;
     PixelEngine::__defaultEngineSettings        = settings.engine;
 
+}
+void PixelEngine::setIcon(const sf::Image &image)
+{
+    m_display->setIcon(image);
+}
+bool PixelEngine::setIcon(const string &imagePath)
+{
+    return m_display->setIcon(imagePath);
+}
+void PixelEngine::setTitle(const string &title)
+{
+    m_display->setTitle(title);
 }
 
 
