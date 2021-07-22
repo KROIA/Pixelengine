@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 ```
-This will create a running empty engine. Now we want to add content to it.
+This will create a running empty engine. Now we want to add content to it.<br>
 Every element in the engine will a GameObject *.
 ### Create a simple player
 ```c++
@@ -112,13 +112,13 @@ GameObject *buildPlayer(int up, int left, int down, int right)
     controller->setStepSize(1);
 
     // Set the painter and controller to the object
-    player->setPainter(painter);
+    player->addPainter(painter);
     player->addController(controller);
 
     return player;
 }
 ```
-We created a function which will generate a player object.
+We created a function which will generate a player object.<br>
 We implement this in the main().
 ```c++
     ...
@@ -171,9 +171,9 @@ in: GameObject *buildPlayer(...):
     player->setCollider(collider);
 
     // For debuging you can use this functions:
-    player->setVisibility_collider_hitbox(true);
+    player->getColliderPainter()->setVisibility_hitBox(true);
     // The BoundingBox is the rectangle which includes all hitboxes
-    player->setVisibility_collider_boundingBox(true);
+    player->getColliderPainter()->setVisibility_boundingBox(true);
 ...
 ```
 in the main(...):
