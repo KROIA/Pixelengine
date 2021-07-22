@@ -193,6 +193,10 @@ void PixelDisplay::handleEvents()
     {
         return;
     }
+
+    /*sf::Vector2i position = sf::Mouse::getPosition() - m_renderWindow->getPosition();
+    qDebug() << "pos: "<<position.x<<" "<<position.y;
+    m_renderWindow->getPosition();*/
     sf::Event event;
     event.type = sf::Event::EventType::Count;
 

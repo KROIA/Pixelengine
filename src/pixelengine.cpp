@@ -25,6 +25,8 @@ void PixelEngine::constructor(const Settings &settings)
     srand(time(NULL));
     setSettings(settings);
     m_display            = new PixelDisplay(__defaultSettings.display);
+    Submodule::setDisplay(m_display);
+    Controller::setDisplay(m_display);
     m_engineIsRunning    = true;
     m_drawingEnabled     = true;
 

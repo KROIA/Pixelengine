@@ -12,7 +12,7 @@ void SubmoduleSubscriberList::rotated(Submodule* sender,const float deltaAngle)
     EMIT_SIGNAL(rotated,sender,deltaAngle);
 }
 
-
+const PixelDisplay *Submodule::m_display = nullptr;
 Submodule::Submodule()
     :   LayerItem()
 {
@@ -22,6 +22,10 @@ Submodule::Submodule()
 
    // m_originalCollider  = new Collider();
    // this->setCollider(m_originalCollider);
+    if(m_display == nullptr)
+    {
+        qDebug() << "Submodule::m_display == nullptr, can cause problems";
+    }
 }
 Submodule::Submodule(const Submodule &other)
     :   LayerItem(other)
@@ -69,7 +73,10 @@ EngineInterface *Submodule::getEngineInterface() const
 {
     return m_engine_interface;
 }
-
+void Submodule::setDisplay(const PixelDisplay *display)
+{
+    m_display = display;
+}
 bool Submodule::hasEventsToCheck() const
 {
     return m_hasEventsToCheck;

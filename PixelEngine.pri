@@ -57,6 +57,7 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/display
 
 SOURCES += \
+        $$PWD/src/gameobject/controller/mouseController.cpp \
         $$PixelEngine_srcPath/gameobject/basic/submodule.cpp \
         $$PixelEngine_srcPath/gameobject/sensor/laserSensor.cpp \
         $$PixelEngine_srcPath/gameobject/sensor/rectSensor.cpp \
@@ -94,6 +95,7 @@ SOURCES += \
         $$PixelEngine_srcPath/utility/generalFunctionality/fileBrowser.cpp
 
 HEADERS += \
+        $$PWD/inc/gameobject/controller/mouseController.h \
         $$PixelEngine_incPath/utility/generalFunctionality/fileBrowser.h \
         $$PixelEngine_incPath/display/displayInterface.h \
         $$PixelEngine_incPath/gameobject/basic/submodule.h \

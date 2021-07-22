@@ -1,5 +1,6 @@
 #include "controller.h"
 
+
 ControllerSubscriberList::ControllerSubscriberList()
     :   SubscriberList<ControllerSignal>()
 {}
@@ -9,6 +10,7 @@ void ControllerSubscriberList::moveAvailable(Controller *sender)
     EMIT_SIGNAL(moveAvailable,sender);
 }
 
+const PixelDisplay *Controller::m_display = nullptr;
 Controller::Controller()
     :   UserEventHandler()//, LayerItem()
 {
@@ -18,6 +20,10 @@ Controller::Controller()
     m_movingMode            = add;
     m_overwritable          = true;
     //m_nothingToDo           = true;
+    if(m_display == nullptr)
+    {
+        qDebug() << "Controller::m_display == nullptr, can cause problems";
+    }
 }
 Controller::Controller(const Controller &other)
     :   UserEventHandler()//, LayerItem()
@@ -36,6 +42,10 @@ const Controller &Controller::operator=(const Controller &other)
     this->m_rotationDeg        = other.m_rotationDeg;
     return *this;
 }
+void Controller::setDisplay(const PixelDisplay *display)
+{
+    m_display = display;
+}
 void Controller::checkEvent(float deltaTime)
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink);
@@ -43,7 +53,7 @@ void Controller::checkEvent(float deltaTime)
         reset();
     m_deltaTime = deltaTime;
    // qDebug() <<m_deltaTime;
-    UserEventHandler::checkEvent();
+    UserEventHandler::checkEvent(deltaTime);
 }
 void Controller::tick()
 {

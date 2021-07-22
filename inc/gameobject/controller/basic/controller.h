@@ -40,6 +40,8 @@ class Controller    :   public UserEventHandler
         virtual  ~Controller();
         virtual const Controller &operator=(const Controller &other);
 
+        static void setDisplay(const PixelDisplay *display);
+
         virtual void checkEvent(float deltaTime);
         virtual void tick();
 
@@ -89,6 +91,8 @@ class Controller    :   public UserEventHandler
         float m_deltaTime;
 
         ControllerSubscriberList m_controllerSubscriberList;
+
+        static const PixelDisplay *m_display;
 
     private:
 

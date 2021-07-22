@@ -42,6 +42,7 @@ class Submodule :   public LayerItem
         void engineCalled_setup();
         void setEngineInterface(EngineInterface *engine);
         EngineInterface *getEngineInterface() const;
+        static void setDisplay(const PixelDisplay *display);
 
 
         bool hasEventsToCheck() const;
@@ -144,6 +145,8 @@ class Submodule :   public LayerItem
 
         Vector2f       m_movingVector;
         float          m_engine_deltaTime;
+
+        static const PixelDisplay *m_display;
     private:
 };
 #endif // SUBMODULE_H

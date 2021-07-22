@@ -37,7 +37,7 @@ class UserEventHandler
         virtual ~UserEventHandler();
         virtual UserEventHandler &operator=(const UserEventHandler &other);
 
-        virtual void checkEvent();
+        virtual void checkEvent(float deltaTime);
         virtual bool hasEventsToCheck() const;
 
         virtual size_t addEvent(Event *e);            // Adds a Event and returns the index in the list.

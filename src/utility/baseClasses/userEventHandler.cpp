@@ -33,7 +33,7 @@ UserEventHandler &UserEventHandler::operator=(const UserEventHandler &other)
     return *this;
 }
 
-void UserEventHandler::checkEvent()
+void UserEventHandler::checkEvent(float deltaTime)
 {
     // Check for all events
     for(size_t i=0; i<m_eventList.size(); i++)
