@@ -80,6 +80,16 @@ void LayerItem::setPosInitial(float x, float y)
     this->swapPosToLastPos();
 }
 
+void LayerItem::setPos(int x, int y)
+{
+    m_pos.x  = x;
+    m_pos.y  = y;
+}
+void LayerItem::setPos(float x, float y)
+{
+    m_pos.x  = x;
+    m_pos.y  = y;
+}
 void LayerItem::setPos(const Vector2f &pos)
 {
     m_pos = pos;
@@ -142,9 +152,13 @@ void LayerItem::move(const Vector2f &vec)
 {
     m_pos += vec;
 }
-void LayerItem::move(const Vector2i &vec)
+void LayerItem::moveX(float delta)
 {
-    m_pos += Vector2f(vec);
+    m_pos.x += delta;
+}
+void LayerItem::moveY(float delta)
+{
+    m_pos.y += delta;
 }
 void LayerItem::rotate(float deg)
 {

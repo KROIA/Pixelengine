@@ -7,10 +7,30 @@
 #include "layeritem.h"
 #include "rect.h"
 #include "texture.h"
+#include "signalSubscriber.h"
 
 
 using std::vector;
 using sf::Vector2f;
+
+// Signals for GameObjects
+class ColliderSignal
+{
+    public:
+        ColliderSignal(){}
+
+        virtual void boundingBoxChanged(Collider* sender) = 0;
+    protected:
+
+};
+// Vector of Signals
+class ColliderSubscriberList    : public SubscriberList<ColliderSignal>
+{
+    public:
+        ColliderSubscriberList();
+
+        virtual void boundingBoxChanged(Collider* sender);
+};
 
 class Collider  :   public LayerItem
 {
@@ -46,8 +66,8 @@ class Collider  :   public LayerItem
         virtual const RectF &getHitbox(const unsigned int &index) const;
         virtual const vector<RectF> &getHitbox() const;
 
-        virtual bool intersectsBoundingBox(const Collider &other);
-        virtual bool collides(const Collider &other);
+        virtual bool intersectsBoundingBox(const Collider *other);
+        virtual bool collides(const Collider *other);
 
         virtual void tick();
 
@@ -96,6 +116,11 @@ class Collider  :   public LayerItem
 
         void resetStateChanged();
         bool stateChanged() const;
+
+        // Signals
+        virtual void subscribe_ColliderSignal(ColliderSignal *subscriber);
+        virtual void unsubscribe_ColliderSignal(ColliderSignal *subscriber);
+        virtual void unsubscribeAll_ColliderSignal();
     protected:
 
         virtual void setBoundingBox();
@@ -124,6 +149,8 @@ class Collider  :   public LayerItem
         vector<VertexPath*> m_collisionData;
 
         bool m_stateChanged;
+
+        ColliderSubscriberList m_colliderSubscriber;
     private:
 
         virtual void internalRotate(const Vector2f &rotPoint,const float &deg);

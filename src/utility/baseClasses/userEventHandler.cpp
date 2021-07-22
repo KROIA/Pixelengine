@@ -1,5 +1,19 @@
 #include "userEventHandler.h"
 
+UserEventSubscriberList::UserEventSubscriberList()
+    :   SubscriberList<UserEventSignal>()
+{
+
+}
+void UserEventSubscriberList::eventAdded(UserEventHandler *sender,  Event *e)
+{
+    EMIT_SIGNAL(eventAdded,sender,e);
+}
+void UserEventSubscriberList::eventRemoved(UserEventHandler *sender,  Event *e)
+{
+    EMIT_SIGNAL(eventRemoved,sender,e);
+}
+
 UserEventHandler::UserEventHandler()
 {
     m_hasEventsToCheck = false;

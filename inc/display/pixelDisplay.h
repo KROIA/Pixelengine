@@ -9,7 +9,7 @@
 #include "painter.h"
 #include "pixelPainter.h"
 #include "signalSubscriber.h"
-#include "gameObjectDisplay_interface.h"
+#include "displayInterface.h"
 
 using sf::Color;
 using sf::RenderWindow;
@@ -22,7 +22,7 @@ using std::vector;
 typedef void (*fp)();
 
 
-class PixelDisplay  : private PainterSignal, public GameObjectDisplay_Interface
+class PixelDisplay  : private PainterSignal, public DisplayInterface
 {
     public:
 
@@ -55,6 +55,10 @@ class PixelDisplay  : private PainterSignal, public GameObjectDisplay_Interface
 
         virtual Settings getSettings() const;
 
+        void setIcon(const sf::Image &image);
+        bool setIcon(const string &imagePath);
+        void setTitle(const string &title);
+
         virtual void display();
         virtual void clear();
 
@@ -85,6 +89,8 @@ class PixelDisplay  : private PainterSignal, public GameObjectDisplay_Interface
 
         virtual void subscribePainter(Painter *painter);
         virtual void unsubscribePainter(Painter *painter);
+        virtual void subscribePainter(const vector<Painter *> painterList);
+        virtual void unsubscribePainter(const vector<Painter *> painterList);
 
 
     protected:

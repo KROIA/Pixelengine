@@ -31,7 +31,7 @@
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
 
-#include <QDebug>
+#include "debug.h"
 #include <profiler.h>
 
 #include <vector>
@@ -42,6 +42,8 @@
 #include <chrono>
 #include "iostream"
 #include "stdio.h"
+#include "FastNoiseLite.h"
+#include "fileBrowser.h"
 
 
 
@@ -86,7 +88,8 @@ struct DisplayStats
     vector<unsigned long long> avtivePaintersInLayer;
 };
 
-class GameObjectEngine_Interface;
+//class GameObjectEngine_Interface;
+class Submodule;
 class GameObject;
 class Collider;
 class Controller;
@@ -100,6 +103,9 @@ namespace Property
     class Property;
 };
 class Sensor;
+class RectSensor;
+class Laser;
+class LaserSensor;
 
 class Texture;
 class AnimatedTexture;
@@ -113,13 +119,18 @@ class Event;
 class LayerItem;
 template<class T>
 class GeneralRect;
-class GameObjectEventHandler;
+class EngineInterface;
 class Timer;
 class UserEventHandler;
 
+template<class T>
+class SubscriberList;
+class SubmoduleSignal;
+class SubmoduleSubscriberList;
 
 class ObjSignal;
 class ObjSubscriberList;
+
 
 class GroupSignal;
 class GroupSubscriberList;
@@ -133,6 +144,8 @@ class UserEventSubscriberList;
 class PainterSignal;
 class PainterSubscriberList;
 
+class LaserSignal;
+class LaserSubscriberList;
 
 enum RenderLayerIndex
 {

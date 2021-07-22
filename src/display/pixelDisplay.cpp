@@ -84,6 +84,26 @@ PixelDisplay::Settings PixelDisplay::getSettings() const
     settings.renderLayers       = m_maxRenderLayers;
     return settings;
 }
+void PixelDisplay::setIcon(const sf::Image &image)
+{
+    m_renderWindow->setIcon(image.getSize().x, image.getSize().y, image.getPixelsPtr());
+}
+bool PixelDisplay::setIcon(const string &imagePath)
+{
+    auto image = sf::Image{};
+    if (!image.loadFromFile(imagePath))
+    {
+        // Error handling...
+        return false;
+    }
+    setIcon(image);
+    return true;
+}
+void PixelDisplay::setTitle(const string &title)
+{
+    m_renderWindow->setTitle(title);
+}
+
 
 void PixelDisplay::display()
 {
@@ -364,6 +384,16 @@ void PixelDisplay::unsubscribePainter(Painter *painter)
         m_stats.activePainters += m_renderLayerList[i].table.size();
     }
     painter->unsubscribe_painterSignal(this);
+}
+void PixelDisplay::subscribePainter(const vector<Painter *> painterList)
+{
+    for(auto p : painterList)
+        subscribePainter(p);
+}
+void PixelDisplay::unsubscribePainter(const vector<Painter *> painterList)
+{
+    for(auto p : painterList)
+        unsubscribePainter(p);
 }
 void PixelDisplay::renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer)
 {

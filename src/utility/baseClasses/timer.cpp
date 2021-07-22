@@ -6,6 +6,7 @@ Timer::Timer()
     m_runtime       = 0;
     m_timerStarted  = false;
     m_autorestart   = false;
+    m_infiniteMode  = false;
 }
 
 Timer::~Timer()
@@ -16,7 +17,9 @@ Timer::~Timer()
 
 bool Timer::start(float sec)
 {
-    EASY_FUNCTION("Timer::start",profiler::colors::Teal);
+    TIMER_FUNCTION("Timer::start",profiler::colors::Teal);
+    if(m_infiniteMode)
+        return false;
     m_interval = sec;
     if(m_interval <= 0)
         return true;
@@ -32,19 +35,30 @@ bool Timer::start(float sec)
     }
     return false;
 }
-
-void Timer::stop()
+void Timer::startInfinite()
 {
-    EASY_FUNCTION("Timer::stop",profiler::colors::Teal50);
+    m_infiniteMode = true;
+    m_timerStarted = true;
+    m_timer_start = std::chrono::high_resolution_clock::now();
+}
+float Timer::stop()
+{
+    TIMER_FUNCTION("Timer::stop",profiler::colors::Teal50);
+    float time = getTime();
     m_timerStarted = false;
+    m_infiniteMode = false;
     m_runtime      = 0;
+    return time;
 }
 bool Timer::update()
 {
-    EASY_FUNCTION("Timer::update",profiler::colors::Teal100);
+    TIMER_FUNCTION("Timer::update",profiler::colors::Teal100);
+    if(m_infiniteMode)
+        return false;
     m_timer_end = std::chrono::high_resolution_clock::now();
     m_time_span = m_timer_end - m_timer_start;
     m_runtime = m_time_span.count();
+
     if(m_runtime >= m_interval)
     {
         // Timer finished
@@ -63,9 +77,11 @@ void Timer::setAutorestart(bool enable)
 
 float Timer::getTime()
 {
-    EASY_FUNCTION("Timer::getTime",profiler::colors::Teal200);
+    TIMER_FUNCTION("Timer::getTime",profiler::colors::Teal200);
     if(!m_timerStarted)
         return 0;
-    this->update();
+    m_timer_end = std::chrono::high_resolution_clock::now();
+    m_time_span = m_timer_end - m_timer_start;
+    m_runtime = m_time_span.count();
     return m_runtime;
 }

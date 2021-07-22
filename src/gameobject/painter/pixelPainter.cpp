@@ -126,7 +126,7 @@ void PixelPainter::clear()
         case Origin::bottomRight:
             internal_SetOrigin(Vector2f(m_texture->getSize().x,m_texture->getSize().y));
         break;
-        case Origin::middle:
+        case Origin::center:
             internal_SetOrigin(Vector2f(m_texture->getSize().x/2,m_texture->getSize().y/2));
         break;
         default:

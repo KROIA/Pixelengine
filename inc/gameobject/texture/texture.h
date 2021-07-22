@@ -17,7 +17,7 @@ enum Origin
     topRight,
     bottomLeft,
     bottomRight,
-    middle,
+    center,
     costumPos
 };
 class Texture

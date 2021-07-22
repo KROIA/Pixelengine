@@ -45,6 +45,8 @@ class VertexPathPainter :   public  Painter
         const Color &getStandardColor();
 
         void clear();
+
+
         //void erase(VertexPath *path);
 
     protected:
@@ -63,6 +65,8 @@ class VertexPathPainter :   public  Painter
         Color m_standardColor;
         Vector2f                m_origin;
         float                   m_rotation;
+
+
 
     private:
 

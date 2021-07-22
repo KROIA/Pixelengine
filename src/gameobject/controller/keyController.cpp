@@ -16,6 +16,13 @@ KeyController::KeyController()
     m_key_forMove_DOWN_event    = nullptr;
     m_key_forMove_RIGHT_event   = nullptr;
 
+    m_stepSize      = 10;
+
+    m_stepUp        = Vector2f(0,-m_stepSize);
+    m_stepDown      = Vector2f(0,m_stepSize);
+    m_stepLeft      = Vector2f(-m_stepSize,0);
+    m_stepRight     = Vector2f(m_stepSize,0);
+
 
     this->setStepSize(1);
 }
@@ -51,14 +58,14 @@ const KeyController &KeyController::operator=(const KeyController &other)
     return *this;
 }
 // From Controller
-void KeyController::checkEvent()
+void KeyController::checkEvent(float deltaTime)
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink);
     // KeyController::tick gets called 2 times per GameTick,
     // so only handle events once per GameTick
     m_currentMovingVec.x = 0;
     m_currentMovingVec.y = 0;
-    Controller::checkEvent();
+    Controller::checkEvent(deltaTime);
     if(Vector::length(m_currentMovingVec) > 0)
         this->move(m_currentMovingVec);
 }
@@ -187,7 +194,7 @@ void KeyController::setRotation()
     m_stepDown      = Vector2f(0,m_stepSize);
     m_stepLeft      = Vector2f(-m_stepSize,0);
     m_stepRight     = Vector2f(m_stepSize,0);
-    Vector2f up     = Vector::getRotated(m_stepUp,m_rotationDeg);
+  /*  Vector2f up     = Vector::getRotated(m_stepUp,m_rotationDeg);
     Vector2f left   = Vector::getRotated(m_stepLeft,m_rotationDeg);
     Vector2f down   = Vector::getRotated(m_stepDown,m_rotationDeg);
     Vector2f right  = Vector::getRotated(m_stepRight,m_rotationDeg);
@@ -195,5 +202,5 @@ void KeyController::setRotation()
     m_stepUp        = up;
     m_stepLeft      = left;
     m_stepDown      = down;
-    m_stepRight     = right;
+    m_stepRight     = right;*/
 }

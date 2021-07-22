@@ -9,7 +9,7 @@ PixelEngine::PixelEngine(const Settings &settings)
     constructor(settings);
 }
 PixelEngine::PixelEngine(const Vector2u  &mapsize,const Vector2u  &displaySize)
-    :   GameObjectEventHandler()
+    :   EngineInterface()
 {
     Settings settings               = __defaultSettings;
     settings.display.windowSize     =  displaySize;
@@ -22,6 +22,7 @@ void PixelEngine::constructor(const Settings &settings)
     EASY_PROFILER_ENABLE;
     EASY_MAIN_THREAD;
 #endif
+    srand(time(NULL));
     setSettings(settings);
     m_display            = new PixelDisplay(__defaultSettings.display);
     m_engineIsRunning    = true;
@@ -49,11 +50,6 @@ void PixelEngine::constructor(const Settings &settings)
     m_p_func_userTickLoop        = nullptr;
     m_setupDone                  = false;
 
-    m_renderLayer.push_back(GameObjectGroup());
-    m_renderLayer.push_back(GameObjectGroup());
-    m_renderLayer.push_back(GameObjectGroup());
-    m_renderLayer.push_back(GameObjectGroup());
-    m_renderLayer.push_back(GameObjectGroup());
 
     m_statistics.framesPerSecond        = 0;
     m_statistics.ticksPerSecond         = 0;
@@ -90,7 +86,7 @@ void PixelEngine::constructor(const Settings &settings)
 }
 
 PixelEngine::PixelEngine(const PixelEngine &other)
-    :   GameObjectEventHandler(other)
+    :   EngineInterface(other)
 {
     *this->m_display               = *other.m_display;
 
@@ -105,7 +101,7 @@ PixelEngine::PixelEngine(const PixelEngine &other)
 
     this->m_masterGameObjectGroup  = other.m_masterGameObjectGroup;
 
-    this->m_renderLayer            = other.m_renderLayer;
+    //this->m_renderLayer            = other.m_renderLayer;
 
     this->m_userGroups             = other.m_userGroups;
 
@@ -131,7 +127,7 @@ PixelEngine::~PixelEngine()
     {
         delete m_userGroups[i];
     }
-    m_renderLayer.clear();
+    //m_renderLayer.clear();
     vector<GameObject*>objList;
     objList.reserve(m_masterGameObjectGroup.size()+m_trashList.size());
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
@@ -152,7 +148,7 @@ PixelEngine::~PixelEngine()
     {
         delete objList[i];
     }
-
+    objList.clear();
 
     delete m_display;
     delete m_eventTimer;
@@ -182,6 +178,18 @@ void PixelEngine::setSettings(const Settings &settings)
     PixelDisplay::__defaultSettings             = settings.display;
     PixelEngine::__defaultEngineSettings        = settings.engine;
 
+}
+void PixelEngine::setIcon(const sf::Image &image)
+{
+    m_display->setIcon(image);
+}
+bool PixelEngine::setIcon(const string &imagePath)
+{
+    return m_display->setIcon(imagePath);
+}
+void PixelEngine::setTitle(const string &title)
+{
+    m_display->setTitle(title);
 }
 
 
@@ -239,20 +247,23 @@ void PixelEngine::setup()
         return;
     ENGINE_BLOCK("PixelEngine::setup()",profiler::colors::Orange);
     m_masterGameObjectGroup.buildCache();
-
-    GameObject *obj;
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
     {
-        obj = m_masterGameObjectGroup[i]->getGameObject();
-        if(!obj->isBoundingBoxUpdated())
-            obj->updateBoundingBox();
-        obj->setEventHandler(this);
-        obj->setDisplayInterface(m_display);
-        m_masterGameObjectGroup[i]->subscribeToDisplay(*m_display);
-        obj->engineCalled_setup();
+        setupObject(m_masterGameObjectGroup[i]);
     }
-
     m_setupDone = true;
+}
+void PixelEngine::setupObject(InteractiveGameObject *interObj)
+{
+    GameObject *obj = interObj->getGameObject();
+
+    obj->setEngineInterface(this);
+    obj->setDisplayInterface(m_display);
+
+    obj->engineCalled_setup();
+    //interObj->subscribeToDisplay(*m_display);
+    if(!obj->getCollider()->isBoundingBoxUpdated())
+        obj->getCollider()->updateBoundingBox();
 }
 void PixelEngine::loop()
 {
@@ -280,7 +291,8 @@ void PixelEngine::checkEvent()
 #ifdef PIXELENGINE_STATISTICS
     auto stats_checkUserEvent_timer_start = std::chrono::system_clock::now();
 #endif
-    removeGameObjectsIntern();
+    runtime_removeGameObjectsIntern();
+    runtime_addGameObjectIntern();
     m_display->handleEvents();
     if(m_display->getRenderWindow()->hasFocus())
         for(auto pair : m_eventContainer)
@@ -353,9 +365,15 @@ void PixelEngine::tick()
     m_statistics.objectsInEngine = m_masterGameObjectGroup.size();
     auto stats_userTick_timer_start = std::chrono::system_clock::now();
 #endif
+    // Get the real tick interval
+    m_realTickInterval = m_mesureTickIntervalTimer.stop();
+    m_mesureTickIntervalTimer.startInfinite();
+    if(m_realTickInterval <= 0)
+        m_realTickInterval = 0.001;
+
     ENGINE_BLOCK("userTickLoop",profiler::colors::Orange200);
     if(m_p_func_userTickLoop != nullptr)
-        (*m_p_func_userTickLoop)(m_mainTickInterval,m_tick);
+        (*m_p_func_userTickLoop)(m_realTickInterval,m_tick);
     ENGINE_END_BLOCK;
     m_tick++;
 #ifdef PIXELENGINE_STATISTICS
@@ -374,7 +392,10 @@ void PixelEngine::tick()
     tickX();
     tickY();
     ENGINE_DEEP_TICK_END_BLOCK;
-
+    ENGINE_DEEP_TICK_BLOCK("postNoThreadTick",profiler::colors::Orange200);
+    for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
+        m_masterGameObjectGroup[i]->getGameObject()->engineCalled_postNoThreadTick();
+    ENGINE_DEEP_TICK_END_BLOCK;
 #ifdef PIXELENGINE_STATISTICS
     m_statistics.intersectionCheckPerTick   = Collider::stats_checkIntersectCounter;
     m_statistics.doesIntersectPerTick       = Collider::stats_doesIntersectCounter;
@@ -621,12 +642,12 @@ void *PixelEngine::thread_tick(void *p)
 #endif
 #ifdef PIXELENGINE_ENABLE_COLLISION
    #ifdef PIXELENGINE_STATISTICS
-            stats_timer_start = std::chrono::system_clock::now();
-            if(interactiveObject->doesInteractWithOther())
-            {
-                vector<GameObject*> other = interactiveObject->getInteractiveObjects();
-                collisionsPerTick += obj->checkCollision(other);
-            }
+        stats_timer_start = std::chrono::system_clock::now();
+        if(interactiveObject->doesInteractWithOther())
+        {
+            vector<GameObject*> other = interactiveObject->getInteractiveObjects();
+            collisionsPerTick += obj->checkCollision(other);
+        }
         stats_timer_end     = std::chrono::system_clock::now();
         stats_time_span     = stats_timer_end - stats_timer_start;
         collisionCheckTime += stats_time_span.count();
@@ -739,9 +760,9 @@ void PixelEngine::removeObjectFromList(vector<GameObjectGroup*> &list,GameObject
 void PixelEngine::adding(GameObjectGroup* sender,GameObject* obj)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA200);
-    if(obj->getEventHandler() != this && !obj->isTrash())
+    if(obj->getEngineInterface() != this && !obj->isTrash())
         this->addGameObject(obj);
-    qDebug() << "engine sender: "<<sender << " adding: "<<obj;
+  //  qDebug() << "engine sender: "<<sender << " adding: "<<obj;
 }
 
 void PixelEngine::adding(GameObjectGroup* sender,GameObjectGroup* group)
@@ -853,23 +874,15 @@ const float  &PixelEngine::get_setting_displayInterval() const
 void PixelEngine::addGameObject(GameObject *obj)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA200);
-    for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
+   /* for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
         if(m_masterGameObjectGroup[i]->getGameObject() == obj)
-            return; // Object already added to list
+            return; // Object already added to list*/
 
     if(!m_setupDone)
         m_masterGameObjectGroup.addToCache(obj);
     else
     {
-        if(m_masterGameObjectGroup.add(obj))
-        {
-            if(!obj->isBoundingBoxUpdated())
-                obj->updateBoundingBox();
-            obj->setEventHandler(this);
-            obj->setDisplayInterface(m_display);
-            m_masterGameObjectGroup[m_masterGameObjectGroup.size()-1]->subscribeToDisplay(*m_display);
-            obj->engineCalled_setup();
-        }
+        m_addLaterObjectGroup.insert({obj,obj});
     }
 }
 
@@ -889,7 +902,7 @@ void PixelEngine::addGameObjectIntern(const vector<GameObject *> &list)
 void PixelEngine::removeGameObject(GameObject *obj)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA400);
-    m_removeLaterObjectGroup.push_back(obj);
+    m_removeLaterObjectGroup.insert({obj,obj});
 }
 void PixelEngine::removeGameObject(GameObjectGroup *group)
 {
@@ -907,20 +920,40 @@ void PixelEngine::removeGameObject(GameObjectGroup *group)
     group->unsubscribe_GroupSignal(this);
 }
 
-void PixelEngine::removeGameObjectsIntern()
+void PixelEngine::runtime_addGameObjectIntern()
+{
+    ENGINE_FUNCTION(profiler::colors::OrangeA400);
+    for(auto pair : m_addLaterObjectGroup)
+    {
+        GameObject *obj = pair.second;
+        InteractiveGameObject * newIntObj = new InteractiveGameObject();
+        newIntObj->setGameObject(obj);
+        if(m_masterGameObjectGroup.add(newIntObj))
+        {
+            setupObject(newIntObj);
+        }
+        else
+            delete newIntObj;
+    }
+    m_addLaterObjectGroup.clear();
+    m_addLaterObjectGroup.reserve(10);
+
+}
+void PixelEngine::runtime_removeGameObjectsIntern()
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA400);
     if(m_removeLaterObjectGroup.size() == 0)
         return;
-    for(GameObject* &obj : m_removeLaterObjectGroup)
+    for(auto pair : m_removeLaterObjectGroup)
     {
-        obj->setEventHandler(nullptr);
+        GameObject *obj = pair.second;
+        obj->setEngineInterface(nullptr);
         obj->setDisplayInterface(nullptr);
         m_masterGameObjectGroup.removeAllInteractionsWithObj(obj);
         m_masterGameObjectGroup.remove(obj);
         removeObjectFromList(m_userGroups,obj);
 
-        obj->unsubscribeToDisplay(*m_display);
+        //obj->unsubscribeToDisplay(*m_display);
 
         obj->markAsTrash(true);
         obj->unsubscribeAll_ObjSignal();
@@ -1038,7 +1071,7 @@ bool PixelEngine::getLayerVisibility(size_t layer)
     return m_display->getLayerVisibility(layer);
 }
 
-// GameObject Events from GameObjectEventHandler
+// GameObject Events from EngineInterface
 void PixelEngine::kill(GameObject *obj)
 {
     ENGINE_FUNCTION(profiler::colors::Orange50);
@@ -1074,6 +1107,11 @@ void PixelEngine::removeEvent(Event *event)
     m_eventContainer.erase(event);
     m_statistics.eventsInEngine = m_eventContainer.size();
 }
+float PixelEngine::getDeltaTime() const
+{
+   // ENGINE_FUNCTION(profiler::colors::Orange300);
+    return m_realTickInterval;
+}
 
 
 // General functions
@@ -1089,12 +1127,7 @@ float PixelEngine::random(float min, float max)
         min = max;
         max = buf;
     }
-
-    // Generating a timedependend seed
-    std::time_t t = std::time(0);   // get time now
-    std::tm* now = std::localtime(&t);
-    int seed = now->tm_year + now->tm_mon + now->tm_mday + now->tm_hour + now->tm_min + now->tm_sec;
-    return float((min*1000.0)+((seed*rand())%(long long)((max-min)*1000.0)))/1000.0;
+    return float((min*1000.0)+((rand())%(long long)((max-min)*1000.0)))/1000.0;
 }
 long PixelEngine::randomL(long min, long max)
 {
@@ -1108,12 +1141,7 @@ long PixelEngine::randomL(long min, long max)
         min = max;
         max = buf;
     }
-
-    // Generating a timedependend seed
-    std::time_t t = std::time(0);   // get time now
-    std::tm* now = std::localtime(&t);
-    int seed = now->tm_year + now->tm_mon + now->tm_mday + now->tm_hour + now->tm_min + now->tm_sec;
-    return min+seed*rand()%((max-min));
+    return min+rand()%((max-min));
 }
 
 const unsigned long long &PixelEngine::getTick() const

@@ -4,10 +4,9 @@
 #include "base.h"
 
 #include "gameobject.h"
-#include "rect.h"
-#include "pixelPainter.h"
+#include "submodule.h"
 
-class Sensor
+class Sensor    :   public Submodule
 {
     public:
         Sensor();
@@ -17,31 +16,26 @@ class Sensor
         virtual const Sensor &operator=(const Sensor &other);
 
         virtual void setOwner(GameObject *owner);
-        virtual void setSensorCollider(Collider *collider);
 
-        virtual void checkCollision(const vector<GameObject*> &other);
-        virtual void draw(PixelDisplay &display);
+        virtual void engineCalled_preTick();
+        virtual void engineCalled_tick(const Vector2i &direction);
+        virtual void engineCalled_postTick();
+        virtual void engineCalled_preDraw();
 
+        virtual void detectObjects(const vector<GameObject*> &other) = 0;
         virtual const vector<GameObject*> &getDetectedObjects() const;
 
-        virtual float getRotation() const;
-        virtual void rotate(const float &deg);
-        virtual void setRotation(const float &deg);
-        virtual void rotate_90();
-        virtual void rotate_180();
-        virtual void rotate_270();
-
-        virtual void setVisibility_collider_boundingBox(bool isVisible);
-        virtual bool isVisible_collider_boundingBox() const;
-
+        void setEnableRelativeRotation(bool enable);
+        void setEnableRelativePosition(bool enable);
+        bool getEnableRelativeRotation() const;
+        bool getEnableRelativePosition() const;
 
     protected:
-        Collider *m_sensorCollider;
-        //PixelPainter  *m_sensorPainter;
         vector<GameObject*> m_detected;
         GameObject *m_owner;
 
-        bool m_visibility_collider_boundingBox;
+        bool        m_enableRelativeRotation;
+        bool        m_enableRelativePosition;
     private:
 };
 

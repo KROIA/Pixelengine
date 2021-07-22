@@ -60,13 +60,27 @@ class GeneralRect
         virtual void clearColliderData();
         virtual bool intersects(const GeneralRect<T> &other); // returns true if this and ohter are intersecting
         virtual bool intersects_fast(const GeneralRect<T> &other); // returns true if this and ohter are intersecting
-        static  bool intersects_fast(const GeneralRect<T> &first,const GeneralRect<T> &second);
-        virtual bool intersects_inverse_fast(const GeneralRect<T> &other); // returns true if this is intersecting the inverse of the other
-        static  bool intersects_inverse_fast(const GeneralRect<T> &first,const GeneralRect<T> &second);
+        virtual bool intersects_inverseOf_fast(const GeneralRect<T> &other); // returns true if this is intersecting the inverse of the other
         virtual bool isOnTopOf(const GeneralRect<T> &other);
         virtual bool isBeneathOf(const GeneralRect<T> &other);
         virtual bool isLeftOf(const GeneralRect<T> &other);
         virtual bool isRightOf(const GeneralRect<T> &other);
+        virtual bool intersectsTopOf(const GeneralRect<T> &other);
+        virtual bool intersectsLeftOf(const GeneralRect<T> &other);
+        virtual bool intersectsBottomOf(const GeneralRect<T> &other);
+        virtual bool intersectsRightOf(const GeneralRect<T> &other);
+
+        static  bool intersects_fast(const GeneralRect<T> &first,const GeneralRect<T> &second);
+        static  bool intersects_inverseOf_fast(const GeneralRect<T> &first,const GeneralRect<T> &second);
+        static  bool isOnTopOf(const GeneralRect<T> &first,const GeneralRect<T> &second);
+        static  bool isBeneathOf(const GeneralRect<T> &first,const GeneralRect<T> &second);
+        static  bool isLeftOf(const GeneralRect<T> &first,const GeneralRect<T> &second);
+        static  bool isRightOf(const GeneralRect<T> &first,const GeneralRect<T> &second);
+        static  bool intersectsTopOf(const GeneralRect<T> &first,const GeneralRect<T> &second);
+        static  bool intersectsLeftOf(const GeneralRect<T> &first,const GeneralRect<T> &second);
+        static  bool intersectsBottomOf(const GeneralRect<T> &first,const GeneralRect<T> &second);
+        static  bool intersectsRightOf(const GeneralRect<T> &first,const GeneralRect<T> &second);
+
         virtual bool contains(const Vector2<T> &point) const;
 
         bool operator==(const GeneralRect<T> &other) const;
@@ -497,6 +511,28 @@ bool GeneralRect<T>::intersects(const GeneralRect<T> &other)
     {
         for(size_t j=0; j<other_frameVecList_size; j++)
         {
+            bool doesCollide;
+            Vector2<T> factor;
+            Vector2<T> collisionPoint = Vector::getCollisionPoint(
+                        *frameVecList[i].s,        *frameVecList[i].d,
+                        *other_frameVecList[j].s,  *other_frameVecList[j].d,
+                        doesCollide, factor);
+            if(doesCollide)
+            {
+                if(colliderDataEnabled)
+                {
+                    collisionData.push_back(this->getDrawable(sf::Color(0,255,0)));
+                    collisionData.push_back(other.getDrawable(sf::Color(255,0,0)));
+
+                    collisionData.push_back(Vector::getDrawableVector(*frameVecList[i].s,collisionPoint,sf::Color(0,255,255)));
+                    collisionData.push_back(Vector::getDrawableVector(*other_frameVecList[j].s,collisionPoint,sf::Color(255,0,255)));
+                }
+                return true;
+            }
+
+
+            /*
+
             if(Vector::doesIntersect(*frameVecList[i].d,*other_frameVecList[j].d))
             {
                 intersectionFac = Vector::getIntersection(*frameVecList[i].s,        *frameVecList[i].d,
@@ -515,7 +551,7 @@ bool GeneralRect<T>::intersects(const GeneralRect<T> &other)
                     }
                     return true;
                 }
-            }
+            }*/
         }
     }
     stats_intersectionCheckCounter = frameVecList_size * other_frameVecList_size/*+1*/;
@@ -534,6 +570,72 @@ bool GeneralRect<T>::intersects_fast(const GeneralRect<T> &other)
     return intersects_fast(*this,other);
 }
 
+
+
+// returns true if this is intersecting the inverse of the other
+template<class T>
+bool GeneralRect<T>::intersects_inverseOf_fast(const GeneralRect<T> &other)
+{
+    stats_intersectionCheckCounter = 2;
+    return intersects_inverseOf_fast(*this,other);
+}
+
+
+
+template<class T>
+bool GeneralRect<T>::isOnTopOf(const GeneralRect<T> &other)
+{
+    stats_intersectionCheckCounter = 1;
+    return isOnTopOf(*this,other);
+}
+template<class T>
+bool GeneralRect<T>::isBeneathOf(const GeneralRect<T> &other)
+{
+    stats_intersectionCheckCounter = 1;
+    return isBeneathOf(*this,other);
+}
+template<class T>
+bool GeneralRect<T>::isRightOf(const GeneralRect<T> &other)
+{
+    stats_intersectionCheckCounter = 1;
+    return isRightOf(*this,other);
+}
+template<class T>
+bool GeneralRect<T>::isLeftOf(const GeneralRect<T> &other)
+{
+    stats_intersectionCheckCounter = 1;
+    return isLeftOf(*this,other);
+}
+
+template<class T>
+bool GeneralRect<T>::intersectsTopOf(const GeneralRect<T> &other)
+{
+    stats_intersectionCheckCounter = 1;
+    return intersectsTopOf(*this,other);
+}
+
+template<class T>
+bool GeneralRect<T>::intersectsLeftOf(const GeneralRect<T> &other)
+{
+    stats_intersectionCheckCounter = 1;
+    return intersectsLeftOf(*this,other);
+}
+
+template<class T>
+bool GeneralRect<T>::intersectsBottomOf(const GeneralRect<T> &other)
+{
+    stats_intersectionCheckCounter = 1;
+    return intersectsBottomOf(*this,other);
+}
+
+template<class T>
+bool GeneralRect<T>::intersectsRightOf(const GeneralRect<T> &other)
+{
+    stats_intersectionCheckCounter = 1;
+    return intersectsRightOf(*this,other);
+}
+
+
 template<class T>
 bool GeneralRect<T>::intersects_fast(const GeneralRect<T> &first,const GeneralRect<T> &second)
 {
@@ -551,17 +653,8 @@ bool GeneralRect<T>::intersects_fast(const GeneralRect<T> &first,const GeneralRe
     }
     return true;
 }
-
-// returns true if this is intersecting the inverse of the other
 template<class T>
-bool GeneralRect<T>::intersects_inverse_fast(const GeneralRect<T> &other)
-{
-    stats_intersectionCheckCounter = 2;
-    return intersects_inverse_fast(*this,other);
-}
-
-template<class T>
-bool GeneralRect<T>::intersects_inverse_fast(const GeneralRect<T> &first,const GeneralRect<T> &second)
+bool GeneralRect<T>::intersects_inverseOf_fast(const GeneralRect<T> &first,const GeneralRect<T> &second)
 {
     if(first.frame_pos.x > second.frame_pos.x && first.frame_pos.x + first.frame_size.x < second.frame_pos.x + second.frame_size.x &&
        first.frame_pos.y > second.frame_pos.y && first.frame_pos.y + first.frame_size.y < second.frame_pos.y + second.frame_size.y)
@@ -570,47 +663,55 @@ bool GeneralRect<T>::intersects_inverse_fast(const GeneralRect<T> &first,const G
     }
     return true;
 }
+template<class T>
+bool GeneralRect<T>::isOnTopOf(const GeneralRect<T> &first,const GeneralRect<T> &second)
+{
+    return second.frame_pos.y > first.frame_pos.y + first.frame_size.y;
+}
 
 template<class T>
-bool GeneralRect<T>::isOnTopOf(const GeneralRect<T> &other)
+bool GeneralRect<T>::isBeneathOf(const GeneralRect<T> &first,const GeneralRect<T> &second)
 {
-    if(other.frame_pos.y > frame_pos.y + frame_size.y)
-    {
-        stats_intersectionCheckCounter = 1;
-        return true;
-    }
-    return false;
+    return first.frame_pos.y >  second.frame_pos.y + second.frame_size.y;
 }
+
 template<class T>
-bool GeneralRect<T>::isBeneathOf(const GeneralRect<T> &other)
+bool GeneralRect<T>::isLeftOf(const GeneralRect<T> &first,const GeneralRect<T> &second)
 {
-    if(frame_pos.y >  other.frame_pos.y + other.frame_size.y)
-    {
-        stats_intersectionCheckCounter = 1;
-        return true;
-    }
-    return false;
+    return second.frame_pos.x > first.frame_pos.x + first.frame_size.x;
 }
+
 template<class T>
-bool GeneralRect<T>::isRightOf(const GeneralRect<T> &other)
+bool GeneralRect<T>::isRightOf(const GeneralRect<T> &first,const GeneralRect<T> &second)
 {
-    if(frame_pos.x >  other.frame_pos.x + other.frame_size.x)
-    {
-        stats_intersectionCheckCounter = 1;
-        return true;
-    }
-    return false;
+    return first.frame_pos.x >  second.frame_pos.x + second.frame_size.x;
 }
+
 template<class T>
-bool GeneralRect<T>::isLeftOf(const GeneralRect<T> &other)
+bool GeneralRect<T>::intersectsTopOf(const GeneralRect<T> &first,const GeneralRect<T> &second)
 {
-    if(other.frame_pos.x > frame_pos.x + frame_size.x)
-    {
-        stats_intersectionCheckCounter = 1;
-        return true;
-    }
-    return false;
+    return first.frame_pos.y < second.frame_pos.y && first.frame_pos.y+first.frame_size.y > second.frame_pos.y;
 }
+
+template<class T>
+bool GeneralRect<T>::intersectsLeftOf(const GeneralRect<T> &first,const GeneralRect<T> &second)
+{
+    return first.frame_pos.x < second.frame_pos.x && first.frame_pos.x+first.frame_size.x > second.frame_pos.x;
+}
+
+template<class T>
+bool GeneralRect<T>::intersectsBottomOf(const GeneralRect<T> &first,const GeneralRect<T> &second)
+{
+    return first.frame_pos.y < second.frame_pos.y+second.frame_size.y && first.frame_pos.y+first.frame_size.y > second.frame_pos.y+second.frame_size.y;
+}
+
+template<class T>
+bool GeneralRect<T>::intersectsRightOf(const GeneralRect<T> &first,const GeneralRect<T> &second)
+{
+    return first.frame_pos.x < second.frame_pos.x+second.frame_size.x && first.frame_pos.x+first.frame_size.x > second.frame_pos.x+second.frame_size.x;
+}
+
+
 template<class T>
 bool GeneralRect<T>::contains(const Vector2<T> &point) const
 {

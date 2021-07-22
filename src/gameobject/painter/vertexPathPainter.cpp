@@ -92,6 +92,7 @@ void VertexPathPainter::addPath(const vector<Vector2f> &points, const Color &col
     path->setColor(color);
     internal_addPath(path);
 }
+
 void VertexPathPainter::internal_addPath(VertexPath *path)
 {
     m_pathList.insert({path,path});
@@ -192,7 +193,7 @@ void VertexPathPainter::internal_UpdateOrigin()
         case Origin::bottomRight:
             internal_SetOrigin(Vector2f(m_frame.getSize().x,m_frame.getSize().y)+m_frame.getPos());
         break;
-        case Origin::middle:
+        case Origin::center:
             internal_SetOrigin(Vector2f(m_frame.getSize().x/2,m_frame.getSize().y/2)+m_frame.getPos());
         break;
         default:

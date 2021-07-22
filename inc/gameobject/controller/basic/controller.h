@@ -7,9 +7,25 @@
 #include "userEventHandler.h"
 #include "event.h"
 #include "signalSubscriber.h"
+#include "mathFunctions.h"
 
-using std::vector;
-using sf::Vector2f;
+// Signals for Controller
+class ControllerSignal
+{
+    public:
+        ControllerSignal(){}
+
+        virtual void moveAvailable(Controller *sender) = 0;
+};
+// Vector of Signals
+class ControllerSubscriberList: public SubscriberList<ControllerSignal>
+{
+    public:
+        ControllerSubscriberList();
+
+        virtual void moveAvailable(Controller *sender);
+};
+
 
 class Controller    :   public UserEventHandler
 {
@@ -24,7 +40,7 @@ class Controller    :   public UserEventHandler
         virtual  ~Controller();
         virtual const Controller &operator=(const Controller &other);
 
-        virtual void checkEvent();
+        virtual void checkEvent(float deltaTime);
         virtual void tick();
 
         virtual void setMovingMode(MovingMode mode);
@@ -39,7 +55,7 @@ class Controller    :   public UserEventHandler
         virtual void moveX(float x,MovingMode mode = MovingMode::add);
         virtual void moveY(float y,MovingMode mode = MovingMode::add);
 
-        virtual const Vector2f &getMovingVector() const;
+        virtual Vector2f getMovingVector() const;
 
         virtual void setRotation(const float &deg);
         virtual void rotate(const float &deg);
@@ -66,9 +82,11 @@ class Controller    :   public UserEventHandler
 
         Vector2f m_currentDeltaMove;
         bool     m_overwritable;
-        int m_rotationDeg;
+        float m_rotationDeg;
         MovingMode m_movingMode;
         //bool m_nothingToDo;
+
+        float m_deltaTime;
 
         ControllerSubscriberList m_controllerSubscriberList;
 

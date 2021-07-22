@@ -25,6 +25,8 @@ class LayerItem
         virtual void setPosInitial(float x, float y);
 
 
+        virtual void setPos(int x, int y);
+        virtual void setPos(float x, float y);
         virtual void setPos(const Vector2f &pos);
         virtual void setPos(const Vector2i &pos);
         virtual const Vector2f &getPos() const;
@@ -43,7 +45,8 @@ class LayerItem
         virtual int getYI() const;
 
         virtual void move(const Vector2f &vec);
-        virtual void move(const Vector2i &vec);
+        virtual void moveX(float delta);
+        virtual void moveY(float delta);
 
 
         virtual void rotate(float deg);

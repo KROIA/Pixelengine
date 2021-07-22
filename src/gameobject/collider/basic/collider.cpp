@@ -1,5 +1,17 @@
 #include "collider.h"
 
+ColliderSubscriberList::ColliderSubscriberList()
+    :   SubscriberList<ColliderSignal>()
+{
+    m_emiterCallActive = false;
+}
+
+
+void ColliderSubscriberList::boundingBoxChanged(Collider* sender)
+{
+    EMIT_SIGNAL(boundingBoxChanged,sender);
+}
+
 unsigned long long Collider::stats_checkIntersectCounter = 0;
 unsigned long long Collider::stats_doesIntersectCounter  = 0;
 unsigned long long Collider::stats_checkCollisionCounter = 0;
@@ -202,14 +214,14 @@ const vector<RectF> &Collider::getHitbox() const
 }
 
 
-bool Collider::intersectsBoundingBox(const Collider &other)
+bool Collider::intersectsBoundingBox(const Collider *other)
 {
     COLLIDER_FUNCTION(profiler::colors::Red200);
     /*if(LayerItem::getLastPos()       == LayerItem::getPos()      && other.LayerItem::getLastPos()      == other.LayerItem::getPos() &&
        LayerItem::getLastRotation()  == LayerItem::getRotation() && other.LayerItem::getLastRotation() == other.LayerItem::getRotation())
         return false; // Beide Objekete haben sicht nicht bewegt -> sollte keine Kollision geben*/
 
-    bool intersects = this->m_boundingBox.intersects_fast(other.m_boundingBox);
+    bool intersects = this->m_boundingBox.intersects_fast(other->m_boundingBox);
     stats_checkIntersectCounter += this->m_boundingBox.stats_intersectionCheckCounter;
     if(intersects)
     {
@@ -219,7 +231,7 @@ bool Collider::intersectsBoundingBox(const Collider &other)
     return intersects;
 }
 
-bool Collider::collides(const Collider &other)
+bool Collider::collides(const Collider *other)
 {
     COLLIDER_FUNCTION(profiler::colors::Red300);
     /*if(LayerItem::getLastPos()       == LayerItem::getPos()      && other.LayerItem::getLastPos()      == other.LayerItem::getPos() &&
@@ -230,11 +242,11 @@ bool Collider::collides(const Collider &other)
     for(size_t x=0; x<this->m_hitboxList.size(); x++)
     {
         COLLIDER_BLOCK("for(size_t y=0; y<other.m_hitboxList.size(); y++)",profiler::colors::Red500);
-        for(size_t y=0; y<other.m_hitboxList.size(); y++)
+        for(size_t y=0; y<other->m_hitboxList.size(); y++)
         {
             COLLIDER_BLOCK("this->m_hitboxList[x].intersects(other.m_hitboxList[y])",profiler::colors::Red600);
             //Vector::Func2f colliderFunc;
-            if(this->m_hitboxList[x].intersects(other.m_hitboxList[y]))
+            if(this->m_hitboxList[x].intersects(other->m_hitboxList[y]))
             {
                 stats_checkCollisionCounter += this->m_hitboxList[x].stats_intersectionCheckCounter;
                 stats_doesCollideCounter++;
@@ -303,6 +315,7 @@ void Collider::setBoundingBox(const RectF &box)
     m_boundingBox = box;
     m_boundingBoxUpdated = true;
     m_stateChanged = true;
+    m_colliderSubscriber.boundingBoxChanged(this);
 }
 
 void Collider::setBoundingBox(const int &x,const int &y,
@@ -313,6 +326,7 @@ void Collider::setBoundingBox(const int &x,const int &y,
     m_boundingBox.setSize(width,height);
     m_boundingBoxUpdated = true;
     m_stateChanged = true;
+    m_colliderSubscriber.boundingBoxChanged(this);
 }
 
 
@@ -458,6 +472,21 @@ bool Collider::stateChanged() const
 {
     return m_stateChanged;
 }
+void Collider::subscribe_ColliderSignal(ColliderSignal *subscriber)
+{
+    if(subscriber == nullptr)
+        return;
+    m_colliderSubscriber.insert(subscriber);
+}
+void Collider::unsubscribe_ColliderSignal(ColliderSignal *subscriber)
+{
+    m_colliderSubscriber.erase(subscriber);
+}
+void Collider::unsubscribeAll_ColliderSignal()
+{
+    m_colliderSubscriber.clear();
+}
+
 void Collider::stats_reset()
 {
     stats_checkIntersectCounter = 0;
