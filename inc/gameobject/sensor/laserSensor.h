@@ -5,7 +5,7 @@
 #include "vertexPathPainter.h"
 
 // Signals for Laser
-class LaserSignal
+/*class LaserSignal
 {
     public:
         LaserSignal(){}
@@ -19,10 +19,18 @@ class LaserSubscriberList: public SubscriberList<LaserSignal>
         LaserSubscriberList();
 
         virtual void changed(Laser *sender);
-};
+};*/
+SIGNAL_DEF(Laser)
+    SIGNAL_FUNC(changed)
+SIGNAL_DEF_END
+
+SIGNAL_EMITTER_DEF(Laser)
+    SIGNAL_EMITTER_FUNC(changed)
+SIGNAL_EMITTER_DEF_END
 
 class Laser
 {
+    SIGNAL_EMITTER(Laser)
     public:
         Laser();
         Laser(const Vector2f &begin, float length, float angle);
@@ -46,9 +54,9 @@ class Laser
         const Vector2f &getGlobalEnd() const;
         float getGlobalAngle() const;
 
-        void subscribe_laserSignal(LaserSignal *subscriber);
+        /*void subscribe_laserSignal(LaserSignal *subscriber);
         void unsubscribe_laserSignal(LaserSignal *subscriber);
-        void unsubscribeAll_laserSignal();
+        void unsubscribeAll_laserSignal();*/
 
     private:
         void calculateLocal();
@@ -67,12 +75,12 @@ class Laser
         float    m_globalRotation;
         Vector2f m_globalDirectionVec;
 
-        LaserSubscriberList m_laserSubscriberList;
+        //LaserSubscriberList m_laserSubscriberList;
 };
 
 
 
-class LaserSensor   :   public Sensor,   private LaserSignal
+class LaserSensor   :   public Sensor,   SIGNAL_RECEIVES(Laser)
 {
     public:
         LaserSensor();
@@ -100,7 +108,8 @@ class LaserSensor   :   public Sensor,   private LaserSignal
     protected:
 
         // Signals from Laser
-        void changed(Laser *sender);
+        //void changed(Laser *sender);
+        SLOT_DECLARATION(Laser,changed)
 
 
         VertexPathPainter *m_sensorPainter;

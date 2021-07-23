@@ -3,19 +3,24 @@
 
 #include "base.h"
 
-#include "layeritem.h"
-#include "userEventHandler.h"
-#include "event.h"
-#include "signalSubscriber.h"
+//#include "layeritem.h"
+//#include "userEventHandler.h"
+#include "keyEvent.h"
+#include "signalEmitter.h"
 #include "mathFunctions.h"
+#include "displayInterface.h"
 
 // Signals for Controller
-class ControllerSignal
+/*class ControllerSignal
 {
     public:
         ControllerSignal(){}
 
         virtual void moveAvailable(Controller *sender) = 0;
+        virtual void eventAdded(Controller *sender,  Event *e) = 0;
+        virtual void eventRemoved(Controller *sender,  Event *e) = 0;
+        virtual void eventsWillBeCleared(Controller *sender) = 0;
+        virtual void eventsCleared(Controller *sender) = 0;
 };
 // Vector of Signals
 class ControllerSubscriberList: public SubscriberList<ControllerSignal>
@@ -23,12 +28,32 @@ class ControllerSubscriberList: public SubscriberList<ControllerSignal>
     public:
         ControllerSubscriberList();
 
-        virtual void moveAvailable(Controller *sender);
-};
+        void moveAvailable(Controller *sender);
+        void eventAdded(Controller *sender,  Event *e);
+        void eventRemoved(Controller *sender,  Event *e);
+        void eventsWillBeCleared(Controller *sender);
+        void eventsCleared(Controller *sender);
+};*/
+SIGNAL_DEF(Controller)
+    SIGNAL_FUNC(moveAvailable)
+    SIGNAL_FUNC(eventAdded,Event*)
+    SIGNAL_FUNC(eventRemoved,Event*)
+    SIGNAL_FUNC(eventsWillBeCleared)
+    SIGNAL_FUNC(eventsCleared)
+SIGNAL_DEF_END
+
+SIGNAL_EMITTER_DEF(Controller)
+    SIGNAL_EMITTER_FUNC(moveAvailable)
+    SIGNAL_EMITTER_FUNC(eventAdded,Event*)
+    SIGNAL_EMITTER_FUNC(eventRemoved,Event*)
+    SIGNAL_EMITTER_FUNC(eventsWillBeCleared)
+    SIGNAL_EMITTER_FUNC(eventsCleared)
+SIGNAL_EMITTER_DEF_END
 
 
-class Controller    :   public UserEventHandler
+class Controller//    :   public UserEventHandler
 {
+    SIGNAL_EMITTER(Controller)
     public:
         enum MovingMode
         {
@@ -40,59 +65,61 @@ class Controller    :   public UserEventHandler
         virtual  ~Controller();
         virtual const Controller &operator=(const Controller &other);
 
-        static void setDisplay(const PixelDisplay *display);
+        static void setDisplayInterface(DisplayInterface *display);
 
+
+        bool addEvent(Event *event);
+        bool removeEvent(Event *event);
+        void clearEvent();
+        bool hasEventsToCheck() const;
         virtual void checkEvent(float deltaTime);
-        virtual void tick();
+        virtual void engineCalled_preTick();
+        virtual void engineCalled_postTick();
 
-        virtual void setMovingMode(MovingMode mode);
-        virtual MovingMode getMovingMode() const;
+        void setMovingMode(MovingMode mode);
+        MovingMode getMovingMode() const;
 
-        virtual void moveToPos(const Vector2i&currentPos,const Vector2i&destination,MovingMode mode = MovingMode::add);
-        virtual void moveToPos(const int &currentX,const int &currentY,
-                               const int &destinationX,const int &destinationY,MovingMode mode = MovingMode::override);
-        virtual void move(const Vector2i&directionVector,MovingMode mode = MovingMode::add);
-        virtual void move(const Vector2f &directionVector,MovingMode mode = MovingMode::add);
-        virtual void move(float x,float y,MovingMode mode = MovingMode::add);
-        virtual void moveX(float x,MovingMode mode = MovingMode::add);
-        virtual void moveY(float y,MovingMode mode = MovingMode::add);
+        void moveToPos(const Vector2i&currentPos,const Vector2i&destination, MovingMode mode = MovingMode::add);
+        void moveToPos(int currentX,int currentY,
+                       int destinationX,int destinationY,MovingMode mode = MovingMode::override);
+        void move(const Vector2i&directionVector,MovingMode mode = MovingMode::add);
+        void move(const Vector2f &directionVector,MovingMode mode = MovingMode::add);
+        void move(float x,float y,MovingMode mode = MovingMode::add);
+        void moveX(float x,MovingMode mode = MovingMode::add);
+        void moveY(float y,MovingMode mode = MovingMode::add);
 
-        virtual Vector2f getMovingVector() const;
+        Vector2f getMovingVector() const;
 
-        virtual void setRotation(const float &deg);
-        virtual void rotate(const float &deg);
-        virtual float getRotation() const;
-        virtual void rotate_90();
-        virtual void rotate_180();
-        virtual void rotate_270();
+        void setRotation(float deg);
+        void rotate(float deg);
+        float getRotation() const;
+        void rotate_90();
+        void rotate_180();
+        void rotate_270();
 
-        virtual void subscribe_ControllerSignal(ControllerSignal *subscriber);
-        virtual void unsubscribe_ControllerSignal(ControllerSignal *subscriber);
-        virtual void unsubscribeAll_ControllerSignal();
-
+        /*void subscribe_ControllerSignal(ControllerSignal *subscriber);
+        void unsubscribe_ControllerSignal(ControllerSignal *subscriber);
+        void unsubscribeAll_ControllerSignal();
+*/
         virtual void reset();
 
 
     protected:
-        // Receiver Signal from Eventhandler
-        virtual void receive_key_isPressed(const int &key);
-        virtual void receive_key_toggle(const int &key);
-        virtual void receive_key_goesDown(const int &key);
-        virtual void receive_key_goesUp(const int &key);
 
 
 
-        Vector2f m_currentDeltaMove;
-        bool     m_overwritable;
-        float m_rotationDeg;
-        MovingMode m_movingMode;
-        //bool m_nothingToDo;
+        Vector2f    m_currentDeltaMove;
+        bool        m_overwritable;
+        float       m_rotationDeg;
+        MovingMode  m_movingMode;
 
         float m_deltaTime;
 
-        ControllerSubscriberList m_controllerSubscriberList;
+       // ControllerSubscriberList m_controllerSubscriberList;
 
-        static const PixelDisplay *m_display;
+        static DisplayInterface *m_display_interface;
+
+        HashTable<Event*>   m_eventList;
 
     private:
 

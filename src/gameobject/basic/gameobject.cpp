@@ -2,7 +2,7 @@
 #include "engineInterface.h"
 #include "InteractiveGameObject.h"
 
-
+/*
 ObjSubscriberList::ObjSubscriberList()
     :   SubscriberList<ObjSignal>()
 {}
@@ -10,12 +10,12 @@ ObjSubscriberList::ObjSubscriberList()
 
 void ObjSubscriberList::moved(GameObject* sender,const Vector2f &move)
 {
-    EMIT_SIGNAL(moved,sender,move);
+    SIGNAL_EMIT_INTERN(moved,sender,move);
 }
 void ObjSubscriberList::rotated(GameObject* sender,const float deltaAngle)
 {
-    EMIT_SIGNAL(rotated,sender,deltaAngle);
-}
+    SIGNAL_EMIT_INTERN(rotated,sender,deltaAngle);
+}*/
 
 GameObject::GameObject()
 {
@@ -120,18 +120,18 @@ GameObject::~GameObject()
     this->m_isTrash = other.m_isTrash;
     return *this;
 }*/
-/*void GameObject::addEvent(Event *e)
+/*void GameObject::addEvent(KeyEvent *e)
 {
     m_eventList.insert({e,e});
 }
-void GameObject::removeEvent(Event *e)
+void GameObject::removeEvent(KeyEvent *e)
 {
     m_eventList.erase(e);
 }*/
-void GameObject::engineCalled_checkEvent()
+void GameObject::engineCalled_checkEvent(float deltaTime)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green);
-    Submodule::engineCalled_checkEvent();
+    Submodule::engineCalled_checkEvent(deltaTime);
     for(auto controller : m_controllerList)
         if(controller->hasEventsToCheck())
             controller->checkEvent(m_engine_deltaTime);
@@ -140,9 +140,9 @@ void GameObject::engineCalled_checkEvent()
             m_controllerList[i]->checkEvent();*/
    /* for(auto eventPair  : m_eventList)
         eventPair.second->checkEvent();*/
-    this->checkEvent();
+    this->checkEvent(deltaTime);
 }
-void GameObject::checkEvent()
+void GameObject::checkEvent(float deltaTime)
 {
 
 }
@@ -177,6 +177,9 @@ void GameObject::engineCalled_preTick()
     size_t lastSize = m_collidedObjects.size();
     m_collidedObjects.clear();
     m_collidedObjects.reserve(lastSize+10);
+
+    for(auto controller : m_controllerList)
+        controller->engineCalled_preTick();
 
     /*for(auto sensor : m_sensorList)
     {
@@ -217,7 +220,7 @@ void GameObject::engineCalled_tick(const Vector2i &direction)
                 //m_movementCoordinator.addMovement(m_controllerList[i]->getMovingVector());
                 m_movingVector += m_controllerList[i]->getMovingVector();
 
-                m_controllerList[i]->tick(); // Clears the movingVector
+
             }
             //m_movementCoordinator.calculateMovement();
             //LayerItem::move(Vector2f(m_movementCoordinator.getMovingVector_X(),0));
@@ -272,6 +275,8 @@ void GameObject::engineCalled_postTick()
     m_collider->setPos(m_pos);
     m_collider->setRotation(m_rotation);
     m_colliderSearchBox.setPos(m_pos+m_colliderSearchBoxRelativePos);
+    for(auto controller : m_controllerList)
+        controller->engineCalled_postTick();
 
     for(auto sensor : m_sensorList)
     {
@@ -294,15 +299,19 @@ void GameObject::engineCalled_postNoThreadTick()
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green300);
     Submodule::engineCalled_postNoThreadTick();
-    if(m_objSubscriberList.size() > 0)
-        if(Vector::length(/*m_movementCoordinator.getMovingVector()*/m_movingVector) != 0)
-            m_objSubscriberList.moved(this,/*m_movementCoordinator.getMovingVector()*/m_movingVector);
 
+    if(Vector::length(m_movingVector) != 0)
+        SIGNAL_EMIT(GameObject,moved,m_movingVector)
+   /* if(m_objSubscriberList.size() > 0)
+        if(Vector::length(m_movingVector) != 0)
+            m_objSubscriberList.moved(this,m_movingVector);
+*/
     m_movementCoordinator.tick();
     if(m_lastRotation != m_rotation)
     {
-        if(m_objSubscriberList.size() > 0)
-            m_objSubscriberList.rotated(this,m_rotation-m_lastRotation);
+      //  if(m_objSubscriberList.size() > 0)
+      //      m_objSubscriberList.rotated(this,m_rotation-m_lastRotation);
+        SIGNAL_EMIT(GameObject,rotated,m_rotation-m_lastRotation)
         LayerItem::swapRotationToLastRotation();
     }
 }
@@ -386,7 +395,7 @@ void GameObject::setDisplayInterface(DisplayInterface *display)
         m_display_interface->subscribePainter(m_painterList);
 }
 
-
+/*
 void GameObject::subscribe_ObjSignal(ObjSignal *subscriber)
 {
     if(subscriber == nullptr)
@@ -401,7 +410,7 @@ void GameObject::unsubscribeAll_ObjSignal()
 {
     m_objSubscriberList.clear();
 }
-
+*/
 /*void GameObject::addController(CgetEngineInterfaceroller)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green800);
@@ -474,8 +483,8 @@ void GameObject::addController(Controller *controller)
         if(listed == controller)
             return;
     m_controllerList.push_back(controller);
-    controller->subscribe_UserEventSignal(this);
-    controller->subscribe_ControllerSignal(this);
+    //controller->subscribe_ControllerSignal(this);
+    SIGNAL_SUBSCRIBE(Controller,controller)
     if(controller->hasEventsToCheck())
         m_hasEventsToCheck = true;
 }
@@ -486,8 +495,8 @@ void GameObject::removeController(Controller *controller)
         if(m_controllerList[i] == controller)
         {
             m_controllerList.erase(m_controllerList.begin() + i);
-            controller->unsubscribe_UserEventSignal(this);
-            controller->unsubscribe_ControllerSignal(this);
+            //ontroller->unsubscribe_ControllerSignal(this);
+            SIGNAL_UNSUBSCRIBE(Controller,controller)
             return;
         }
     }
@@ -507,7 +516,7 @@ void GameObject::addSensor(Sensor *sensor)
     sensor->setOwner(this);
     m_sensorList.push_back(sensor);
 
-    vector<Event*> eList = sensor->getEventList();
+    vector<KeyEvent*> eList = sensor->getEventList();
     vector<Painter*> pList = sensor->getPainterList();
 
     for(auto e : eList)
@@ -525,7 +534,7 @@ void GameObject::removeSensor(Sensor *sensor)
         {
             m_sensorList.erase(m_sensorList.begin() + i);
 
-            vector<Event*> eList = sensor->getEventList();
+            vector<KeyEvent*> eList = sensor->getEventList();
             vector<Painter*> pList = sensor->getPainterList();
 
             for(auto e : eList)
@@ -1069,12 +1078,77 @@ void GameObject::event_hasCollision(vector<GameObject *> other)
     for(size_t i=0; i<m_controllerList.size(); i++)
         m_controllerList[i]->setRotation(m_layerItem.getRotation());*/
 }
-
-void GameObject::eventAdded(UserEventHandler *sender,  Event *e)
+SLOT_DEFINITION(GameObject,Controller,eventAdded, Event* e)
 {
     m_hasEventsToCheck = true;
 }
-void GameObject::eventRemoved(UserEventHandler *sender,  Event *e)
+
+SLOT_DEFINITION(GameObject,Controller,eventRemoved, Event* e)
+{
+    m_hasEventsToCheck = false;
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_hasEventsToCheck |= m_controllerList[i]->hasEventsToCheck();
+}
+SLOT_DEFINITION(GameObject,Controller,eventsWillBeCleared)
+{}
+
+SLOT_DEFINITION(GameObject,Controller,eventsCleared)
+{
+    m_hasEventsToCheck = false;
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_hasEventsToCheck |= m_controllerList[i]->hasEventsToCheck();
+}
+
+SLOT_DEFINITION(GameObject,Controller,moveAvailable)
+{
+    m_hasMoveToMake = true;
+}
+
+
+SLOT_DEFINITION(GameObject,Collider,boundingBoxChanged)
+{
+    if(RectF::intersects_inverseOf_fast(sender->getBoundingBox(),m_colliderSearchBox))
+    {
+        // BoundingBox of Collider is outside or at the edge of the m_colliderSearchBox
+        Vector2f min;
+        min.x = RectF::getMinX({sender->getBoundingBox(),m_colliderSearchBox});
+        min.y = RectF::getMinY({sender->getBoundingBox(),m_colliderSearchBox});
+
+        Vector2f max;
+        max.x = RectF::getMaxX({sender->getBoundingBox(),m_colliderSearchBox});
+        max.y = RectF::getMaxY({sender->getBoundingBox(),m_colliderSearchBox});
+
+        Vector2f relativeMin = m_pos - min;
+        Vector2f relativeMax = m_pos - max;
+
+        float radius = abs(relativeMin.x);
+        if(radius<abs(relativeMin.y))
+            radius = abs(relativeMin.y);
+        if(radius<abs(relativeMax.x))
+            radius = abs(relativeMax.x);
+        if(radius<abs(relativeMax.y))
+            radius = abs(relativeMax.y);
+
+
+        setCollisionSeachRadius(radius);
+    }
+}
+
+/*void GameObject::eventAdded(Controller *sender,  Event *e)
+{
+    m_hasEventsToCheck = true;
+}
+void GameObject::eventRemoved(Controller *sender,  Event *e)
+{
+    m_hasEventsToCheck = false;
+    for(size_t i=0; i<m_controllerList.size(); i++)
+        m_hasEventsToCheck |= m_controllerList[i]->hasEventsToCheck();
+}
+void GameObject::eventsWillBeCleared(Controller *sender)
+{
+
+}
+void GameObject::eventsCleared(Controller *sender)
 {
     m_hasEventsToCheck = false;
     for(size_t i=0; i<m_controllerList.size(); i++)
@@ -1112,6 +1186,6 @@ void GameObject::boundingBoxChanged(Collider* sender)
 
         setCollisionSeachRadius(radius);
     }
-}
+}*/
 
 

@@ -1,18 +1,18 @@
 #include "submodule.h"
-
+/*
 SubmoduleSubscriberList::SubmoduleSubscriberList()
     :   SubscriberList<SubmoduleSignal>()
 {}
 void SubmoduleSubscriberList::moved(Submodule* sender,const Vector2f &move)
 {
-    EMIT_SIGNAL(moved,sender,move);
+    SIGNAL_EMIT_INTERN(moved,sender,move);
 }
 void SubmoduleSubscriberList::rotated(Submodule* sender,const float deltaAngle)
 {
-    EMIT_SIGNAL(rotated,sender,deltaAngle);
+    SIGNAL_EMIT_INTERN(rotated,sender,deltaAngle);
 }
-
-const PixelDisplay *Submodule::m_display = nullptr;
+*/
+//const PixelDisplay *Submodule::m_display = nullptr;
 Submodule::Submodule()
     :   LayerItem()
 {
@@ -22,10 +22,10 @@ Submodule::Submodule()
 
    // m_originalCollider  = new Collider();
    // this->setCollider(m_originalCollider);
-    if(m_display == nullptr)
+  /*  if(m_display == nullptr)
     {
         qDebug() << "Submodule::m_display == nullptr, can cause problems";
-    }
+    }*/
 }
 Submodule::Submodule(const Submodule &other)
     :   LayerItem(other)
@@ -73,21 +73,22 @@ EngineInterface *Submodule::getEngineInterface() const
 {
     return m_engine_interface;
 }
-void Submodule::setDisplay(const PixelDisplay *display)
+/*void Submodule::setDisplay(const PixelDisplay *display)
 {
     m_display = display;
-}
+}*/
 bool Submodule::hasEventsToCheck() const
 {
     return m_hasEventsToCheck;
 }
-void Submodule::engineCalled_checkEvent()
+void Submodule::engineCalled_checkEvent(float deltaTime)
 {
     SUBMODULE_FUNCTION(profiler::colors::Red);
-    if(m_engine_interface)
-        m_engine_deltaTime = m_engine_interface->getDeltaTime();
+  //  if(m_engine_interface)
+   //     m_engine_deltaTime = m_engine_interface->getDeltaTime();
+    m_engine_deltaTime = deltaTime;
     for(auto event  : m_eventList)
-        event->checkEvent();
+        event->checkEvent(deltaTime);
 }
 void Submodule::engineCalled_preTick()
 {
@@ -111,8 +112,9 @@ void Submodule::engineCalled_postNoThreadTick()
 {
     SUBMODULE_FUNCTION(profiler::colors::Red400);
     if(m_rotation != m_lastRotation)
-        if(m_submoduleSubscriberList.size() > 0)
-            m_submoduleSubscriberList.rotated(this,m_rotation-m_lastRotation);
+       /* if(m_submoduleSubscriberList.size() > 0)
+            m_submoduleSubscriberList.rotated(this,m_rotation-m_lastRotation);*/
+        SIGNAL_EMIT(Submodule,rotated,m_rotation-m_lastRotation)
 }
 
 void Submodule::engineCalled_preDraw()
@@ -293,7 +295,7 @@ void Submodule::setVisibility(bool isVisible)
 
 }*/
 
-const vector<Event* > &Submodule::getEventList() const
+const vector<KeyEvent* > &Submodule::getEventList() const
 {
     return m_eventList;
 }
@@ -310,6 +312,7 @@ const Vector2f &Submodule::getMovingVector() const
     return m_movingVector;
     //return m_movementCoordinator.getMovingVector();
 }
+/*
 void Submodule::subscribe_SubmoduleSignal(SubmoduleSignal *subscriber)
 {
     if(subscriber == nullptr)
@@ -323,9 +326,9 @@ void Submodule::unsubscribe_SubmoduleSignal(SubmoduleSignal *subscriber)
 void Submodule::unsubscribeAll_SubmoduleSignal()
 {
     m_submoduleSubscriberList.clear();
-}
+}*/
 
-bool Submodule::addEvent(Event *e)
+bool Submodule::addEvent(KeyEvent *e)
 {
     if(!e)
         return false;
@@ -336,7 +339,7 @@ bool Submodule::addEvent(Event *e)
     m_eventList.push_back(e);
     return true;
 }
-bool Submodule::removeEvent(Event *e)
+bool Submodule::removeEvent(KeyEvent *e)
 {
     for(size_t i=0; i<m_eventList.size(); i++)
     {

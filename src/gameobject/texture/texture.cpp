@@ -259,11 +259,11 @@ void Texture::calculateBoxes()
     {
         if(rect.getX() < 0 ||
            rect.getY() < 0 ||
-           rect.getX() >= map.size())
+           unsigned(rect.getX()) >= map.size())
         {
             qDebug() <<   "ERROR: void Texture::calculateBoxes(const vector<Pixel> &pixelList): POINT 1";
             return;
-        }else if(rect.getY() >= map[rect.getX()].size())
+        }else if(unsigned(rect.getY()) >= map[rect.getX()].size())
         {
             qDebug() <<   "ERROR: void Texture::calculateBoxes(const vector<Pixel> &pixelList): POINT 2";
             return;

@@ -1,21 +1,21 @@
 #include "spritePainter.h"
-
+/*
 PainterSubscriberList::PainterSubscriberList()
     :   SubscriberList<PainterSignal>()
 {}
 void PainterSubscriberList::renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer)
 {
-    EMIT_SIGNAL(renderLayerChanged,sender,lastLayer,newLayer);
+    SIGNAL_EMIT_INTERN(renderLayerChanged,sender,lastLayer,newLayer);
 }
 void PainterSubscriberList::isInvisible(Painter *sender)
 {
-    EMIT_SIGNAL(isInvisible,sender);
+    SIGNAL_EMIT_INTERN(isInvisible,sender);
 }
 void PainterSubscriberList::isVisible(Painter *sender)
 {
-     EMIT_SIGNAL(isVisible,sender);
+     SIGNAL_EMIT_INTERN(isVisible,sender);
 }
-
+*/
 
 Painter::Painter()
     :   LayerItem()
@@ -64,9 +64,11 @@ void Painter::setVisibility(bool isVisible)
         return;
     m_isVisible = isVisible;
     if(m_isVisible)
-        m_signalSubscriber.isVisible(this);
+       // m_signalSubscriber.isVisible(this);
+        SIGNAL_EMIT(Painter,isVisible)
     else
-        m_signalSubscriber.isInvisible(this);
+        SIGNAL_EMIT(Painter,isInvisible)
+        //m_signalSubscriber.isInvisible(this);
 }
 bool Painter::isVisible() const
 {
@@ -176,13 +178,14 @@ void Painter::setRenderLayer(size_t layer)
         return;
     size_t lastLayer = m_renderlayer;
     m_renderlayer  = layer;
-    m_signalSubscriber.renderLayerChanged(this,lastLayer,m_renderlayer);
+    //m_signalSubscriber.renderLayerChanged(this,lastLayer,m_renderlayer);
+    SIGNAL_EMIT(Painter,renderLayerChanged,lastLayer,m_renderlayer);
 }
 size_t Painter::getRenderLayer() const
 {
     return m_renderlayer;
 }
-void Painter::subscribe_painterSignal(PainterSignal *subscriber)
+/*void Painter::subscribe_painterSignal(PainterSignal *subscriber)
 {
     m_signalSubscriber.insert(subscriber);
 }
@@ -194,7 +197,7 @@ void Painter::unsubscribeAll_painterSignal()
 {
     m_signalSubscriber.clear();
 }
-
+*/
 void Painter::setEnableRelativeRotation(bool enable)
 {
     m_enableRelativeRotation = enable;

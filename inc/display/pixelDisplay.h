@@ -8,7 +8,7 @@
 #include "drawUtilities.h"
 #include "painter.h"
 #include "pixelPainter.h"
-#include "signalSubscriber.h"
+#include "signalEmitter.h"
 #include "displayInterface.h"
 
 using sf::Color;
@@ -22,7 +22,7 @@ using std::vector;
 typedef void (*fp)();
 
 
-class PixelDisplay  : private PainterSignal, public DisplayInterface
+class PixelDisplay  :  public DisplayInterface, SIGNAL_RECEIVES(Painter)
 {
     public:
 
@@ -96,10 +96,13 @@ class PixelDisplay  : private PainterSignal, public DisplayInterface
     protected:
 
         // Signals from Painter
-        virtual void renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer);
+        SLOT_DECLARATION(Painter,renderLayerChanged,size_t,size_t&)
+        SLOT_DECLARATION(Painter,isInvisible)
+        SLOT_DECLARATION(Painter,isVisible)
+        /*virtual void renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer);
         virtual void isInvisible(Painter *sender);
         virtual void isVisible(Painter *sender);
-
+*/
         RenderWindow *m_renderWindow;
         Vector2u m_windowSize;
         Vector2u m_pixelMapSize;

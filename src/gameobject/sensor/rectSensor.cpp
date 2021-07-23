@@ -19,6 +19,7 @@ RectSensor::RectSensor()
     Submodule::addPainter(m_sensorPainter);
 }
 RectSensor::RectSensor(const RectSensor &other)
+    :   Sensor(other)
 {
     m_sensorCollider = new Collider();
     this->operator=(other);

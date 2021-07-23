@@ -8,9 +8,9 @@
 #include "painter.h"
 #include "engineInterface.h"
 
-#include "signalSubscriber.h"
+#include "signalEmitter.h"
 // Signals for GameObjects
-class SubmoduleSignal
+/*class SubmoduleSignal
 {
     public:
         SubmoduleSignal(){}
@@ -29,10 +29,22 @@ class SubmoduleSubscriberList    : public SubscriberList<SubmoduleSignal>
         virtual void moved(Submodule* sender,const Vector2f &move);
         virtual void rotated(Submodule* sender,const float deltaAngle);
     protected:
-};
+};*/
+SIGNAL_DEF(Submodule)
+    SIGNAL_FUNC(moved,const Vector2f &)
+    SIGNAL_FUNC(rotated,float)
+SIGNAL_DEF_END
+
+SIGNAL_EMITTER_DEF(Submodule)
+    SIGNAL_EMITTER_FUNC(moved,const Vector2f &)
+    SIGNAL_EMITTER_FUNC(rotated,float)
+SIGNAL_EMITTER_DEF_END
+
+
 
 class Submodule :   public LayerItem
 {
+    SIGNAL_EMITTER(Submodule)
     public:
         Submodule();
         Submodule(const Submodule &other);
@@ -42,11 +54,11 @@ class Submodule :   public LayerItem
         void engineCalled_setup();
         void setEngineInterface(EngineInterface *engine);
         EngineInterface *getEngineInterface() const;
-        static void setDisplay(const PixelDisplay *display);
+        //static void setDisplay(const PixelDisplay *display);
 
 
         bool hasEventsToCheck() const;
-        void engineCalled_checkEvent();
+        void engineCalled_checkEvent(float deltaTime);
         void engineCalled_preTick();
         void engineCalled_tick(const Vector2i &direction);
         void engineCalled_postTick();
@@ -93,18 +105,18 @@ class Submodule :   public LayerItem
         virtual void setVisibility(bool isVisible);
         //virtual bool isVisible() const;
 
-        virtual const vector<Event* > &getEventList() const;
+        virtual const vector<KeyEvent* > &getEventList() const;
         virtual const vector<Painter* > &getPainterList() const;
 
         //virtual Collider* getCollider();
         virtual const Vector2f &getMovingVector() const;
 
-        virtual void subscribe_SubmoduleSignal(SubmoduleSignal *subscriber);
+        /*virtual void subscribe_SubmoduleSignal(SubmoduleSignal *subscriber);
         virtual void unsubscribe_SubmoduleSignal(SubmoduleSignal *subscriber);
-        virtual void unsubscribeAll_SubmoduleSignal();
+        virtual void unsubscribeAll_SubmoduleSignal();*/
 
-        virtual bool addEvent(Event *e);
-        virtual bool removeEvent(Event *e);
+        virtual bool addEvent(KeyEvent *e);
+        virtual bool removeEvent(KeyEvent *e);
         virtual bool addPainter(Painter *painter);
         virtual bool removePainter(Painter *painter);
         //virtual void setCollider(Collider *collider);
@@ -117,8 +129,8 @@ class Submodule :   public LayerItem
 
 
    /*     // Signals from UserEventSignal
-        virtual void eventAdded(UserEventHandler *sender,  Event *e);
-        virtual void eventRemoved(UserEventHandler *sender,  Event *e);
+        virtual void eventAdded(UserEventHandler *sender,  KeyEvent *e);
+        virtual void eventRemoved(UserEventHandler *sender,  KeyEvent *e);
 
         // Signals from Controller
         virtual void moveAvailable(Controller *sender);*/
@@ -126,13 +138,13 @@ class Submodule :   public LayerItem
       //  virtual void event_hasCollision(vector<GameObject *> other) = 0;
 
 
-        SubmoduleSubscriberList m_submoduleSubscriberList;
+      //  SubmoduleSubscriberList m_submoduleSubscriberList;
 
         EngineInterface  *m_engine_interface;
 
         //bool      m_visibility;
 
-        vector<Event* >     m_eventList;
+        vector<KeyEvent* >     m_eventList;
         vector<Painter* >   m_painterList;
 
         //Collider*           m_collider;
@@ -145,8 +157,6 @@ class Submodule :   public LayerItem
 
         Vector2f       m_movingVector;
         float          m_engine_deltaTime;
-
-        static const PixelDisplay *m_display;
     private:
 };
 #endif // SUBMODULE_H

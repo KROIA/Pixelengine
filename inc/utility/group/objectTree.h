@@ -4,11 +4,11 @@
 #include "base.h"
 #include "gameobject.h"
 #include "pixelDisplay.h"
-#include "signalSubscriber.h"
+#include "signalEmitter.h"
 #include "drawUtilities.h"
 //#include "vertexPathPainter.h"
 
-class ObjectTree    :   private ObjSignal
+class ObjectTree    :   SIGNAL_RECEIVES(GameObject)
 {
     public:
         struct Settings
@@ -49,8 +49,10 @@ class ObjectTree    :   private ObjSignal
 
 
         // Signals from obj's
-        virtual void moved(GameObject* sender,const Vector2f &move);
-        virtual void rotated(GameObject* sender,const float deltaAngle);
+        SLOT_DECLARATION(GameObject,moved,const Vector2f &)
+        SLOT_DECLARATION(GameObject,rotated,float)
+        /*virtual void moved(GameObject* sender,const Vector2f &move);
+        virtual void rotated(GameObject* sender,const float deltaAngle);*/
 
 
         RectF m_boundry;

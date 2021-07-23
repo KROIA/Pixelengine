@@ -54,10 +54,13 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/gameobject/sensor \
                $$PixelEngine_incPath/gameobject/sensor/basic \
                $$PixelEngine_incPath/gameobject/texture \
+               $$PixelEngine_incPath/gameobject/event \
+               $$PixelEngine_incPath/gameobject/event/basic \
                $$PixelEngine_incPath/display
 
 SOURCES += \
-        $$PWD/src/gameobject/controller/mouseController.cpp \
+        $$PWD/src/gameobject/event/mouseMoveEvent.cpp \
+        $$PixelEngine_srcPath/gameobject/controller/mouseController.cpp \
         $$PixelEngine_srcPath/gameobject/basic/submodule.cpp \
         $$PixelEngine_srcPath/gameobject/sensor/laserSensor.cpp \
         $$PixelEngine_srcPath/gameobject/sensor/rectSensor.cpp \
@@ -65,7 +68,6 @@ SOURCES += \
         $$PixelEngine_srcPath/gameobject/painter/textPainter.cpp \
         $$PixelEngine_srcPath/gameobject/painter/vertexPathPainter.cpp \
         $$PixelEngine_srcPath/utility/group/objectTree.cpp \
-        $$PixelEngine_srcPath/utility/baseClasses/signalSubscriber.cpp \
         $$PixelEngine_srcPath/utility/settings.cpp \
         $$PixelEngine_srcPath/display/drawUtilities.cpp \
         $$PixelEngine_srcPath/gameobject/painter/texturePainter.cpp \
@@ -87,8 +89,9 @@ SOURCES += \
         $$PixelEngine_srcPath/gameobject/wall.cpp \
         $$PixelEngine_srcPath/gameobject/texture/texture.cpp \
         $$PixelEngine_srcPath/gameobject/texture/animatedTexture.cpp \
+        $$PixelEngine_srcPath/gameobject/event/basic/event.cpp \
         $$PixelEngine_srcPath/utility/group/gameObjectGroup.cpp \
-        $$PixelEngine_srcPath/utility/baseClasses/event.cpp \
+        $$PixelEngine_srcPath/gameobject/event/keyEvent.cpp \
         $$PixelEngine_srcPath/utility/baseClasses/userEventHandler.cpp \
         $$PixelEngine_srcPath/utility/baseClasses/timer.cpp \
         $$PixelEngine_srcPath/utility/baseClasses/layeritem.cpp \
@@ -96,6 +99,7 @@ SOURCES += \
 
 HEADERS += \
         $$PWD/inc/gameobject/controller/mouseController.h \
+        $$PWD/inc/gameobject/event/mouseMoveEvent.h \
         $$PixelEngine_incPath/utility/generalFunctionality/fileBrowser.h \
         $$PixelEngine_incPath/display/displayInterface.h \
         $$PixelEngine_incPath/gameobject/basic/submodule.h \
@@ -107,7 +111,7 @@ HEADERS += \
         $$PixelEngine_incPath/gameobject/painter/vertexPathPainter.h \
         $$PixelEngine_incPath/utility/base.h \
         $$PixelEngine_incPath/utility/group/objectTree.h \
-        $$PixelEngine_incPath/utility/baseClasses/signalSubscriber.h \
+        $$PixelEngine_incPath/utility/baseClasses/signalEmitter.h \
         $$PixelEngine_incPath/display/drawUtilities.h \
         $$PixelEngine_incPath/gameobject/painter/texturePainter.h \
         $$PixelEngine_incPath/utility/generalFunctionality/mathFunctions.h \
@@ -136,7 +140,8 @@ HEADERS += \
         $$PixelEngine_incPath/gameobject/texture/texture.h \
         $$PixelEngine_incPath/gameobject/texture/animatedTexture.h \
         $$PixelEngine_incPath/gameobject/wall.h \
-        $$PixelEngine_incPath/utility/baseClasses/event.h \
+        $$PixelEngine_incPath/gameobject/event/basic/event.h \
+        $$PixelEngine_incPath/gameobject/event/keyEvent.h \
         $$PixelEngine_incPath/utility/baseClasses/userEventHandler.h \
         $$PixelEngine_incPath/utility/group/gameObjectGroup.h \
         $$PixelEngine_incPath/utility/baseClasses/timer.h \

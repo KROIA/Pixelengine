@@ -1,17 +1,17 @@
-#include "userEventHandler.h"
+/*#include "userEventHandler.h"
 
 UserEventSubscriberList::UserEventSubscriberList()
     :   SubscriberList<UserEventSignal>()
 {
 
 }
-void UserEventSubscriberList::eventAdded(UserEventHandler *sender,  Event *e)
+void UserEventSubscriberList::eventAdded(UserEventHandler *sender,  KeyEvent *e)
 {
-    EMIT_SIGNAL(eventAdded,sender,e);
+    SIGNAL_EMIT_INTERN(eventAdded,sender,e);
 }
-void UserEventSubscriberList::eventRemoved(UserEventHandler *sender,  Event *e)
+void UserEventSubscriberList::eventRemoved(UserEventHandler *sender,  KeyEvent *e)
 {
-    EMIT_SIGNAL(eventRemoved,sender,e);
+    SIGNAL_EMIT_INTERN(eventRemoved,sender,e);
 }
 
 UserEventHandler::UserEventHandler()
@@ -59,23 +59,23 @@ bool UserEventHandler::hasEventsToCheck() const
     return m_hasEventsToCheck;
 }
 
-size_t UserEventHandler::addEvent(Event *e)
+size_t UserEventHandler::addEvent(KeyEvent *e)
 {
     m_eventList.push_back(e);
     m_hasEventsToCheck = true;
     m_userEventSubscriberList.eventAdded(this,e);
     return m_eventList.size()-1;
 }
-Event *UserEventHandler::getEvent(const size_t &index) const
+KeyEvent *UserEventHandler::getEvent(const size_t &index) const
 {
     if(index >= m_eventList.size())
     {
-        qDebug() << "const Event &UserEventHandler::getEvent(const size_t &["<<index<<"]): out of range";
+        qDebug() << "const KeyEvent &UserEventHandler::getEvent(const size_t &["<<index<<"]): out of range";
         return nullptr;
     }
     return m_eventList[index];
 }
-void UserEventHandler::removeEvent(Event* e)
+void UserEventHandler::removeEvent(KeyEvent* e)
 {
     for(size_t i=0; i<m_eventList.size(); i++)
     {
@@ -122,3 +122,4 @@ void UserEventHandler::unsubscribeAll_UserEventSignal()
 {
     m_userEventSubscriberList.clear();
 }
+*/
