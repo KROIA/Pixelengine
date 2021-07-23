@@ -306,7 +306,7 @@ void GameObject::engineCalled_postNoThreadTick()
         if(Vector::length(m_movingVector) != 0)
             m_objSubscriberList.moved(this,m_movingVector);
 */
-    m_movementCoordinator.tick();
+   // m_movementCoordinator.tick();
     if(m_lastRotation != m_rotation)
     {
       //  if(m_objSubscriberList.size() > 0)
@@ -516,7 +516,7 @@ void GameObject::addSensor(Sensor *sensor)
     sensor->setOwner(this);
     m_sensorList.push_back(sensor);
 
-    vector<KeyEvent*> eList = sensor->getEventList();
+    vector<Event*> eList = sensor->getEventList();
     vector<Painter*> pList = sensor->getPainterList();
 
     for(auto e : eList)
@@ -534,7 +534,7 @@ void GameObject::removeSensor(Sensor *sensor)
         {
             m_sensorList.erase(m_sensorList.begin() + i);
 
-            vector<KeyEvent*> eList = sensor->getEventList();
+            vector<Event*> eList = sensor->getEventList();
             vector<Painter*> pList = sensor->getPainterList();
 
             for(auto e : eList)

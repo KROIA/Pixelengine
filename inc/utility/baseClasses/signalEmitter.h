@@ -24,27 +24,27 @@
 
 
 #define SIGNAL_EMITTER_DEF(baseClass)\
-    class baseClass##SubscriberList : public SubscriberList<baseClass##Signal> \
+    class baseClass##SignalEmitter : public SignalEmitter<baseClass##Signal> \
     {\
     typedef baseClass _SIGNAL_BASECLASS_; \
     public:\
-        baseClass##SubscriberList() : SubscriberList<baseClass##Signal>(){}
+        baseClass##SignalEmitter() : SignalEmitter<baseClass##Signal>(){}
 
 #define SIGNAL_EMITTER_DEF_END };
 
 #define SIGNAL_EMITTER(baseClass)\
 public:\
 void subscribe_##baseClass##Signal(baseClass##Signal *subscriber) \
-{	m_##baseClass##SubscriberList.insert(subscriber);  } \
+{	m_##baseClass##SignalEmitter.insert(subscriber);  } \
 void unsubscribe_##baseClass##Signal(baseClass##Signal *subscriber) \
-{	m_##baseClass##SubscriberList.erase(subscriber);  } \
+{	m_##baseClass##SignalEmitter.erase(subscriber);  } \
 void unsubscribeAll_##baseClass##Signal() \
-{	m_##baseClass##SubscriberList.clear();  } \
+{	m_##baseClass##SignalEmitter.clear();  } \
 private:\
-baseClass##SubscriberList m_##baseClass##SubscriberList;
+baseClass##SignalEmitter m_##baseClass##SignalEmitter;
 
 
-#define SIGNAL_EMIT(baseClass,signal,...) m_##baseClass##SubscriberList.signal(this,##__VA_ARGS__);
+#define SIGNAL_EMIT(baseClass,signal,...) m_##baseClass##SignalEmitter.signal(this,##__VA_ARGS__);
 
 #define SIGNAL_EMITTER_FUNC(name,...) \
     void name(_SIGNAL_BASECLASS_ *sender PARAM_LIST(COUNT_ARGUMENTS(__VA_ARGS__),__VA_ARGS__))\
@@ -141,11 +141,11 @@ baseClass##SubscriberList m_##baseClass##SubscriberList;
 #define VALUE_LIST_CONNECTOR(n) VALUE_LIST_##n
 #define VALUE_LIST(n,...) VALUE_LIST_CONNECTOR(n)(__VA_ARGS__)
 template<class T>
-class SubscriberList
+class SignalEmitter
 {
     public:
 
-        SubscriberList();
+        SignalEmitter();
         void insert(T* signal);
         void erase(T* signal);
         size_t size() const;
@@ -161,13 +161,13 @@ class SubscriberList
 };
 
 template<class T>
-SubscriberList<T>::SubscriberList()
+SignalEmitter<T>::SignalEmitter()
 {
     m_emiterCallActive = false;
 }
 
 template<class T>
-void SubscriberList<T>::insert(T* signal)
+void SignalEmitter<T>::insert(T* signal)
 {
     if(!signal)
         return;
@@ -177,7 +177,7 @@ void SubscriberList<T>::insert(T* signal)
         m_inList.insert({signal,signal});
 }
 template<class T>
-void SubscriberList<T>::erase(T* signal)
+void SignalEmitter<T>::erase(T* signal)
 {
     if(m_emiterCallActive)
         m_toRemove.insert({signal,signal});
@@ -185,28 +185,28 @@ void SubscriberList<T>::erase(T* signal)
         m_inList.erase(signal);
 }
 template<class T>
-size_t SubscriberList<T>::size() const
+size_t SignalEmitter<T>::size() const
 {
     return m_inList.size();
 }
 template<class T>
-void SubscriberList<T>::clear()
+void SignalEmitter<T>::clear()
 {
     m_inList.clear();
 }
 template<class T>
-void SubscriberList<T>::emitStart()
+void SignalEmitter<T>::emitStart()
 {
     m_emiterCallActive = true;
 }
 template<class T>
-void SubscriberList<T>::emitEnd()
+void SignalEmitter<T>::emitEnd()
 {
     m_emiterCallActive = false;
     updateList();
 }
 template<class T>
-void SubscriberList<T>::updateList()
+void SignalEmitter<T>::updateList()
 {
     for(auto pair : m_toRemove)
         m_inList.erase(pair.second);

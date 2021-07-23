@@ -27,6 +27,7 @@ void PixelEngine::constructor(const Settings &settings)
     m_display            = new PixelDisplay(__defaultSettings.display);
     //Submodule::setDisplay(m_display);
     Controller::setDisplayInterface(m_display);
+    MouseMoveEvent::setDisplayInterface(m_display);
     m_engineIsRunning    = true;
     m_drawingEnabled     = true;
 
@@ -74,7 +75,7 @@ void PixelEngine::constructor(const Settings &settings)
 
 #ifdef PIXELENGINE_STATISTICS
     m_stats_text = new TextPainter();
-    m_stats_text->setCharacterSize(25); // in pixels, not points!
+    //m_stats_text->setCharacterSize(25.f); // in pixels, not points!
     m_stats_text->setScale(Vector2f(0.5,0.5));
     m_stats_text->setLineSpacing(0.8);
     sf::Color col(255,255,255,100); // Transparent white
@@ -1224,7 +1225,7 @@ void PixelEngine::display_stats(bool enable,const Color &color, const Vector2i &
     if(size > 0)
         m_stats_text->setCharacterSize(size);
     else
-        m_stats_text->setCharacterSize(m_display->getWindowSize().x/80);
+        m_stats_text->setCharacterSize(m_display->getWindowSize().x/40);
     display_stats(enable,color);
 #endif
 }

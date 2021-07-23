@@ -16,7 +16,7 @@
 #include "collider.h"
 #include "controller.h"
 #include "keyController.h"
-#include "dynamicCoordinator.h"
+//#include "dynamicCoordinator.h"
 #include "spritePainter.h"
 #include "texturePainter.h"
 #include "pixelPainter.h"
@@ -27,6 +27,7 @@
 #include "animatedTexture.h"
 
 #include "keyEvent.h"
+#include "mouseMoveEvent.h"
 #include "keyboard.h"
 #include "layeritem.h"
 #include "rect.h"

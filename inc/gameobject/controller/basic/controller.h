@@ -68,6 +68,8 @@ class Controller//    :   public UserEventHandler
         static void setDisplayInterface(DisplayInterface *display);
 
 
+        void setActive(bool active);
+        bool isActive() const;
         bool addEvent(Event *event);
         bool removeEvent(Event *event);
         void clearEvent();
@@ -110,6 +112,7 @@ class Controller//    :   public UserEventHandler
 
         Vector2f    m_currentDeltaMove;
         bool        m_overwritable;
+        bool        m_active;
         float       m_rotationDeg;
         MovingMode  m_movingMode;
 

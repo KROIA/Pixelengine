@@ -30,6 +30,7 @@ void PixelDisplay::constructor(const Settings &settings)
     settings.antialiasingLevel = 8;*/
     m_renderWindow = new sf::RenderWindow(sf::VideoMode(m_windowSize.x,m_windowSize.y),
                                           "PixelDisplay",sf::Style::Default, settings.sf_contextSettings);
+
     //m_renderWindow->setVerticalSyncEnabled(true);
     //m_renderWindow->setActive(true);
     //m_renderWindow->setFramerateLimit(60);
@@ -340,13 +341,29 @@ const Vector2u &PixelDisplay::getWindowSize() const
 {
     return m_windowSize;
 }
+Vector2f PixelDisplay::getViewSize() const
+{
+    return m_renderWindow->getView().getSize();
+}
+sf::View PixelDisplay::getView() const
+{
+    return m_renderWindow->getView();
+}
 const Vector2u &PixelDisplay::getMapSize() const
 {
     return m_pixelMapSize;
 }
+Vector2f PixelDisplay::mapPixelToCoords(const Vector2i &point) const
+{
+    return m_renderWindow->mapPixelToCoords(point);
+}
 RenderWindow *PixelDisplay::getRenderWindow()
 {
     return m_renderWindow;
+}
+Vector2i PixelDisplay::getWindowPos() const
+{
+    return m_renderWindow->getPosition();
 }
 const RectF &PixelDisplay::getRenderFrame() const
 {

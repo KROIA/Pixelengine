@@ -117,6 +117,9 @@ class InteractiveGameObjectGroup;
 
 class Event;
 class KeyEvent;
+class MouseMoveEvent;
+class MouseButtonEvent;
+
 class LayerItem;
 template<class T>
 class GeneralRect;

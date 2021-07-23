@@ -59,7 +59,9 @@ INCLUDEPATH += $$incPath \
                $$PixelEngine_incPath/display
 
 SOURCES += \
-        $$PWD/src/gameobject/event/mouseMoveEvent.cpp \
+        $$PWD/src/gameobject/event/basic/buttonEvent.cpp \
+        $$PWD/src/gameobject/event/mouseButtonEvent.cpp \
+        $$PixelEngine_srcPath/gameobject/event/mouseMoveEvent.cpp \
         $$PixelEngine_srcPath/gameobject/controller/mouseController.cpp \
         $$PixelEngine_srcPath/gameobject/basic/submodule.cpp \
         $$PixelEngine_srcPath/gameobject/sensor/laserSensor.cpp \
@@ -73,7 +75,6 @@ SOURCES += \
         $$PixelEngine_srcPath/gameobject/painter/texturePainter.cpp \
         $$PixelEngine_srcPath/utility/group/InteractiveGameObject.cpp \
         $$PixelEngine_srcPath/utility/group/InteractiveGameObjectGroup.cpp \
-        $$PixelEngine_srcPath/gameobject/controller/basic/dynamicCoordinator.cpp \
         $$PixelEngine_srcPath/gameobject/painter/pixelpainter.cpp \
         $$PixelEngine_srcPath/pixelengine.cpp \
         $$PixelEngine_srcPath/display/pixelDisplay.cpp \
@@ -98,8 +99,10 @@ SOURCES += \
         $$PixelEngine_srcPath/utility/generalFunctionality/fileBrowser.cpp
 
 HEADERS += \
-        $$PWD/inc/gameobject/controller/mouseController.h \
-        $$PWD/inc/gameobject/event/mouseMoveEvent.h \
+        $$PWD/inc/gameobject/event/basic/buttonEvent.h \
+        $$PWD/inc/gameobject/event/mouseButtonEvent.h \
+        $$PixelEngine_incPath/gameobject/controller/mouseController.h \
+        $$PixelEngine_incPath/gameobject/event/mouseMoveEvent.h \
         $$PixelEngine_incPath/utility/generalFunctionality/fileBrowser.h \
         $$PixelEngine_incPath/display/displayInterface.h \
         $$PixelEngine_incPath/gameobject/basic/submodule.h \
@@ -120,7 +123,6 @@ HEADERS += \
         $$PixelEngine_incPath/utility/group/groupManagerInterface.h \
         $$PixelEngine_incPath/utility/profiler.h \
         $$PixelEngine_incPath/gameobject/painter/pixelPainter.h \
-        $$PixelEngine_incPath/gameobject/controller/basic/dynamicCoordinator.h \
         $$PixelEngine_incPath/gameobject/property/body.h \
         $$PixelEngine_incPath/gameobject/property/food.h \
         $$PixelEngine_incPath/gameobject/property/mood.h \

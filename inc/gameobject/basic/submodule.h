@@ -2,7 +2,7 @@
 #define SUBMODULE_H
 #include "base.h"
 #include "layeritem.h"
-#include "dynamicCoordinator.h"
+//#include "dynamicCoordinator.h"
 #include "collider.h"
 #include "controller.h"
 #include "painter.h"
@@ -105,7 +105,7 @@ class Submodule :   public LayerItem
         virtual void setVisibility(bool isVisible);
         //virtual bool isVisible() const;
 
-        virtual const vector<KeyEvent* > &getEventList() const;
+        virtual const vector<Event* > &getEventList() const;
         virtual const vector<Painter* > &getPainterList() const;
 
         //virtual Collider* getCollider();
@@ -115,8 +115,8 @@ class Submodule :   public LayerItem
         virtual void unsubscribe_SubmoduleSignal(SubmoduleSignal *subscriber);
         virtual void unsubscribeAll_SubmoduleSignal();*/
 
-        virtual bool addEvent(KeyEvent *e);
-        virtual bool removeEvent(KeyEvent *e);
+        virtual bool addEvent(Event *e);
+        virtual bool removeEvent(Event *e);
         virtual bool addPainter(Painter *painter);
         virtual bool removePainter(Painter *painter);
         //virtual void setCollider(Collider *collider);
@@ -144,13 +144,13 @@ class Submodule :   public LayerItem
 
         //bool      m_visibility;
 
-        vector<KeyEvent* >     m_eventList;
+        vector<Event* >     m_eventList;
         vector<Painter* >   m_painterList;
 
         //Collider*           m_collider;
         //Collider*           m_originalCollider;
 
-        DynamicCoordinator  m_movementCoordinator;
+        //DynamicCoordinator  m_movementCoordinator;
 
         bool           m_hasEventsToCheck;
         bool           m_hasMoveToMake;

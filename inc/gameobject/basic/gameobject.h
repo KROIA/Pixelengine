@@ -5,7 +5,7 @@
 #include "submodule.h"
 #include "property.h"
 #include "controller.h"
-#include "dynamicCoordinator.h"
+//#include "dynamicCoordinator.h"
 #include "collider.h"
 #include "spritePainter.h"
 #include "pixelPainter.h"
@@ -261,7 +261,7 @@ class GameObject : public Submodule, SIGNAL_RECEIVES(Controller),  SIGNAL_RECEIV
       //  vector<Controller*> m_controllerList;
       //  bool           m_hasEventsToCheck;
       //  bool           m_hasMoveToMake;
-        DynamicCoordinator m_movementCoordinator;
+       // DynamicCoordinator m_movementCoordinator;
         Collider      *m_collider;
         Collider      *m_originalCollider;
         RectF         m_colliderSearchBox;

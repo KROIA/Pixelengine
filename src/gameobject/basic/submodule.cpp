@@ -295,7 +295,7 @@ void Submodule::setVisibility(bool isVisible)
 
 }*/
 
-const vector<KeyEvent* > &Submodule::getEventList() const
+const vector<Event* > &Submodule::getEventList() const
 {
     return m_eventList;
 }
@@ -328,7 +328,7 @@ void Submodule::unsubscribeAll_SubmoduleSignal()
     m_submoduleSubscriberList.clear();
 }*/
 
-bool Submodule::addEvent(KeyEvent *e)
+bool Submodule::addEvent(Event *e)
 {
     if(!e)
         return false;
@@ -339,7 +339,7 @@ bool Submodule::addEvent(KeyEvent *e)
     m_eventList.push_back(e);
     return true;
 }
-bool Submodule::removeEvent(KeyEvent *e)
+bool Submodule::removeEvent(Event *e)
 {
     for(size_t i=0; i<m_eventList.size(); i++)
     {

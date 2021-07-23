@@ -35,6 +35,7 @@ Controller::Controller()
     m_rotationDeg           = 0;
     m_movingMode            = add;
     m_overwritable          = true;
+    this->setActive(true);
     if(m_display_interface == nullptr)
     {
         qDebug() << "Controller::m_display_interface == nullptr, can cause problems";
@@ -56,6 +57,7 @@ const Controller &Controller::operator=(const Controller &other)
     this->m_rotationDeg        = other.m_rotationDeg;
     this->m_movingMode         = other.m_movingMode;
     this->m_deltaTime          = other.m_deltaTime;
+    this->m_active             = other.m_active;
     return *this;
 }
 /*void Controller::setDisplay(const PixelDisplay *display)
@@ -65,6 +67,15 @@ const Controller &Controller::operator=(const Controller &other)
 void Controller::setDisplayInterface(DisplayInterface *display)
 {
     m_display_interface = display;
+}
+void Controller::setActive(bool active)
+{
+    m_active  = active;
+    this->reset();
+}
+bool Controller::isActive() const
+{
+    return m_active;
 }
 bool Controller::addEvent(Event *event)
 {
@@ -105,6 +116,8 @@ bool Controller::hasEventsToCheck() const
 void Controller::checkEvent(float deltaTime)
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink);
+    if(!m_active)
+        return;
     if(m_overwritable)
         reset();
     m_deltaTime = deltaTime;
@@ -185,7 +198,8 @@ void Controller::moveY(float y,MovingMode mode)
 }
 Vector2f Controller::getMovingVector() const
 {
-
+    if(!m_active)
+        return Vector2f(0,0);
     if(m_rotationDeg != 0)
         return Vector::getRotated(m_currentDeltaMove,m_rotationDeg) * m_deltaTime;
     return m_currentDeltaMove * m_deltaTime;

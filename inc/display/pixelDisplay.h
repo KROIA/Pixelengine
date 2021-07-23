@@ -80,9 +80,13 @@ class PixelDisplay  :  public DisplayInterface, SIGNAL_RECEIVES(Painter)
         virtual void setCameraPos(const Vector2f &pos);
 
         virtual const Vector2u &getWindowSize() const;
+        virtual Vector2f getViewSize() const;
+        virtual sf::View getView() const;
         virtual const Vector2u &getMapSize() const;
+        virtual Vector2f mapPixelToCoords(const Vector2i &point) const;
 
         virtual RenderWindow *getRenderWindow();
+        virtual Vector2i getWindowPos() const;
         virtual const RectF &getRenderFrame() const;
 
         virtual const DisplayStats &getStats() const;
