@@ -4,7 +4,7 @@
 #if defined __has_include
 #  if __has_include (<pixelEngineSettings.h>)
 #    include <pixelEngineSettings.h>
-#    pragma message( "Applying Profiler settings from  pixelEngineSettings.h " )
+//#    pragma message( "Applying Profiler settings from  pixelEngineSettings.h " )
 #  else
 // Timing
 //#define PIXELENGINE_NO_TIMED_LOOPS
@@ -94,7 +94,8 @@ class GameObject;
 class Collider;
 class Controller;
 class KeyController;
-class DynamicCoordinator;
+class MouseMoveController;
+//class DynamicCoordinator;
 
 
 
@@ -116,12 +117,16 @@ class InteractiveGameObject;
 class InteractiveGameObjectGroup;
 
 class Event;
+class KeyEvent;
+class MouseMoveEvent;
+class MouseButtonEvent;
+
 class LayerItem;
 template<class T>
 class GeneralRect;
 class EngineInterface;
 class Timer;
-class UserEventHandler;
+//class UserEventHandler;
 
 template<class T>
 class SubscriberList;
@@ -130,7 +135,6 @@ class SubmoduleSubscriberList;
 
 class ObjSignal;
 class ObjSubscriberList;
-
 
 class GroupSignal;
 class GroupSubscriberList;
@@ -146,6 +150,9 @@ class PainterSubscriberList;
 
 class LaserSignal;
 class LaserSubscriberList;
+
+class KeyEventSignal;
+class KeyEventSubscriberList;
 
 enum RenderLayerIndex
 {

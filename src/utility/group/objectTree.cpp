@@ -25,7 +25,8 @@ ObjectTree::ObjectTree(const ObjectTree &other)
 
     for(size_t i=0; i<m_objectList.size(); i++)
     {
-        m_objectList[i]->subscribe_ObjSignal(this);
+        //m_objectList[i]->subscribe_ObjSignal(this);
+        SIGNAL_SUBSCRIBE(GameObject,m_objectList[i])
     }
 
     if(m_divided)
@@ -139,7 +140,8 @@ bool ObjectTree::insert(GameObject *obj)
 
     if((m_objectList.size()  < m_capacity && !m_divided) || m_disableDivider)
     {
-        obj->subscribe_ObjSignal(this);
+        //obj->subscribe_ObjSignal(this);
+        SIGNAL_SUBSCRIBE(GameObject,obj)
         m_objectList.push_back(obj);
         return true;
     }
@@ -227,7 +229,8 @@ void ObjectTree::clear()
     GAME_OBJECT_FUNCTION(profiler::colors::Green400);
     for(size_t i=0; i<m_objectList.size(); i++)
     {
-        m_objectList[i]->unsubscribe_ObjSignal(this);
+        //m_objectList[i]->unsubscribe_ObjSignal(this);
+        SIGNAL_UNSUBSCRIBE(GameObject,m_objectList[i])
     }
     m_objectList.clear();
     if(m_divided)
@@ -251,7 +254,8 @@ bool ObjectTree::removeInLeaf(GameObject *obj)
     {
         if(m_objectList[i] == obj)
         {
-            obj->unsubscribe_ObjSignal(this);
+            //obj->unsubscribe_ObjSignal(this);
+            SIGNAL_UNSUBSCRIBE(GameObject,obj)
             m_objectList.erase(m_objectList.begin() + i);
             i--;
             ret = true;
@@ -425,8 +429,7 @@ void ObjectTree::subdivideReverse(GameObject *obj)
 
 
 }
-
-void ObjectTree::moved(GameObject* sender,const Vector2f &move)
+SLOT_DEFINITION(ObjectTree,GameObject,moved,const Vector2f &move)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green600);
     if(!RectF::intersects_fast(sender->getCollider()->getBoundingBox(),m_boundry))
@@ -448,7 +451,7 @@ void ObjectTree::moved(GameObject* sender,const Vector2f &move)
         }
     }
 }
-void ObjectTree::rotated(GameObject* sender,const float deltaAngle)
+SLOT_DEFINITION(ObjectTree,GameObject,rotated,float deltaAngle)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green600);
     /*sender->unsubscribe_ObjSignal(this);
@@ -473,3 +476,46 @@ void ObjectTree::rotated(GameObject* sender,const float deltaAngle)
         }
     }
 }
+/*void ObjectTree::moved(GameObject* sender,const Vector2f &move)
+{
+    GAME_OBJECT_FUNCTION(profiler::colors::Green600);
+    if(!RectF::intersects_fast(sender->getCollider()->getBoundingBox(),m_boundry))
+    {
+        bool removed;
+        if(PARENT)
+            removed = PARENT->removeRecursive(sender);
+        else
+            removed = this->removeInLeaf(sender);
+        //sender->unsubscribe_ObjSignal(this);
+        //removeInLeaf(sender);
+        if(removed)
+        {
+            bool inserted = false;
+            if(GRANDPARENT)
+                inserted = GRANDPARENT->insert(sender);
+            if(ROOT && !inserted)
+                ROOT->insert(sender);
+        }
+    }
+}
+void ObjectTree::rotated(GameObject* sender,const float deltaAngle)
+{
+    GAME_OBJECT_FUNCTION(profiler::colors::Green600);
+    if(!RectF::intersects_fast(sender->getCollider()->getBoundingBox(),m_boundry))
+    {
+        bool removed;
+        if(PARENT)
+            removed = PARENT->removeRecursive(sender);
+        else
+            removed = this->removeInLeaf(sender);
+        //sender->unsubscribe_ObjSignal(this);
+        //removeInLeaf(sender);
+        if(removed)
+        {
+            if(GRANDPARENT)
+                GRANDPARENT->insert(sender);
+            else if(ROOT)
+                ROOT->insert(sender);
+        }
+    }
+}*/

@@ -1,13 +1,13 @@
 #include "laserSensor.h"
 
-LaserSubscriberList::LaserSubscriberList()
+/*LaserSubscriberList::LaserSubscriberList()
     :   SubscriberList<LaserSignal>()
 {}
 
 void LaserSubscriberList::changed(Laser *sender)
 {
-    EMIT_SIGNAL(changed,sender);
-}
+    SIGNAL_EMIT_INTERN(changed,sender);
+}*/
 
 Laser::Laser()
 {
@@ -27,21 +27,24 @@ void Laser::set(const Vector2f &begin, float length, float angle)
     m_localRotation  = angle;
     calculateLocal();
     calculateGlobal();
-    m_laserSubscriberList.changed(this);
+    //m_laserSubscriberList.changed(this);
+    SIGNAL_EMIT(Laser,changed)
 }
 void Laser::setBegin(const Vector2f &begin)
 {
     m_localBegin     = begin;
     calculateLocal();
     calculateGlobal();
-    m_laserSubscriberList.changed(this);
+    //m_laserSubscriberList.changed(this);
+    SIGNAL_EMIT(Laser,changed)
 }
 void Laser::setLength(float length)
 {
     m_length         = length;
     calculateLocal();
     calculateGlobal();
-    m_laserSubscriberList.changed(this);
+    //m_laserSubscriberList.changed(this);
+    SIGNAL_EMIT(Laser,changed)
 }
 void Laser::setRotation(float angle)
 {
@@ -98,7 +101,7 @@ float Laser::getGlobalAngle() const
 {
     return m_globalRotation;
 }
-void Laser::subscribe_laserSignal(LaserSignal *subscriber)
+/*void Laser::subscribe_laserSignal(LaserSignal *subscriber)
 {
     m_laserSubscriberList.insert(subscriber);
 }
@@ -109,7 +112,7 @@ void Laser::unsubscribe_laserSignal(LaserSignal *subscriber)
 void Laser::unsubscribeAll_laserSignal()
 {
     m_laserSubscriberList.clear();
-}
+}*/
 void Laser::calculateLocal()
 {
     m_localDirectionVec.x = cos((m_localRotation) * M_PI /180.f) * m_length;
@@ -168,7 +171,8 @@ bool LaserSensor::addLaser(Laser *laser)
             }
         }
         m_laserList.push_back(laser);
-        laser->subscribe_laserSignal(this);
+        //laser->subscribe_laserSignal(this);
+        SIGNAL_SUBSCRIBE(Laser,laser)
         m_recalculateColliderSearchFrame = true;
         return true;
     }
@@ -181,7 +185,8 @@ bool LaserSensor::removeLaser(Laser *laser)
         if(m_laserList[i] == laser)
         {
             m_laserList.erase(m_laserList.begin() + i);
-            laser->unsubscribe_laserSignal(this);
+            //laser->unsubscribe_laserSignal(this);
+            SIGNAL_UNSUBSCRIBE(Laser,laser)
             if(m_laserList.size() == 0)
                 m_detected.clear();
             return true;
@@ -193,7 +198,8 @@ void LaserSensor::clearLaser()
 {
     for(size_t i=0; i<m_laserList.size(); i++)
     {
-        m_laserList[i]->unsubscribe_laserSignal(this);
+        //m_laserList[i]->unsubscribe_laserSignal(this);
+        SIGNAL_UNSUBSCRIBE(Laser,m_laserList[i])
     }
     m_laserList.clear();
     for(size_t i=0; i<m_privateLaserPTR.size(); i++)
@@ -221,8 +227,8 @@ void LaserSensor::engineCalled_preTick()
             m_owner->setCollisionSeachRadius(laserRadius);
         m_recalculateColliderSearchFrame = false;
     }
-    for(auto laser : m_laserList)
-        laser->setReference(m_pos,m_rotation);
+    //for(auto laser : m_laserList)
+    //    laser->setReference(m_pos,m_rotation);
 }
 void LaserSensor::detectObjects(const vector<GameObject*> &other)
 {
@@ -321,6 +327,8 @@ void LaserSensor::detectObjects(const vector<GameObject*> &other)
 
 void LaserSensor::engineCalled_preDraw()
 {
+    for(auto laser : m_laserList)
+        laser->setReference(m_pos,m_rotation);
     m_sensorPainter->clear();
     for(auto obj : m_detected)
     {
@@ -366,7 +374,11 @@ void LaserSensor::setSensorColor(const Color &color)
 {
     m_sensorColor = color;
 }
-void LaserSensor::changed(Laser *sender)
+SLOT_DEFINITION(LaserSensor,Laser,changed)
 {
     m_recalculateColliderSearchFrame = true;
 }
+/*void LaserSensor::changed(Laser *sender)
+{
+    m_recalculateColliderSearchFrame = true;
+}*/

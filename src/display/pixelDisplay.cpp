@@ -30,6 +30,7 @@ void PixelDisplay::constructor(const Settings &settings)
     settings.antialiasingLevel = 8;*/
     m_renderWindow = new sf::RenderWindow(sf::VideoMode(m_windowSize.x,m_windowSize.y),
                                           "PixelDisplay",sf::Style::Default, settings.sf_contextSettings);
+
     //m_renderWindow->setVerticalSyncEnabled(true);
     //m_renderWindow->setActive(true);
     //m_renderWindow->setFramerateLimit(60);
@@ -340,13 +341,29 @@ const Vector2u &PixelDisplay::getWindowSize() const
 {
     return m_windowSize;
 }
+Vector2f PixelDisplay::getViewSize() const
+{
+    return m_renderWindow->getView().getSize();
+}
+sf::View PixelDisplay::getView() const
+{
+    return m_renderWindow->getView();
+}
 const Vector2u &PixelDisplay::getMapSize() const
 {
     return m_pixelMapSize;
 }
+Vector2f PixelDisplay::mapPixelToCoords(const Vector2i &point) const
+{
+    return m_renderWindow->mapPixelToCoords(point);
+}
 RenderWindow *PixelDisplay::getRenderWindow()
 {
     return m_renderWindow;
+}
+Vector2i PixelDisplay::getWindowPos() const
+{
+    return m_renderWindow->getPosition();
 }
 const RectF &PixelDisplay::getRenderFrame() const
 {
@@ -363,7 +380,8 @@ void PixelDisplay::subscribePainter(Painter *painter)
     if(painter->getRenderLayer() >= m_maxRenderLayers)
         painter->setRenderLayer(m_maxRenderLayers-1);
 
-    painter->subscribe_painterSignal(this);
+    //painter->subscribe_painterSignal(this);
+    SIGNAL_SUBSCRIBE(Painter,painter)
     if(painter->isVisible())
     {
         size_t layer = painter->getRenderLayer();
@@ -387,7 +405,8 @@ void PixelDisplay::unsubscribePainter(Painter *painter)
         m_stats.avtivePaintersInLayer[i] = m_renderLayerList[i].table.size();
         m_stats.activePainters += m_renderLayerList[i].table.size();
     }
-    painter->unsubscribe_painterSignal(this);
+    SIGNAL_UNSUBSCRIBE(Painter,painter)
+    //painter->unsubscribe_painterSignal(this);
 }
 void PixelDisplay::subscribePainter(const vector<Painter *> painterList)
 {
@@ -399,7 +418,38 @@ void PixelDisplay::unsubscribePainter(const vector<Painter *> painterList)
     for(auto p : painterList)
         unsubscribePainter(p);
 }
-void PixelDisplay::renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer)
+
+SLOT_DEFINITION(PixelDisplay,Painter,renderLayerChanged,size_t lastLayer, size_t &newLayer)
+{
+    if(newLayer >= m_maxRenderLayers)
+        newLayer = m_maxRenderLayers-1;
+    if(newLayer == lastLayer)
+        return;
+    if(sender->isVisible())
+    {
+        m_renderLayerList[lastLayer].table.erase(sender);
+        m_renderLayerList[newLayer].table.insert({sender,sender});
+    }
+}
+SLOT_DEFINITION(PixelDisplay,Painter,isInvisible)
+{
+    size_t layer = sender->getRenderLayer();
+    pthread_mutex_lock(&m_mutex);
+    m_renderLayerList[layer].table.erase(sender);
+    m_stats.avtivePaintersInLayer[layer]--;
+    m_stats.activePainters--;
+    pthread_mutex_unlock(&m_mutex);
+}
+SLOT_DEFINITION(PixelDisplay,Painter,isVisible)
+{
+    size_t layer = sender->getRenderLayer();
+    pthread_mutex_lock(&m_mutex);
+    m_renderLayerList[layer].table.insert({sender,sender});
+    m_stats.avtivePaintersInLayer[layer]++;
+    m_stats.activePainters++;
+    pthread_mutex_unlock(&m_mutex);
+}
+/*void PixelDisplay::renderLayerChanged(Painter *sender, size_t lastLayer, size_t &newLayer)
 {
     if(newLayer >= m_maxRenderLayers)
         newLayer = m_maxRenderLayers-1;
@@ -429,3 +479,4 @@ void PixelDisplay::isVisible(Painter *sender)
     m_stats.activePainters++;
     pthread_mutex_unlock(&m_mutex);
 }
+*/

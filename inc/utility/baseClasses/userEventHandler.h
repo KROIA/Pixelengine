@@ -1,9 +1,9 @@
-#ifndef USEREVENTHANDLER_H
+/*#ifndef USEREVENTHANDLER_H
 #define USEREVENTHANDLER_H
 
 #include "base.h"
 
-#include "event.h"
+#include "keyEvent.h"
 #include "signalSubscriber.h"
 
 // Signals for User Events
@@ -12,8 +12,8 @@ class UserEventSignal
     public:
         UserEventSignal(){}
 
-        virtual void eventAdded(UserEventHandler *sender,  Event *e) = 0;
-        virtual void eventRemoved(UserEventHandler *sender,  Event *e) = 0;
+        virtual void eventAdded(UserEventHandler *sender,  KeyEvent *e) = 0;
+        virtual void eventRemoved(UserEventHandler *sender,  KeyEvent *e) = 0;
     protected:
 
 };
@@ -23,8 +23,8 @@ class UserEventSubscriberList    : public SubscriberList<UserEventSignal>
     public:
         UserEventSubscriberList();
 
-        virtual void eventAdded(UserEventHandler *sender,  Event *e);
-        virtual void eventRemoved(UserEventHandler *sender,  Event *e);
+        virtual void eventAdded(UserEventHandler *sender,  KeyEvent *e);
+        virtual void eventRemoved(UserEventHandler *sender,  KeyEvent *e);
     protected:
 
 };
@@ -40,9 +40,9 @@ class UserEventHandler
         virtual void checkEvent(float deltaTime);
         virtual bool hasEventsToCheck() const;
 
-        virtual size_t addEvent(Event *e);            // Adds a Event and returns the index in the list.
-        virtual Event *getEvent(const size_t &index) const; // returns the Event at the index of the list.
-        virtual void removeEvent(Event *e);
+        virtual size_t addEvent(KeyEvent *e);            // Adds a KeyEvent and returns the index in the list.
+        virtual KeyEvent *getEvent(const size_t &index) const; // returns the KeyEvent at the index of the list.
+        virtual void removeEvent(KeyEvent *e);
 
         // Receiver Signal
         virtual void receive_key_isPressed(const int &key);
@@ -57,9 +57,10 @@ class UserEventHandler
     protected:
 
     private:
-      vector<Event*>  m_eventList;
-      Event m_dummyEvent;
+      vector<KeyEvent*>  m_eventList;
+      KeyEvent m_dummyEvent;
       bool  m_hasEventsToCheck;
       UserEventSubscriberList m_userEventSubscriberList;
 };
 #endif // EVENTHANDLER_H
+*/

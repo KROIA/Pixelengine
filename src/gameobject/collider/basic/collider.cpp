@@ -1,5 +1,5 @@
 #include "collider.h"
-
+/*
 ColliderSubscriberList::ColliderSubscriberList()
     :   SubscriberList<ColliderSignal>()
 {
@@ -9,8 +9,8 @@ ColliderSubscriberList::ColliderSubscriberList()
 
 void ColliderSubscriberList::boundingBoxChanged(Collider* sender)
 {
-    EMIT_SIGNAL(boundingBoxChanged,sender);
-}
+    SIGNAL_EMIT_INTERN(boundingBoxChanged,sender);
+}*/
 
 unsigned long long Collider::stats_checkIntersectCounter = 0;
 unsigned long long Collider::stats_doesIntersectCounter  = 0;
@@ -315,7 +315,8 @@ void Collider::setBoundingBox(const RectF &box)
     m_boundingBox = box;
     m_boundingBoxUpdated = true;
     m_stateChanged = true;
-    m_colliderSubscriber.boundingBoxChanged(this);
+   // m_colliderSubscriber.boundingBoxChanged(this);
+    SIGNAL_EMIT(Collider,boundingBoxChanged)
 }
 
 void Collider::setBoundingBox(const int &x,const int &y,
@@ -326,7 +327,8 @@ void Collider::setBoundingBox(const int &x,const int &y,
     m_boundingBox.setSize(width,height);
     m_boundingBoxUpdated = true;
     m_stateChanged = true;
-    m_colliderSubscriber.boundingBoxChanged(this);
+  //  m_colliderSubscriber.boundingBoxChanged(this);
+    SIGNAL_EMIT(Collider,boundingBoxChanged)
 }
 
 
@@ -472,7 +474,8 @@ bool Collider::stateChanged() const
 {
     return m_stateChanged;
 }
-void Collider::subscribe_ColliderSignal(ColliderSignal *subscriber)
+
+/*void Collider::subscribe_ColliderSignal(ColliderSignal *subscriber)
 {
     if(subscriber == nullptr)
         return;
@@ -486,7 +489,7 @@ void Collider::unsubscribeAll_ColliderSignal()
 {
     m_colliderSubscriber.clear();
 }
-
+*/
 void Collider::stats_reset()
 {
     stats_checkIntersectCounter = 0;

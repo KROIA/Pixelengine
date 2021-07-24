@@ -3,11 +3,11 @@
 
 #include "base.h"
 #include "layeritem.h"
-#include "signalSubscriber.h"
+#include "signalEmitter.h"
 #include "texture.h"
 
 // Signals from Painter
-class PainterSignal
+/*class PainterSignal
 {
     public:
         PainterSignal(){}
@@ -28,10 +28,22 @@ class PainterSubscriberList    : public SubscriberList<PainterSignal>
         virtual void isVisible(Painter *sender);
     protected:
 
-};
+};*/
+SIGNAL_DEF(Painter)
+    SIGNAL_FUNC(renderLayerChanged, size_t, size_t &)
+    SIGNAL_FUNC(isInvisible)
+    SIGNAL_FUNC(isVisible)
+SIGNAL_DEF_END
+
+SIGNAL_EMITTER_DEF(Painter)
+    SIGNAL_EMITTER_FUNC(renderLayerChanged, size_t, size_t &)
+    SIGNAL_EMITTER_FUNC(isInvisible)
+    SIGNAL_EMITTER_FUNC(isVisible)
+SIGNAL_EMITTER_DEF_END
 
 class Painter   :   public  LayerItem
 {
+    SIGNAL_EMITTER(Painter)
     public:
 
         Painter();
@@ -73,9 +85,9 @@ class Painter   :   public  LayerItem
         void setRenderLayer(size_t layer);
         size_t getRenderLayer() const;
 
-        void subscribe_painterSignal(PainterSignal *subscriber);
+        /*void subscribe_painterSignal(PainterSignal *subscriber);
         void unsubscribe_painterSignal(PainterSignal *subscriber);
-        void unsubscribeAll_painterSignal();
+        void unsubscribeAll_painterSignal();*/
 
         void setEnableRelativeRotation(bool enable);
         void setEnableRelativePosition(bool enable);
@@ -101,7 +113,7 @@ class Painter   :   public  LayerItem
         RectF       m_frame;
         size_t      m_renderlayer;
 
-        PainterSubscriberList m_signalSubscriber;
+       // PainterSubscriberList m_signalSubscriber;
 
         bool        m_enableRelativeRotation;
         bool        m_enableRelativePosition;

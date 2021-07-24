@@ -16,7 +16,7 @@
 #include "collider.h"
 #include "controller.h"
 #include "keyController.h"
-#include "dynamicCoordinator.h"
+//#include "dynamicCoordinator.h"
 #include "spritePainter.h"
 #include "texturePainter.h"
 #include "pixelPainter.h"
@@ -26,7 +26,8 @@
 #include "texture.h"
 #include "animatedTexture.h"
 
-#include "event.h"
+#include "keyEvent.h"
+#include "mouseMoveEvent.h"
 #include "keyboard.h"
 #include "layeritem.h"
 #include "rect.h"
@@ -50,7 +51,7 @@ typedef  void (*p_eventFunc)(float,unsigned long long,const vector<sf::Event>&);
 typedef  void (*p_displayFunc)(float,unsigned long long,PixelDisplay&);
 
 
-class PixelEngine   :   public EngineInterface, private GroupSignal
+class PixelEngine   :   public EngineInterface, SIGNAL_RECEIVES(GameObjectGroup)
 {
 
 
@@ -182,8 +183,8 @@ class PixelEngine   :   public EngineInterface, private GroupSignal
         virtual void collisionOccured(GameObject *obj1,vector<GameObject *> obj2);
         virtual void addPainterToDisplay(Painter *painter);
         virtual void removePainterFromDisplay(Painter *painter);
-        virtual void addEvent(Event *event);
-        virtual void removeEvent(Event *event);
+        virtual void addEvent(KeyEvent *event);
+        virtual void removeEvent(KeyEvent *event);
         virtual float getDeltaTime() const;
 
         // General functions
@@ -221,12 +222,18 @@ class PixelEngine   :   public EngineInterface, private GroupSignal
         static void removeObjectFromList(vector<GameObjectGroup*> &list,GameObjectGroup *obj);
 
         // User List Signals
-        virtual void adding(GameObjectGroup* sender,GameObject* obj);
+        SLOT_DECLARATION(GameObjectGroup,adding,GameObject*)
+        SLOT_DECLARATION(GameObjectGroup,adding,GameObjectGroup*)
+        SLOT_DECLARATION(GameObjectGroup,removing,GameObject*)
+        SLOT_DECLARATION(GameObjectGroup,removing,GameObjectGroup*)
+        SLOT_DECLARATION(GameObjectGroup,willBeCleared)
+        SLOT_DECLARATION(GameObjectGroup,cleared)
+        /*virtual void adding(GameObjectGroup* sender,GameObject* obj);
         virtual void adding(GameObjectGroup* sender,GameObjectGroup* group);
         virtual void removing(GameObjectGroup* sender,GameObject* obj);
         virtual void removing(GameObjectGroup* sender,GameObjectGroup* group);
         virtual void willBeCleared(GameObjectGroup* sender);
-        virtual void cleared(GameObjectGroup* sender);
+        virtual void cleared(GameObjectGroup* sender);*/
 
         // Dummy func from GameObjectEngine_Interface
         void engineCalled_checkEvent(){};
@@ -251,7 +258,7 @@ class PixelEngine   :   public EngineInterface, private GroupSignal
         float m_displayInterval; // sec.
 
         InteractiveGameObjectGroup  m_masterGameObjectGroup;
-        HashTable<Event*>           m_eventContainer;
+        HashTable<KeyEvent*>           m_eventContainer;
 
         HashTable<GameObject* >     m_addLaterObjectGroup;
         HashTable<GameObject* >     m_removeLaterObjectGroup;

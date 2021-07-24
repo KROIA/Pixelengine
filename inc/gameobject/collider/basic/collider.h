@@ -7,14 +7,14 @@
 #include "layeritem.h"
 #include "rect.h"
 #include "texture.h"
-#include "signalSubscriber.h"
+#include "signalEmitter.h"
 
 
 using std::vector;
 using sf::Vector2f;
 
 // Signals for GameObjects
-class ColliderSignal
+/*class ColliderSignal
 {
     public:
         ColliderSignal(){}
@@ -30,10 +30,18 @@ class ColliderSubscriberList    : public SubscriberList<ColliderSignal>
         ColliderSubscriberList();
 
         virtual void boundingBoxChanged(Collider* sender);
-};
+};*/
+SIGNAL_DEF(Collider)
+    SIGNAL_FUNC(boundingBoxChanged)
+SIGNAL_DEF_END
+
+SIGNAL_EMITTER_DEF(Collider)
+    SIGNAL_EMITTER_FUNC(boundingBoxChanged)
+SIGNAL_EMITTER_DEF_END
 
 class Collider  :   public LayerItem
 {
+    SIGNAL_EMITTER(Collider)
     public:
         Collider();
         Collider(const Collider &other);
@@ -118,9 +126,9 @@ class Collider  :   public LayerItem
         bool stateChanged() const;
 
         // Signals
-        virtual void subscribe_ColliderSignal(ColliderSignal *subscriber);
+      /*  virtual void subscribe_ColliderSignal(ColliderSignal *subscriber);
         virtual void unsubscribe_ColliderSignal(ColliderSignal *subscriber);
-        virtual void unsubscribeAll_ColliderSignal();
+        virtual void unsubscribeAll_ColliderSignal();*/
     protected:
 
         virtual void setBoundingBox();
@@ -150,7 +158,7 @@ class Collider  :   public LayerItem
 
         bool m_stateChanged;
 
-        ColliderSubscriberList m_colliderSubscriber;
+      //  ColliderSubscriberList m_colliderSubscriber;
     private:
 
         virtual void internalRotate(const Vector2f &rotPoint,const float &deg);

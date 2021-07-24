@@ -54,7 +54,7 @@ bool InteractiveGameObjectGroup::add(GameObject *obj)
     GAME_OBJECT_FUNCTION(profiler::colors::Purple50);
     if(obj == nullptr)
         return false;
-    if(m_objectsList[obj] != nullptr) // GameObject is already added to the Group
+    if(m_objectsList.find(obj) != m_objectsList.end()) // GameObject is already added to the Group
         return false;
 
     InteractiveGameObject *j = new InteractiveGameObject();
@@ -384,4 +384,5 @@ void *InteractiveGameObjectGroup::thread_generateInteractiveObject(void *p)
     }
     //qDebug() << "Thread: "<<param->begin<< " - "<<param->end << "  finished";
     pthread_exit(NULL);
+    return nullptr;
 }

@@ -8,7 +8,7 @@
 
 #define CHECK_FOR_DOUBLE_OBJ
 
-class InteractiveGameObject : private GroupSignal, ObjSignal
+class InteractiveGameObject : SIGNAL_RECEIVES(GameObjectGroup), SIGNAL_RECEIVES(GameObject)
 {
     public:
         struct Settings
@@ -64,7 +64,17 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
 
 
     protected:
-        // GameObject singals:
+
+        SLOT_DECLARATION(GameObject,moved,const Vector2f &)
+        SLOT_DECLARATION(GameObject,rotated,float)
+
+        SLOT_DECLARATION(GameObjectGroup,adding,GameObject*)
+        SLOT_DECLARATION(GameObjectGroup,adding,GameObjectGroup*)
+        SLOT_DECLARATION(GameObjectGroup,removing,GameObject*)
+        SLOT_DECLARATION(GameObjectGroup,removing,GameObjectGroup*)
+        SLOT_DECLARATION(GameObjectGroup,willBeCleared)
+        SLOT_DECLARATION(GameObjectGroup,cleared)
+       /* // GameObject singals:
         virtual void moved(GameObject* sender,const Vector2f &move);
         virtual void rotated(GameObject* sender,const float deltaAngle);
 
@@ -74,7 +84,7 @@ class InteractiveGameObject : private GroupSignal, ObjSignal
         virtual void removing(GameObjectGroup* sender,GameObject* obj);
         virtual void removing(GameObjectGroup* sender,GameObjectGroup* group);
         virtual void willBeCleared(GameObjectGroup* sender);
-        virtual void cleared(GameObjectGroup* sender);
+        virtual void cleared(GameObjectGroup* sender);*/
 
         GameObject *m_gameObject;
         ObjectTree   *m_objectTree;

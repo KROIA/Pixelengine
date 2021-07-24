@@ -6,7 +6,7 @@
 #include "spritePainter.h"
 
 // Signals for GameObjectGroups
-class GroupSignal
+/*class GroupSignal
 {
     public:
         virtual void adding(GameObjectGroup* sender,GameObject* obj) = 0;
@@ -30,11 +30,29 @@ class GroupSubscriberList    : public SubscriberList<GroupSignal>
         virtual void willBeCleared(GameObjectGroup* sender);
         virtual void cleared(GameObjectGroup* sender);
     protected:
-};
+};*/
+SIGNAL_DEF(GameObjectGroup)
+    SIGNAL_FUNC(adding,GameObject*)
+    SIGNAL_FUNC(adding,GameObjectGroup*)
+    SIGNAL_FUNC(removing,GameObject*)
+    SIGNAL_FUNC(removing,GameObjectGroup*)
+    SIGNAL_FUNC(willBeCleared)
+    SIGNAL_FUNC(cleared)
+SIGNAL_DEF_END
+
+SIGNAL_EMITTER_DEF(GameObjectGroup)
+    SIGNAL_EMITTER_FUNC(adding,GameObject*)
+    SIGNAL_EMITTER_FUNC(adding,GameObjectGroup*)
+    SIGNAL_EMITTER_FUNC(removing,GameObject*)
+    SIGNAL_EMITTER_FUNC(removing,GameObjectGroup*)
+    SIGNAL_EMITTER_FUNC(willBeCleared)
+    SIGNAL_EMITTER_FUNC(cleared)
+SIGNAL_EMITTER_DEF_END
 
 //                         Will receive GameObject Signals
-class GameObjectGroup  :   private ObjSignal//, GroupSignal
+class GameObjectGroup  :   SIGNAL_RECEIVES(GameObject)
 {
+    SIGNAL_EMITTER(GameObjectGroup)
     public:
         GameObjectGroup();
         GameObjectGroup(const GameObjectGroup &other);
@@ -111,9 +129,9 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         static void removinguplicates(GameObjectGroup *list);
 
         // Signals
-        virtual void subscribe_GroupSignal(GroupSignal   *subscriber);
+       /* virtual void subscribe_GroupSignal(GroupSignal   *subscriber);
         virtual void unsubscribe_GroupSignal(GroupSignal *subscriber);
-        virtual void unsubscribeAll_GroupSignal();
+        virtual void unsubscribeAll_GroupSignal();*/
 
     protected:
         bool addInternal(GameObject *object);
@@ -121,8 +139,10 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         bool removeInternal(size_t index);
 
         // GameObject singals:
-        virtual void moved(GameObject* sender,const Vector2f &move);
-        virtual void rotated(GameObject* sender,const float deltaAngle);
+        SLOT_DECLARATION(GameObject,moved,const Vector2f &)
+        SLOT_DECLARATION(GameObject,rotated,float)
+      //  virtual void moved(GameObject* sender,const Vector2f &move);
+      //  virtual void rotated(GameObject* sender,const float deltaAngle);
 
         bool          m_visibility;
         bool          m_visibility_collider_hitbox;
@@ -134,7 +154,7 @@ class GameObjectGroup  :   private ObjSignal//, GroupSignal
         //bool          m_visibility_chunks;
 
         vector<GameObject *> m_isInList;
-        GroupSubscriberList m_groupSubscriberList;
+        //GroupSubscriberList m_groupSubscriberList;
     private:
 
 

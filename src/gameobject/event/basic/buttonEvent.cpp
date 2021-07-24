@@ -1,24 +1,11 @@
-#include "event.h"
+#include "buttonEvent.h"
 
-Event::Event()
+ButtonEvent::ButtonEvent()
+    :   Event()
 {
-    constructor(-1);
-}
-
-Event::Event(const int &key)
-{
-    constructor(key);
-}
-Event::Event(const Event &other)
-{
-    *this = other;
-}
-void Event::constructor(const int &key)
-{
-    m_key = key;
-    m_keyState            = false;
-    m_keyLastState1       = false;
-    m_keyLastState2       = false;
+    m_buttonState         = false;
+    m_buttonLastState1    = false;
+    m_buttonLastState2    = false;
 
 
     m_isPressed           = false;
@@ -31,17 +18,25 @@ void Event::constructor(const int &key)
     m_isSinking_counter   = 0;
     m_isRising_counter    = 0;
 }
-Event::~Event()
+
+ButtonEvent::ButtonEvent(const ButtonEvent &other)
+    :   Event(other)
+{
+    *this = other;
+}
+ButtonEvent::~ButtonEvent()
 {
 
 }
-Event &Event::operator=(const Event &other)
+ButtonEvent &ButtonEvent::operator=(const ButtonEvent &other)
 {
-    this->m_key         = other.m_key;
-    this->m_isPressed   = other.m_isPressed;
-    this->m_isToggled   = other.m_isToggled;
-    this->m_isSinking   = other.m_isSinking;
-    this->m_isRising    = other.m_isRising;
+    this->m_buttonState         = other.m_buttonState;
+    this->m_buttonLastState1    = other.m_buttonLastState1;
+    this->m_buttonLastState2    = other.m_buttonLastState2;
+    this->m_isPressed           = other.m_isPressed;
+    this->m_isToggled           = other.m_isToggled;
+    this->m_isSinking           = other.m_isSinking;
+    this->m_isRising            = other.m_isRising;
 
     this->m_isPressed_counter   = other.m_isPressed_counter;
     this->m_isToggled_counter   = other.m_isToggled_counter;
@@ -50,127 +45,111 @@ Event &Event::operator=(const Event &other)
     return *this;
 }
 
-void Event::checkEvent()
+void ButtonEvent::checkEvent(float deltaTime)
 {
     EVENT_FUNCTION(profiler::colors::Indigo50);
-    if(m_key < 0)
-        return;
+
     m_isToggled = false;
     m_isRising  = false;
     m_isSinking = false;
 
-    unsigned int state = GetAsyncKeyState(m_key);
+    readCurrentButtonState();
 
-    // If state is == 1, key isn't pressed any more.
-    // If state is >  1, ( Bit 0x8000 is == 1) key is pressed.
-    if(state <= 1)
+    if(m_buttonState)
     {
-        m_keyState = false;
-    }
-    else
-    {
-        m_keyState = true;
-    }
-
-    if(m_keyState)
-    {
-        if(m_keyLastState1)
+        if(m_buttonLastState1)
         {
             // is pressed
             if(!m_isPressed)
                 m_isPressed_counter++;
             m_isPressed = true;
-
+            buttonPressed();
         }
         else
         {
             // falling edge
             m_isSinking = true;
             m_isSinking_counter++;
+            buttonSinking();
         }
     }
-    else if(m_keyLastState1)
+    else if(m_buttonLastState1)
     {
         // rising edge
         m_isRising  = true;
         m_isPressed = false;
         m_isRising_counter++;
-        if(!m_keyLastState2)
+        buttonRising();
+        if(!m_buttonLastState2)
         {
             // After 3 zycles of this checkEvent function,
             // if it was a toggle event.
             m_isToggled = true;
             m_isToggled_counter++;
+            buttonToggled();
         }
     }
 
-    m_keyLastState2 = m_keyLastState1;
-    m_keyLastState1 = m_keyState;
+    m_buttonLastState2 = m_buttonLastState1;
+    m_buttonLastState1 = m_buttonState;
 }
 
-void Event::setKey(const int &key)
-{
-    m_key = key;
-}
-const int &Event::getKey() const
-{
-    return m_key;
-}
 
-const bool &Event::isPressed() const
+
+const bool &ButtonEvent::isPressed() const
 {
     return m_isPressed;
 }
-const bool &Event::isToggled() const
+const bool &ButtonEvent::isToggled() const
 {
     return m_isToggled;
 }
-const bool &Event::isSinking() const
+const bool &ButtonEvent::isSinking() const
 {
     return m_isSinking;
 }
-const bool &Event::isRising() const
+const bool &ButtonEvent::isRising() const
 {
     return m_isRising;
 }
 
-void Event::resetCounter()
+void ButtonEvent::resetCounter()
 {
     resetCounter_isPressed();
     resetCounter_isToggled();
     resetCounter_isSinking();
     resetCounter_isRising();
 }
-void Event::resetCounter_isPressed()
+void ButtonEvent::resetCounter_isPressed()
 {
     m_isPressed_counter = 0;
 }
-void Event::resetCounter_isToggled()
+void ButtonEvent::resetCounter_isToggled()
 {
     m_isToggled_counter = 0;
 }
-void Event::resetCounter_isSinking()
+void ButtonEvent::resetCounter_isSinking()
 {
     m_isSinking_counter = 0;
 }
-void Event::resetCounter_isRising()
+void ButtonEvent::resetCounter_isRising()
 {
     m_isRising_counter = 0;
 }
 
-const unsigned int &Event::getCounter_isPressed() const
+const unsigned int &ButtonEvent::getCounter_isPressed() const
 {
     return m_isPressed_counter;
 }
-const unsigned int &Event::getCounter_isToggled() const
+const unsigned int &ButtonEvent::getCounter_isToggled() const
 {
     return m_isToggled_counter;
 }
-const unsigned int &Event::getCounter_isSinking() const
+const unsigned int &ButtonEvent::getCounter_isSinking() const
 {
     return m_isSinking_counter;
 }
-const unsigned int &Event::getCounter_isRising()  const
+const unsigned int &ButtonEvent::getCounter_isRising()  const
 {
     return m_isRising_counter;
 }

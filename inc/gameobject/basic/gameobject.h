@@ -5,18 +5,18 @@
 #include "submodule.h"
 #include "property.h"
 #include "controller.h"
-#include "dynamicCoordinator.h"
+//#include "dynamicCoordinator.h"
 #include "collider.h"
 #include "spritePainter.h"
 #include "pixelPainter.h"
 #include "texturePainter.h"
 #include "textPainter.h"
 #include "colliderPainter.h"
-#include "signalSubscriber.h"
+#include "signalEmitter.h"
 #include "sensor.h"
 #include "displayInterface.h"
 
-
+/*
 // Signals for GameObjects
 class ObjSignal
 {
@@ -38,11 +38,21 @@ class ObjSubscriberList    : public SubscriberList<ObjSignal>
         virtual void rotated(GameObject* sender,const float deltaAngle);
     protected:
 };
+*/
+SIGNAL_DEF(GameObject)
+    SIGNAL_FUNC(moved,const Vector2f &)
+    SIGNAL_FUNC(rotated,float)
+SIGNAL_DEF_END
+
+SIGNAL_EMITTER_DEF(GameObject)
+    SIGNAL_EMITTER_FUNC(moved,const Vector2f &)
+    SIGNAL_EMITTER_FUNC(rotated,float)
+SIGNAL_EMITTER_DEF_END
 
 
-
-class GameObject : public Submodule, private ControllerSignal, UserEventSignal, ColliderSignal
+class GameObject : public Submodule, SIGNAL_RECEIVES(Controller),  SIGNAL_RECEIVES(Collider)
 {
+    SIGNAL_EMITTER(GameObject)
     public:
         GameObject();
         /*GameObject(const GameObject &other);
@@ -55,10 +65,10 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal, 
 
 
         // Events
-      //  virtual void addEvent(Event *e);
-      //  virtual void removeEvent(Event *e);
-        void engineCalled_checkEvent();
-        virtual void checkEvent();
+      //  virtual void addEvent(KeyEvent *e);
+      //  virtual void removeEvent(KeyEvent *e);
+        void engineCalled_checkEvent(float deltaTime);
+        virtual void checkEvent(float deltaTime);
         //virtual bool hasEventsToCheck() const;
         virtual void killMe();             // Not defined jet in the engine class
         virtual void removeMeFromEngine(); // Removes this obj from the engine, but the obj won't get destroyed
@@ -84,9 +94,9 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal, 
         virtual void setDisplayInterface(DisplayInterface *display);
 
         // Signals
-        virtual void subscribe_ObjSignal(ObjSignal *subscriber);
+        /*virtual void subscribe_ObjSignal(ObjSignal *subscriber);
         virtual void unsubscribe_ObjSignal(ObjSignal *subscriber);
-        virtual void unsubscribeAll_ObjSignal();
+        virtual void unsubscribeAll_ObjSignal();*/
 
 
         // For user call
@@ -222,26 +232,36 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal, 
         virtual void event_hasCollision(vector<GameObject *> other);
 
         // Signals from UserEventSignal
-        virtual void eventAdded(UserEventHandler *sender,  Event *e);
-        virtual void eventRemoved(UserEventHandler *sender,  Event *e);
+
 
         // Signals from Controller
-        virtual void moveAvailable(Controller *sender);
+        SLOT_DECLARATION(Controller,moveAvailable)
+        SLOT_DECLARATION(Controller,eventAdded,Event*)
+        SLOT_DECLARATION(Controller,eventRemoved,Event*)
+        SLOT_DECLARATION(Controller,eventsWillBeCleared)
+        SLOT_DECLARATION(Controller,eventsCleared)
+
+       /* virtual void moveAvailable(Controller *sender);
+        virtual void eventAdded(Controller *sender,  Event *e);
+        virtual void eventRemoved(Controller *sender,  Event *e);
+        virtual void eventsWillBeCleared(Controller *sender);
+        virtual void eventsCleared(Controller *sender);*/
 
         // Signals from Collider
-        virtual void boundingBoxChanged(Collider* sender);
+        SLOT_DECLARATION(Collider,boundingBoxChanged)
+        //virtual void boundingBoxChanged(Collider* sender);
 
 
       //  LayerItem m_layerItem;
 
         Property::Property m_property;
         DisplayInterface *m_display_interface;
-        ObjSubscriberList m_objSubscriberList;
+        //ObjSubscriberList m_objSubscriberList;
 
       //  vector<Controller*> m_controllerList;
       //  bool           m_hasEventsToCheck;
       //  bool           m_hasMoveToMake;
-        DynamicCoordinator m_movementCoordinator;
+       // DynamicCoordinator m_movementCoordinator;
         Collider      *m_collider;
         Collider      *m_originalCollider;
         RectF         m_colliderSearchBox;
@@ -262,7 +282,7 @@ class GameObject : public Submodule, private ControllerSignal, UserEventSignal, 
         bool                m_visibility;
 
        // HashTable<Painter* >  m_painterList;
-       // HashTable<Event*>     m_eventList;
+       // HashTable<KeyEvent*>     m_eventList;
         vector<GameObject*>   m_collidedObjects;
         InteractiveGameObject *m_thisInteractiveObject;
 

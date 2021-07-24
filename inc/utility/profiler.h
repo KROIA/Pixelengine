@@ -4,7 +4,7 @@
 #if defined __has_include
 #  if __has_include (<pixelEngineSettings.h>)
 #    include <pixelEngineSettings.h>
-#    pragma message( "Applying Profiler settings from  pixelEngineSettings.h " )
+//#    pragma message( "Applying Profiler settings from  pixelEngineSettings.h " )
 #  else
 #ifdef BUILD_WITH_EASY_PROFILER
 

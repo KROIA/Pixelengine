@@ -17,7 +17,7 @@ class EngineInterface
      //   virtual void removePainterFromDisplay(Painter *painter) = 0;
         virtual float getDeltaTime() const = 0;
 
-        virtual void addEvent(Event *event) = 0;
-        virtual void removeEvent(Event *event) = 0;
+        virtual void addEvent(KeyEvent *event) = 0;
+        virtual void removeEvent(KeyEvent *event) = 0;
 };
 #endif // ENGINE_INTERFACE_H

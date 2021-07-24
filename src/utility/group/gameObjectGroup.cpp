@@ -1,5 +1,5 @@
 #include "gameObjectGroup.h"
-
+/*
 GroupSubscriberList::GroupSubscriberList()
     :   SubscriberList<GroupSignal>()
 {
@@ -7,31 +7,30 @@ GroupSubscriberList::GroupSubscriberList()
 }
 void GroupSubscriberList::adding(GameObjectGroup *sender,GameObject* obj)
 {
-    EMIT_SIGNAL(adding,sender,obj);
+    SIGNAL_EMIT_INTERN(adding,sender,obj);
 }
 void GroupSubscriberList::adding(GameObjectGroup *sender,GameObjectGroup* group)
 {
-    EMIT_SIGNAL(adding,sender,group);
+    SIGNAL_EMIT_INTERN(adding,sender,group);
 }
 void GroupSubscriberList::removing(GameObjectGroup *sender,GameObject* obj)
 {
-    EMIT_SIGNAL(removing,sender,obj);
+    SIGNAL_EMIT_INTERN(removing,sender,obj);
 }
 void GroupSubscriberList::removing(GameObjectGroup *sender,GameObjectGroup* group)
 {
-    EMIT_SIGNAL(removing,sender,group);
+    SIGNAL_EMIT_INTERN(removing,sender,group);
 }
 void GroupSubscriberList::willBeCleared(GameObjectGroup* sender)
 {
-    EMIT_SIGNAL(willBeCleared,sender);
+    SIGNAL_EMIT_INTERN(willBeCleared,sender);
 }
 void GroupSubscriberList::cleared(GameObjectGroup* sender)
 {
-    EMIT_SIGNAL(cleared,sender);
+    SIGNAL_EMIT_INTERN(cleared,sender);
 }
-
+*/
 GameObjectGroup::GameObjectGroup()
-    :   ObjSignal()
 {
     this->m_visibility                                      = true;
     this->m_visibility_collider_hitbox                      = false;
@@ -42,7 +41,6 @@ GameObjectGroup::GameObjectGroup()
     this->m_visibility_objectTree                           = false;
 }
 GameObjectGroup::GameObjectGroup(const GameObjectGroup &other)
-    :   ObjSignal()
 {
     *this = other;
 }
@@ -50,17 +48,20 @@ GameObjectGroup::GameObjectGroup(const GameObjectGroup &other)
 GameObjectGroup::~GameObjectGroup()
 {
     for(GameObject* &obj : m_isInList)
-        obj->unsubscribe_ObjSignal(this);
+        SIGNAL_UNSUBSCRIBE(GameObject,obj)
+        //obj->unsubscribe_ObjSignal(this);
 }
 GameObjectGroup &GameObjectGroup::operator=(const GameObjectGroup &other)
 {
-    for(GameObject* &obj : m_isInList)
-        obj->unsubscribe_ObjSignal(this);
+    for(GameObject* &obj : m_isInList)        
+        SIGNAL_UNSUBSCRIBE(GameObject,obj)
+        //obj->unsubscribe_ObjSignal(this);
     this->m_visibility        = other.m_visibility;
     this->m_visibility_collider_hitbox  = other.m_visibility_collider_hitbox;
     this->m_isInList         = other.m_isInList;
     for(GameObject* &obj : m_isInList)
-        obj->subscribe_ObjSignal(this);
+        SIGNAL_SUBSCRIBE(GameObject,obj)
+        //obj->subscribe_ObjSignal(this);
     //this->m_groupSubscriberList = other.m_groupSubscriberList;
     return *this;
 }
@@ -75,7 +76,8 @@ bool GameObjectGroup::add(GameObject *object)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple50);
     addInternal(object);
-    m_groupSubscriberList.adding(this,object);//emit signal
+    SIGNAL_EMIT(GameObjectGroup,adding,object)
+    //m_groupSubscriberList.adding(this,object);//emit signal
     return true;
 }
 bool GameObjectGroup::add(GameObjectGroup *other)
@@ -84,13 +86,15 @@ bool GameObjectGroup::add(GameObjectGroup *other)
     m_isInList.reserve(m_isInList.size()   + other->size());
     for(size_t i=0; i<other->size(); i++)
         this->addInternal((*other)[i]);
-    m_groupSubscriberList.adding(this,other);//emit signal
+    SIGNAL_EMIT(GameObjectGroup,adding,other)
+    //m_groupSubscriberList.adding(this,other);//emit signal
     return true;
 }
 bool GameObjectGroup::addInternal(GameObject *object)
 {
     m_isInList.push_back(object);
-    object->subscribe_ObjSignal(this);
+    SIGNAL_SUBSCRIBE(GameObject,object)
+    //object->subscribe_ObjSignal(this);
     return true;
 }
 
@@ -102,7 +106,8 @@ bool GameObjectGroup::remove(GameObject *toRemove)
     {
         if(m_isInList[i] == toRemove)
         {
-            m_groupSubscriberList.removing(this,m_isInList[i]);//emit signal
+            SIGNAL_EMIT(GameObjectGroup,removing,m_isInList[i])
+            //m_groupSubscriberList.removing(this,m_isInList[i]);//emit signal
             ret |= this->removeInternal(i);
         }
     }
@@ -114,7 +119,8 @@ bool GameObjectGroup::remove(GameObjectGroup *other)
     //other->unsubscribe(this);
     if(m_isInList.size() == 0 || other->size() == 0)
         return false;
-    m_groupSubscriberList.removing(this,other);//emit signal
+    SIGNAL_EMIT(GameObjectGroup,removing,other)
+    //m_groupSubscriberList.removing(this,other);//emit signal
     bool ret = true;
     for(size_t i=0; i<m_isInList.size(); i++)
     {
@@ -127,7 +133,8 @@ bool GameObjectGroup::remove(const size_t index)
     GAME_OBJECT_FUNCTION(profiler::colors::Purple100);
     if(index >= m_isInList.size())
         return false;
-    m_groupSubscriberList.removing(this,m_isInList[index]);//emit signal
+    SIGNAL_EMIT(GameObjectGroup,removing,m_isInList[index])
+    //m_groupSubscriberList.removing(this,m_isInList[index]);//emit signal
     return removeInternal(index);
 }
 bool GameObjectGroup::removeInternal(GameObject *object)
@@ -144,16 +151,19 @@ bool GameObjectGroup::removeInternal(GameObject *object)
 }
 bool GameObjectGroup::removeInternal(size_t index)
 {
-    m_isInList[index]->unsubscribe_ObjSignal(this);
+    SIGNAL_UNSUBSCRIBE(GameObject,m_isInList[index])
+    //m_isInList[index]->unsubscribe_ObjSignal(this);
     m_isInList.erase(m_isInList.begin()+index);
     return true;
 }
 void GameObjectGroup::clear()
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple200);
-    m_groupSubscriberList.willBeCleared(this);
+    SIGNAL_EMIT(GameObjectGroup,willBeCleared)
+    //m_groupSubscriberList.willBeCleared(this);
     for(GameObject* &obj : m_isInList)
-        obj->unsubscribe_ObjSignal(this);
+        SIGNAL_UNSUBSCRIBE(GameObject,obj)
+        //obj->unsubscribe_ObjSignal(this);
     m_isInList.clear();
 }
 void GameObjectGroup::reserve(size_t size)
@@ -515,7 +525,7 @@ void GameObjectGroup::removinguplicates(GameObjectGroup *list)
     GAME_OBJECT_FUNCTION(profiler::colors::Purple700);
     removinguplicates(&list->m_isInList);
 }
-void GameObjectGroup::subscribe_GroupSignal(GroupSignal *subscriber)
+/*void GameObjectGroup::subscribe_GroupSignal(GroupSignal *subscriber)
 {
     if(subscriber == nullptr)
         return;
@@ -528,9 +538,14 @@ void GameObjectGroup::unsubscribe_GroupSignal(GroupSignal *subscriber)
 void GameObjectGroup::unsubscribeAll_GroupSignal()
 {
     m_groupSubscriberList.clear();
-}
+}*/
+
 // GameObject singals:
-void GameObjectGroup::moved(GameObject* sender,const Vector2f &move)
+SLOT_DEFINITION(GameObjectGroup,GameObject,moved,const Vector2f &move)
+{}
+SLOT_DEFINITION(GameObjectGroup,GameObject,rotated,float deltaAngle)
+{}
+/*void GameObjectGroup::moved(GameObject* sender,const Vector2f &move)
 {
     //receive signal
     //qDebug() << "sender: "<<sender << " moved: "<<Vector::toString(move).c_str();
@@ -538,7 +553,7 @@ void GameObjectGroup::moved(GameObject* sender,const Vector2f &move)
 void GameObjectGroup::rotated(GameObject* sender,const float deltaAngle)
 {
 
-}
+}*/
 
 // GameObjectGroup signals:
 /*void GameObjectGroup::adding(GameObjectGroup* group,GameObject* obj)
