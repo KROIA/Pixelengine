@@ -62,7 +62,7 @@ SOURCES += \
         $$PWD/src/gameobject/event/basic/buttonEvent.cpp \
         $$PWD/src/gameobject/event/mouseButtonEvent.cpp \
         $$PixelEngine_srcPath/gameobject/event/mouseMoveEvent.cpp \
-        $$PixelEngine_srcPath/gameobject/controller/mouseController.cpp \
+        $$PixelEngine_srcPath/gameobject/controller/mouseMoveController.cpp \
         $$PixelEngine_srcPath/gameobject/basic/submodule.cpp \
         $$PixelEngine_srcPath/gameobject/sensor/laserSensor.cpp \
         $$PixelEngine_srcPath/gameobject/sensor/rectSensor.cpp \
@@ -101,7 +101,7 @@ SOURCES += \
 HEADERS += \
         $$PWD/inc/gameobject/event/basic/buttonEvent.h \
         $$PWD/inc/gameobject/event/mouseButtonEvent.h \
-        $$PixelEngine_incPath/gameobject/controller/mouseController.h \
+        $$PixelEngine_incPath/gameobject/controller/mouseMoveController.h \
         $$PixelEngine_incPath/gameobject/event/mouseMoveEvent.h \
         $$PixelEngine_incPath/utility/generalFunctionality/fileBrowser.h \
         $$PixelEngine_incPath/display/displayInterface.h \

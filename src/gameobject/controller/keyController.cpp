@@ -7,10 +7,6 @@ KeyController::KeyController()
     m_key_forMove_LEFT_event    = nullptr;
     m_key_forMove_DOWN_event    = nullptr;
     m_key_forMove_RIGHT_event   = nullptr;
-
-    m_stepSize      = 10;
-
-    this->setStepSize(1);
 }
 KeyController::KeyController(const KeyController &other)
     :   Controller()
@@ -94,7 +90,7 @@ void KeyController::setKey_forMove_RIGHT(int key)
 void KeyController::setStepSize(float size)
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink500);
-    m_stepSize = size;
+    Controller::setStepSize(size);
 
     m_stepUp        = Vector2f(0,-m_stepSize);
     m_stepDown      = Vector2f(0,m_stepSize);

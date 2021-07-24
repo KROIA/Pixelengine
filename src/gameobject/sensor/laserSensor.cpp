@@ -227,8 +227,8 @@ void LaserSensor::engineCalled_preTick()
             m_owner->setCollisionSeachRadius(laserRadius);
         m_recalculateColliderSearchFrame = false;
     }
-    for(auto laser : m_laserList)
-        laser->setReference(m_pos,m_rotation);
+    //for(auto laser : m_laserList)
+    //    laser->setReference(m_pos,m_rotation);
 }
 void LaserSensor::detectObjects(const vector<GameObject*> &other)
 {
@@ -327,6 +327,8 @@ void LaserSensor::detectObjects(const vector<GameObject*> &other)
 
 void LaserSensor::engineCalled_preDraw()
 {
+    for(auto laser : m_laserList)
+        laser->setReference(m_pos,m_rotation);
     m_sensorPainter->clear();
     for(auto obj : m_detected)
     {

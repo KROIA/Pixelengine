@@ -32,10 +32,12 @@ Controller::Controller()
 {
     m_currentDeltaMove.x    = 0;
     m_currentDeltaMove.y    = 0;
-    m_rotationDeg           = 0;
+    m_rotation              = 0;
     m_movingMode            = add;
     m_overwritable          = true;
     this->setActive(true);
+    this->setStepSize(1);
+    this->useTimescale(true);
     if(m_display_interface == nullptr)
     {
         qDebug() << "Controller::m_display_interface == nullptr, can cause problems";
@@ -54,10 +56,11 @@ const Controller &Controller::operator=(const Controller &other)
    // UserEventHandler::operator=(other);
     this->m_currentDeltaMove   = other.m_currentDeltaMove;
     this->m_overwritable       = other.m_overwritable;
-    this->m_rotationDeg        = other.m_rotationDeg;
+    this->m_rotation           = other.m_rotation;
     this->m_movingMode         = other.m_movingMode;
     this->m_deltaTime          = other.m_deltaTime;
     this->m_active             = other.m_active;
+    this->m_useTimeScale       = other.m_useTimeScale;
     return *this;
 }
 /*void Controller::setDisplay(const PixelDisplay *display)
@@ -145,16 +148,15 @@ Controller::MovingMode Controller::getMovingMode() const
 {
     return m_movingMode;
 }
-void Controller::moveToPos(const Vector2i&currentPos,const Vector2i&destination,MovingMode mode)
+void Controller::moveToPos(const Vector2f &destination,MovingMode mode)
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink200);
-    this->move(destination - currentPos,mode);
+    this->move(destination - m_pos,mode);
 }
-void Controller::moveToPos(int currentX,int currentY,
-                           int destinationX,int destinationY,MovingMode mode)
+void Controller::moveToPos(float destinationX,float destinationY,MovingMode mode)
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink200);
-    this->move(destinationX - currentX, destinationY - currentY, mode);
+    this->move(destinationX - m_pos.x, destinationY - m_pos.y, mode);
 }
 void Controller::move(const Vector2i & directionVector,MovingMode mode)
 {
@@ -200,52 +202,83 @@ Vector2f Controller::getMovingVector() const
 {
     if(!m_active)
         return Vector2f(0,0);
-    if(m_rotationDeg != 0)
-        return Vector::getRotated(m_currentDeltaMove,m_rotationDeg) * m_deltaTime;
-    return m_currentDeltaMove * m_deltaTime;
+    if(m_useTimeScale)
+    {
+        if(m_rotation != 0)
+            return Vector::getRotated(m_currentDeltaMove,m_rotation) * m_deltaTime;
+        return m_currentDeltaMove * m_deltaTime;
+    }
+    else
+    {
+        if(m_rotation != 0)
+            return Vector::getRotated(m_currentDeltaMove,m_rotation);
+        return m_currentDeltaMove;
+    }
+
 }
 
+void Controller::setPos(const Vector2f &pos)
+{
+    m_pos = pos;
+}
 void Controller::setRotation(float deg)
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink300);
-    m_rotationDeg = float(int(1000*deg) % 360000)/1000.f;
+    m_rotation = float(int(1000*deg) % 360000)/1000.f;
     //m_controllerSubscriberList.moveAvailable(this);
     SIGNAL_EMIT(Controller,moveAvailable)
 }
 void Controller::rotate(float deg)
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink300);
-    m_rotationDeg += deg;
+    m_rotation += deg;
     //m_controllerSubscriberList.moveAvailable(this);
     SIGNAL_EMIT(Controller,moveAvailable)
 }
 float Controller::getRotation() const
 {
-    return m_rotationDeg;
+    return m_rotation;
 }
 void Controller::rotate_90()
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink300);
-    m_rotationDeg += 90;
-    m_rotationDeg = float(int(1000*m_rotationDeg) % 360000)/1000.f;
+    m_rotation += 90;
+    m_rotation = float(int(1000*m_rotation) % 360000)/1000.f;
     //m_controllerSubscriberList.moveAvailable(this);
     SIGNAL_EMIT(Controller,moveAvailable)
 }
 void Controller::rotate_180()
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink300);
-    m_rotationDeg += 180;
-    m_rotationDeg = float(int(1000*m_rotationDeg) % 360000)/1000.f;
+    m_rotation += 180;
+    m_rotation = float(int(1000*m_rotation) % 360000)/1000.f;
     //m_controllerSubscriberList.moveAvailable(this);
     SIGNAL_EMIT(Controller,moveAvailable)
 }
 void Controller::rotate_270()
 {
     CONTROLLER_FUNCTION(profiler::colors::Pink300);
-    m_rotationDeg += 270;
-    m_rotationDeg = float(int(1000*m_rotationDeg) % 360000)/1000.f;
+    m_rotation += 270;
+    m_rotation = float(int(1000*m_rotation) % 360000)/1000.f;
     //m_controllerSubscriberList.moveAvailable(this);
     SIGNAL_EMIT(Controller,moveAvailable)
+}
+void Controller::setStepSize(float size)
+{
+    CONTROLLER_FUNCTION(profiler::colors::Pink500);
+    m_stepSize = size;
+}
+float Controller::getStepSize() const
+{
+    return m_stepSize;
+}
+void Controller::useTimescale(bool enable)
+{
+    m_useTimeScale = enable;
+}
+bool Controller::getUseTimascale()const
+{
+    return m_useTimeScale;
 }
 /*// Eventhandler
 void Controller::receive_key_isPressed(const int &key)
@@ -273,7 +306,7 @@ void Controller::reset()
 {
     m_currentDeltaMove.x    = 0;
     m_currentDeltaMove.y    = 0;
-    //m_rotationDeg           = 0;
+    //m_rotation           = 0;
     m_overwritable = false;
 }
 // Signals

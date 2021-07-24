@@ -9,6 +9,7 @@
 #include "signalEmitter.h"
 #include "mathFunctions.h"
 #include "displayInterface.h"
+#include "layeritem.h"
 
 // Signals for Controller
 /*class ControllerSignal
@@ -51,7 +52,7 @@ SIGNAL_EMITTER_DEF(Controller)
 SIGNAL_EMITTER_DEF_END
 
 
-class Controller//    :   public UserEventHandler
+class Controller
 {
     SIGNAL_EMITTER(Controller)
     public:
@@ -81,24 +82,28 @@ class Controller//    :   public UserEventHandler
         void setMovingMode(MovingMode mode);
         MovingMode getMovingMode() const;
 
-        void moveToPos(const Vector2i&currentPos,const Vector2i&destination, MovingMode mode = MovingMode::add);
-        void moveToPos(int currentX,int currentY,
-                       int destinationX,int destinationY,MovingMode mode = MovingMode::override);
-        void move(const Vector2i&directionVector,MovingMode mode = MovingMode::add);
-        void move(const Vector2f &directionVector,MovingMode mode = MovingMode::add);
-        void move(float x,float y,MovingMode mode = MovingMode::add);
-        void moveX(float x,MovingMode mode = MovingMode::add);
-        void moveY(float y,MovingMode mode = MovingMode::add);
+        virtual void moveToPos(const Vector2f &destination, MovingMode mode = MovingMode::add);
+        virtual void moveToPos(float destinationX,float destinationY,MovingMode mode = MovingMode::override);
+        virtual void move(const Vector2i&directionVector,MovingMode mode = MovingMode::add);
+        virtual void move(const Vector2f &directionVector,MovingMode mode = MovingMode::add);
+        virtual void move(float x,float y,MovingMode mode = MovingMode::add);
+        virtual void moveX(float x,MovingMode mode = MovingMode::add);
+        virtual void moveY(float y,MovingMode mode = MovingMode::add);
 
         Vector2f getMovingVector() const;
 
-        void setRotation(float deg);
-        void rotate(float deg);
-        float getRotation() const;
-        void rotate_90();
-        void rotate_180();
-        void rotate_270();
+        virtual void setPos(const Vector2f &pos);
+        virtual void setRotation(float deg);
+        virtual void rotate(float deg);
+        virtual float getRotation() const;
+        virtual void rotate_90();
+        virtual void rotate_180();
+        virtual void rotate_270();
 
+        virtual void setStepSize(float size);
+        float getStepSize() const;
+        virtual void useTimescale(bool enable);
+        bool getUseTimascale()const;
         /*void subscribe_ControllerSignal(ControllerSignal *subscriber);
         void unsubscribe_ControllerSignal(ControllerSignal *subscriber);
         void unsubscribeAll_ControllerSignal();
@@ -113,10 +118,13 @@ class Controller//    :   public UserEventHandler
         Vector2f    m_currentDeltaMove;
         bool        m_overwritable;
         bool        m_active;
-        float       m_rotationDeg;
+        bool        m_useTimeScale;
+        Vector2f    m_pos;
+        float       m_rotation;
         MovingMode  m_movingMode;
 
         float m_deltaTime;
+        float m_stepSize;
 
        // ControllerSubscriberList m_controllerSubscriberList;
 

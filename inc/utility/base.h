@@ -94,7 +94,8 @@ class GameObject;
 class Collider;
 class Controller;
 class KeyController;
-class DynamicCoordinator;
+class MouseMoveController;
+//class DynamicCoordinator;
 
 
 

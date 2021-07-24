@@ -43,8 +43,6 @@ class KeyController     :   public Controller, SIGNAL_RECEIVES(KeyEvent)
         KeyEvent* m_key_forMove_DOWN_event;
         KeyEvent* m_key_forMove_RIGHT_event;
 
-        float m_stepSize;
-
         Vector2f m_stepUp;
         Vector2f m_stepLeft;
         Vector2f m_stepDown;

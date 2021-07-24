@@ -181,14 +181,9 @@ void GameObject::engineCalled_preTick()
     for(auto controller : m_controllerList)
         controller->engineCalled_preTick();
 
-    /*for(auto sensor : m_sensorList)
-    {
-        if(sensor->getEnableRelativePosition())
-            sensor->setPos(m_pos);
-        if(sensor->getEnableRelativeRotation())
-            sensor->setRotation(m_rotation);
+    for(auto sensor : m_sensorList)
         sensor->engineCalled_preTick();
-    }*/
+
 
     this->preTick();
 }
@@ -261,7 +256,6 @@ void GameObject::engineCalled_tick(const Vector2i &direction)
             sensor->setPos(m_pos);
         if(sensor->getEnableRelativeRotation())
             sensor->setRotation(m_rotation);
-        sensor->engineCalled_preTick();
     }
     //m_collider->setPos(m_pos);
 
@@ -284,11 +278,11 @@ void GameObject::engineCalled_postTick()
             sensor->setPos(m_pos);
         if(sensor->getEnableRelativeRotation())
             sensor->setRotation(m_rotation);
-        sensor->engineCalled_preTick();
-    }
-
-    for(auto sensor : m_sensorList)
         sensor->engineCalled_postTick();
+    }
+    for(auto controller : m_controllerList)
+        controller->setPos(m_pos);
+
 
     postTick();
 }
