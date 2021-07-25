@@ -61,6 +61,8 @@ INCLUDEPATH += $$incPath \
 SOURCES += \
         $$PWD/src/gameobject/event/basic/buttonEvent.cpp \
         $$PWD/src/gameobject/event/mouseButtonEvent.cpp \
+        $$PWD/src/utility/baseClasses/AABB.cpp \
+        $$PWD/src/utility/baseClasses/shape.cpp \
         $$PixelEngine_srcPath/gameobject/event/mouseMoveEvent.cpp \
         $$PixelEngine_srcPath/gameobject/controller/mouseMoveController.cpp \
         $$PixelEngine_srcPath/gameobject/basic/submodule.cpp \
@@ -101,6 +103,8 @@ SOURCES += \
 HEADERS += \
         $$PWD/inc/gameobject/event/basic/buttonEvent.h \
         $$PWD/inc/gameobject/event/mouseButtonEvent.h \
+        $$PWD/inc/utility/baseClasses/AABB.h \
+        $$PWD/inc/utility/baseClasses/shape.h \
         $$PixelEngine_incPath/gameobject/controller/mouseMoveController.h \
         $$PixelEngine_incPath/gameobject/event/mouseMoveEvent.h \
         $$PixelEngine_incPath/utility/generalFunctionality/fileBrowser.h \

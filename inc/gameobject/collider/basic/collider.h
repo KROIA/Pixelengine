@@ -5,9 +5,11 @@
 
 #include "mathFunctions.h"
 #include "layeritem.h"
-#include "rect.h"
+//#include "rect.h"
 #include "texture.h"
 #include "signalEmitter.h"
+#include "AABB.h"
+#include "shape.h"
 
 
 using std::vector;
@@ -61,31 +63,32 @@ class Collider  :   public LayerItem
         virtual void setX(float x);
         virtual void setY(float y);
 
-        virtual const RectF &getBoundingBox() const;
+        virtual const AABB &getBoundingBox() const;
 
 
         virtual void reserve(const size_t &amount);
+        virtual void addVertex(Vector2f vertex);
 
-        virtual void addHitbox(const RectF &box);
+        /*virtual void addHitbox(const RectF &box);
         virtual void addHitbox(const vector<RectF> &boxList);
         virtual void addHitbox(const RectI &box);
         virtual void addHitbox(const vector<RectI> &boxList);
 
         virtual const RectF &getHitbox(const unsigned int &index) const;
-        virtual const vector<RectF> &getHitbox() const;
+        virtual const vector<RectF> &getHitbox() const;*/
 
         virtual bool intersectsBoundingBox(const Collider *other);
-        virtual bool collides(const Collider *other);
+        virtual bool collides(Collider *other);
 
         virtual void tick();
 
-        virtual void erase(const size_t &index);
+        virtual void erase(size_t index);
         virtual void clear();
 
         virtual const bool &isBoundingBoxUpdated() const;
         virtual void updateBoundingBox();
 
-        virtual size_t getHitboxAmount() const;
+        //virtual size_t getHitboxAmount() const;
 
         virtual float getRotation() const;
         virtual void rotate(float deg);
@@ -113,7 +116,8 @@ class Collider  :   public LayerItem
 
         virtual void generateCollisionData(bool enable);
         virtual VertexPath* getDrawableBoundingBox();
-        virtual vector<VertexPath*> getDrawableHitBox();
+        //virtual vector<VertexPath*> getDrawableHitBox();
+        virtual VertexPath* getDrawableHitBox();
         virtual vector<VertexPath*> getDrawableColliderVector();
 
         static void stats_reset();
@@ -132,18 +136,19 @@ class Collider  :   public LayerItem
     protected:
 
         virtual void setBoundingBox();
-        virtual void setBoundingBox(const RectF &box);
-        virtual void setBoundingBox(const int &x,const int &y,
-                                    const int &width,const int &height);
+        virtual void setBoundingBox(const AABB &box);
+      //  virtual void setBoundingBox(const int &x,const int &y,
+      //                              const int &width,const int &height);
 
 
 
-        RectF  m_boundingBox;
-        vector<RectF> m_hitboxList;
+        AABB  m_boundingBox;
+        Shape m_shape;
+        //vector<RectF> m_hitboxList;
 
         bool m_boundingBoxUpdated;
 
-        RectF m_dummy;
+        //RectF m_dummy;
 
         Color *m_boundingBox_color;
         Color m_boundingBox_standardColor;
@@ -151,7 +156,8 @@ class Collider  :   public LayerItem
 
         Color m_hitbox_standardColor;
         Color m_hitbox_intersectingColor;
-        vector<bool>    m_hitBoxListDoesIntersect;
+        //vector<bool>    m_hitBoxListDoesIntersect;
+        bool m_hitShapeDoesIntersect;
 
         bool m_generate_collisionData;
         vector<VertexPath*> m_collisionData;

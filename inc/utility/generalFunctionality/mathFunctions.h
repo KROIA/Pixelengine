@@ -26,6 +26,8 @@ namespace Vector{
     template <typename T>
     inline float length(const Vector2<T> &vec);
     template <typename T>
+    inline void normalize(Vector2<T> &vec);
+    template <typename T>
     inline Vector2<T> getRotated(const Vector2<T> &vec,const Vector2<T> &rotPoint, float deg);
     inline void rotate(Vector2f &vec,const Vector2f &rotPoint, float deg);
     inline void rotate(vector<Vector2f> &points,const Vector2f &rotPoint, float deg);
@@ -79,6 +81,13 @@ namespace Vector{
     inline float length(const Vector2<T> &vec)
     {
         return sqrt(pow(vec.x,2) + pow(vec.y,2));
+    }
+
+    template <typename T>
+    inline void normalize(Vector2<T> &vec)
+    {
+        float l = length(vec);
+        vec/=l;
     }
 
     template <typename T>
