@@ -171,7 +171,7 @@ void PixelEngine::setSettings(const Settings &settings)
     if(settings.gameObject.objectTree.boundry == ObjectTree::__defaultSettings.boundry)
     {
         InteractiveGameObject::__defaultSettings    = settings.gameObject;
-        InteractiveGameObject::__defaultSettings.objectTree.boundry  = RectF(0.f,0.f,(float)settings.display.pixelMapSize.x,(float)settings.display.pixelMapSize.y);
+        InteractiveGameObject::__defaultSettings.objectTree.boundry  = AABB({0.f,0.f},{(float)settings.display.pixelMapSize.x,(float)settings.display.pixelMapSize.y});
     }
     else
     {
@@ -394,7 +394,7 @@ void PixelEngine::tick()
 
     ENGINE_DEEP_TICK_BLOCK("tick X-Y",profiler::colors::Orange200);
     tickX();
-    tickY();
+   // tickY();
     ENGINE_DEEP_TICK_END_BLOCK;
     ENGINE_DEEP_TICK_BLOCK("postNoThreadTick",profiler::colors::Orange200);
     for(size_t i=0; i<m_masterGameObjectGroup.size(); i++)
@@ -647,10 +647,15 @@ void *PixelEngine::thread_tick(void *p)
 #ifdef PIXELENGINE_ENABLE_COLLISION
    #ifdef PIXELENGINE_STATISTICS
         stats_timer_start = std::chrono::system_clock::now();
-        if(interactiveObject->doesInteractWithOther())
+        if(interactiveObject->doesInteractWithOther(Interaction::collision))
         {
-            vector<GameObject*> other = interactiveObject->getInteractiveObjects();
+            vector<GameObject*> other = interactiveObject->getInteractiveObjects(Interaction::collision);
             collisionsPerTick += obj->checkCollision(other);
+        }
+        if(interactiveObject->doesInteractWithOther(Interaction::detection))
+        {
+            vector<GameObject*> other = interactiveObject->getInteractiveObjects(Interaction::detection);
+            obj->interact(other);
         }
         stats_timer_end     = std::chrono::system_clock::now();
         stats_time_span     = stats_timer_end - stats_timer_start;
@@ -664,12 +669,12 @@ void *PixelEngine::thread_tick(void *p)
             }
     #endif
 #endif
-            if(param->dirLock.y)
+            //if(param->dirLock.y)
                 interactiveObject->engineCalled_postTick();
 
             if(param->drawingEnabled)
             {
-                if(param->dirLock.y)
+                //if(param->dirLock.y)
                     interactiveObject->engineCalled_preDraw();
 
     #ifdef PIXELENGINE_STATISTICS
@@ -1008,94 +1013,94 @@ void PixelEngine::runtime_removeGameObjectsIntern()
     m_removeLaterObjectGroup.reserve(10);
 }
 
-void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObject *obj2, const bool &doesCollide)
+void PixelEngine::setCollisionSingleInteraction(Interaction type,GameObject *obj1,GameObject *obj2, const bool &doesCollide)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA700);
     if(obj1 == obj2)
         return; // Cann't collide with it self
 
     InteractiveGameObject *interactive_1 = m_masterGameObjectGroup.getInteractiveObject(obj1);
-    interactive_1->setInteractionWith(obj2,doesCollide);
+    interactive_1->setInteractionWith(obj2,doesCollide,type);
 }
-void PixelEngine::setCollisionSingleInteraction(GameObject *obj1,GameObjectGroup *obj2List, const bool &doesCollide)
+void PixelEngine::setCollisionSingleInteraction(Interaction type,GameObject *obj1,GameObjectGroup *obj2List, const bool &doesCollide)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA700);
     InteractiveGameObject *interactive_1 = m_masterGameObjectGroup.getInteractiveObject(obj1);
-    interactive_1->setInteractionWith(obj2List,doesCollide);
+    interactive_1->setInteractionWith(obj2List,doesCollide,type);
 }
-void PixelEngine::setCollisionSingleInteraction(GameObjectGroup *obj1List,GameObjectGroup *obj2List, const bool &doesCollide)
+void PixelEngine::setCollisionSingleInteraction(Interaction type,GameObjectGroup *obj1List,GameObjectGroup *obj2List, const bool &doesCollide)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<obj1List->size(); i++)
-        this->setCollisionSingleInteraction((*obj1List)[i],obj2List,doesCollide);
+        this->setCollisionSingleInteraction(type,(*obj1List)[i],obj2List,doesCollide);
 }
-void PixelEngine::setCollisionSingleInteraction(GameObject *obj1, const vector<GameObject*> &obj2List, const bool &doesCollide)
+void PixelEngine::setCollisionSingleInteraction(Interaction type,GameObject *obj1, const vector<GameObject*> &obj2List, const bool &doesCollide)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA700);
    for(size_t i=0; i<obj2List.size(); i++)
-       this->setCollisionSingleInteraction(obj1,obj2List[i],doesCollide); // Not very efficient code ;)
+       this->setCollisionSingleInteraction(type,obj1,obj2List[i],doesCollide); // Not very efficient code ;)
 }
-void PixelEngine::setCollisionSingleInteraction(GameObjectGroup *obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide)
+void PixelEngine::setCollisionSingleInteraction(Interaction type,GameObjectGroup *obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<obj1List->size(); i++)
-        this->setCollisionSingleInteraction((*obj1List)[i],obj2List,doesCollide);
+        this->setCollisionSingleInteraction(type,(*obj1List)[i],obj2List,doesCollide);
 }
-void PixelEngine::setCollisionSingleInteraction(const vector<GameObject*> &obj1List,GameObjectGroup *obj2List, const bool &doesCollide)
+void PixelEngine::setCollisionSingleInteraction(Interaction type,const vector<GameObject*> &obj1List,GameObjectGroup *obj2List, const bool &doesCollide)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<obj1List.size(); i++)
-        this->setCollisionSingleInteraction(obj1List[i],obj2List,doesCollide);
+        this->setCollisionSingleInteraction(type,obj1List[i],obj2List,doesCollide);
 }
-void PixelEngine::setCollisionSingleInteraction(const vector<GameObject*> &obj1List, const vector<GameObject*> &obj2List, const bool &doesCollide)
+void PixelEngine::setCollisionSingleInteraction(Interaction type,const vector<GameObject*> &obj1List, const vector<GameObject*> &obj2List, const bool &doesCollide)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<obj1List.size(); i++)
-        this->setCollisionSingleInteraction(obj1List[i],obj2List,doesCollide);
+        this->setCollisionSingleInteraction(type,obj1List[i],obj2List,doesCollide);
 }
-void PixelEngine::setCollisionMultiInteraction(GameObject *obj1,GameObject *obj2, const bool &doesCollide)
+void PixelEngine::setCollisionMultiInteraction(Interaction type,GameObject *obj1,GameObject *obj2, const bool &doesCollide)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA700);
-    this->setCollisionSingleInteraction(obj1,obj2, doesCollide);
-    this->setCollisionSingleInteraction(obj2,obj1, doesCollide);
+    this->setCollisionSingleInteraction(type,obj1,obj2, doesCollide);
+    this->setCollisionSingleInteraction(type,obj2,obj1, doesCollide);
 }
-void PixelEngine::setCollisionMultiInteraction(GameObject *obj1,GameObjectGroup *obj2List, const bool &doesCollide)
+void PixelEngine::setCollisionMultiInteraction(Interaction type,GameObject *obj1,GameObjectGroup *obj2List, const bool &doesCollide)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA700);
     InteractiveGameObject *interactive_1 = m_masterGameObjectGroup.getInteractiveObject(obj1);
-    interactive_1->setInteractionWith(obj2List,doesCollide);
+    interactive_1->setInteractionWith(obj2List,doesCollide,type);
     for(size_t i=0; i<obj2List->size(); i++)
-        this->setCollisionSingleInteraction(obj2List->getVector()[i],obj1, doesCollide);
+        this->setCollisionSingleInteraction(type,obj2List->getVector()[i],obj1, doesCollide);
 }
-void PixelEngine::setCollisionMultiInteraction(GameObjectGroup *obj1List,GameObjectGroup *obj2List, const bool &doesCollide)
+void PixelEngine::setCollisionMultiInteraction(Interaction type,GameObjectGroup *obj1List,GameObjectGroup *obj2List, const bool &doesCollide)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA700);
-    setCollisionSingleInteraction(obj1List,obj2List,doesCollide);
-    setCollisionSingleInteraction(obj2List,obj1List,doesCollide);
+    setCollisionSingleInteraction(type,obj1List,obj2List,doesCollide);
+    setCollisionSingleInteraction(type,obj2List,obj1List,doesCollide);
 }
-void PixelEngine::setCollisionMultiInteraction(GameObject *obj1, const vector<GameObject*> &obj2List, const bool &doesCollide)
+void PixelEngine::setCollisionMultiInteraction(Interaction type,GameObject *obj1, const vector<GameObject*> &obj2List, const bool &doesCollide)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<obj2List.size(); i++)
-        this->setCollisionMultiInteraction(obj1,obj2List[i],doesCollide); // Not very efficient code ;)
+        this->setCollisionMultiInteraction(type,obj1,obj2List[i],doesCollide); // Not very efficient code ;)
 }
-void PixelEngine::setCollisionMultiInteraction(GameObjectGroup *obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide)
+void PixelEngine::setCollisionMultiInteraction(Interaction type,GameObjectGroup *obj1List,const vector<GameObject*> &obj2List, const bool &doesCollide)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA700);
-    this->setCollisionSingleInteraction(obj2List,obj1List,doesCollide);
-    this->setCollisionSingleInteraction(obj1List,obj2List,doesCollide);
+    this->setCollisionSingleInteraction(type,obj2List,obj1List,doesCollide);
+    this->setCollisionSingleInteraction(type,obj1List,obj2List,doesCollide);
 }
-void PixelEngine::setCollisionMultiInteraction(const vector<GameObject*> &obj1List,GameObjectGroup *obj2List, const bool &doesCollide)
+void PixelEngine::setCollisionMultiInteraction(Interaction type,const vector<GameObject*> &obj1List,GameObjectGroup *obj2List, const bool &doesCollide)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA700);
-    this->setCollisionSingleInteraction(obj1List,obj2List,doesCollide);
-    this->setCollisionSingleInteraction(obj2List,obj1List,doesCollide);
+    this->setCollisionSingleInteraction(type,obj1List,obj2List,doesCollide);
+    this->setCollisionSingleInteraction(type,obj2List,obj1List,doesCollide);
 }
-void PixelEngine::setCollisionMultiInteraction(const vector<GameObject*> &obj1List, const vector<GameObject*> &obj2List, const bool &doesCollide)
+void PixelEngine::setCollisionMultiInteraction(Interaction type,const vector<GameObject*> &obj1List, const vector<GameObject*> &obj2List, const bool &doesCollide)
 {
     ENGINE_FUNCTION(profiler::colors::OrangeA700);
     for(size_t i=0; i<obj1List.size(); i++)
-        this->setCollisionMultiInteraction(obj1List[i],obj2List,doesCollide);
+        this->setCollisionMultiInteraction(type,obj1List[i],obj2List,doesCollide);
 }
 
 

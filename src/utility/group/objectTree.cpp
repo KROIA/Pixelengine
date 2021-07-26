@@ -4,7 +4,7 @@ ObjectTree::ObjectTree(const Settings &settings)
 {
     constructor(settings);
 }
-ObjectTree::ObjectTree(const RectF &boundry, size_t maxObjects, int maxDepth, int parentDepth)
+ObjectTree::ObjectTree(const AABB &boundry, size_t maxObjects, int maxDepth, int parentDepth)
 {
     Settings s;
     s.boundry       = boundry;
@@ -122,7 +122,7 @@ bool ObjectTree::insert(GameObject *obj)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green);
     //qDebug() << "insert";
-    if(!RectF::intersects_fast(obj->getCollider()->getBoundingBox(),m_boundry))
+    if(!AABB::intersects(obj->getCollider()->getBoundingBox(),m_boundry))
     {
         if(!m_isRoot)
             return false;
@@ -131,7 +131,7 @@ bool ObjectTree::insert(GameObject *obj)
     }
     if(m_isRoot)
     {
-        if(RectF::intersects_inverseOf_fast(obj->getCollider()->getBoundingBox(),m_boundry))
+        if(AABB::intersectsInverseOf(obj->getCollider()->getBoundingBox(),m_boundry))
         {
             subdivideReverse(obj);
         }
@@ -160,14 +160,14 @@ bool ObjectTree::insert(GameObject *obj)
     }
     return false;
 }
-void ObjectTree::query(const RectF &region,vector<GameObject*> &buffer)
+void ObjectTree::query(const AABB &region,vector<GameObject*> &buffer)
 {
-    if(!RectF::intersects_fast(region,m_boundry))
+    if(!AABB::intersects(region,m_boundry))
         return;
     GAME_OBJECT_FUNCTION(profiler::colors::Green300);
     for(size_t i=0; i<m_objectList.size(); i++)
     {
-        if(RectF::intersects_fast(m_objectList[i]->getCollider()->getBoundingBox(),region))
+        if(AABB::intersects(m_objectList[i]->getCollider()->getBoundingBox(),region))
         {
             for(size_t j=0; j<buffer.size(); j++)
             {
@@ -307,9 +307,9 @@ void ObjectTree::setRoot(ObjectTree *root)
 void ObjectTree::subdivide()
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green100);
-    RectF newRect = m_boundry;
-    newRect.setWidth(m_boundry.getSize().x/2.f);
-    newRect.setHeight(m_boundry.getSize().y/2.f);
+    AABB newRect = m_boundry;
+    newRect.setWidth(m_boundry.getWidth()/2.f);
+    newRect.setHeight(m_boundry.getWidth()/2.f);
     float offsetPosX = newRect.getSize().x;
     float offsetPosY = newRect.getSize().y;
 
@@ -346,7 +346,7 @@ void ObjectTree::subdivideReverse(GameObject *obj)
     int xQuadrant = 0;
     int yQuadrant = 0;
 
-    RectF objBox = obj->getCollider()->getBoundingBox();
+    AABB objBox = obj->getCollider()->getBoundingBox();
 
     if(objBox.isLeftOf(m_boundry)  || objBox.intersectsLeftOf(m_boundry))
     {
@@ -368,7 +368,7 @@ void ObjectTree::subdivideReverse(GameObject *obj)
 
 
 
-    RectF newRect = m_boundry;
+    AABB newRect = m_boundry;
     float offsetPosX = newRect.getSize().x;
     float offsetPosY = newRect.getSize().y;
     newRect.setPos(newRect.getPos() - Vector2f(xQuadrant * offsetPosX, yQuadrant * offsetPosY));
@@ -432,7 +432,7 @@ void ObjectTree::subdivideReverse(GameObject *obj)
 SLOT_DEFINITION(ObjectTree,GameObject,moved,const Vector2f &move)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green600);
-    if(!RectF::intersects_fast(sender->getCollider()->getBoundingBox(),m_boundry))
+    if(!AABB::intersects(sender->getCollider()->getBoundingBox(),m_boundry))
     {
         bool removed;
         if(PARENT)
@@ -458,7 +458,7 @@ SLOT_DEFINITION(ObjectTree,GameObject,rotated,float deltaAngle)
     removeInLeaf(sender);
     if(m_isRoot)
         this->insert(sender);*/
-    if(!RectF::intersects_fast(sender->getCollider()->getBoundingBox(),m_boundry))
+    if(!AABB::intersects(sender->getCollider()->getBoundingBox(),m_boundry))
     {
         bool removed;
         if(PARENT)

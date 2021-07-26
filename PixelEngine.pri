@@ -67,7 +67,7 @@ SOURCES += \
         $$PixelEngine_srcPath/gameobject/controller/mouseMoveController.cpp \
         $$PixelEngine_srcPath/gameobject/basic/submodule.cpp \
         $$PixelEngine_srcPath/gameobject/sensor/laserSensor.cpp \
-        $$PixelEngine_srcPath/gameobject/sensor/rectSensor.cpp \
+        $$PixelEngine_srcPath/gameobject/sensor/shapeSensor.cpp \
         $$PixelEngine_srcPath/gameobject/painter/colliderPainter.cpp \
         $$PixelEngine_srcPath/gameobject/painter/textPainter.cpp \
         $$PixelEngine_srcPath/gameobject/painter/vertexPathPainter.cpp \
@@ -111,7 +111,7 @@ HEADERS += \
         $$PixelEngine_incPath/display/displayInterface.h \
         $$PixelEngine_incPath/gameobject/basic/submodule.h \
         $$PixelEngine_incPath/gameobject/sensor/laserSensor.h \
-        $$PixelEngine_incPath/gameobject/sensor/rectSensor.h \
+        $$PixelEngine_incPath/gameobject/sensor/shapeSensor.h \
         $$PixelEngine_incPath/utility/debug.h \
         $$PixelEngine_incPath/gameobject/painter/colliderPainter.h \
         $$PixelEngine_incPath/gameobject/painter/textPainter.h \

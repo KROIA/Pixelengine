@@ -87,7 +87,8 @@ class GameObject : public Submodule, SIGNAL_RECEIVES(Controller),  SIGNAL_RECEIV
         void engineCalled_preDraw();
         virtual void preDraw();
 
-        virtual unsigned int checkCollision(const vector<GameObject*> &other);
+        virtual void interact(const vector<GameObject*> &other);
+        virtual unsigned int checkCollision(const vector<GameObject*> &other);  
         static vector<GameObject*> getCollidedObjects(GameObject *owner, Collider *collider,const vector<GameObject*> &other);
        // virtual void subscribeToDisplay(PixelDisplay &display);
        // virtual void unsubscribeToDisplay(PixelDisplay &display);
@@ -106,7 +107,7 @@ class GameObject : public Submodule, SIGNAL_RECEIVES(Controller),  SIGNAL_RECEIV
         virtual Collider *getCollider() const;
         virtual void setCollisionSeachRadius(float radius);
         virtual float getCollisionSeachRadius() const;
-        virtual const RectF &getCollisionSeachRect() const;
+        virtual const AABB &getCollisionSeachRect() const;
         virtual void addController(Controller *controller);
         virtual void removeController(Controller *controller);
         virtual const vector<Controller* > &getControllerList() const;
@@ -264,7 +265,7 @@ class GameObject : public Submodule, SIGNAL_RECEIVES(Controller),  SIGNAL_RECEIV
        // DynamicCoordinator m_movementCoordinator;
         Collider      *m_collider;
         Collider      *m_originalCollider;
-        RectF         m_colliderSearchBox;
+        AABB          m_colliderSearchBox;
         Vector2f      m_colliderSearchBoxRelativePos;
         float         m_colliderSearchBoxRadius;
 

@@ -55,8 +55,7 @@ void ColliderPainter::update(const vector<GameObject* > &collided)
             VertexPathPainter::addPath(collided[i]->getCollider()->getBoundingBox().getDrawable(m_collidedObjectsColor_boundingBox));
     if(m_visibility_collidedObjects_hitBox)
         for(size_t i=0; i<collided.size(); i++)
-            for(size_t j=0; j<collided[i]->getCollider()->getHitboxAmount(); j++)
-                VertexPathPainter::addPath(collided[i]->getCollider()->getHitbox(j).getDrawable(m_collidedObjectsColor_hitBox));
+            VertexPathPainter::addPath(collided[i]->getCollider()->getHitboxShape().getDrawable(m_collidedObjectsColor_hitBox));
 
 }
 void ColliderPainter::setVisibility_boundingBox(bool isVisible)

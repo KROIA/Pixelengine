@@ -33,6 +33,9 @@ Collider::Collider()
 
     m_hitbox_standardColor = Color(100,100,255,255);
     m_hitbox_intersectingColor = Color(200,200,0,255);
+
+    m_boundingBox.setPos({0,0});
+    m_boundingBox.setSize({0,0});
 }
 
 Collider::Collider(const Collider &other)
@@ -63,24 +66,31 @@ void Collider::setPosInitial(const Vector2f &pos)
     COLLIDER_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == pos.x && LayerItem::getY() == pos.y)
         return;
+    m_shape.setPos(pos);
     LayerItem::setPosInitial(pos);
     m_stateChanged = true;
+    updateBoundingBox();
 }
 void Collider::setPosInitial(const Vector2i &pos)
 {
     COLLIDER_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == pos.x && LayerItem::getY() == pos.y)
         return;
+
+    m_shape.setPos(Vector2f(pos));
     LayerItem::setPosInitial(pos);
     m_stateChanged = true;
+    updateBoundingBox();
 }
 void Collider::setPosInitial(int x, int y)
 {
     COLLIDER_FUNCTION(profiler::colors::Red);
     if(LayerItem::getX() == x && LayerItem::getY() == y)
         return;
+    m_shape.setPos(Vector2f(x,y));
     LayerItem::setPosInitial(x,y);
     m_stateChanged = true;
+    updateBoundingBox();
 }
 void Collider::setPosInitial(float x, float y)
 {
@@ -88,15 +98,18 @@ void Collider::setPosInitial(float x, float y)
     if(LayerItem::getX() == x && LayerItem::getY() == y)
         return;
     LayerItem::setPosInitial(x,y);
+    m_shape.setPos(Vector2f(x,y));
     m_stateChanged = true;
+    updateBoundingBox();
 }
 void Collider::setPos(const Vector2f &pos)
 {
     COLLIDER_FUNCTION(profiler::colors::Red);
     if(LayerItem::getPos() == pos)
         return;
-
-    m_boundingBox.setPos(pos);
+  /*  Vector2f deltaPos = pos - LayerItem::getPos();
+    m_boundingBox.move(deltaPos);
+    m_shape.move(deltaPos);*/
     m_shape.setPos(pos);
 
    /* Vector2f deltaPos = pos - LayerItem::getPos();
@@ -107,6 +120,7 @@ void Collider::setPos(const Vector2f &pos)
     }*/
     LayerItem::setPos(pos);
     m_stateChanged = true;
+    updateBoundingBox();
 }
 void Collider::setPos(const Vector2i &pos)
 {
@@ -124,6 +138,9 @@ void Collider::setY(int y)
 void Collider::setX(float x)
 {
     COLLIDER_FUNCTION(profiler::colors::Red);
+    Vector2f deltaPos(x - LayerItem::getX(),0);
+    m_boundingBox.move(deltaPos);
+    m_shape.move(deltaPos);
   /*  if(LayerItem::getX() == x)
         return;
 
@@ -140,6 +157,9 @@ void Collider::setX(float x)
 void Collider::setY(float y)
 {
     COLLIDER_FUNCTION(profiler::colors::Red);
+    Vector2f deltaPos(0,y - LayerItem::getY());
+    m_boundingBox.move(deltaPos);
+    m_shape.move(deltaPos);
    /* if(LayerItem::getX() == y)
         return;
     float deltaY = y - LayerItem::getY();
@@ -167,6 +187,16 @@ void Collider::reserve(const size_t &amount)
 void Collider::addVertex(Vector2f vertex)
 {
     m_shape.addVertex(vertex);
+    updateBoundingBox();
+}
+void Collider::setShape(const Shape &shape)
+{
+    m_shape = shape;
+    updateBoundingBox();
+}
+const Shape &Collider::getShape() const
+{
+    return m_shape;
 }
 
 /*void Collider::addHitbox(const RectF &box)
@@ -225,7 +255,10 @@ const vector<RectF> &Collider::getHitbox() const
     return m_hitboxList;
 }*/
 
-
+const Shape &Collider::getHitboxShape() const
+{
+    return m_shape;
+}
 bool Collider::intersectsBoundingBox(const Collider *other)
 {
     COLLIDER_FUNCTION(profiler::colors::Red200);
@@ -277,7 +310,27 @@ bool Collider::collides(Collider *other)
     COLLIDER_BLOCK("check collision with shapes",profiler::colors::Red400);
     if(this->m_shape.checkForCollision(other->m_shape))
     {
+
+        Vector2f deltaPos = other->m_shape.getPos() - other->LayerItem::getPos();
+        //qDebug()<<deltaPos.x<<" "<<deltaPos.y;
         Shape::resolveCollision(this->m_shape,other->m_shape);
+        //this->setPos(m_shape.getPos());
+        //other->setPos(other->m_shape.getPos());
+
+
+        deltaPos = m_shape.getPos() - LayerItem::getPos();
+        m_boundingBox.move(deltaPos);
+        //m_shape.move(deltaPos);
+        LayerItem::setPos(m_shape.getPos());
+        m_stateChanged = true;
+
+        deltaPos = other->m_shape.getPos() - other->LayerItem::getPos();
+        other->m_boundingBox.move(deltaPos);
+        //other->m_shape.move(deltaPos);
+        other->LayerItem::setPos(other->m_shape.getPos());
+        other->m_stateChanged = true;
+        //qDebug()<<deltaPos.x<<" "<<deltaPos.y;
+
         return true;
     }
     return false;

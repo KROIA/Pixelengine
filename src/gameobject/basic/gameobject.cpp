@@ -219,9 +219,10 @@ void GameObject::engineCalled_tick(const Vector2i &direction)
             }
             //m_movementCoordinator.calculateMovement();
             //LayerItem::move(Vector2f(m_movementCoordinator.getMovingVector_X(),0));
-            LayerItem::moveX(m_movingVector.x);
+            LayerItem::move(m_movingVector);
 
             m_collider->setRotation(LayerItem::getRotation());
+            m_hasMoveToMake    = false;
             GAME_OBJECT_END_BLOCK;
         }
         else
@@ -241,7 +242,7 @@ void GameObject::engineCalled_tick(const Vector2i &direction)
                     m_objSubscriberList.rotated(this,m_rotation-m_lastRotation);
                 Submodule::swapRotationToLastRotation();
             }*/
-            m_hasMoveToMake    = false;
+
         }
     }
     for(auto sensor : m_sensorList)
@@ -335,18 +336,26 @@ void GameObject::engineCalled_preDraw()
 void GameObject::preDraw()
 {}
 
-unsigned int GameObject::checkCollision(const vector<GameObject*> &other)
+void GameObject::interact(const vector<GameObject*> &other)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Green400);
     for(auto sensor : m_sensorList)
         sensor->detectObjects(other);
+}
+unsigned int GameObject::checkCollision(const vector<GameObject*> &other)
+{
+    GAME_OBJECT_FUNCTION(profiler::colors::Green400);
 
     vector<GameObject*> collided = GameObject::getCollidedObjects(this, m_collider, other);
     for(size_t i=0; i<collided.size(); i++)
+    {
         m_collidedObjects.push_back(collided[i]);
+        collided[i]->setPosInitial(collided[i]->m_collider->getPos());
+    }
     if(m_collidedObjects.size() > 0)
     {
-        event_hasCollision(m_collidedObjects);
+        this->setPosInitial(m_collider->getPos());
+       // event_hasCollision(m_collidedObjects);
     }
     return m_collidedObjects.size();
 }
@@ -362,6 +371,7 @@ vector<GameObject*> GameObject::getCollidedObjects(GameObject *owner, Collider *
         {
             if(collider->collides(other[i]->m_collider))
             {
+
                 collided.push_back(other[i]);
             }
         }
@@ -465,7 +475,7 @@ float GameObject::getCollisionSeachRadius() const
 {
     return m_colliderSearchBoxRadius;
 }
-const RectF &GameObject::getCollisionSeachRect() const
+const AABB &GameObject::getCollisionSeachRect() const
 {
     return m_colliderSearchBox;
 }
@@ -857,7 +867,10 @@ void GameObject::setVisibility(bool isVisible)
 void GameObject::setVisibility_objectTree(bool isVisible)
 {
     if(m_thisInteractiveObject != nullptr)
-        m_thisInteractiveObject->setVisibility_objectTree(isVisible);
+    {
+        m_thisInteractiveObject->setVisibility_objectTree(isVisible,Interaction::collision);
+        m_thisInteractiveObject->setVisibility_objectTree(isVisible,Interaction::detection);
+    }
 }
 void GameObject::setVisibility_colliderSearchRect(bool isVisible)
 {
@@ -904,7 +917,7 @@ bool GameObject::isVisible() const
 bool GameObject::isVisible_objectTree() const
 {
     if(m_thisInteractiveObject != nullptr)
-        return m_thisInteractiveObject->isVisible_objectTree();
+        return m_thisInteractiveObject->isVisible_objectTree(Interaction::collision);
     return false;
 }
 bool GameObject::isVisible_colliderSearchRect() const
@@ -1101,18 +1114,21 @@ SLOT_DEFINITION(GameObject,Controller,moveAvailable)
 
 SLOT_DEFINITION(GameObject,Collider,boundingBoxChanged)
 {
-    if(RectF::intersects_inverseOf_fast(sender->getBoundingBox(),m_colliderSearchBox))
+    if(AABB::intersectsInverseOf(sender->getBoundingBox(),m_colliderSearchBox))
     {
         // BoundingBox of Collider is outside or at the edge of the m_colliderSearchBox
-        Vector2f min;
+       /* Vector2f min;
         min.x = RectF::getMinX({sender->getBoundingBox(),m_colliderSearchBox});
         min.y = RectF::getMinY({sender->getBoundingBox(),m_colliderSearchBox});
 
         Vector2f max;
         max.x = RectF::getMaxX({sender->getBoundingBox(),m_colliderSearchBox});
-        max.y = RectF::getMaxY({sender->getBoundingBox(),m_colliderSearchBox});
+        max.y = RectF::getMaxY({sender->getBoundingBox(),m_colliderSearchBox});*/
 
-        Vector2f relativeMin = m_pos - min;
+        AABB maxFrame = AABB::getFrame({sender->getBoundingBox(),m_colliderSearchBox});
+
+        float radius = std::max(maxFrame.getSize().x,maxFrame.getSize().y)/2;
+       /* Vector2f relativeMin = m_pos - min;
         Vector2f relativeMax = m_pos - max;
 
         float radius = abs(relativeMin.x);
@@ -1121,7 +1137,7 @@ SLOT_DEFINITION(GameObject,Collider,boundingBoxChanged)
         if(radius<abs(relativeMax.x))
             radius = abs(relativeMax.x);
         if(radius<abs(relativeMax.y))
-            radius = abs(relativeMax.y);
+            radius = abs(relativeMax.y);*/
 
 
         setCollisionSeachRadius(radius);

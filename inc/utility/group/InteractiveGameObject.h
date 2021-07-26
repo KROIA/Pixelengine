@@ -7,7 +7,11 @@
 #include "objectTree.h"
 
 #define CHECK_FOR_DOUBLE_OBJ
-
+enum Interaction
+{
+    collision,
+    detection
+};
 class InteractiveGameObject : SIGNAL_RECEIVES(GameObjectGroup), SIGNAL_RECEIVES(GameObject)
 {
     public:
@@ -16,6 +20,19 @@ class InteractiveGameObject : SIGNAL_RECEIVES(GameObjectGroup), SIGNAL_RECEIVES(
            // ChunkMap::Settings chunkMap;
             ObjectTree::Settings    objectTree;
         };
+
+        struct InteractiveObjects
+        {
+            Interaction type;
+            ObjectTree  *objectTree;
+            VertexPathPainter *objectTreePainter;
+
+            vector<GameObjectGroup*> interactsWithObjectsList;
+            size_t  interactorAmount;
+            bool    drawingIsDisabled;
+            bool    interactsWithOthers;
+        };
+
         static Settings __defaultSettings;
         InteractiveGameObject();
         InteractiveGameObject(const Settings &settings);
@@ -33,28 +50,28 @@ class InteractiveGameObject : SIGNAL_RECEIVES(GameObjectGroup), SIGNAL_RECEIVES(
         virtual void setGameObject(GameObject *obj);
         virtual GameObject *getGameObject() const;
 
-        virtual void addInteractionWith(GameObject *obj);
-        virtual void addInteractionWith(GameObjectGroup *group);
-        virtual void addInteractionWith(vector<GameObjectGroup*> *groupList);
+        virtual void addInteractionWith(GameObject *obj,Interaction type);
+        virtual void addInteractionWith(GameObjectGroup *group,Interaction type);
+        virtual void addInteractionWith(vector<GameObjectGroup*> *groupList,Interaction type);
 
-        virtual void removeInteractionWith(GameObject *obj);
-        virtual void removeInteractionWith(GameObjectGroup *group);
-        virtual void removeInteractionWith(vector<GameObjectGroup*> *groupList);
+        virtual void removeInteractionWith(GameObject *obj,Interaction type);
+        virtual void removeInteractionWith(GameObjectGroup *group,Interaction type);
+        virtual void removeInteractionWith(vector<GameObjectGroup*> *groupList,Interaction type);
 
-        virtual void setInteractionWith(GameObject *obj, bool doesCollide = true);
-        virtual void setInteractionWith(GameObjectGroup *group, bool doesCollide = true);
-        virtual void setInteractionWith(vector<GameObjectGroup*> *groupList, bool doesCollide = true);
+        virtual void setInteractionWith(GameObject *obj, bool enable,Interaction type);
+        virtual void setInteractionWith(GameObjectGroup *group, bool enable,Interaction type);
+        virtual void setInteractionWith(vector<GameObjectGroup*> *groupList, bool enable,Interaction type);
 
-        virtual bool doesInteractWithOther() const;
-        virtual const vector<GameObjectGroup*> &getInteractiveObjectsList() const;
-        virtual const vector<GameObject*> getInteractiveObjects();
+        virtual bool doesInteractWithOther(Interaction type) const;
+        virtual const vector<GameObjectGroup*> &getInteractiveObjectsList(Interaction type) const;
+        virtual const vector<GameObject*> getInteractiveObjects(Interaction type);
 
 
         //virtual void drawObjectTree(PixelDisplay &display);
        // virtual void subscribeToDisplay(PixelDisplay &display);
        // virtual void unsubscribeToDisplay(PixelDisplay &display);
-        virtual void setVisibility_objectTree(bool isVisible);
-        virtual bool isVisible_objectTree() const;
+        virtual void setVisibility_objectTree(bool isVisible,Interaction type);
+        virtual bool isVisible_objectTree(Interaction type) const;
         /*virtual void draw_chunks(PixelDisplay &display);
         virtual void setVisibility_chunk(const ChunkID &id,bool isVisible);
         virtual void setVisibility_chunks(bool isVisible);
@@ -87,13 +104,13 @@ class InteractiveGameObject : SIGNAL_RECEIVES(GameObjectGroup), SIGNAL_RECEIVES(
         virtual void cleared(GameObjectGroup* sender);*/
 
         GameObject *m_gameObject;
-        ObjectTree   *m_objectTree;
+        /*ObjectTree   *m_objectTree;
         VertexPathPainter *m_objectTreePainter;
 
-        vector<GameObjectGroup*> m_interactsWithObjectsList;
-        size_t      m_interactorAmount;
-        bool        m_drawingIsDisabled;
-        bool        m_interactsWithOthers;
+        vector<GameObjectGroup*> m_interactsWithObjectsList;*/
+        InteractiveObjects  m_colliderObjects;
+        InteractiveObjects  m_detectionObjects;
+
     private:
         void constructor(const Settings &settings);
 

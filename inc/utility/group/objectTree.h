@@ -6,6 +6,7 @@
 #include "pixelDisplay.h"
 #include "signalEmitter.h"
 #include "drawUtilities.h"
+#include "AABB.h"
 //#include "vertexPathPainter.h"
 
 class ObjectTree    :   SIGNAL_RECEIVES(GameObject)
@@ -13,14 +14,14 @@ class ObjectTree    :   SIGNAL_RECEIVES(GameObject)
     public:
         struct Settings
         {
-            RectF boundry;
+            AABB boundry;
             size_t maxObjects;
             int maxDepth;
             int parentDepth;
         };
         static Settings __defaultSettings;
         ObjectTree(const Settings &settings);
-        ObjectTree(const RectF &boundry, size_t maxObjects,int maxDepth, int parentDepth = 0);
+        ObjectTree(const AABB &boundry, size_t maxObjects,int maxDepth, int parentDepth = 0);
         ObjectTree(const ObjectTree &other);
         virtual ~ObjectTree();
         const ObjectTree &operator=(const ObjectTree &other);
@@ -28,7 +29,7 @@ class ObjectTree    :   SIGNAL_RECEIVES(GameObject)
         virtual void setAsRoot(bool isRoot);
 
         virtual bool insert(GameObject *obj);
-        virtual void query(const RectF &region,vector<GameObject*> &buffer);
+        virtual void query(const AABB &region,vector<GameObject*> &buffer);
         virtual void getDrawable(vector<VertexPath*> &drawable,const Color &color = Color(255,255,255));
         //virtual void draw(PixelDisplay &display);
         virtual void clear();
@@ -55,7 +56,7 @@ class ObjectTree    :   SIGNAL_RECEIVES(GameObject)
         virtual void rotated(GameObject* sender,const float deltaAngle);*/
 
 
-        RectF m_boundry;
+        AABB m_boundry;
         size_t m_capacity;
         vector<GameObject*> m_objectList;
         bool m_divided;

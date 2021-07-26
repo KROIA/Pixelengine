@@ -33,10 +33,10 @@ class InteractiveGameObjectGroup
         virtual InteractiveGameObject *getInteractiveObject(unsigned int index) const;
         virtual const vector<InteractiveGameObject*> &getInteractiveObjectList() const;
 
-        virtual const vector<GameObjectGroup*> &getInteractiveObjectsList(const GameObject *obj) const;
-        virtual const vector<GameObjectGroup*> &getInteractiveObjectsList(size_t index) const;
-        virtual const vector<GameObject*> getInteractiveObjects(const GameObject *obj) const;
-        virtual const vector<GameObject*> getInteractiveObjects(size_t index) const;
+        virtual const vector<GameObjectGroup*> &getInteractiveObjectsList(const GameObject *obj,Interaction type) const;
+        virtual const vector<GameObjectGroup*> &getInteractiveObjectsList(size_t index,Interaction type) const;
+        virtual const vector<GameObject*> getInteractiveObjects(const GameObject *obj,Interaction type) const;
+        virtual const vector<GameObject*> getInteractiveObjects(size_t index,Interaction type) const;
 
         virtual void removeAllInteractionsWithObj(GameObject *obj);
         virtual void removeAllInteractionsWithObj(InteractiveGameObject *obj);

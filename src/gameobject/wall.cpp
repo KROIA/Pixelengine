@@ -65,7 +65,7 @@ Controller *Wall::getController()
 void Wall::generateObject()
 {
     m_collider->clear();
-    m_collider->addHitbox(RectI(Vector2i(m_dimension)));
+    //m_collider->addHitbox(RectI(Vector2i(m_dimension)));
    /* for(unsigned int x=0; x<m_dimension.getX(); x++)
     {
         for(unsigned int y=0; y<m_dimension.getY(); y++)

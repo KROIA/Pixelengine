@@ -182,38 +182,38 @@ const vector<InteractiveGameObject*> &InteractiveGameObjectGroup::getInteractive
 }
 
 
-const vector<GameObjectGroup*> &InteractiveGameObjectGroup::getInteractiveObjectsList(const GameObject *obj) const
+const vector<GameObjectGroup*> &InteractiveGameObjectGroup::getInteractiveObjectsList(const GameObject *obj,Interaction type) const
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_interactiveObjectsList.size(); i++)
     {
         if(m_interactiveObjectsList[i]->getGameObject() == obj)
-            return getInteractiveObjectsList(1);
+            return getInteractiveObjectsList(1,type);
     }
     return m_const_dummy_list;
 }
-const vector<GameObjectGroup*> &InteractiveGameObjectGroup::getInteractiveObjectsList(size_t index) const
+const vector<GameObjectGroup*> &InteractiveGameObjectGroup::getInteractiveObjectsList(size_t index,Interaction type) const
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
-     return m_interactiveObjectsList[index]->getInteractiveObjectsList();
+     return m_interactiveObjectsList[index]->getInteractiveObjectsList(type);
 }
 
-const vector<GameObject*> InteractiveGameObjectGroup::getInteractiveObjects(const GameObject *obj) const
+const vector<GameObject*> InteractiveGameObjectGroup::getInteractiveObjects(const GameObject *obj,Interaction type) const
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     for(size_t i=0; i<m_interactiveObjectsList.size(); i++)
     {
         if(m_interactiveObjectsList[i]->getGameObject() == obj)
-            return getInteractiveObjects(i);
+            return getInteractiveObjects(i,type);
     }
     return m_const_dummy_list_2;
 }
-const vector<GameObject*> InteractiveGameObjectGroup::getInteractiveObjects(size_t index) const
+const vector<GameObject*> InteractiveGameObjectGroup::getInteractiveObjects(size_t index,Interaction type) const
 {
     GAME_OBJECT_FUNCTION(profiler::colors::Purple400);
     if(index<=m_interactiveObjectsList.size())
         return m_const_dummy_list_2;
-    return m_interactiveObjectsList[index]->getInteractiveObjects();
+    return m_interactiveObjectsList[index]->getInteractiveObjects(type);
 }
 
 void InteractiveGameObjectGroup::removeAllInteractionsWithObj(GameObject *obj)
@@ -221,7 +221,8 @@ void InteractiveGameObjectGroup::removeAllInteractionsWithObj(GameObject *obj)
     GAME_OBJECT_FUNCTION(profiler::colors::Purple500);
     for(size_t i=0; i<m_interactiveObjectsList.size(); i++)
     {
-        m_interactiveObjectsList[i]->removeInteractionWith(obj);
+        m_interactiveObjectsList[i]->removeInteractionWith(obj,Interaction::collision);
+        m_interactiveObjectsList[i]->removeInteractionWith(obj,Interaction::detection);
     }
 }
 void InteractiveGameObjectGroup::removeAllInteractionsWithObj(InteractiveGameObject *obj)

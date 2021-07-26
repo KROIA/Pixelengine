@@ -232,7 +232,8 @@ void LaserSensor::engineCalled_preTick()
 }
 void LaserSensor::detectObjects(const vector<GameObject*> &other)
 {
-    if(m_laserList.size() == 0)
+    qDebug()<<"LaserSensor::detectObjects(const vector<GameObject*> &other): not implemented";
+  /*  if(m_laserList.size() == 0)
         return;
     HashTable<GameObject*>  tmpDetected;
     for(auto obj : other)
@@ -322,7 +323,7 @@ void LaserSensor::detectObjects(const vector<GameObject*> &other)
     m_detected.clear();
     m_detected.reserve(lastSize);
     for(auto pair : tmpDetected)
-        m_detected.push_back(pair.second);
+        m_detected.push_back(pair.second);*/
 }
 
 void LaserSensor::engineCalled_preDraw()

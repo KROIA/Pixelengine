@@ -104,7 +104,7 @@ namespace Property
     class Property;
 };
 class Sensor;
-class RectSensor;
+class ShapeSensor;
 class Laser;
 class LaserSensor;
 

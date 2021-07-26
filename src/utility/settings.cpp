@@ -3,7 +3,7 @@
 
 ObjectTree::Settings ObjectTree::__defaultSettings
 {
-    .boundry        = RectF(0,0,1000,1000),
+    .boundry        = AABB({0,0},{1000,1000}),
     .maxObjects     = 128,
     .maxDepth       = 10,
     .parentDepth    = 0

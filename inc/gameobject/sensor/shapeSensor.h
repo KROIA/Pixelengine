@@ -1,24 +1,24 @@
-#ifndef RECTSENSOR_H
-#define RECTSENSOR_H
+#ifndef SHAPESENSOR_H
+#define SHAPESENSOR_H
 
 #include "base.h"
 #include "sensor.h"
 #include "colliderPainter.h"
 
-class RectSensor    :   public Sensor
+class ShapeSensor    :   public Sensor
 {
     public:
-        RectSensor();
-        RectSensor(const RectSensor &other);
-        ~RectSensor();
-        const RectSensor &operator=(const RectSensor &other);
+        ShapeSensor();
+        ShapeSensor(const ShapeSensor &other);
+        ~ShapeSensor();
+        const ShapeSensor &operator=(const ShapeSensor &other);
 
        /* void engineCalled_preTick();
         void engineCalled_tick(const Vector2i &direction);
         void engineCalled_postTick();*/
 
 
-        void setRect(const RectF rect);
+        void setShape(const Shape &shape);
 
         void engineCalled_preTick();
         void detectObjects(const vector<GameObject*> &other);
@@ -45,4 +45,4 @@ class RectSensor    :   public Sensor
     private:
 
 };
-#endif // RECTSENSOR_H
+#endif // SHAPESENSOR_H

@@ -9,11 +9,13 @@ Shape::Shape()
     m_static        =   false;
     m_mass          =   1;
     m_pos           =   {0,0};
+    m_origin        =   {0,0};
 }
 Shape::Shape(const Shape &other)
 {
     this->m_pos         =   other.m_pos;
     this->m_origin      =   other.m_origin;
+    this->m_center      =   other.m_center;
     this->m_rotation    =   other.m_rotation;
     this->m_vertexList  =   other.m_vertexList;
     this->m_collisionResolveVec = other.m_collisionResolveVec;
@@ -28,7 +30,8 @@ Shape::Shape(const vector<Vector2f> &Vertexs)
     m_static        =   false;
     m_mass          =   1;
     m_pos           =   {0,0};
-    calculateOrigin();
+    m_origin        =   {0,0};
+    calculateCenter();
 }
 Shape::~Shape()
 {
@@ -37,6 +40,8 @@ Shape::~Shape()
 const Shape &Shape::operator=(const Shape &other)
 {
     this->m_pos         =   other.m_pos;
+    this->m_origin      =   other.m_origin;
+    this->m_center      =   other.m_center;
     this->m_rotation    =   other.m_rotation;
     this->m_vertexList  =   other.m_vertexList;
     this->m_collisionResolveVec = other.m_collisionResolveVec;
@@ -62,13 +67,13 @@ void Shape::setVertex(size_t index, const Vector2f &pos)
 {
     if(indexInvalid(index))
         return;
-    recalculateOrigin(m_vertexList[index],pos);
+    recalculateCenter(m_vertexList[index],pos);
     m_vertexList[index] = pos;
 }
 void Shape::addVertex(const Vector2f &pos)
 {
     m_vertexList.push_back(pos);
-    recalculateOriginAddedVertex(pos);
+    recalculateCenterAddedVertex(pos);
 }
 void Shape::removeVertex(size_t index)
 {
@@ -76,23 +81,28 @@ void Shape::removeVertex(size_t index)
         return;
     Vector2f oldV = m_vertexList[index];
     m_vertexList.erase(m_vertexList.begin() + index);
-    recalculateOriginRemovedVertex(oldV);
+    recalculateCenterRemovedVertex(oldV);
 }
 void Shape::clear()
 {
     m_vertexList.clear();
-    m_origin = {0,0};
+    m_center = {0,0};
 }
 void Shape::setPos(const Vector2f &pos)
 {
-    move(pos - m_pos);
+    move(pos - (m_pos-m_origin));
+}
+void Shape::setOrigin(const Vector2f &pos)
+{
+    m_origin = pos;
+    setPos(m_pos);
 }
 void Shape::move(const Vector2f delta)
 {
     for(auto &vertex : m_vertexList)
         vertex  += delta;
     m_pos       += delta;
-    m_origin    += delta;
+    m_center    += delta;
 }
 
 void Shape::setRotation(float angle)
@@ -105,7 +115,7 @@ void Shape::setRotation(Vector2f rotVertex, float angle)
 }
 void Shape::rotate(float angle)
 {
-    rotate(m_pos, angle);
+    rotate(m_origin, angle);
 }
 void Shape::rotate(Vector2f rotVertex, float angle)
 {
@@ -115,7 +125,7 @@ void Shape::rotate(Vector2f rotVertex, float angle)
         vertex = transform.transformPoint(vertex);
 
     m_pos = transform.transformPoint(m_pos);
-    m_origin = transform.transformPoint(m_origin);
+    m_center = transform.transformPoint(m_center);
     m_rotation += angle;
 }
 
@@ -138,14 +148,24 @@ const Vector2f &Shape::getOrigin() const
 {
     return m_origin;
 }
+const Vector2f &Shape::getCenter() const
+{
+    return m_center;
+}
 float Shape::getRotation()
 {
     return m_rotation;
 }
 
-VertexPath* Shape::getDrawable(const Color &color)
+VertexPath* Shape::getDrawable(const Color &color) const
 {
     VertexPath *path = new VertexPath;
+
+    if(m_vertexList.size() == 0)
+    {
+        path->length = 0;
+        return path;
+    }
     path->length = m_vertexList.size()+1;
     path->type = sf::LineStrip;
     path->line = new sf::Vertex[path->length];
@@ -213,9 +233,23 @@ float Shape::getMass()const
 {
     return m_mass;
 }
+bool Shape::intersects(const Shape &other) const
+{
+    Vector2f normal;
+    float depth;
+    return shapeOverlap_SAX(*this,other,normal,depth);
+}
 bool Shape::checkForCollision(Shape &other)
 {
-    return shapeOverlap_SAX(*this,other);
+    Vector2f normal;
+    float depth;
+    if(shapeOverlap_SAX(*this,other,normal,depth))
+    {
+        this->setCollisionResolveVec(-normal*depth);
+        other.setCollisionResolveVec( normal*depth);
+        return true;
+    }
+    return false;
 }
 AABB Shape::getFrame()
 {
@@ -223,8 +257,8 @@ AABB Shape::getFrame()
     min.x = std::numeric_limits<float>::max();
     min.y = std::numeric_limits<float>::max();
 
-    max.x = std::numeric_limits<float>::min();
-    max.y = std::numeric_limits<float>::min();
+    max.x = -std::numeric_limits<float>::max();
+    max.y = -std::numeric_limits<float>::max();
 
     for(auto &vec : m_vertexList)
     {
@@ -240,7 +274,45 @@ AABB Shape::getFrame()
     }
     return AABB(min,max-min);
 }
-void Shape::calculateOrigin()
+
+Shape Shape::triangle(float width, float height, Vector2f pos)
+{
+    Shape s;
+    s.reserve(3);
+    s.addVertex({-width/2.f,height*1.f/3.f});
+    s.addVertex({ width/2.f,height*1.f/3.f});
+    s.addVertex({ 0,-height*2.f/3.f});
+    return s;
+}
+Shape Shape::rect(float width, float height, Vector2f pos)
+{
+    Shape s;
+    s.reserve(4);
+    s.addVertex({-width/2.f,-height/2.f});
+    s.addVertex({ width/2.f,-height/2.f});
+    s.addVertex({ width/2.f, height/2.f});
+    s.addVertex({-width/2.f, height/2.f});
+    return s;
+}
+Shape Shape::pentagon(float sideLength, Vector2f pos)
+{
+    Shape s;
+    s.reserve(5);
+    Vector2f line(sideLength,0);
+    float r = sideLength/(2*sqrt(5-sqrt(20)));
+    Vector2f lastPoint(-sideLength/2,r);
+    const float angle = 108;
+
+    s.addVertex(lastPoint);
+    for(size_t i=0; i<4; i++)
+    {
+        Vector::rotate(lastPoint,{0,0},-180+angle);
+        s.addVertex(lastPoint);
+    }
+    return s;
+}
+
+void Shape::calculateCenter()
 {
     if(m_vertexList.size() == 0)
         return;
@@ -248,25 +320,25 @@ void Shape::calculateOrigin()
     for(auto vertex :   m_vertexList)
         origin += vertex;
 
-    m_origin = origin /= (float)m_vertexList.size();
+    m_center = origin /= (float)m_vertexList.size();
 }
-void Shape::recalculateOriginAddedVertex(const Vector2f &newVertex)
+void Shape::recalculateCenterAddedVertex(const Vector2f &newVertex)
 {
     if(m_vertexList.size() == 0)
         return;
-    m_origin = (m_origin * (float)(m_vertexList.size()-1) + newVertex) / (float)m_vertexList.size();
+    m_center = (m_center * (float)(m_vertexList.size()-1) + newVertex) / (float)m_vertexList.size();
 }
-void Shape::recalculateOriginRemovedVertex(const Vector2f &oldVertex)
+void Shape::recalculateCenterRemovedVertex(const Vector2f &oldVertex)
 {
     if(m_vertexList.size() == 0)
         return;
-    m_origin = (m_origin * (float)(m_vertexList.size()+1) - oldVertex) / (float)m_vertexList.size();
+    m_center = (m_center * (float)(m_vertexList.size()+1) - oldVertex) / (float)m_vertexList.size();
 }
-void Shape::recalculateOrigin(const Vector2f &oldVertex,const Vector2f &newVertex)
+void Shape::recalculateCenter(const Vector2f &oldVertex,const Vector2f &newVertex)
 {
     if(m_vertexList.size() == 0)
         return;
-    m_origin = m_origin - oldVertex / (float)m_vertexList.size() + newVertex / (float)m_vertexList.size();
+    m_center = m_center - oldVertex / (float)m_vertexList.size() + newVertex / (float)m_vertexList.size();
 }
 
 bool Shape::indexInvalid(size_t index) const
@@ -275,13 +347,12 @@ bool Shape::indexInvalid(size_t index) const
 }
 
 
-bool Shape::shapeOverlap_SAX(Shape &s1, Shape &s2)
+bool Shape::shapeOverlap_SAX(const Shape &s1, const Shape &s2,Vector2f &normal,float &depth)
 {
-    Vector2f normal;
-    float depth = std::numeric_limits<float>::max();
+    depth = std::numeric_limits<float>::max();
 
-    Shape *shape1 = &s1;
-    Shape *shape2 = &s2;
+    const Shape *shape1 = &s1;
+    const Shape *shape2 = &s2;
 
     for(size_t s=0;s<2; s++)
     {
@@ -316,21 +387,20 @@ bool Shape::shapeOverlap_SAX(Shape &s1, Shape &s2)
         }
     }
 
-    Vector2f distance = s2.getOrigin()  - s1.getOrigin();
+    Vector2f distance = s2.m_center  - s1.m_center;
     if(Vector::getDotProduct(distance,normal) < 0.f)
     {
         normal = -normal;
     }
 
-    s1.setCollisionResolveVec(-normal*depth);
-    s2.setCollisionResolveVec( normal*depth);
+
 
     return true;
 }
 void Shape::projectVertecies(const vector<Vector2f> &vertecies, Vector2f axis,float &min, float &max)
 {
     min = std::numeric_limits<float>::max();
-    max = std::numeric_limits<float>::min();
+    max = -std::numeric_limits<float>::max();
 
     for(size_t i=0; i<vertecies.size(); i++)
     {

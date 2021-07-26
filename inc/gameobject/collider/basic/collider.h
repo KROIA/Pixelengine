@@ -68,6 +68,8 @@ class Collider  :   public LayerItem
 
         virtual void reserve(const size_t &amount);
         virtual void addVertex(Vector2f vertex);
+        virtual void setShape(const Shape &shape);
+        virtual const Shape &getShape() const;
 
         /*virtual void addHitbox(const RectF &box);
         virtual void addHitbox(const vector<RectF> &boxList);
@@ -76,6 +78,7 @@ class Collider  :   public LayerItem
 
         virtual const RectF &getHitbox(const unsigned int &index) const;
         virtual const vector<RectF> &getHitbox() const;*/
+        virtual const Shape &getHitboxShape() const;
 
         virtual bool intersectsBoundingBox(const Collider *other);
         virtual bool collides(Collider *other);

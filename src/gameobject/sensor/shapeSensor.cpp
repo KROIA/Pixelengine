@@ -1,6 +1,6 @@
-#include "rectSensor.h"
+#include "shapeSensor.h"
 
-RectSensor::RectSensor()
+ShapeSensor::ShapeSensor()
     :   Sensor()
 {
     m_sensorCollider = new Collider();
@@ -15,16 +15,16 @@ RectSensor::RectSensor()
     setDetectedColor(Color(0,100,255));
     setSensorColor(Color(0,255,0));
 
-    setRect(RectF(0,0,1,1));
+    setShape(Shape({{0,0},{1,0},{1,1},{0,1}}));
     Submodule::addPainter(m_sensorPainter);
 }
-RectSensor::RectSensor(const RectSensor &other)
+ShapeSensor::ShapeSensor(const ShapeSensor &other)
     :   Sensor(other)
 {
     m_sensorCollider = new Collider();
     this->operator=(other);
 }
-RectSensor::~RectSensor()
+ShapeSensor::~ShapeSensor()
 {
     if(m_owner)
     {
@@ -33,38 +33,38 @@ RectSensor::~RectSensor()
     Submodule::removePainter(m_sensorPainter);
     delete m_sensorCollider;
 }
-const RectSensor &RectSensor::operator=(const RectSensor &other)
+const ShapeSensor &ShapeSensor::operator=(const ShapeSensor &other)
 {
     Sensor::operator=(other);
     *this->m_sensorCollider   = *other.m_sensorCollider;
     return *this;
 }
 /*
-void RectSensor::engineCalled_preTick()
+void ShapeSensor::engineCalled_preTick()
 {
     SENSOR_FUNCTION(profiler::colors::Yellow);
 }
-void RectSensor::engineCalled_tick(const Vector2i &direction)
+void ShapeSensor::engineCalled_tick(const Vector2i &direction)
 {
     SENSOR_FUNCTION(profiler::colors::Yellow100);
 }
-void RectSensor::engineCalled_postTick()
+void ShapeSensor::engineCalled_postTick()
 {
     SENSOR_FUNCTION(profiler::colors::Yellow200);
 }*/
 
 
 
-void RectSensor::setRect(const RectF rect)
+void ShapeSensor::setShape(const Shape &shape)
 {
     m_sensorCollider->clear();
-    m_sensorCollider->addHitbox(rect);
+    m_sensorCollider->setShape(shape);
 }
-void RectSensor::engineCalled_preTick()
+void ShapeSensor::engineCalled_preTick()
 {
     m_sensorCollider->tick();
 }
-void RectSensor::detectObjects(const vector<GameObject*> &other)
+void ShapeSensor::detectObjects(const vector<GameObject*> &other)
 {
     SENSOR_FUNCTION(profiler::colors::Yellow400);
     size_t lastDetected = m_detected.size();
@@ -77,7 +77,8 @@ void RectSensor::detectObjects(const vector<GameObject*> &other)
         Collider *otherCollider = obj->getCollider();
         if(m_sensorCollider->intersectsBoundingBox(otherCollider))
         {
-            if(m_sensorCollider->collides(otherCollider))
+            //if(m_sensorCollider->collides(otherCollider))
+            if(m_sensorCollider->getShape().intersects(otherCollider->getShape()))
             {
                 m_detected.push_back(obj);
             }
@@ -86,46 +87,46 @@ void RectSensor::detectObjects(const vector<GameObject*> &other)
 
 
 }
-void RectSensor::engineCalled_postTick()
+void ShapeSensor::engineCalled_postTick()
 {
     m_sensorCollider->setPos(m_pos);
     m_sensorCollider->setRotation(m_rotation);
 }
-void RectSensor::engineCalled_preDraw()
+void ShapeSensor::engineCalled_preDraw()
 {
     SENSOR_FUNCTION(profiler::colors::Yellow300);
     m_sensorPainter->update(m_detected);
 }
-void RectSensor::setDetectedColor(const Color &color)
+void ShapeSensor::setDetectedColor(const Color &color)
 {
     m_detectedColor = color;
     m_sensorPainter->setColor_collidedObjects_hitBox(m_detectedColor);
 }
-void RectSensor::setSensorColor(const Color &color)
+void ShapeSensor::setSensorColor(const Color &color)
 {
     m_sensorColor = color;
     m_sensorPainter->setColor_hitBox_colliding(m_sensorColor);
     m_sensorPainter->setColor_hitBox_noCollision(m_sensorColor);
 }
-void RectSensor::setVisibility(bool isVisible)
+void ShapeSensor::setVisibility(bool isVisible)
 {
     m_sensorPainter->setVisibility_hitBox(isVisible);
 }
-void RectSensor::setVisibility_detectedObjects(bool isVisible)
+void ShapeSensor::setVisibility_detectedObjects(bool isVisible)
 {
     m_sensorPainter->setVisibility_collidedObjects_hitBox(isVisible);
 }
 
-bool RectSensor::isVisible() const
+bool ShapeSensor::isVisible() const
 {
     return m_sensorPainter->isVisible_collidedObjects_hitBox();
 }
-bool RectSensor::isVisible_detectedObjects() const
+bool ShapeSensor::isVisible_detectedObjects() const
 {
     return m_sensorPainter->isVisible_collidedObjects_hitBox();
 }
 /*
-ColliderPainter *RectSensor::getColliderPainter() const
+ColliderPainter *ShapeSensor::getColliderPainter() const
 {
     return m_sensorPainter;
 }
