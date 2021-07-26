@@ -232,7 +232,34 @@ void LaserSensor::engineCalled_preTick()
 }
 void LaserSensor::detectObjects(const vector<GameObject*> &other)
 {
-    qDebug()<<"LaserSensor::detectObjects(const vector<GameObject*> &other): not implemented";
+//    qDebug()<<"LaserSensor::detectObjects(const vector<GameObject*> &other): not implemented";
+
+
+    HashTable<GameObject*>  tmpDetected;
+    for(auto obj : other)
+    {
+        for(auto laser : m_laserList)
+        {
+            Vector2f laserBegin     = laser->getGlobalBegin();
+            Vector2f laserDirection = laser->getGlobalDirection();
+            float scalar;
+            if(obj->getCollider()->getShape().intersects(laserBegin,laserDirection,scalar))
+            {
+                if(scalar <= 1.f && scalar >= 0.f)
+                {
+                    tmpDetected.insert({obj,obj});
+                    goto nextObj;
+                }
+            }
+        }
+        nextObj:;
+    }
+    m_detected.clear();
+    m_detected.reserve(tmpDetected.size());
+    for(auto pair : tmpDetected)
+        m_detected.push_back(pair.second);
+
+
   /*  if(m_laserList.size() == 0)
         return;
     HashTable<GameObject*>  tmpDetected;

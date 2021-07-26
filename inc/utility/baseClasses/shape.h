@@ -52,13 +52,14 @@ class Shape
         float getMass()const;
 
         bool intersects(const Shape &other) const;
+        bool intersects(const Vector2f &base,Vector2f &dir, float &scalar) const;
         bool checkForCollision(Shape &other);
 
         AABB getFrame();
 
-        static Shape triangle(float width, float height, Vector2f pos = {0,0});
-        static Shape rect(float width, float height, Vector2f pos = {0,0});
-        static Shape pentagon(float sideLength, Vector2f pos = {0,0});
+        static Shape triangle(float width, float height, Vector2f origin = {0,0});
+        static Shape rect(float width, float height, Vector2f origin = {0,0});
+        static Shape pentagon(float sideLength, Vector2f origin = {0,0});
 
     protected:
         void calculateCenter();

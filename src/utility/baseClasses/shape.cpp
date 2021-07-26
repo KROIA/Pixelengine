@@ -115,7 +115,7 @@ void Shape::setRotation(Vector2f rotVertex, float angle)
 }
 void Shape::rotate(float angle)
 {
-    rotate(m_origin, angle);
+    rotate(m_pos+m_origin, angle);
 }
 void Shape::rotate(Vector2f rotVertex, float angle)
 {
@@ -126,6 +126,10 @@ void Shape::rotate(Vector2f rotVertex, float angle)
 
     m_pos = transform.transformPoint(m_pos);
     m_center = transform.transformPoint(m_center);
+
+    sf::Transform transform1;
+    transform1.rotate(angle, {0,0});
+    m_origin = transform1.transformPoint(m_origin);
     m_rotation += angle;
 }
 
@@ -239,6 +243,33 @@ bool Shape::intersects(const Shape &other) const
     float depth;
     return shapeOverlap_SAX(*this,other,normal,depth);
 }
+bool Shape::intersects(const Vector2f &base,Vector2f &dir, float &scalar) const
+{
+    float _scalar = std::numeric_limits<float>::max();
+
+    Vector2f line_r1s = base;
+    Vector2f line_r1e = dir+base;
+
+    bool intersected = false;
+    for(size_t i=0; i<m_vertexList.size(); i++)
+    {
+        Vector2f line_r2s = this->getVertex(i);
+        Vector2f line_r2e = this->getVertex((i + 1) % this->getSize());
+
+        float h = (line_r2e.x - line_r2s.x) * (line_r1s.y - line_r1e.y) - (line_r1s.x - line_r1e.x) * (line_r2e.y - line_r2s.y);
+        float t1 = ((line_r2s.y - line_r2e.y) * (line_r1s.x - line_r2s.x) + (line_r2e.x - line_r2s.x) * (line_r1s.y - line_r2s.y)) / h;
+        float t2 = ((line_r1s.y - line_r1e.y) * (line_r1s.x - line_r2s.x) + (line_r1e.x - line_r1s.x) * (line_r1s.y - line_r2s.y)) / h;
+
+        if (/*t1 >= 0.0f && t1 < 1.0f && */t2 >= 0.0f && t2 < 1.0f)
+        {
+            if(_scalar > t1)
+                _scalar = t1;
+            intersected = true;
+        }
+    }
+    scalar = _scalar;
+    return intersected;
+}
 bool Shape::checkForCollision(Shape &other)
 {
     Vector2f normal;
@@ -275,26 +306,32 @@ AABB Shape::getFrame()
     return AABB(min,max-min);
 }
 
-Shape Shape::triangle(float width, float height, Vector2f pos)
+Shape Shape::triangle(float width, float height, Vector2f origin)
 {
     Shape s;
     s.reserve(3);
     s.addVertex({-width/2.f,height*1.f/3.f});
     s.addVertex({ width/2.f,height*1.f/3.f});
     s.addVertex({ 0,-height*2.f/3.f});
+    s.setOrigin(origin);
     return s;
 }
-Shape Shape::rect(float width, float height, Vector2f pos)
+Shape Shape::rect(float width, float height, Vector2f origin)
 {
     Shape s;
     s.reserve(4);
-    s.addVertex({-width/2.f,-height/2.f});
+     s.addVertex({0,0});
+     s.addVertex({ width,0});
+     s.addVertex({ width, height});
+     s.addVertex({0, height});
+   /* s.addVertex({-width/2.f,-height/2.f});
     s.addVertex({ width/2.f,-height/2.f});
     s.addVertex({ width/2.f, height/2.f});
-    s.addVertex({-width/2.f, height/2.f});
+    s.addVertex({-width/2.f, height/2.f});*/
+    s.setOrigin(origin);
     return s;
 }
-Shape Shape::pentagon(float sideLength, Vector2f pos)
+Shape Shape::pentagon(float sideLength, Vector2f origin)
 {
     Shape s;
     s.reserve(5);
@@ -309,6 +346,7 @@ Shape Shape::pentagon(float sideLength, Vector2f pos)
         Vector::rotate(lastPoint,{0,0},-180+angle);
         s.addVertex(lastPoint);
     }
+    s.setOrigin(origin);
     return s;
 }
 

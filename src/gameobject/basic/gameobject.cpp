@@ -578,13 +578,15 @@ const Painter &GameObject::getPainter() const
 void GameObject::setPosInitial(const Vector2f &pos)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
+    Vector2f delta = pos-Submodule::getPos();
     Submodule::setPosInitial(pos);
     m_collider->setPosInitial(pos);
     m_colliderSearchBox.setPos(m_pos+m_colliderSearchBoxRelativePos);
-    if(m_property.getBody().material    == Property::Material::Grass)
+    SIGNAL_EMIT(GameObject,moved,delta)
+/*    if(m_property.getBody().material    == Property::Material::Grass)
     {
     //   qDebug()<<"grass initialPosSet";
-    }
+    }*/
 }
 /*
 void GameObject::setPos(int x,int y)
@@ -647,37 +649,37 @@ void GameObject::move(const Vector2f &vec,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
     m_controller->move(vec,mode);
-    if(m_property.getBody().material    == Property::Material::Grass)
+   /* if(m_property.getBody().material    == Property::Material::Grass)
     {
         qDebug()<<"grass moved";
-    }
+    }*/
 }
 void GameObject::move(float deltaX, float deltaY,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
     m_controller->move(deltaX,deltaY,mode);
-    if(m_property.getBody().material    == Property::Material::Grass)
+    /*if(m_property.getBody().material    == Property::Material::Grass)
     {
         qDebug()<<"grass moved";
-    }
+    }*/
 }
 void GameObject::moveX(float delta,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
     m_controller->moveX(delta,mode);
-    if(m_property.getBody().material    == Property::Material::Grass)
+   /* if(m_property.getBody().material    == Property::Material::Grass)
     {
         qDebug()<<"grass moved";
-    }
+    }*/
 }
 void GameObject::moveY(float delta,Controller::MovingMode mode)
 {
     GAME_OBJECT_FUNCTION(profiler::colors::GreenA700);
     m_controller->moveY(delta,mode);
-    if(m_property.getBody().material    == Property::Material::Grass)
+   /* if(m_property.getBody().material    == Property::Material::Grass)
     {
         qDebug()<<"grass moved";
-    }
+    }*/
 }
 void GameObject::rotate(float deg)
 {
